@@ -1,5 +1,5 @@
 import { SubtitleStyle } from "@/types/editor";
-import { Type, Palette, Move, Sparkles } from "lucide-react";
+import { Type, Palette, Move, Sparkles, Download } from "lucide-react";
 
 interface StyleControlsProps {
   style: SubtitleStyle;
@@ -7,6 +7,9 @@ interface StyleControlsProps {
   removeSilences: boolean;
   onToggleSilences: (v: boolean) => void;
   thumbnailUrl: string | null;
+  onExport: () => void;
+  isExporting: boolean;
+  exportProgress: string;
 }
 
 const StyleControls = ({
@@ -15,6 +18,9 @@ const StyleControls = ({
   removeSilences,
   onToggleSilences,
   thumbnailUrl,
+  onExport,
+  isExporting,
+  exportProgress,
 }: StyleControlsProps) => {
   const update = (patch: Partial<SubtitleStyle>) =>
     onChange({ ...style, ...patch });
@@ -167,16 +173,21 @@ const StyleControls = ({
             <a
               href={thumbnailUrl}
               download="thumbnail.png"
-              className="mt-2 flex w-full items-center justify-center rounded-md bg-primary py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md bg-muted py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted/80"
             >
+              <Download className="h-3 w-3" />
               Download Thumbnail
             </a>
           </div>
         )}
 
         {/* Export */}
-        <button className="w-full rounded-md bg-primary py-2.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-          Export Reel
+        <button
+          onClick={onExport}
+          disabled={isExporting}
+          className="w-full rounded-md bg-primary py-2.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+        >
+          {isExporting ? exportProgress : "Export Reel"}
         </button>
       </div>
     </div>

@@ -7,6 +7,7 @@ interface TimelineProps {
   currentTime: number;
   silences: SilenceGap[];
   removeSilences: boolean;
+  amplitudes: number[]; // real waveform data
   onSeek: (time: number) => void;
 }
 
@@ -16,7 +17,7 @@ const formatTime = (s: number) => {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 };
 
-const Timeline = ({ duration, currentTime, silences, removeSilences, onSeek }: TimelineProps) => {
+const Timeline = ({ duration, currentTime, silences, removeSilences, amplitudes, onSeek }: TimelineProps) => {
   const trackRef = useRef<HTMLDivElement>(null);
 
   const handleClick = useCallback(
@@ -42,8 +43,24 @@ const Timeline = ({ duration, currentTime, silences, removeSilences, onSeek }: T
 
   // Time markers
   const markers: number[] = [];
-  const interval = effectiveDuration > 30 ? 5 : effectiveDuration > 10 ? 2 : 1;
+  const interval = effectiveDuration > 60 ? 10 : effectiveDuration > 30 ? 5 : effectiveDuration > 10 ? 2 : 1;
   for (let t = 0; t <= effectiveDuration; t += interval) markers.push(t);
+
+  // Downsample amplitudes for display
+  const displayBars = 200;
+  const sampledAmplitudes: number[] = [];
+  if (amplitudes.length > 0) {
+    const step = amplitudes.length / displayBars;
+    for (let i = 0; i < displayBars; i++) {
+      const idx = Math.floor(i * step);
+      const end = Math.min(Math.floor((i + 1) * step), amplitudes.length);
+      let max = 0;
+      for (let j = idx; j < end; j++) {
+        if (amplitudes[j] > max) max = amplitudes[j];
+      }
+      sampledAmplitudes.push(max);
+    }
+  }
 
   return (
     <div className="h-timeline-h border-t border-border bg-background">
@@ -115,7 +132,6 @@ const Timeline = ({ duration, currentTime, silences, removeSilences, onSeek }: T
             {removeSilences && (
               <div className="absolute inset-0 flex">
                 {(() => {
-                  // Build non-silence segments
                   const segments: { start: number; end: number }[] = [];
                   let cursor = 0;
                   const sorted = [...silences].sort((a, b) => a.start - b.start);
@@ -124,9 +140,7 @@ const Timeline = ({ duration, currentTime, silences, removeSilences, onSeek }: T
                     cursor = s.end;
                   }
                   if (cursor < effectiveDuration) segments.push({ start: cursor, end: effectiveDuration });
-
                   const totalActive = segments.reduce((sum, s) => sum + (s.end - s.start), 0);
-
                   return segments.map((seg, idx) => (
                     <div
                       key={idx}
@@ -151,20 +165,20 @@ const Timeline = ({ duration, currentTime, silences, removeSilences, onSeek }: T
           </div>
         </div>
 
-        {/* Audio Waveform (simplified visualization) */}
+        {/* Audio Waveform (real data) */}
         <div className="flex items-center gap-3">
           <span className="w-14 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
             Audio
           </span>
           <div className="relative h-8 flex-1 rounded-md bg-editor-timeline-clip overflow-hidden">
-            {/* Fake waveform bars */}
-            <div className="absolute inset-0 flex items-center gap-px px-1">
-              {Array.from({ length: 120 }).map((_, i) => {
-                const t = (i / 120) * effectiveDuration;
+            <div className="absolute inset-0 flex items-center gap-px px-0.5">
+              {(sampledAmplitudes.length > 0
+                ? sampledAmplitudes
+                : Array.from({ length: displayBars }, () => 0)
+              ).map((amp, i) => {
+                const t = (i / displayBars) * effectiveDuration;
                 const inSilence = silences.some((s) => t >= s.start && t <= s.end);
-                const height = inSilence
-                  ? Math.random() * 8 + 2
-                  : Math.random() * 24 + 8;
+                const height = Math.max(2, amp * 28);
                 return (
                   <div
                     key={i}
@@ -176,8 +190,6 @@ const Timeline = ({ duration, currentTime, silences, removeSilences, onSeek }: T
                 );
               })}
             </div>
-
-            {/* Playhead */}
             <div
               className="absolute top-0 h-full w-0.5 bg-primary z-10"
               style={{ left: `${playheadPos}%` }}
@@ -191,42 +203,6 @@ const Timeline = ({ duration, currentTime, silences, removeSilences, onSeek }: T
             Subs
           </span>
           <div className="relative h-6 flex-1 rounded-md bg-editor-timeline-clip overflow-hidden">
-            {/* Subtitle blocks */}
-            {(() => {
-              // Group consecutive words into subtitle blocks
-              const blocks: { start: number; end: number }[] = [];
-              let blockStart = -1;
-              let blockEnd = -1;
-
-              for (const word of [...silences.length ? [] : [], ...Array.from({ length: 0 })]) {
-                void word;
-              }
-
-              // Simple: create blocks from transcript gaps > 0.3s
-              const transcript_proxy = [
-                { start: 0.2, end: 2.6 },
-                { start: 3.8, end: 7.1 },
-                { start: 8.5, end: 11.3 },
-                { start: 12.8, end: 14.9 },
-                { start: 16.0, end: 17.4 },
-              ];
-
-              void blockStart;
-              void blockEnd;
-
-              return transcript_proxy.map((b, idx) => (
-                <div
-                  key={idx}
-                  className="absolute top-1 bottom-1 rounded bg-primary/20 border border-primary/30"
-                  style={{
-                    left: `${(b.start / effectiveDuration) * 100}%`,
-                    width: `${((b.end - b.start) / effectiveDuration) * 100}%`,
-                  }}
-                />
-              ));
-            })()}
-
-            {/* Playhead */}
             <div
               className="absolute top-0 h-full w-0.5 bg-primary z-10"
               style={{ left: `${playheadPos}%` }}
