@@ -10,16 +10,23 @@ export interface SilenceGap {
   end: number;
 }
 
+export type SubtitlePreset = "hormozi" | "karaoke" | "neon" | "minimal" | "boxed" | "outline";
+
 export interface SubtitleStyle {
-  fontFamily: string;
+  preset: SubtitlePreset;
   fontSize: number;
-  fontWeight: number;
-  color: string;
-  backgroundColor: string;
   position: "bottom" | "center" | "top";
-  textTransform: "uppercase" | "none" | "capitalize";
-  animation: "spring" | "fade" | "none";
+  accentColor: string;
 }
+
+export const SUBTITLE_PRESETS: Record<SubtitlePreset, { label: string; description: string }> = {
+  hormozi: { label: "Hormozi", description: "Bold word-by-word highlight" },
+  karaoke: { label: "Karaoke", description: "Color sweep per word" },
+  neon: { label: "Neon", description: "Glowing text, no background" },
+  minimal: { label: "Minimal", description: "Clean, subtle" },
+  boxed: { label: "Boxed", description: "Each word in a pill" },
+  outline: { label: "Outline", description: "Thick stroke, no fill" },
+};
 
 export interface EditorState {
   phase: "dropzone" | "analyzing" | "editing";
@@ -81,12 +88,8 @@ export const MOCK_SILENCES: SilenceGap[] = [
 ];
 
 export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
-  fontFamily: "Geist Sans",
+  preset: "hormozi",
   fontSize: 42,
-  fontWeight: 900,
-  color: "#FFFFFF",
-  backgroundColor: "rgba(0,0,0,0.6)",
   position: "bottom",
-  textTransform: "uppercase",
-  animation: "spring",
+  accentColor: "#FFFF00",
 };
