@@ -10,6 +10,7 @@ import {
   MOCK_TRANSCRIPT, MOCK_SILENCES,
 } from "@/types/editor";
 import { analyzeAudio, getActiveSegments } from "@/lib/audio-analysis";
+import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
 import { supabase } from "@/integrations/supabase/client";
 
