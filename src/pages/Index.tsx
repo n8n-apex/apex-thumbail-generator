@@ -10,6 +10,7 @@ import {
   MOCK_TRANSCRIPT, MOCK_SILENCES,
 } from "@/types/editor";
 import { analyzeAudio, getActiveSegments } from "@/lib/audio-analysis";
+import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -68,14 +69,19 @@ const Index = () => {
       setProgress(0);
       updateStep(1, { done: true, active: false });
 
-      // Step 2: Transcription
+      // Step 2: Extract audio & transcribe
       updateStep(2, { active: true });
-      setCurrentStep("Transcribing with AI...");
+      setCurrentStep("Extracting audio for transcription...");
 
       let transcriptResult: TranscriptWord[] = [];
       try {
+        // Extract compressed 16kHz mono WAV (much smaller than raw video)
+        const audioBlob = await extractAudioBlob(file, 120);
+        const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
+
+        setCurrentStep("Sending to AI...");
         const formData = new FormData();
-        formData.append("audio", file);
+        formData.append("audio", audioFile);
         formData.append("language", "de");
 
         const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
