@@ -28,15 +28,29 @@ serve(async (req) => {
       );
     }
 
-    // Convert audio to base64 for Gemini
+    // Check file size - reject if > 4MB to stay within memory limits
+    if (audioFile.size > 4 * 1024 * 1024) {
+      return new Response(
+        JSON.stringify({ error: "Audio file too large. Max 4MB. Please trim or compress." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Convert to base64 in chunks to manage memory
     const arrayBuffer = await audioFile.arrayBuffer();
-    const base64Audio = btoa(
-      String.fromCharCode(...new Uint8Array(arrayBuffer))
-    );
+    const bytes = new Uint8Array(arrayBuffer);
 
-    const mimeType = audioFile.type || "audio/webm";
+    // Chunk-based base64 encoding to reduce peak memory
+    let base64Audio = "";
+    const chunkSize = 32768;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+      base64Audio += String.fromCharCode(...chunk);
+    }
+    base64Audio = btoa(base64Audio);
 
-    // Use Gemini for transcription with word-level timestamps
+    const mimeType = audioFile.type || "audio/wav";
+
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
@@ -53,7 +67,7 @@ serve(async (req) => {
               content: [
                 {
                   type: "text",
-                  text: `Transcribe this audio with precise word-level timestamps. The audio is in ${language}. Return ONLY a valid JSON array of objects, each with "text" (the word), "start" (start time in seconds as float), "end" (end time in seconds as float), and "confidence" (0.0-1.0). Example: [{"text":"Hello","start":0.2,"end":0.5,"confidence":0.98}]. No markdown, no explanation, just the JSON array.`,
+                  text: `Transcribe this audio with word-level timestamps. Language: ${language}. Return ONLY a JSON array: [{"text":"word","start":0.2,"end":0.5,"confidence":0.98}]. No markdown, no explanation.`,
                 },
                 {
                   type: "image_url",
@@ -68,35 +82,36 @@ serve(async (req) => {
       }
     );
 
+    // Free memory
+    base64Audio = "";
+
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+          JSON.stringify({ error: "Rate limit exceeded. Try again later." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Payment required. Please add credits to your workspace." }),
+          JSON.stringify({ error: "Credits required. Add funds in workspace settings." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errText = await response.text();
-      console.error("AI Gateway error:", response.status, errText);
-      throw new Error(`AI Gateway error: ${response.status}`);
+      const t = await response.text();
+      console.error("AI error:", response.status, t);
+      throw new Error(`AI error: ${response.status}`);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "[]";
 
-    // Parse the transcript JSON from the response
     let transcript;
     try {
-      // Try to extract JSON from potential markdown code blocks
       const jsonMatch = content.match(/\[[\s\S]*\]/);
       transcript = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
     } catch {
-      console.error("Failed to parse transcript:", content);
+      console.error("Parse error:", content);
       transcript = [];
     }
 
