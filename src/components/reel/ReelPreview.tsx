@@ -29,16 +29,28 @@ const ReelPreview = ({
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
 }: ReelPreviewProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const rafRef = useRef<number>(0);
+
+  // Use requestAnimationFrame for smooth ~60fps time updates
+  useEffect(() => {
+    const tick = () => {
+      const v = videoRef.current;
+      if (v && !v.paused) {
+        onTimeUpdate(v.currentTime);
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [onTimeUpdate]);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    const onTU = () => onTimeUpdate(v.currentTime);
     const onDur = () => onDurationChange(v.duration);
-    v.addEventListener("timeupdate", onTU);
     v.addEventListener("loadedmetadata", onDur);
-    return () => { v.removeEventListener("timeupdate", onTU); v.removeEventListener("loadedmetadata", onDur); };
-  }, [onTimeUpdate, onDurationChange]);
+    return () => v.removeEventListener("loadedmetadata", onDur);
+  }, [onDurationChange]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -56,12 +68,10 @@ const ReelPreview = ({
 
   return (
     <div className="flex flex-col items-center">
-      {/* Phone frame */}
       <div
         className="relative w-[340px] overflow-hidden rounded-[2rem] bg-black"
         style={{ aspectRatio: "9/16", boxShadow: "0 24px 80px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)" }}
       >
-        {/* Video with speaker centering */}
         <video
           ref={videoRef}
           src={videoUrl}
@@ -75,18 +85,14 @@ const ReelPreview = ({
           muted
         />
 
-        {/* Subtitle overlay */}
         <SubtitleOverlay transcript={transcript} currentTime={currentTime} style={subtitleStyle} />
 
-        {/* Bottom controls overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          {/* Progress bar */}
           <div
             className="mb-3 h-1 w-full cursor-pointer rounded-full bg-white/20 overflow-hidden"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
-              const ratio = (e.clientX - rect.left) / rect.width;
-              seekTo(ratio * (duration || 1));
+              seekTo(((e.clientX - rect.left) / rect.width) * (duration || 1));
             }}
           >
             <div className="h-full rounded-full bg-white transition-all" style={{ width: `${progressPct}%` }} />

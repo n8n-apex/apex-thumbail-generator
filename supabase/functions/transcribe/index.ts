@@ -28,19 +28,16 @@ serve(async (req) => {
       );
     }
 
-    // Check file size - reject if > 4MB to stay within memory limits
     if (audioFile.size > 4 * 1024 * 1024) {
       return new Response(
-        JSON.stringify({ error: "Audio file too large. Max 4MB. Please trim or compress." }),
+        JSON.stringify({ error: "Audio file too large. Max 4MB." }),
         { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Convert to base64 in chunks to manage memory
     const arrayBuffer = await audioFile.arrayBuffer();
     const bytes = new Uint8Array(arrayBuffer);
 
-    // Chunk-based base64 encoding to reduce peak memory
     let base64Audio = "";
     const chunkSize = 32768;
     for (let i = 0; i < bytes.length; i += chunkSize) {
@@ -51,6 +48,7 @@ serve(async (req) => {
 
     const mimeType = audioFile.type || "audio/wav";
 
+    // Use tool calling for structured output - much more reliable than asking for JSON in text
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
@@ -67,7 +65,7 @@ serve(async (req) => {
               content: [
                 {
                   type: "text",
-                  text: `Transcribe this audio with word-level timestamps. Language: ${language}. Return ONLY a JSON array: [{"text":"word","start":0.2,"end":0.5,"confidence":0.98}]. No markdown, no explanation.`,
+                  text: `Transcribe this audio precisely. Language: ${language}. Listen carefully to every word and provide accurate start/end timestamps in seconds. Each word must have its own entry with precise timing. Be very accurate with the timestamps - they will be used to display subtitles synchronized with the audio.`,
                 },
                 {
                   type: "image_url",
@@ -78,25 +76,51 @@ serve(async (req) => {
               ],
             },
           ],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "return_transcript",
+                description: "Return the transcribed words with precise timestamps.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    words: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          text: { type: "string", description: "The spoken word" },
+                          start: { type: "number", description: "Start time in seconds (precise to 2 decimals)" },
+                          end: { type: "number", description: "End time in seconds (precise to 2 decimals)" },
+                          confidence: { type: "number", description: "Confidence score 0-1" },
+                        },
+                        required: ["text", "start", "end", "confidence"],
+                        additionalProperties: false,
+                      },
+                    },
+                  },
+                  required: ["words"],
+                  additionalProperties: false,
+                },
+              },
+            },
+          ],
+          tool_choice: { type: "function", function: { name: "return_transcript" } },
         }),
       }
     );
 
-    // Free memory
     base64Audio = "";
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Try again later." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Rate limit exceeded." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Credits required. Add funds in workspace settings." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Credits required." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       const t = await response.text();
       console.error("AI error:", response.status, t);
@@ -104,16 +128,32 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "[]";
 
-    let transcript;
-    try {
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-      transcript = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
-    } catch {
-      console.error("Parse error:", content);
-      transcript = [];
+    // Extract from tool call response
+    let transcript: Array<{text: string; start: number; end: number; confidence: number}> = [];
+
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      try {
+        const args = JSON.parse(toolCall.function.arguments);
+        transcript = args.words || [];
+      } catch (e) {
+        console.error("Failed to parse tool call:", e);
+      }
     }
+
+    // Fallback: try content as text
+    if (transcript.length === 0) {
+      const content = data.choices?.[0]?.message?.content || "";
+      try {
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        if (jsonMatch) transcript = JSON.parse(jsonMatch[0]);
+      } catch {
+        console.error("Fallback parse failed:", content);
+      }
+    }
+
+    console.log(`Transcribed ${transcript.length} words`);
 
     return new Response(
       JSON.stringify({ transcript }),
