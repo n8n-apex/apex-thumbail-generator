@@ -88,12 +88,8 @@ export const MOCK_SILENCES: SilenceGap[] = [
 ];
 
 export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
-  fontFamily: "Geist Sans",
+  preset: "hormozi",
   fontSize: 42,
-  fontWeight: 900,
-  color: "#FFFFFF",
-  backgroundColor: "rgba(0,0,0,0.6)",
   position: "bottom",
-  textTransform: "uppercase",
-  animation: "spring",
+  accentColor: "#FFFF00",
 };
