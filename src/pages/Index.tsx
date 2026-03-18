@@ -113,6 +113,26 @@ const Index = () => {
     }
   }, []);
 
+  const handleReset = useCallback(() => {
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
+    setVideoFile(null);
+    setVideoUrl(null);
+    setTranscript([]);
+    setSilences([]);
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+    setPhase("upload");
+    setProgress(0);
+    setCurrentStep("");
+    setSteps([
+      { label: "Analyzing audio", done: false, active: false },
+      { label: "Detecting silences", done: false, active: false },
+      { label: "AI transcription", done: false, active: false },
+      { label: "Done", done: false, active: false },
+    ]);
+  }, [videoUrl]);
+
   const handleExport = useCallback(async () => {
     if (!videoFile || isExporting) return;
     setIsExporting(true);
@@ -164,6 +184,8 @@ const Index = () => {
         onPlayPause={() => setIsPlaying((p) => !p)}
         onSeek={setCurrentTime}
         onDurationChange={setDuration}
+        onReset={handleReset}
+        onSwapVideo={handleReset}
       />
       <ControlsPanel
         style={subtitleStyle}
