@@ -129,7 +129,8 @@ export async function extractFrame(
   ]);
 
   const data = await ffmpeg.readFile("thumbnail.jpg");
-  const blob = new Blob([(data as Uint8Array).buffer], { type: "image/jpeg" });
+  const uint8 = data as Uint8Array;
+  const blob = new Blob([new Uint8Array(uint8)], { type: "image/jpeg" });
 
   await ffmpeg.deleteFile("thumb_input.mp4");
   await ffmpeg.deleteFile("thumbnail.jpg");
