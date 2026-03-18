@@ -11,7 +11,7 @@ function getCurrentPhrase(transcript: TranscriptWord[], currentTime: number, tim
   if (transcript.length === 0) return { words: [], activeWordIdx: -1 };
 
   // Apply time offset - shift the effective time forward to compensate for AI delay
-  const t = currentTime - timeOffset;
+  const t = currentTime - (timeOffset ?? 0);
 
   let activeIdx = -1;
   for (let i = 0; i < transcript.length; i++) {
