@@ -10,37 +10,53 @@ export interface SilenceGap {
   end: number;
 }
 
-export type SubtitlePreset = "hormozi" | "karaoke" | "neon" | "minimal" | "boxed" | "outline";
+export type SubtitleFont = "montserrat" | "bebas" | "anton" | "space" | "outfit" | "dela";
+
+export type SubtitlePreset = "bold-pop" | "highlight" | "glow" | "clean" | "boxed" | "stroke";
 
 export interface SubtitleStyle {
   preset: SubtitlePreset;
+  font: SubtitleFont;
   fontSize: number;
   position: "bottom" | "center" | "top";
   accentColor: string;
 }
 
-export const SUBTITLE_PRESETS: Record<SubtitlePreset, { label: string; description: string }> = {
-  hormozi: { label: "Hormozi", description: "Bold word-by-word highlight" },
-  karaoke: { label: "Karaoke", description: "Color sweep per word" },
-  neon: { label: "Neon", description: "Glowing text, no background" },
-  minimal: { label: "Minimal", description: "Clean, subtle" },
-  boxed: { label: "Boxed", description: "Each word in a pill" },
-  outline: { label: "Outline", description: "Thick stroke, no fill" },
+export interface SpeakerSettings {
+  centerSpeaker: boolean;
+  zoom: number; // 1.0 - 2.0
+}
+
+export const SUBTITLE_FONTS: Record<SubtitleFont, { label: string; family: string; weight: number }> = {
+  montserrat: { label: "Montserrat", family: "'Montserrat'", weight: 900 },
+  bebas: { label: "Bebas Neue", family: "'Bebas Neue'", weight: 400 },
+  anton: { label: "Anton", family: "'Anton'", weight: 400 },
+  space: { label: "Space Grotesk", family: "'Space Grotesk'", weight: 700 },
+  outfit: { label: "Outfit", family: "'Outfit'", weight: 800 },
+  dela: { label: "Dela Gothic", family: "'Dela Gothic One'", weight: 400 },
 };
 
-export interface EditorState {
-  phase: "dropzone" | "analyzing" | "editing";
-  videoFile: File | null;
-  videoUrl: string | null;
-  transcript: TranscriptWord[];
-  silences: SilenceGap[];
-  currentTime: number;
-  duration: number;
-  isPlaying: boolean;
-  removeSilences: boolean;
-  subtitleStyle: SubtitleStyle;
-  thumbnailUrl: string | null;
-}
+export const SUBTITLE_PRESETS: Record<SubtitlePreset, { label: string }> = {
+  "bold-pop": { label: "Bold Pop" },
+  highlight: { label: "Highlight" },
+  glow: { label: "Glow" },
+  clean: { label: "Clean" },
+  boxed: { label: "Boxed" },
+  stroke: { label: "Stroke" },
+};
+
+export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
+  preset: "bold-pop",
+  font: "montserrat",
+  fontSize: 44,
+  position: "bottom",
+  accentColor: "#FFCC00",
+};
+
+export const DEFAULT_SPEAKER_SETTINGS: SpeakerSettings = {
+  centerSpeaker: true,
+  zoom: 1.2,
+};
 
 export const MOCK_TRANSCRIPT: TranscriptWord[] = [
   { text: "Hey", start: 0.2, end: 0.5, confidence: 0.98 },
@@ -69,27 +85,9 @@ export const MOCK_TRANSCRIPT: TranscriptWord[] = [
   { text: "entfernt", start: 9.95, end: 10.4, confidence: 0.98 },
   { text: "sie", start: 10.4, end: 10.6, confidence: 0.99 },
   { text: "automatisch.", start: 10.6, end: 11.3, confidence: 0.97 },
-  { text: "Außerdem", start: 12.8, end: 13.3, confidence: 0.98 },
-  { text: "werden", start: 13.3, end: 13.6, confidence: 0.99 },
-  { text: "Untertitel", start: 13.6, end: 14.2, confidence: 0.97 },
-  { text: "hinzugefügt.", start: 14.2, end: 14.9, confidence: 0.98 },
-  { text: "Schaut", start: 16.0, end: 16.3, confidence: 0.99 },
-  { text: "euch", start: 16.3, end: 16.5, confidence: 0.98 },
-  { text: "das", start: 16.5, end: 16.65, confidence: 0.99 },
-  { text: "Ergebnis", start: 16.65, end: 17.1, confidence: 0.97 },
-  { text: "an!", start: 17.1, end: 17.4, confidence: 0.98 },
 ];
 
 export const MOCK_SILENCES: SilenceGap[] = [
   { start: 2.6, end: 3.8 },
   { start: 7.1, end: 8.5 },
-  { start: 11.3, end: 12.8 },
-  { start: 14.9, end: 16.0 },
 ];
-
-export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
-  preset: "hormozi",
-  fontSize: 42,
-  position: "bottom",
-  accentColor: "#FFFF00",
-};

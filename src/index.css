@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Montserrat:wght@700;800;900&family=Bebas+Neue&family=Anton&family=Space+Grotesk:wght@700&family=Outfit:wght@700;800;900&family=Dela+Gothic+One&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,53 +6,39 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
+    --background: 0 0% 100%;
     --foreground: 220 20% 10%;
 
     --card: 0 0% 100%;
     --card-foreground: 220 20% 10%;
 
-    --popover: 0 0% 100% / 0.85;
+    --popover: 0 0% 100% / 0.9;
     --popover-foreground: 220 20% 10%;
 
     --primary: 220 90% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 92%;
+    --secondary: 220 15% 95%;
     --secondary-foreground: 220 20% 20%;
 
     --muted: 220 14% 93%;
     --muted-foreground: 220 10% 46%;
 
-    --accent: 220 15% 92%;
+    --accent: 220 15% 94%;
     --accent-foreground: 220 20% 15%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
+    --border: 220 15% 91%;
+    --input: 220 15% 91%;
     --ring: 220 90% 56%;
 
     --radius: 1rem;
 
-    /* Editor-specific tokens */
-    --editor-bg: 220 20% 96%;
-    --editor-surface: 0 0% 100% / 0.6;
-    --editor-surface-solid: 0 0% 100%;
-    --editor-surface-hover: 0 0% 100% / 0.8;
-    --editor-border: 220 20% 88%;
-    --editor-accent: 220 90% 56%;
-    --editor-silence: 0 72% 56%;
-    --editor-active-word: 220 90% 56% / 0.15;
-    --editor-timeline-clip: 220 15% 93%;
-    --editor-timeline-active: 220 15% 88%;
-
-    /* Glass effect tokens */
-    --glass-bg: 0 0% 100% / 0.55;
-    --glass-border: 0 0% 100% / 0.7;
-    --glass-blur: 20px;
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+    --glass-bg: 0 0% 100% / 0.6;
+    --glass-border: 0 0% 100% / 0.8;
+    --glass-blur: 24px;
 
     --sidebar-background: 0 0% 100% / 0.5;
     --sidebar-foreground: 220 20% 15%;
@@ -76,58 +62,31 @@
   }
 }
 
-/* Glass utility */
 .glass {
   background: hsl(var(--glass-bg));
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid hsl(var(--glass-border));
-  box-shadow: var(--glass-shadow);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
 }
 
-.glass-subtle {
-  background: hsl(0 0% 100% / 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid hsl(0 0% 100% / 0.5);
+.glass-dark {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Silence zone stripe pattern (lighter for light mode) */
-.silence-stripe {
-  background: repeating-linear-gradient(
-    -45deg,
-    hsl(0 72% 56% / 0.12),
-    hsl(0 72% 56% / 0.12) 4px,
-    hsl(0 72% 56% / 0.06) 4px,
-    hsl(0 72% 56% / 0.06) 8px
-  );
-}
-
-/* Custom scrollbar (light) */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: hsl(220 15% 82%);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(220 15% 70%);
-}
-
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-/* Gradient mesh background */
 .mesh-gradient {
   background: 
-    radial-gradient(ellipse at 20% 50%, hsl(220 90% 56% / 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, hsl(280 70% 60% / 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, hsl(190 80% 50% / 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 50%, hsl(220 90% 56% / 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, hsl(280 70% 60% / 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 90%, hsl(190 80% 50% / 0.03) 0%, transparent 50%),
     hsl(var(--background));
 }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(220 15% 85%); border-radius: 3px; }
+
+.tabular-nums { font-variant-numeric: tabular-nums; }
