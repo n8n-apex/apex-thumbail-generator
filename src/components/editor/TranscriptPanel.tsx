@@ -1,6 +1,6 @@
-import { useRef, useEffect } from "react";
 import { TranscriptWord, SilenceGap } from "@/types/editor";
 import { FileText } from "lucide-react";
+import { useRef, useEffect } from "react";
 
 interface TranscriptPanelProps {
   transcript: TranscriptWord[];
@@ -29,29 +29,25 @@ const TranscriptPanel = ({ transcript, silences, currentTime, onWordClick }: Tra
   const isActiveWord = (word: TranscriptWord) =>
     currentTime >= word.start && currentTime < word.end;
 
-  // Group words into lines (every ~6 words)
   const lines: TranscriptWord[][] = [];
   for (let i = 0; i < transcript.length; i += 6) {
     lines.push(transcript.slice(i, i + 6));
   }
 
   return (
-    <div className="flex h-full w-sidebar-w flex-col border-r border-border bg-editor-surface">
-      {/* Header */}
-      <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+    <div className="flex h-full w-sidebar-w flex-col border-r border-border/60 glass">
+      <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
         <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-xs font-medium text-foreground">Transcript</span>
-        <span className="ml-auto rounded bg-muted px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground">
+        <span className="text-xs font-semibold text-foreground">Transcript</span>
+        <span className="ml-auto rounded-full bg-secondary px-2 py-0.5 text-[10px] tabular-nums text-muted-foreground font-medium">
           {transcript.length} words
         </span>
       </div>
 
-      {/* Word List */}
       <div className="flex-1 overflow-y-auto p-4">
         <div className="space-y-4">
           {lines.map((line, lineIdx) => {
             const lineStart = line[0].start;
-            // Check if there's a silence gap before this line
             const hasSilenceBefore =
               lineIdx > 0 && isInSilence(lines[lineIdx - 1][lines[lineIdx - 1].length - 1].end + 0.1);
 
@@ -59,13 +55,13 @@ const TranscriptPanel = ({ transcript, silences, currentTime, onWordClick }: Tra
               <div key={lineIdx}>
                 {hasSilenceBefore && (
                   <div className="my-3 flex items-center gap-2">
-                    <div className="h-px flex-1 bg-editor-silence/30" />
-                    <span className="text-[9px] font-medium text-editor-silence/70">PAUSE</span>
-                    <div className="h-px flex-1 bg-editor-silence/30" />
+                    <div className="h-px flex-1 bg-destructive/15" />
+                    <span className="text-[9px] font-semibold text-destructive/50 tracking-wider">PAUSE</span>
+                    <div className="h-px flex-1 bg-destructive/15" />
                   </div>
                 )}
                 <div className="mb-1">
-                  <span className="text-[10px] tabular-nums text-muted-foreground">
+                  <span className="text-[10px] tabular-nums text-muted-foreground/70">
                     {formatTime(lineStart)}
                   </span>
                 </div>
@@ -77,10 +73,10 @@ const TranscriptPanel = ({ transcript, silences, currentTime, onWordClick }: Tra
                         key={`${lineIdx}-${wordIdx}`}
                         ref={active ? activeRef : null}
                         onClick={() => onWordClick(word.start)}
-                        className={`cursor-pointer rounded px-1 py-0.5 text-sm transition-colors ${
+                        className={`cursor-pointer rounded-md px-1.5 py-0.5 text-sm transition-all ${
                           active
-                            ? "bg-primary/20 text-primary font-medium"
-                            : "text-foreground/80 hover:bg-foreground/5"
+                            ? "bg-primary/15 text-primary font-semibold shadow-sm"
+                            : "text-foreground/70 hover:bg-secondary hover:text-foreground"
                         }`}
                       >
                         {word.text}
