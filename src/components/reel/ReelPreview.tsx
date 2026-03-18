@@ -82,7 +82,6 @@ const ReelPreview = ({
             objectPosition: speaker.centerSpeaker ? "center 30%" : "center center",
           }}
           playsInline
-          muted
         />
 
         <SubtitleOverlay transcript={transcript} currentTime={currentTime} style={subtitleStyle} />
