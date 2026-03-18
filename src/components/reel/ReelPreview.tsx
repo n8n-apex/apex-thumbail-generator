@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from "react";
 import { TranscriptWord, SubtitleStyle, SpeakerSettings } from "@/types/editor";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { Play, Pause, RotateCcw, X, RefreshCw } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
 
 interface ReelPreviewProps {
@@ -15,6 +15,8 @@ interface ReelPreviewProps {
   onPlayPause: () => void;
   onSeek: (t: number) => void;
   onDurationChange: (d: number) => void;
+  onReset: () => void;
+  onSwapVideo: () => void;
 }
 
 const fmt = (s: number) => {
@@ -27,11 +29,11 @@ const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
   currentTime, duration, isPlaying,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
+  onReset, onSwapVideo,
 }: ReelPreviewProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
 
-  // Use requestAnimationFrame for smooth ~60fps time updates
   useEffect(() => {
     const tick = () => {
       const v = videoRef.current;
@@ -72,6 +74,20 @@ const ReelPreview = ({
         className="relative w-[340px] overflow-hidden rounded-[2rem] bg-black"
         style={{ aspectRatio: "9/16", boxShadow: "0 24px 80px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)" }}
       >
+        {/* Top action buttons */}
+        <div className="absolute top-3 right-3 z-20 flex gap-1.5">
+          <button onClick={onSwapVideo} title="Anderes Video"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-black/60 hover:text-white"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+          </button>
+          <button onClick={onReset} title="Video entfernen"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-red-500/80 hover:text-white"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
         <video
           ref={videoRef}
           src={videoUrl}
