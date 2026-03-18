@@ -7,21 +7,55 @@ interface SubtitleOverlayProps {
   style: SubtitleStyle;
 }
 
-function getVisibleWords(transcript: TranscriptWord[], currentTime: number) {
-  const activeIdx = transcript.findIndex(
-    (w) => currentTime >= w.start && currentTime < w.end + 0.15
-  );
-  if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
+/**
+ * Group transcript into phrase chunks (3-5 words) based on natural pauses.
+ * Show the current phrase, highlight the active word within it.
+ */
+function getCurrentPhrase(transcript: TranscriptWord[], currentTime: number) {
+  if (transcript.length === 0) return { words: [], activeWordIdx: -1 };
 
-  const windowSize = 4;
-  const start = Math.max(0, activeIdx - 1);
-  const end = Math.min(transcript.length, start + windowSize);
-  return { words: transcript.slice(start, end), activeWordIdx: activeIdx - start };
+  // Find active word with tolerance
+  let activeIdx = -1;
+  for (let i = 0; i < transcript.length; i++) {
+    const w = transcript[i];
+    if (currentTime >= w.start - 0.05 && currentTime < w.end + 0.1) {
+      activeIdx = i;
+      break;
+    }
+  }
+
+  // If no exact match, find the nearest upcoming word
+  if (activeIdx === -1) {
+    for (let i = 0; i < transcript.length; i++) {
+      if (transcript[i].start > currentTime) {
+        // Check if we're in the gap before this word (show previous phrase still)
+        if (i > 0 && currentTime < transcript[i].start && currentTime > transcript[i - 1].end) {
+          // In a gap - if small gap, show previous word context
+          if (transcript[i].start - currentTime < 0.3) {
+            activeIdx = i;
+          } else {
+            return { words: [], activeWordIdx: -1 };
+          }
+        }
+        break;
+      }
+    }
+    if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
+  }
+
+  // Build phrase: group words into chunks of ~4 words, aligned by natural pauses
+  const phraseSize = 4;
+  const phraseStart = Math.floor(activeIdx / phraseSize) * phraseSize;
+  const phraseEnd = Math.min(phraseStart + phraseSize, transcript.length);
+  const words = transcript.slice(phraseStart, phraseEnd);
+  const localActiveIdx = activeIdx - phraseStart;
+
+  return { words, activeWordIdx: localActiveIdx };
 }
 
 const SubtitleOverlay = ({ transcript, currentTime, style }: SubtitleOverlayProps) => {
   const { words, activeWordIdx } = useMemo(
-    () => getVisibleWords(transcript, currentTime),
+    () => getCurrentPhrase(transcript, currentTime),
     [transcript, currentTime]
   );
 
@@ -74,7 +108,7 @@ const WordSpan = ({ word, isActive, isPast, preset, accentColor, scale, fontWeig
 
   return (
     <span
-      className="inline-block transition-all duration-100 ease-out"
+      className="inline-block transition-all duration-75 ease-out"
       style={{
         ...s,
         transform: isActive ? "scale(1.08)" : "scale(1)",
@@ -97,67 +131,48 @@ function getStyle(
     case "bold-pop":
       return {
         fontSize: size, fontWeight: fw,
-        color: active ? accent : "#FFFFFF",
-        textShadow: `0 2px 10px rgba(0,0,0,0.7), 0 0 3px rgba(0,0,0,0.9)`,
-        letterSpacing: "-0.03em",
-        lineHeight: 1.1,
-        padding: "1px 3px",
+        color: active ? accent : past ? "rgba(255,255,255,0.7)" : "#FFFFFF",
+        textShadow: "0 2px 10px rgba(0,0,0,0.7), 0 0 3px rgba(0,0,0,0.9)",
+        letterSpacing: "-0.03em", lineHeight: 1.1, padding: "1px 3px",
       };
-
     case "highlight":
       return {
         fontSize: size, fontWeight: fw,
         color: active ? "#000" : past ? "rgba(255,255,255,0.5)" : "#FFF",
         backgroundColor: active ? accent : "transparent",
-        borderRadius: "6px",
-        padding: "3px 8px",
-        textShadow: active ? "none" : "0 2px 10px rgba(0,0,0,0.8)",
-        lineHeight: 1.25,
+        borderRadius: "6px", padding: "3px 8px",
+        textShadow: active ? "none" : "0 2px 10px rgba(0,0,0,0.8)", lineHeight: 1.25,
       };
-
     case "glow":
       return {
         fontSize: size, fontWeight: fw,
-        color: active ? accent : "#FFFFFF",
+        color: active ? accent : past ? "rgba(255,255,255,0.5)" : "#FFFFFF",
         textShadow: active
           ? `0 0 12px ${accent}, 0 0 24px ${accent}, 0 0 48px ${accent}60`
           : "0 2px 10px rgba(0,0,0,0.7)",
-        letterSpacing: "0.01em",
-        lineHeight: 1.2,
-        padding: "1px 3px",
+        letterSpacing: "0.01em", lineHeight: 1.2, padding: "1px 3px",
       };
-
     case "clean":
       return {
         fontSize: size * 0.9, fontWeight: fw,
-        color: active ? "#FFFFFF" : "rgba(255,255,255,0.55)",
-        textShadow: "0 1px 6px rgba(0,0,0,0.5)",
-        lineHeight: 1.3,
-        padding: "1px 3px",
+        color: active ? "#FFFFFF" : past ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.55)",
+        textShadow: "0 1px 6px rgba(0,0,0,0.5)", lineHeight: 1.3, padding: "1px 3px",
       };
-
     case "boxed":
       return {
         fontSize: size * 0.9, fontWeight: fw,
         color: active ? "#000" : "#FFF",
         backgroundColor: active ? accent : "rgba(0,0,0,0.6)",
-        borderRadius: "8px",
-        padding: "4px 10px",
-        margin: "2px",
-        lineHeight: 1.2,
+        borderRadius: "8px", padding: "4px 10px", margin: "2px", lineHeight: 1.2,
       };
-
     case "stroke":
       return {
         fontSize: size * 1.05, fontWeight: fw,
         color: active ? accent : "transparent",
         WebkitTextStroke: active ? "0px" : "2px #FFFFFF",
         textShadow: active ? `0 0 16px ${accent}60` : "0 2px 8px rgba(0,0,0,0.4)",
-        letterSpacing: "-0.02em",
-        lineHeight: 1.1,
-        padding: "1px 3px",
+        letterSpacing: "-0.02em", lineHeight: 1.1, padding: "1px 3px",
       };
-
     default:
       return {};
   }
