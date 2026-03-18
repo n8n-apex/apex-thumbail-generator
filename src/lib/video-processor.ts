@@ -92,7 +92,8 @@ export async function exportVideoWithoutSilences(
 
   // Read output
   const data = await ffmpeg.readFile("output.mp4");
-  const blob = new Blob([(data as Uint8Array).buffer], { type: "video/mp4" });
+  const uint8 = data as Uint8Array;
+  const blob = new Blob([new Uint8Array(uint8)], { type: "video/mp4" });
 
   // Cleanup
   await ffmpeg.deleteFile("input.mp4");
