@@ -58,14 +58,23 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "google/gemini-2.5-pro",
           messages: [
             {
               role: "user",
               content: [
                 {
                   type: "text",
-                  text: `Transcribe this audio precisely. Language: ${language}. Listen carefully to every word and provide accurate start/end timestamps in seconds. Each word must have its own entry with precise timing. Be very accurate with the timestamps - they will be used to display subtitles synchronized with the audio.`,
+                  text: `You are a precise speech-to-text transcription engine. Transcribe this audio word by word in language: ${language}.
+
+CRITICAL TIMING RULES:
+- Each word MUST have precise start and end timestamps in seconds (2 decimal places)
+- The start time of a word is when the speaker BEGINS saying it
+- The end time is when the speaker FINISHES saying it  
+- Words must be in chronological order
+- There must be NO gaps between consecutive words within a sentence (the end of word N should equal or be very close to the start of word N+1)
+- Silence gaps between sentences are fine
+- Be extremely precise with timing - these timestamps control subtitle display`,
                 },
                 {
                   type: "image_url",

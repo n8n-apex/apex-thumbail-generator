@@ -8,45 +8,44 @@ interface SubtitleOverlayProps {
 }
 
 /**
- * Group transcript into phrase chunks (3-5 words) based on natural pauses.
- * Show the current phrase, highlight the active word within it.
+ * Find current word and build a display phrase around it.
+ * Uses gap-filling: extends word boundaries to cover gaps between words
+ * so there's no "dead zone" where no word is active.
  */
 function getCurrentPhrase(transcript: TranscriptWord[], currentTime: number) {
   if (transcript.length === 0) return { words: [], activeWordIdx: -1 };
 
-  // Find active word with tolerance
+  // Gap-fill: extend each word's effective range to cover gaps
+  // Word N's effective end = start of word N+1 (if gap < 0.5s)
   let activeIdx = -1;
   for (let i = 0; i < transcript.length; i++) {
     const w = transcript[i];
-    if (currentTime >= w.start - 0.05 && currentTime < w.end + 0.1) {
+    const effectiveStart = i === 0 ? w.start - 0.1 : w.start;
+    const effectiveEnd = i < transcript.length - 1
+      ? (transcript[i + 1].start - w.end < 0.5 ? transcript[i + 1].start : w.end + 0.15)
+      : w.end + 0.3;
+
+    if (currentTime >= effectiveStart && currentTime < effectiveEnd) {
       activeIdx = i;
       break;
     }
   }
 
-  // If no exact match, find the nearest upcoming word
-  if (activeIdx === -1) {
-    for (let i = 0; i < transcript.length; i++) {
-      if (transcript[i].start > currentTime) {
-        // Check if we're in the gap before this word (show previous phrase still)
-        if (i > 0 && currentTime < transcript[i].start && currentTime > transcript[i - 1].end) {
-          // In a gap - if small gap, show previous word context
-          if (transcript[i].start - currentTime < 0.3) {
-            activeIdx = i;
-          } else {
-            return { words: [], activeWordIdx: -1 };
-          }
-        }
-        break;
-      }
-    }
-    if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
-  }
+  if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
 
-  // Build phrase: group words into chunks of ~4 words, aligned by natural pauses
+  // Build phrase: group into chunks of ~4, aligned to chunk boundaries
   const phraseSize = 4;
   const phraseStart = Math.floor(activeIdx / phraseSize) * phraseSize;
   const phraseEnd = Math.min(phraseStart + phraseSize, transcript.length);
+
+  // Don't show phrase if we're in a long silence gap before next chunk
+  if (activeIdx === phraseEnd - 1) {
+    const nextWord = transcript[phraseEnd];
+    if (nextWord && currentTime > transcript[activeIdx].end + 0.2 && currentTime < nextWord.start - 0.2) {
+      return { words: [], activeWordIdx: -1 };
+    }
+  }
+
   const words = transcript.slice(phraseStart, phraseEnd);
   const localActiveIdx = activeIdx - phraseStart;
 
@@ -75,47 +74,27 @@ const SubtitleOverlay = ({ transcript, currentTime, style }: SubtitleOverlayProp
         className="flex flex-wrap justify-center gap-x-1.5 gap-y-1"
         style={{ maxWidth: "95%", fontFamily: fontConfig.family }}
       >
-        {words.map((word, i) => (
-          <WordSpan
-            key={`${word.start}-${word.text}`}
-            word={word.text}
-            isActive={i === activeWordIdx}
-            isPast={i < activeWordIdx}
-            preset={style.preset}
-            accentColor={style.accentColor}
-            scale={scale}
-            fontWeight={fontConfig.weight}
-          />
-        ))}
+        {words.map((word, i) => {
+          const isActive = i === activeWordIdx;
+          const isPast = i < activeWordIdx;
+          const size = 15 * scale;
+          const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
+
+          return (
+            <span
+              key={`${word.start}-${word.text}`}
+              className="inline-block transition-all duration-75 ease-out"
+              style={{
+                ...s,
+                transform: isActive ? "scale(1.08)" : "scale(1)",
+              }}
+            >
+              {word.text.toUpperCase()}
+            </span>
+          );
+        })}
       </div>
     </div>
-  );
-};
-
-interface WordSpanProps {
-  word: string;
-  isActive: boolean;
-  isPast: boolean;
-  preset: SubtitlePreset;
-  accentColor: string;
-  scale: number;
-  fontWeight: number;
-}
-
-const WordSpan = ({ word, isActive, isPast, preset, accentColor, scale, fontWeight }: WordSpanProps) => {
-  const size = 15 * scale;
-  const s = getStyle(preset, isActive, isPast, accentColor, size, fontWeight);
-
-  return (
-    <span
-      className="inline-block transition-all duration-75 ease-out"
-      style={{
-        ...s,
-        transform: isActive ? "scale(1.08)" : "scale(1)",
-      }}
-    >
-      {word.toUpperCase()}
-    </span>
   );
 };
 
