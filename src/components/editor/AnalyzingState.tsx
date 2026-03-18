@@ -3,46 +3,12 @@ import { Loader2 } from "lucide-react";
 
 interface AnalyzingStateProps {
   fileName: string;
-  onComplete: () => void;
+  progress: number; // 0-1
+  currentStep: string;
+  steps: { label: string; done: boolean; active: boolean }[];
 }
 
-const STEPS = [
-  { label: "Extracting audio track", duration: 800 },
-  { label: "Analyzing audio levels", duration: 1200 },
-  { label: "Detecting silence gaps", duration: 1000 },
-  { label: "Running Whisper transcription", duration: 1500 },
-  { label: "Aligning word timestamps", duration: 600 },
-  { label: "Preparing editor", duration: 400 },
-];
-
-const AnalyzingState = ({ fileName, onComplete }: AnalyzingStateProps) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    if (currentStep >= STEPS.length) {
-      onComplete();
-      return;
-    }
-
-    const stepDuration = STEPS[currentStep].duration;
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setCurrentStep((s) => s + 1);
-            setProgress(0);
-          }, 200);
-          return 100;
-        }
-        return p + 100 / (stepDuration / 50);
-      });
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, [currentStep, onComplete]);
-
+const AnalyzingState = ({ fileName, progress, currentStep, steps }: AnalyzingStateProps) => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-8">
       <div className="w-full max-w-md">
@@ -53,38 +19,40 @@ const AnalyzingState = ({ fileName, onComplete }: AnalyzingStateProps) => {
         </div>
 
         <div className="space-y-3">
-          {STEPS.map((step, i) => (
+          {steps.map((step, i) => (
             <div key={step.label} className="flex items-center gap-3">
               <div
                 className={`h-1.5 w-1.5 rounded-full ${
-                  i < currentStep
+                  step.done
                     ? "bg-primary"
-                    : i === currentStep
+                    : step.active
                     ? "bg-primary animate-pulse-glow"
                     : "bg-muted"
                 }`}
               />
               <span
                 className={`text-xs ${
-                  i <= currentStep ? "text-foreground" : "text-muted-foreground"
+                  step.done || step.active ? "text-foreground" : "text-muted-foreground"
                 }`}
               >
                 {step.label}
               </span>
-              {i === currentStep && (
+              {step.active && (
                 <div className="ml-auto h-1 w-16 overflow-hidden rounded-full bg-muted">
                   <div
-                    className="h-full rounded-full bg-primary transition-all duration-100"
-                    style={{ width: `${progress}%` }}
+                    className="h-full rounded-full bg-primary transition-all duration-200"
+                    style={{ width: `${Math.round(progress * 100)}%` }}
                   />
                 </div>
               )}
-              {i < currentStep && (
+              {step.done && (
                 <span className="ml-auto text-xs text-primary">✓</span>
               )}
             </div>
           ))}
         </div>
+
+        <p className="mt-6 text-center text-[10px] text-muted-foreground">{currentStep}</p>
       </div>
     </div>
   );

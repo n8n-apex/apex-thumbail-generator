@@ -6,6 +6,7 @@ import Timeline from "./Timeline";
 
 interface EditorWorkspaceProps {
   videoUrl: string | null;
+  videoFile: File | null;
   transcript: TranscriptWord[];
   silences: SilenceGap[];
   currentTime: number;
@@ -14,6 +15,9 @@ interface EditorWorkspaceProps {
   removeSilences: boolean;
   subtitleStyle: SubtitleStyle;
   thumbnailUrl: string | null;
+  amplitudes: number[];
+  isExporting: boolean;
+  exportProgress: string;
   onTimeUpdate: (time: number) => void;
   onPlayPause: () => void;
   onSeek: (time: number) => void;
@@ -21,6 +25,7 @@ interface EditorWorkspaceProps {
   onDurationChange: (d: number) => void;
   onStyleChange: (s: SubtitleStyle) => void;
   onToggleSilences: (v: boolean) => void;
+  onExport: () => void;
 }
 
 const EditorWorkspace = (props: EditorWorkspaceProps) => {
@@ -34,10 +39,13 @@ const EditorWorkspace = (props: EditorWorkspaceProps) => {
             BETA
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <span className="text-[10px] tabular-nums text-muted-foreground">
             {props.transcript.length} words • {props.silences.length} pauses
           </span>
+          {props.isExporting && (
+            <span className="text-[10px] text-primary animate-pulse">{props.exportProgress}</span>
+          )}
         </div>
       </div>
 
@@ -70,6 +78,9 @@ const EditorWorkspace = (props: EditorWorkspaceProps) => {
           removeSilences={props.removeSilences}
           onToggleSilences={props.onToggleSilences}
           thumbnailUrl={props.thumbnailUrl}
+          onExport={props.onExport}
+          isExporting={props.isExporting}
+          exportProgress={props.exportProgress}
         />
       </div>
 
@@ -79,6 +90,7 @@ const EditorWorkspace = (props: EditorWorkspaceProps) => {
         currentTime={props.currentTime}
         silences={props.silences}
         removeSilences={props.removeSilences}
+        amplitudes={props.amplitudes}
         onSeek={props.onSeek}
       />
     </div>
