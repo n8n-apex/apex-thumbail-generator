@@ -30,26 +30,26 @@ interface EditorWorkspaceProps {
 
 const EditorWorkspace = (props: EditorWorkspaceProps) => {
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="flex h-screen flex-col mesh-gradient">
       {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-2">
+      <div className="flex items-center justify-between border-b border-border/60 px-5 py-2.5 glass">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-foreground">Reel Editor</span>
-          <span className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+          <span className="text-sm font-bold text-foreground">Reel Editor</span>
+          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary">
             BETA
           </span>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-[10px] tabular-nums text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] tabular-nums text-muted-foreground font-medium">
             {props.transcript.length} words • {props.silences.length} pauses
           </span>
           {props.isExporting && (
-            <span className="text-[10px] text-primary animate-pulse">{props.exportProgress}</span>
+            <span className="text-[10px] text-primary font-semibold animate-pulse">{props.exportProgress}</span>
           )}
         </div>
       </div>
 
-      {/* Main area: 3 columns */}
+      {/* Main */}
       <div className="flex min-h-0 flex-1">
         <TranscriptPanel
           transcript={props.transcript}
@@ -57,7 +57,6 @@ const EditorWorkspace = (props: EditorWorkspaceProps) => {
           currentTime={props.currentTime}
           onWordClick={props.onSeek}
         />
-
         <VideoPreview
           videoUrl={props.videoUrl}
           currentTime={props.currentTime}
@@ -71,7 +70,6 @@ const EditorWorkspace = (props: EditorWorkspaceProps) => {
           onCaptureThumbnail={props.onCaptureThumbnail}
           onDurationChange={props.onDurationChange}
         />
-
         <StyleControls
           style={props.subtitleStyle}
           onChange={props.onStyleChange}

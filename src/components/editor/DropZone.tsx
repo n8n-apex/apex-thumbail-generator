@@ -38,15 +38,14 @@ const DropZone = ({ onFileSelect }: DropZoneProps) => {
   );
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-8">
+    <div className="flex min-h-screen items-center justify-center mesh-gradient p-8">
       <div className="w-full max-w-2xl">
-        {/* Logo / Title */}
         <div className="mb-12 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-sm bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-            <Zap className="h-3 w-3" />
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full glass px-4 py-2 text-xs font-semibold text-primary">
+            <Zap className="h-3.5 w-3.5" />
             AI-POWERED
           </div>
-          <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="mb-3 text-4xl font-bold tracking-tight text-foreground">
             Reel Editor
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -54,15 +53,14 @@ const DropZone = ({ onFileSelect }: DropZoneProps) => {
           </p>
         </div>
 
-        {/* Drop Area */}
         <label
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-16 transition-all duration-200 ${
+          className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-16 transition-all duration-300 ${
             isDragOver
-              ? "border-primary bg-primary/5 scale-[1.01]"
-              : "border-muted hover:border-muted-foreground/30 hover:bg-editor-surface"
+              ? "border-primary bg-primary/5 scale-[1.01] shadow-lg shadow-primary/10"
+              : "border-border hover:border-primary/30 glass"
           }`}
         >
           <input
@@ -72,34 +70,29 @@ const DropZone = ({ onFileSelect }: DropZoneProps) => {
             className="hidden"
           />
           <div
-            className={`mb-6 flex h-16 w-16 items-center justify-center rounded-lg transition-colors ${
-              isDragOver ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground group-hover:text-foreground"
+            className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl transition-all ${
+              isDragOver
+                ? "bg-primary/15 text-primary scale-110"
+                : "bg-secondary text-muted-foreground group-hover:text-primary group-hover:bg-primary/10"
             }`}
           >
-            {isDragOver ? (
-              <Film className="h-8 w-8" />
-            ) : (
-              <Upload className="h-8 w-8" />
-            )}
+            {isDragOver ? <Film className="h-7 w-7" /> : <Upload className="h-7 w-7" />}
           </div>
-          <p className="mb-2 text-sm font-medium text-foreground">
+          <p className="mb-2 text-sm font-semibold text-foreground">
             {isDragOver ? "Drop to upload" : "Drop your raw footage here"}
           </p>
-          <p className="text-xs text-muted-foreground">
-            MP4, MOV, WebM • Max 4K
-          </p>
+          <p className="text-xs text-muted-foreground">MP4, MOV, WebM • Max 4K</p>
         </label>
 
-        {/* Features */}
-        <div className="mt-8 grid grid-cols-3 gap-4">
+        <div className="mt-8 grid grid-cols-3 gap-3">
           {[
             { label: "Silence Detection", desc: "AI-powered pause removal" },
             { label: "Auto Subtitles", desc: "Whisper transcription" },
             { label: "Thumbnail Gen", desc: "Frame capture & export" },
           ].map((f) => (
-            <div key={f.label} className="rounded-lg bg-editor-surface p-4">
-              <p className="text-xs font-medium text-foreground">{f.label}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{f.desc}</p>
+            <div key={f.label} className="glass rounded-xl p-4">
+              <p className="text-xs font-semibold text-foreground">{f.label}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">{f.desc}</p>
             </div>
           ))}
         </div>
