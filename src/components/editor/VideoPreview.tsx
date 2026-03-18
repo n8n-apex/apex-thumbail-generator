@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback } from "react";
 import { TranscriptWord, SubtitleStyle } from "@/types/editor";
 import { Play, Pause, SkipBack, Camera } from "lucide-react";
+import SubtitleOverlay from "./SubtitleOverlay";
 
 interface VideoPreviewProps {
   videoUrl: string | null;
@@ -40,10 +41,8 @@ const VideoPreview = ({
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
     const handleTimeUpdate = () => onTimeUpdate(video.currentTime);
     const handleDuration = () => onDurationChange(video.duration);
-
     video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("loadedmetadata", handleDuration);
     return () => {
@@ -70,15 +69,8 @@ const VideoPreview = ({
     [onSeek]
   );
 
-  // Current subtitle word
-  const currentWords = transcript.filter(
-    (w) => currentTime >= w.start && currentTime < w.end + 0.3
-  );
-  const currentSubtitle = currentWords.map((w) => w.text).join(" ");
-
   return (
     <div className="flex flex-1 flex-col items-center justify-center bg-background p-6">
-      {/* Video Container - 9:16 aspect */}
       <div className="relative w-full max-w-[320px]">
         <div
           className="relative overflow-hidden rounded-xl"
@@ -104,35 +96,15 @@ const VideoPreview = ({
             </div>
           )}
 
-          {/* Subtitle Overlay */}
-          {currentSubtitle && (
-            <div
-              className={`absolute left-4 right-4 flex justify-center ${
-                subtitleStyle.position === "top"
-                  ? "top-12"
-                  : subtitleStyle.position === "center"
-                  ? "top-1/2 -translate-y-1/2"
-                  : "bottom-16"
-              }`}
-            >
-              <span
-                className="inline-block rounded px-3 py-1.5 text-center leading-tight"
-                style={{
-                  fontSize: `${subtitleStyle.fontSize / 3}px`,
-                  fontWeight: subtitleStyle.fontWeight,
-                  color: subtitleStyle.color,
-                  backgroundColor: subtitleStyle.backgroundColor,
-                  textTransform: subtitleStyle.textTransform,
-                  textWrap: "balance",
-                }}
-              >
-                {currentSubtitle}
-              </span>
-            </div>
-          )}
+          {/* Modern Subtitle Overlay */}
+          <SubtitleOverlay
+            transcript={transcript}
+            currentTime={currentTime}
+            style={subtitleStyle}
+          />
         </div>
 
-        {/* Controls under video */}
+        {/* Controls */}
         <div className="mt-4 flex items-center gap-2">
           <button
             onClick={() => seekTo(0)}
