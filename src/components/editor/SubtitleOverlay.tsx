@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { TranscriptWord, SubtitleStyle, SubtitlePreset } from "@/types/editor";
+import { TranscriptWord, SubtitleStyle, SubtitlePreset, SUBTITLE_FONTS } from "@/types/editor";
 
 interface SubtitleOverlayProps {
   transcript: TranscriptWord[];
@@ -7,24 +7,16 @@ interface SubtitleOverlayProps {
   style: SubtitleStyle;
 }
 
-/**
- * Get the visible words around currentTime (a window of ~3-5 words)
- */
 function getVisibleWords(transcript: TranscriptWord[], currentTime: number) {
-  // Find the active word
   const activeIdx = transcript.findIndex(
     (w) => currentTime >= w.start && currentTime < w.end + 0.15
   );
   if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
 
-  // Show a window of words around the active one
   const windowSize = 4;
   const start = Math.max(0, activeIdx - 1);
   const end = Math.min(transcript.length, start + windowSize);
-  const words = transcript.slice(start, end);
-  const activeWordIdx = activeIdx - start;
-
-  return { words, activeWordIdx };
+  return { words: transcript.slice(start, end), activeWordIdx: activeIdx - start };
 }
 
 const SubtitleOverlay = ({ transcript, currentTime, style }: SubtitleOverlayProps) => {
@@ -35,18 +27,20 @@ const SubtitleOverlay = ({ transcript, currentTime, style }: SubtitleOverlayProp
 
   if (words.length === 0) return null;
 
+  const fontConfig = SUBTITLE_FONTS[style.font];
   const posClass =
-    style.position === "top"
-      ? "top-[12%]"
-      : style.position === "center"
-      ? "top-1/2 -translate-y-1/2"
-      : "bottom-[14%]";
+    style.position === "top" ? "top-[12%]"
+    : style.position === "center" ? "top-1/2 -translate-y-1/2"
+    : "bottom-[14%]";
 
-  const scale = style.fontSize / 42; // base scale
+  const scale = style.fontSize / 44;
 
   return (
-    <div className={`absolute left-3 right-3 flex justify-center ${posClass}`}>
-      <div className="flex flex-wrap justify-center gap-x-1 gap-y-0.5" style={{ maxWidth: "95%" }}>
+    <div className={`absolute left-3 right-3 flex justify-center ${posClass} pointer-events-none`}>
+      <div
+        className="flex flex-wrap justify-center gap-x-1.5 gap-y-1"
+        style={{ maxWidth: "95%", fontFamily: fontConfig.family }}
+      >
         {words.map((word, i) => (
           <WordSpan
             key={`${word.start}-${word.text}`}
@@ -56,6 +50,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style }: SubtitleOverlayProp
             preset={style.preset}
             accentColor={style.accentColor}
             scale={scale}
+            fontWeight={fontConfig.weight}
           />
         ))}
       </div>
@@ -70,19 +65,19 @@ interface WordSpanProps {
   preset: SubtitlePreset;
   accentColor: string;
   scale: number;
+  fontWeight: number;
 }
 
-const WordSpan = ({ word, isActive, isPast, preset, accentColor, scale }: WordSpanProps) => {
-  const baseSize = 14 * scale;
-
-  const presetStyles = getPresetStyle(preset, isActive, isPast, accentColor, baseSize);
+const WordSpan = ({ word, isActive, isPast, preset, accentColor, scale, fontWeight }: WordSpanProps) => {
+  const size = 15 * scale;
+  const s = getStyle(preset, isActive, isPast, accentColor, size, fontWeight);
 
   return (
     <span
-      className="inline-block transition-all duration-150 ease-out"
+      className="inline-block transition-all duration-100 ease-out"
       style={{
-        ...presetStyles,
-        transform: isActive ? `scale(${1.05})` : "scale(1)",
+        ...s,
+        transform: isActive ? "scale(1.08)" : "scale(1)",
       }}
     >
       {word.toUpperCase()}
@@ -90,85 +85,77 @@ const WordSpan = ({ word, isActive, isPast, preset, accentColor, scale }: WordSp
   );
 };
 
-function getPresetStyle(
+function getStyle(
   preset: SubtitlePreset,
-  isActive: boolean,
-  isPast: boolean,
+  active: boolean,
+  past: boolean,
   accent: string,
-  size: number
+  size: number,
+  fw: number,
 ): React.CSSProperties {
   switch (preset) {
-    case "hormozi":
+    case "bold-pop":
       return {
-        fontSize: `${size}px`,
-        fontWeight: 900,
-        color: isActive ? accent : "#FFFFFF",
-        textShadow: "0 2px 8px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9)",
-        letterSpacing: "-0.02em",
+        fontSize: size, fontWeight: fw,
+        color: active ? accent : "#FFFFFF",
+        textShadow: `0 2px 10px rgba(0,0,0,0.7), 0 0 3px rgba(0,0,0,0.9)`,
+        letterSpacing: "-0.03em",
         lineHeight: 1.1,
-        padding: "1px 2px",
+        padding: "1px 3px",
       };
 
-    case "karaoke":
+    case "highlight":
       return {
-        fontSize: `${size}px`,
-        fontWeight: 800,
-        color: isActive ? "#000" : isPast ? "rgba(255,255,255,0.5)" : "#FFF",
-        backgroundColor: isActive ? accent : "transparent",
-        borderRadius: "4px",
-        padding: "2px 6px",
-        textShadow: isActive ? "none" : "0 2px 8px rgba(0,0,0,0.8)",
-        lineHeight: 1.2,
+        fontSize: size, fontWeight: fw,
+        color: active ? "#000" : past ? "rgba(255,255,255,0.5)" : "#FFF",
+        backgroundColor: active ? accent : "transparent",
+        borderRadius: "6px",
+        padding: "3px 8px",
+        textShadow: active ? "none" : "0 2px 10px rgba(0,0,0,0.8)",
+        lineHeight: 1.25,
       };
 
-    case "neon":
+    case "glow":
       return {
-        fontSize: `${size}px`,
-        fontWeight: 700,
-        color: isActive ? accent : "#FFFFFF",
-        textShadow: isActive
-          ? `0 0 10px ${accent}, 0 0 20px ${accent}, 0 0 40px ${accent}80`
-          : "0 2px 8px rgba(0,0,0,0.8)",
-        letterSpacing: "0.02em",
-        lineHeight: 1.2,
-        padding: "1px 2px",
-      };
-
-    case "minimal":
-      return {
-        fontSize: `${size * 0.85}px`,
-        fontWeight: 500,
-        color: isActive ? "#FFFFFF" : "rgba(255,255,255,0.6)",
-        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+        fontSize: size, fontWeight: fw,
+        color: active ? accent : "#FFFFFF",
+        textShadow: active
+          ? `0 0 12px ${accent}, 0 0 24px ${accent}, 0 0 48px ${accent}60`
+          : "0 2px 10px rgba(0,0,0,0.7)",
         letterSpacing: "0.01em",
+        lineHeight: 1.2,
+        padding: "1px 3px",
+      };
+
+    case "clean":
+      return {
+        fontSize: size * 0.9, fontWeight: fw,
+        color: active ? "#FFFFFF" : "rgba(255,255,255,0.55)",
+        textShadow: "0 1px 6px rgba(0,0,0,0.5)",
         lineHeight: 1.3,
-        padding: "1px 2px",
+        padding: "1px 3px",
       };
 
     case "boxed":
       return {
-        fontSize: `${size * 0.9}px`,
-        fontWeight: 800,
-        color: isActive ? "#000" : "#FFF",
-        backgroundColor: isActive ? accent : "rgba(0,0,0,0.7)",
-        borderRadius: "6px",
-        padding: "3px 8px",
+        fontSize: size * 0.9, fontWeight: fw,
+        color: active ? "#000" : "#FFF",
+        backgroundColor: active ? accent : "rgba(0,0,0,0.6)",
+        borderRadius: "8px",
+        padding: "4px 10px",
         margin: "2px",
         lineHeight: 1.2,
       };
 
-    case "outline":
+    case "stroke":
       return {
-        fontSize: `${size}px`,
-        fontWeight: 900,
-        color: isActive ? accent : "transparent",
-        WebkitTextStroke: isActive ? "0px" : `2px #FFFFFF`,
-        textShadow: isActive
-          ? `0 0 12px ${accent}80`
-          : "0 2px 8px rgba(0,0,0,0.5)",
-        letterSpacing: "-0.01em",
+        fontSize: size * 1.05, fontWeight: fw,
+        color: active ? accent : "transparent",
+        WebkitTextStroke: active ? "0px" : "2px #FFFFFF",
+        textShadow: active ? `0 0 16px ${accent}60` : "0 2px 8px rgba(0,0,0,0.4)",
+        letterSpacing: "-0.02em",
         lineHeight: 1.1,
-        padding: "1px 2px",
+        padding: "1px 3px",
       };
 
     default:

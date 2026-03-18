@@ -1,239 +1,174 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import DropZone from "@/components/editor/DropZone";
-import AnalyzingState from "@/components/editor/AnalyzingState";
-import EditorWorkspace from "@/components/editor/EditorWorkspace";
+import UploadScreen from "@/components/reel/UploadScreen";
+import ProcessingScreen from "@/components/reel/ProcessingScreen";
+import ReelPreview from "@/components/reel/ReelPreview";
+import ControlsPanel from "@/components/reel/ControlsPanel";
 import {
-  SubtitleStyle,
-  TranscriptWord,
-  SilenceGap,
-  DEFAULT_SUBTITLE_STYLE,
-  MOCK_TRANSCRIPT,
-  MOCK_SILENCES,
+  SubtitleStyle, SpeakerSettings, TranscriptWord,
+  DEFAULT_SUBTITLE_STYLE, DEFAULT_SPEAKER_SETTINGS,
+  MOCK_TRANSCRIPT, MOCK_SILENCES,
 } from "@/types/editor";
 import { analyzeAudio, getActiveSegments } from "@/lib/audio-analysis";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
 import { supabase } from "@/integrations/supabase/client";
 
-type Phase = "dropzone" | "analyzing" | "editing";
-
-interface ProcessingStep {
-  label: string;
-  done: boolean;
-  active: boolean;
-}
+type Phase = "upload" | "processing" | "ready";
 
 const Index = () => {
-  const [phase, setPhase] = useState<Phase>("dropzone");
+  const [phase, setPhase] = useState<Phase>("upload");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<TranscriptWord[]>([]);
-  const [silences, setSilences] = useState<SilenceGap[]>([]);
-  const [amplitudes, setAmplitudes] = useState<number[]>([]);
+  const [silences, setSilences] = useState<{ start: number; end: number }[]>([]);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [removeSilences, setRemoveSilences] = useState(false);
   const [subtitleStyle, setSubtitleStyle] = useState<SubtitleStyle>(DEFAULT_SUBTITLE_STYLE);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [speaker, setSpeaker] = useState<SpeakerSettings>(DEFAULT_SPEAKER_SETTINGS);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState("");
 
-  // Analysis state
-  const [analysisProgress, setAnalysisProgress] = useState(0);
-  const [analysisStep, setAnalysisStep] = useState("");
-  const [processingSteps, setProcessingSteps] = useState<ProcessingStep[]>([
-    { label: "Decoding audio", done: false, active: false },
-    { label: "Detecting silence gaps", done: false, active: false },
-    { label: "Transcribing speech (AI)", done: false, active: false },
-    { label: "Preparing editor", done: false, active: false },
+  // Processing state
+  const [progress, setProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState("");
+  const [steps, setSteps] = useState([
+    { label: "Analyzing audio", done: false, active: false },
+    { label: "Detecting silences", done: false, active: false },
+    { label: "AI transcription", done: false, active: false },
+    { label: "Done", done: false, active: false },
   ]);
 
-  const updateStep = (index: number, update: Partial<ProcessingStep>) => {
-    setProcessingSteps((prev) =>
-      prev.map((s, i) => (i === index ? { ...s, ...update } : s))
-    );
+  const updateStep = (idx: number, upd: { done?: boolean; active?: boolean }) => {
+    setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, ...upd } : s)));
   };
 
   const handleFileSelect = useCallback(async (file: File) => {
     const url = URL.createObjectURL(file);
     setVideoFile(file);
     setVideoUrl(url);
-    setPhase("analyzing");
+    setPhase("processing");
 
     try {
       // Step 1: Audio analysis
       updateStep(0, { active: true });
-      setAnalysisStep("Decoding audio from video...");
+      setCurrentStep("Decoding audio...");
 
-      const analysisResult = await analyzeAudio(file, {
+      const result = await analyzeAudio(file, {
         silenceThreshold: 0.015,
         minSilenceDuration: 0.4,
-        onProgress: (p) => setAnalysisProgress(p),
+        onProgress: (p) => setProgress(p),
       });
 
       updateStep(0, { done: true, active: false });
       updateStep(1, { active: true });
-      setAnalysisStep("Silence gaps detected");
-      setAnalysisProgress(0);
-
-      setSilences(analysisResult.silences);
-      setAmplitudes(analysisResult.amplitudes);
-      setDuration(analysisResult.duration);
-
+      setCurrentStep("Silences detected");
+      setSilences(result.silences);
+      setDuration(result.duration);
+      setProgress(0);
       updateStep(1, { done: true, active: false });
 
-      // Step 2: Transcription via AI
+      // Step 2: Transcription
       updateStep(2, { active: true });
-      setAnalysisStep("Sending audio to AI for transcription...");
+      setCurrentStep("Transcribing with AI...");
 
       let transcriptResult: TranscriptWord[] = [];
-
       try {
-        // Extract audio as blob for the edge function
-        // We'll send the video file directly and let the AI handle it
         const formData = new FormData();
         formData.append("audio", file);
         formData.append("language", "de");
 
-        const { data, error } = await supabase.functions.invoke("transcribe", {
-          body: formData,
-        });
-
-        if (error) {
-          console.error("Transcription error:", error);
-          throw error;
-        }
-
-        if (data?.transcript && Array.isArray(data.transcript) && data.transcript.length > 0) {
+        const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
+        if (error) throw error;
+        if (data?.transcript?.length > 0) {
           transcriptResult = data.transcript;
         } else {
-          throw new Error("Empty transcript");
+          throw new Error("Empty");
         }
-      } catch (err) {
-        console.warn("AI transcription failed, using mock data:", err);
-        toast.error("AI-Transkription fehlgeschlagen – verwende Demo-Daten", {
-          description: "Die Edge Function ist möglicherweise nicht deployed.",
-        });
+      } catch {
+        toast.info("Using demo transcript (edge function not deployed)");
         transcriptResult = MOCK_TRANSCRIPT;
       }
 
       setTranscript(transcriptResult);
       updateStep(2, { done: true, active: false });
+      updateStep(3, { done: true });
+      setCurrentStep("Ready!");
 
-      // Step 3: Prepare editor
-      updateStep(3, { active: true });
-      setAnalysisStep("Preparing editor...");
-      await new Promise((r) => setTimeout(r, 300));
-      updateStep(3, { done: true, active: false });
-
-      setPhase("editing");
-      toast.success(
-        `Analyse fertig: ${analysisResult.silences.length} Pausen, ${transcriptResult.length} Wörter`
-      );
-    } catch (err) {
-      console.error("Analysis failed:", err);
-      toast.error("Analyse fehlgeschlagen");
-
-      // Fallback: use mock data
-      setSilences(MOCK_SILENCES);
+      await new Promise((r) => setTimeout(r, 400));
+      setPhase("ready");
+      toast.success(`${result.silences.length} pauses found, ${transcriptResult.length} words transcribed`);
+    } catch {
+      toast.error("Processing failed, using demo data");
       setTranscript(MOCK_TRANSCRIPT);
-      setDuration(18);
-      setAmplitudes([]);
-      setPhase("editing");
-    }
-  }, []);
-
-  const handleCaptureThumbnail = useCallback(() => {
-    const video = document.querySelector("video");
-    if (video) {
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 1080;
-      canvas.height = video.videoHeight || 1920;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const url = canvas.toDataURL("image/png");
-        setThumbnailUrl(url);
-        toast.success("Thumbnail captured!");
-      }
+      setSilences(MOCK_SILENCES);
+      setDuration(12);
+      setPhase("ready");
     }
   }, []);
 
   const handleExport = useCallback(async () => {
     if (!videoFile || isExporting) return;
-
     setIsExporting(true);
     setExportProgress("Loading FFmpeg...");
-
     try {
-      const segments = removeSilences
-        ? getActiveSegments(silences, duration)
-        : [{ start: 0, end: duration }];
-
-      const blob = await exportVideoWithoutSilences(
-        videoFile,
-        segments,
-        (msg) => setExportProgress(msg)
-      );
-
-      // Download the file
+      const segments = getActiveSegments(silences, duration);
+      const blob = await exportVideoWithoutSilences(videoFile, segments, setExportProgress);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `reel_edited_${Date.now()}.mp4`;
+      a.download = `reel_${Date.now()}.mp4`;
       a.click();
       URL.revokeObjectURL(url);
-
-      toast.success("Export abgeschlossen!");
-    } catch (err) {
-      console.error("Export failed:", err);
-      toast.error("Export fehlgeschlagen");
+      toast.success("Export complete!");
+    } catch {
+      toast.error("Export failed");
     } finally {
       setIsExporting(false);
       setExportProgress("");
     }
-  }, [videoFile, isExporting, removeSilences, silences, duration]);
+  }, [videoFile, isExporting, silences, duration]);
 
-  if (phase === "dropzone") {
-    return <DropZone onFileSelect={handleFileSelect} />;
+  if (phase === "upload") {
+    return <UploadScreen onFileSelect={handleFileSelect} />;
   }
 
-  if (phase === "analyzing") {
+  if (phase === "processing") {
     return (
-      <AnalyzingState
+      <ProcessingScreen
         fileName={videoFile?.name || "video.mp4"}
-        progress={analysisProgress}
-        currentStep={analysisStep}
-        steps={processingSteps}
+        progress={progress}
+        currentStep={currentStep}
+        steps={steps}
       />
     );
   }
 
   return (
-    <EditorWorkspace
-      videoUrl={videoUrl}
-      videoFile={videoFile}
-      transcript={transcript}
-      silences={silences}
-      currentTime={currentTime}
-      duration={duration}
-      isPlaying={isPlaying}
-      removeSilences={removeSilences}
-      subtitleStyle={subtitleStyle}
-      thumbnailUrl={thumbnailUrl}
-      amplitudes={amplitudes}
-      isExporting={isExporting}
-      exportProgress={exportProgress}
-      onTimeUpdate={setCurrentTime}
-      onPlayPause={() => setIsPlaying((p) => !p)}
-      onSeek={setCurrentTime}
-      onCaptureThumbnail={handleCaptureThumbnail}
-      onDurationChange={setDuration}
-      onStyleChange={setSubtitleStyle}
-      onToggleSilences={setRemoveSilences}
-      onExport={handleExport}
-    />
+    <div className="flex min-h-screen items-center justify-center gap-10 mesh-gradient p-8">
+      <ReelPreview
+        videoUrl={videoUrl!}
+        transcript={transcript}
+        subtitleStyle={subtitleStyle}
+        speaker={speaker}
+        currentTime={currentTime}
+        duration={duration}
+        isPlaying={isPlaying}
+        onTimeUpdate={setCurrentTime}
+        onPlayPause={() => setIsPlaying((p) => !p)}
+        onSeek={setCurrentTime}
+        onDurationChange={setDuration}
+      />
+      <ControlsPanel
+        style={subtitleStyle}
+        speaker={speaker}
+        onStyleChange={setSubtitleStyle}
+        onSpeakerChange={setSpeaker}
+        onExport={handleExport}
+        isExporting={isExporting}
+        exportProgress={exportProgress}
+      />
+    </div>
   );
 };
 
