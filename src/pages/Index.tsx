@@ -184,6 +184,8 @@ const Index = () => {
         onPlayPause={() => setIsPlaying((p) => !p)}
         onSeek={setCurrentTime}
         onDurationChange={setDuration}
+        onReset={handleReset}
+        onSwapVideo={handleReset}
       />
       <ControlsPanel
         style={subtitleStyle}
