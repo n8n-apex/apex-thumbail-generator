@@ -2,7 +2,7 @@ import {
   SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings,
   SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
-import { Type, Palette, Move, User, Download, Maximize } from "lucide-react";
+import { Type, Palette, Move, User, Download, Maximize, Clock } from "lucide-react";
 
 interface ControlsPanelProps {
   style: SubtitleStyle;
@@ -76,7 +76,7 @@ const ControlsPanel = ({
                   isActive ? "bg-primary/10 ring-2 ring-primary/30 shadow-sm" : "bg-secondary/60 hover:bg-secondary"
                 }`}
               >
-                <PresetPreviewText preset={preset} accent={style.accentColor} font={style.font} />
+                <span className="text-base">{SUBTITLE_PRESETS[preset].emoji}</span>
                 <span className="block mt-1.5 text-[9px] font-semibold text-muted-foreground">
                   {SUBTITLE_PRESETS[preset].label}
                 </span>
@@ -112,7 +112,7 @@ const ControlsPanel = ({
         </div>
       </div>
 
-      {/* Color + Size + Position row */}
+      {/* Color + Size + Position + Timing */}
       <div className="glass rounded-2xl p-4 space-y-4">
         {/* Accent Color */}
         <div>
@@ -139,6 +139,19 @@ const ControlsPanel = ({
           </div>
           <input type="range" min={28} max={64} value={style.fontSize}
             onChange={(e) => upd({ fontSize: Number(e.target.value) })}
+            className="w-full accent-primary h-1" />
+        </div>
+
+        {/* Timing Offset */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
+              <Clock className="h-3 w-3" /> Timing Offset
+            </span>
+            <span className="text-[11px] tabular-nums font-bold">{(style.timeOffset * 1000).toFixed(0)}ms</span>
+          </div>
+          <input type="range" min={-500} max={200} value={style.timeOffset * 1000}
+            onChange={(e) => upd({ timeOffset: Number(e.target.value) / 1000 })}
             className="w-full accent-primary h-1" />
         </div>
 
@@ -172,23 +185,6 @@ const ControlsPanel = ({
       </button>
     </div>
   );
-};
-
-/** Tiny preview text for each preset */
-const PresetPreviewText = ({ preset, accent, font }: { preset: SubtitlePreset; accent: string; font: SubtitleFont }) => {
-  const cfg = SUBTITLE_FONTS[font];
-  const base: React.CSSProperties = { fontFamily: cfg.family, fontWeight: cfg.weight, fontSize: 10, lineHeight: 1 };
-
-  const styles: Record<SubtitlePreset, React.CSSProperties> = {
-    "bold-pop": { ...base, color: accent, textShadow: `0 1px 3px rgba(0,0,0,0.3)` },
-    highlight: { ...base, color: "#FFF", backgroundColor: accent, borderRadius: 4, padding: "2px 5px" },
-    glow: { ...base, color: accent, textShadow: `0 0 6px ${accent}80` },
-    clean: { ...base, color: "#666" },
-    boxed: { ...base, color: "#FFF", backgroundColor: accent, borderRadius: 5, padding: "2px 6px" },
-    stroke: { ...base, color: "transparent", WebkitTextStroke: `1px ${accent}` },
-  };
-
-  return <span style={styles[preset]}>WORD</span>;
 };
 
 export default ControlsPanel;

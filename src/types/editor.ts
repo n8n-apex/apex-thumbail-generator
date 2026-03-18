@@ -12,7 +12,7 @@ export interface SilenceGap {
 
 export type SubtitleFont = "montserrat" | "bebas" | "anton" | "space" | "outfit" | "dela";
 
-export type SubtitlePreset = "bold-pop" | "highlight" | "glow" | "clean" | "boxed" | "stroke";
+export type SubtitlePreset = "karaoke" | "pop" | "neon" | "minimal" | "block" | "outline";
 
 export interface SubtitleStyle {
   preset: SubtitlePreset;
@@ -20,11 +20,12 @@ export interface SubtitleStyle {
   fontSize: number;
   position: "bottom" | "center" | "top";
   accentColor: string;
+  timeOffset: number; // seconds to shift subtitles earlier (negative = earlier)
 }
 
 export interface SpeakerSettings {
   centerSpeaker: boolean;
-  zoom: number; // 1.0 - 2.0
+  zoom: number;
 }
 
 export const SUBTITLE_FONTS: Record<SubtitleFont, { label: string; family: string; weight: number }> = {
@@ -36,21 +37,22 @@ export const SUBTITLE_FONTS: Record<SubtitleFont, { label: string; family: strin
   dela: { label: "Dela Gothic", family: "'Dela Gothic One'", weight: 400 },
 };
 
-export const SUBTITLE_PRESETS: Record<SubtitlePreset, { label: string }> = {
-  "bold-pop": { label: "Bold Pop" },
-  highlight: { label: "Highlight" },
-  glow: { label: "Glow" },
-  clean: { label: "Clean" },
-  boxed: { label: "Boxed" },
-  stroke: { label: "Stroke" },
+export const SUBTITLE_PRESETS: Record<SubtitlePreset, { label: string; emoji: string }> = {
+  karaoke: { label: "Karaoke", emoji: "🎤" },
+  pop: { label: "Pop", emoji: "💥" },
+  neon: { label: "Neon", emoji: "✨" },
+  minimal: { label: "Minimal", emoji: "◽" },
+  block: { label: "Block", emoji: "🔲" },
+  outline: { label: "Outline", emoji: "✏️" },
 };
 
 export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
-  preset: "bold-pop",
+  preset: "karaoke",
   font: "montserrat",
   fontSize: 44,
   position: "bottom",
   accentColor: "#FFCC00",
+  timeOffset: -0.2,
 };
 
 export const DEFAULT_SPEAKER_SETTINGS: SpeakerSettings = {
