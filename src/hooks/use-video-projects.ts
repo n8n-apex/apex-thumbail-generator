@@ -5,6 +5,7 @@ import { VideoProject, createVideoProject } from "@/types/video-project";
 import { analyzeAudio, getActiveSegments, type SilenceGap } from "@/lib/audio-analysis";
 import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
+import { validateAndRepairTranscript } from "@/lib/transcript-validator";
 import { supabase } from "@/integrations/supabase/client";
 
 const CHUNK_DURATION = 0.05;
@@ -139,8 +140,15 @@ export function useVideoProjects() {
         formData.append("language", "de");
         const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
         if (error) throw error;
-        if (data?.transcript?.length > 0) transcriptResult = cleanTranscript(data.transcript);
-        else throw new Error("Empty");
+        if (data?.transcript?.length > 0) {
+          const cleaned = cleanTranscript(data.transcript);
+          // Self-checking validation: repair timing issues
+          const validated = validateAndRepairTranscript(cleaned);
+          if (validated.fixes.length > 0) {
+            console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
+          }
+          transcriptResult = validated.words;
+        } else throw new Error("Empty");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
         transcriptResult = MOCK_TRANSCRIPT;
@@ -236,6 +244,39 @@ export function useVideoProjects() {
     setActiveIndex(0);
   }, [projects]);
 
+  const regenerateTranscript = useCallback(async (id: string) => {
+    const proj = projects.find((p) => p.id === id);
+    if (!proj || proj.phase !== "ready") return;
+    updateProject(id, { currentStep: "Transkript wird neu generiert..." });
+    try {
+      const audioBlob = await extractAudioBlob(proj.file, 120);
+      const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
+      const formData = new FormData();
+      formData.append("audio", audioFile);
+      formData.append("language", "de");
+      const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
+      if (error) throw error;
+      if (data?.transcript?.length > 0) {
+        const cleaned = cleanTranscript(data.transcript);
+        const validated = validateAndRepairTranscript(cleaned);
+        const reconciledSilences = reconcileSilencesWithTranscript(
+          redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, proj.silenceCut),
+          validated.words
+        );
+        updateProject(id, {
+          transcript: validated.words,
+          silences: reconciledSilences,
+          currentStep: "Fertig!",
+        });
+        toast.success(`Neu transkribiert: ${validated.words.length} Wörter (Score: ${validated.score}/100)`);
+      } else {
+        throw new Error("Empty transcript");
+      }
+    } catch {
+      toast.error("Transkription fehlgeschlagen");
+    }
+  }, [projects, updateProject]);
+
   return {
     projects,
     activeIndex,
@@ -247,6 +288,7 @@ export function useVideoProjects() {
     redetectForProject,
     exportProject,
     resetAll,
+    regenerateTranscript,
     hasProjects: projects.length > 0,
   };
 }

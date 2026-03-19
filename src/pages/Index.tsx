@@ -11,7 +11,7 @@ const Index = () => {
   const {
     projects, activeIndex, setActiveIndex, activeProject,
     addFiles, removeProject, updateProject, redetectForProject,
-    exportProject, resetAll, hasProjects,
+    exportProject, resetAll, hasProjects, regenerateTranscript,
   } = useVideoProjects();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -141,9 +141,9 @@ const Index = () => {
         onSpeakerChange={(s) => updateProject(proj.id, { speaker: s })}
         onSilenceCutChange={(s) => {
           updateProject(proj.id, { silenceCut: s });
-          // Trigger redetection on next render via useEffect
         }}
         onExport={() => exportProject(proj.id)}
+        onRegenerate={() => regenerateTranscript(proj.id)}
         onAddMore={handleAddMore}
         isExporting={proj.isExporting}
         exportProgress={proj.exportProgress}

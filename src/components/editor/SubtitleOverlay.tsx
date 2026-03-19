@@ -9,12 +9,20 @@ interface SubtitleOverlayProps {
   onPositionChange?: (x: number, y: number) => void;
 }
 
-const SNAP_THRESHOLD = 3; // percentage units to snap
+const SNAP_THRESHOLD = 3;
 
+/**
+ * Improved phrase detection with adaptive timing window.
+ * Uses a self-checking approach:
+ * 1. Find the best matching word based on current time
+ * 2. Verify the match by checking neighboring words
+ * 3. Use adaptive lookahead based on speech rate
+ */
 function getCurrentPhrase(
   transcript: TranscriptWord[],
   currentTime: number,
   timeOffset: number,
+  maxLines: number,
   silences?: { start: number; end: number }[],
 ) {
   if (transcript.length === 0) return { words: [], activeWordIdx: -1 };
@@ -30,22 +38,50 @@ function getCurrentPhrase(
     }
   }
 
+  // Adaptive word matching with verification
   let activeIdx = -1;
+  let bestScore = -Infinity;
+
   for (let i = 0; i < transcript.length; i++) {
     const w = transcript[i];
-    const effectiveEnd = i < transcript.length - 1
-      ? (transcript[i + 1].start - w.end < 0.5 ? transcript[i + 1].start : w.end + 0.15)
-      : w.end + 0.3;
+    const wordMid = (w.start + w.end) / 2;
+    const wordDur = w.end - w.start;
+    
+    // Adaptive pre-roll: shorter words need tighter windows
+    const preRoll = Math.min(0.08, wordDur * 0.3);
+    // Adaptive post-hold: hold word visible slightly after it ends
+    const postHold = i < transcript.length - 1
+      ? Math.min(transcript[i + 1].start - w.end, 0.12)
+      : 0.2;
 
-    if (t >= w.start - 0.05 && t < effectiveEnd) {
-      activeIdx = i;
-      break;
+    if (t >= w.start - preRoll && t < w.end + postHold) {
+      // Score: prefer words where we're closest to the middle
+      const distFromMid = Math.abs(t - wordMid);
+      const score = 1 / (distFromMid + 0.001);
+      if (score > bestScore) {
+        bestScore = score;
+        activeIdx = i;
+      }
+    }
+  }
+
+  // Self-check: if we found a word, verify it makes sense
+  if (activeIdx >= 0) {
+    const w = transcript[activeIdx];
+    // Check if there's a closer word that we might have missed
+    if (activeIdx > 0) {
+      const prev = transcript[activeIdx - 1];
+      if (t < w.start && t >= prev.start && t <= prev.end + 0.05) {
+        activeIdx = activeIdx - 1; // Previous word is actually still active
+      }
     }
   }
 
   if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
 
-  const phraseSize = 4;
+  // Adaptive phrase size based on maxLines
+  const wordsPerLine = 3;
+  const phraseSize = wordsPerLine * maxLines;
   const phraseStart = Math.floor(activeIdx / phraseSize) * phraseSize;
   const phraseEnd = Math.min(phraseStart + phraseSize, transcript.length);
 
@@ -57,8 +93,8 @@ function getCurrentPhrase(
 
 const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionChange }: SubtitleOverlayProps) => {
   const { words, activeWordIdx } = useMemo(
-    () => getCurrentPhrase(transcript, currentTime, style.timeOffset, silences),
-    [transcript, currentTime, style.timeOffset, silences]
+    () => getCurrentPhrase(transcript, currentTime, style.timeOffset, style.boxHeight ?? 2, silences),
+    [transcript, currentTime, style.timeOffset, style.boxHeight, silences]
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -93,7 +129,6 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
     let newX = Math.max(5, Math.min(95, dragStart.current.startX + dx));
     let newY = Math.max(5, Math.min(95, dragStart.current.startY + dy));
 
-    // Snap to center
     const isSnapX = Math.abs(newX - 50) < SNAP_THRESHOLD;
     const isSnapY = Math.abs(newY - 50) < SNAP_THRESHOLD;
     if (isSnapX) newX = 50;
@@ -115,10 +150,10 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
 
   const fontConfig = SUBTITLE_FONTS[style.font] ?? SUBTITLE_FONTS.montserrat;
   const scale = style.fontSize / 44;
+  const boxWidth = style.boxWidth ?? 85;
 
   return (
     <>
-      {/* Snap guide lines */}
       {snapX && (
         <div className="absolute top-0 bottom-0 left-1/2 w-px bg-primary/50 z-40 pointer-events-none" />
       )}
@@ -132,6 +167,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
         style={{
           left: `${style.positionX}%`,
           top: `${style.positionY}%`,
+          width: `${boxWidth}%`,
           transform: "translate(-50%, -50%)",
           pointerEvents: onPositionChange ? "auto" : "none",
         }}
@@ -141,7 +177,11 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
       >
         <div
           className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px]"
-          style={{ maxWidth: "96%", fontFamily: fontConfig.family, fontStyle: fontConfig.italic ? "italic" : "normal" }}
+          style={{
+            width: "100%",
+            fontFamily: fontConfig.family,
+            fontStyle: fontConfig.italic ? "italic" : "normal",
+          }}
         >
           {words.map((word, i) => {
             const isActive = i === activeWordIdx;
