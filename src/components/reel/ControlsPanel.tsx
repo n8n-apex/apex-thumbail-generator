@@ -132,7 +132,7 @@ const ControlsPanel = ({
         <div className="glass rounded-2xl p-3.5 space-y-3">
           <div>
             <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-              <Palette className="h-3 w-3" /> Color
+              <Palette className="h-3 w-3" /> Farbe
             </span>
             <div className="flex gap-2">
               {ACCENT_COLORS.map((c) => (
