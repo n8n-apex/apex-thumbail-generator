@@ -9,6 +9,17 @@ export interface ProcessingStep {
   active: boolean;
 }
 
+export interface SanityCheckResult {
+  sync_score: number;
+  cut_score: number;
+  content_score: number;
+  overall_score: number;
+  passed: boolean;
+  issues: string[];
+  suggestions: string[];
+  summary: string;
+}
+
 export interface VideoProject {
   id: string;
   file: File;
@@ -28,6 +39,8 @@ export interface VideoProject {
   progress: number;
   currentStep: string;
   steps: ProcessingStep[];
+  sanityCheck?: SanityCheckResult;
+  calibrationReasoning?: string;
 }
 
 export function createVideoProject(file: File): VideoProject {
@@ -51,9 +64,9 @@ export function createVideoProject(file: File): VideoProject {
     currentStep: "Audio wird analysiert...",
     steps: [
       { label: "Audio analysieren", done: false, active: true },
-      { label: "Pausen erkennen", done: false, active: false },
+      { label: "KI-Kalibrierung", done: false, active: false },
       { label: "KI-Transkription", done: false, active: false },
-      { label: "Fertig", done: false, active: false },
+      { label: "Qualitätsprüfung", done: false, active: false },
     ],
   };
 }
