@@ -98,7 +98,7 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
           <span>✦ Speaker Centering</span>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 mb-8">
           <a
             href="https://apex-consulting.ai/"
             target="_blank"
