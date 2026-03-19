@@ -14,6 +14,7 @@ interface ReelPreviewProps {
   duration: number;
   isPlaying: boolean;
   silences: { start: number; end: number }[];
+  colorGrading?: ColorGradingSettings;
   onTimeUpdate: (t: number) => void;
   onPlayPause: () => void;
   onSeek: (t: number) => void;
