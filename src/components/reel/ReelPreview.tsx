@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { TranscriptWord, SubtitleStyle, SpeakerSettings, ColorGradingSettings } from "@/types/editor";
-import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
 import { useFaceTracking } from "@/hooks/use-face-tracking";
 import { colorGradingToCSS, colorGradingVignetteCSS } from "./ColorGradingPanel";
