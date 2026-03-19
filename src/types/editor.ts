@@ -10,7 +10,7 @@ export interface SilenceGap {
   end: number;
 }
 
-export type SubtitleFont = "montserrat" | "bebas" | "anton" | "space" | "outfit" | "dela" | "righteous" | "lobster" | "bangers";
+export type SubtitleFont = "montserrat" | "bebas" | "anton" | "poppins" | "oswald" | "marker";
 
 export type SubtitlePreset = "karaoke" | "pop" | "neon" | "minimal" | "block" | "outline";
 
@@ -49,12 +49,9 @@ export const SUBTITLE_FONTS: Record<SubtitleFont, { label: string; family: strin
   montserrat: { label: "Montserrat", family: "'Montserrat'", weight: 900 },
   bebas: { label: "Bebas Neue", family: "'Bebas Neue'", weight: 400 },
   anton: { label: "Anton", family: "'Anton'", weight: 400 },
-  space: { label: "Space Grotesk", family: "'Space Grotesk'", weight: 700 },
-  outfit: { label: "Outfit", family: "'Outfit'", weight: 800 },
-  dela: { label: "Dela Gothic", family: "'Dela Gothic One'", weight: 400 },
-  righteous: { label: "Righteous", family: "'Righteous'", weight: 400 },
-  lobster: { label: "Lobster", family: "'Lobster'", weight: 400, italic: true },
-  bangers: { label: "Bangers", family: "'Bangers'", weight: 400 },
+  poppins: { label: "Poppins", family: "'Poppins'", weight: 900 },
+  oswald: { label: "Oswald", family: "'Oswald'", weight: 700 },
+  marker: { label: "Marker", family: "'Permanent Marker'", weight: 400 },
 };
 
 export const SUBTITLE_PRESETS: Record<SubtitlePreset, { label: string; emoji: string }> = {

@@ -177,6 +177,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
             const isPast = i < activeWordIdx;
             const size = 15 * scale;
             const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
+            const anim = getAnimation(style.preset, isActive);
 
             return (
               <span
@@ -184,8 +185,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
                 className="inline-block will-change-transform select-none"
                 style={{
                   ...s,
-                  transform: isActive ? "scale(1.12) translateY(-1px)" : "scale(1)",
-                  transition: "all 0.08s cubic-bezier(0.22, 1, 0.36, 1)",
+                  ...anim,
                 }}
               >
                 {word.text.toUpperCase()}
@@ -263,6 +263,40 @@ function getStyle(
       };
     default:
       return {};
+  }
+}
+
+/** TikTok/Instagram viral animation styles per preset */
+function getAnimation(preset: SubtitlePreset, active: boolean): React.CSSProperties {
+  const base: React.CSSProperties = {
+    transition: "all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1)",
+  };
+
+  if (!active) {
+    return { ...base, transform: "scale(1) translateY(0)" };
+  }
+
+  switch (preset) {
+    case "karaoke":
+      // TikTok bounce-in: scale up + slight lift
+      return { ...base, transform: "scale(1.18) translateY(-2px)", transition: "all 0.08s cubic-bezier(0.34, 1.56, 0.64, 1)" };
+    case "pop":
+      // Instagram punch: fast scale with spring
+      return { ...base, transform: "scale(1.22) translateY(-1px)", transition: "all 0.06s cubic-bezier(0.22, 1.2, 0.36, 1)" };
+    case "neon":
+      // Glow pulse: subtle scale + Y shift for floating feel
+      return { ...base, transform: "scale(1.1) translateY(-3px)", transition: "all 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94)" };
+    case "minimal":
+      // Clean fade-scale, no bounce
+      return { ...base, transform: "scale(1.05)", transition: "all 0.15s ease-out" };
+    case "block":
+      // Hard snap: instant scale, no easing
+      return { ...base, transform: "scale(1.15)", transition: "all 0.04s linear" };
+    case "outline":
+      // Elastic pop: big spring overshoot
+      return { ...base, transform: "scale(1.25) translateY(-2px)", transition: "all 0.1s cubic-bezier(0.68, -0.55, 0.27, 1.55)" };
+    default:
+      return { ...base, transform: "scale(1.12)" };
   }
 }
 
