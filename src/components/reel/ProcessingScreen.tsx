@@ -12,7 +12,7 @@ const ProcessingScreen = ({ fileName, progress, currentStep, steps }: Processing
     <div className="flex h-full w-full items-center justify-center mesh-gradient">
       <div className="w-full max-w-sm glass rounded-2xl p-7 text-center">
         <Loader2 className="mx-auto mb-4 h-7 w-7 animate-spin text-primary" />
-        <h2 className="text-sm font-bold text-foreground mb-1">Processing</h2>
+        <h2 className="text-sm font-bold text-foreground mb-1">Verarbeitung</h2>
         <p className="truncate text-[11px] text-muted-foreground mb-5">{fileName}</p>
 
         <div className="space-y-2 text-left">

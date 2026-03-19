@@ -49,7 +49,7 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
       >
         <input type="file" accept="video/*,.mp4,.mov,.webm,.avi" multiple onChange={handleInputChange} className="hidden" />
         <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-        <p className="mt-2 text-[11px] font-medium text-muted-foreground">Add more</p>
+        <p className="mt-2 text-[11px] font-medium text-muted-foreground">Mehr hinzufügen</p>
       </label>
     );
   }

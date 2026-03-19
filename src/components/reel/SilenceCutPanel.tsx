@@ -17,7 +17,7 @@ const SilenceCutPanel = ({ settings, onChange, silenceCount, timeSaved, duration
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Scissors className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-bold text-foreground">Auto-Cut Silences</span>
+          <span className="text-xs font-bold text-foreground">Pausen automatisch schneiden</span>
         </div>
         <button
           onClick={() => upd({ enabled: !settings.enabled })}

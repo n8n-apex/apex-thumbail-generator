@@ -204,7 +204,7 @@ const ControlsPanel = ({
           className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
-          {isExporting ? exportProgress : "Export Clip"}
+          {isExporting ? exportProgress : "Clip exportieren"}
         </button>
       </div>
     </div>
