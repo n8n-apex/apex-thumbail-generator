@@ -14,6 +14,7 @@ interface ControlsPanelProps {
   onSilenceCutChange: (s: SilenceCutSettings) => void;
   onExport: () => void;
   onAddMore: () => void;
+  onRegenerate: () => void;
   isExporting: boolean;
   exportProgress: string;
   silenceCount: number;
