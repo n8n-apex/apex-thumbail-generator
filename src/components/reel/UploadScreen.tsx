@@ -92,12 +92,6 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
           <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM — mehrere Dateien möglich</p>
         </label>
 
-        <div className="mt-5 flex justify-center gap-5 text-[10px] text-muted-foreground">
-          <span>✦ Auto-Untertitel</span>
-          <span>✦ Pausen-Schnitt</span>
-          <span>✦ Speaker-Zentrierung</span>
-        </div>
-
         <div className="mt-4">
           <a
             href="https://apex-consulting.ai/"
