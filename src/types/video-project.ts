@@ -20,11 +20,6 @@ export interface SanityCheckResult {
   summary: string;
 }
 
-export interface TrimRegion {
-  id: string;
-  start: number;
-  end: number;
-}
 
 export interface VideoProject {
   id: string;
