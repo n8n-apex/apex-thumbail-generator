@@ -26,11 +26,18 @@ html, body, #root {
   box-sizing: border-box;
 }
 
+/* Mobile: allow scrolling so phone + controls both get space */
+.app-frame.flex-col {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* Desktop: give the editor layout more breathing room */
 @media (min-width: 640px) {
   .app-frame {
     padding: 12px;
     gap: 12px;
+    overflow: hidden;
   }
 }
 

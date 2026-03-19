@@ -144,7 +144,7 @@ const ReelPreview = ({
   return (
     <div
       ref={containerRef}
-      className="relative flex h-full items-center justify-center py-1 px-1 sm:py-2 sm:px-3 flex-1 min-w-0"
+      className="relative flex items-center justify-center py-2 px-2 sm:py-2 sm:px-3 flex-1 min-w-0 min-h-[70vh] sm:min-h-0 sm:h-full"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -174,8 +174,8 @@ const ReelPreview = ({
       )}
 
       <div
-        className={`relative overflow-hidden rounded-[2rem] bg-foreground h-full ${slideClass}`}
-        style={{ aspectRatio: "9/16", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.1)" }}
+        className={`relative overflow-hidden rounded-[2rem] bg-foreground ${slideClass}`}
+        style={{ aspectRatio: "9/16", height: "100%", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.1)" }}
       >
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-2.5">
