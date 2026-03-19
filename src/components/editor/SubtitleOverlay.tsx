@@ -217,13 +217,13 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
     setSnapY(false);
   }, []);
 
-  if (words.length === 0) return null;
-
   const fontConfig = SUBTITLE_FONTS[style.font] ?? SUBTITLE_FONTS.montserrat;
   const scale = style.fontSize / 44;
   const boxWidth = style.boxWidth ?? 85;
   const maxLines = style.boxHeight ?? 2;
   const lines = useMemo(() => buildSubtitleLines(words, maxLines), [words, maxLines]);
+
+  if (words.length === 0) return null;
 
   return (
     <>
