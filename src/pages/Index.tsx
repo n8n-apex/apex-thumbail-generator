@@ -18,7 +18,6 @@ type Phase = "upload" | "processing" | "ready";
 
 /**
  * Re-detect silences from raw amplitudes with new threshold settings.
- * Runs synchronously — no need to re-decode audio.
  */
 function redetectSilences(
   amplitudes: number[],
@@ -60,6 +59,49 @@ function redetectSilences(
   }
 
   return silences;
+}
+
+/**
+ * Reconcile silence gaps with transcript words so they never overlap.
+ * Trims or splits silence gaps that contain spoken words.
+ */
+function reconcileSilencesWithTranscript(
+  silences: SilenceGap[],
+  transcript: TranscriptWord[],
+): SilenceGap[] {
+  if (transcript.length === 0) return silences;
+
+  const result: SilenceGap[] = [];
+  const MARGIN = 0.05; // small margin to avoid clipping word edges
+
+  for (const gap of silences) {
+    // Find all words that overlap with this silence gap
+    const overlapping = transcript.filter(
+      (w) => w.end > gap.start + MARGIN && w.start < gap.end - MARGIN
+    );
+
+    if (overlapping.length === 0) {
+      // No words in this gap — keep it as is
+      result.push(gap);
+      continue;
+    }
+
+    // Split the gap around the overlapping words
+    let cursor = gap.start;
+    for (const word of overlapping) {
+      const subGapEnd = word.start - MARGIN;
+      if (subGapEnd - cursor >= 0.1) {
+        result.push({ start: cursor, end: subGapEnd });
+      }
+      cursor = word.end + MARGIN;
+    }
+    // Remaining portion after the last overlapping word
+    if (gap.end - cursor >= 0.1) {
+      result.push({ start: cursor, end: gap.end });
+    }
+  }
+
+  return result;
 }
 
 const CHUNK_DURATION = 0.05;
