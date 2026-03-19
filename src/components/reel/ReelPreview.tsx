@@ -69,17 +69,31 @@ const ReelPreview = ({
 
   // Skip over silence gaps during playback — throttle state updates
   const lastUpdateRef = useRef(0);
+  const skippingRef = useRef(false);
   useEffect(() => {
     const tick = () => {
       const v = videoRef.current;
       if (v && !v.paused) {
         const t = v.currentTime;
-        for (const s of silences) {
-          if (t >= s.start && t < s.end) {
-            v.currentTime = s.end;
-            break;
+
+        // Check if we're inside a silence gap
+        if (!skippingRef.current) {
+          for (const s of silences) {
+            if (t >= s.start && t < s.end) {
+              skippingRef.current = true;
+              v.currentTime = s.end;
+              // Resume playback after seek completes
+              const onSeeked = () => {
+                skippingRef.current = false;
+                v.removeEventListener("seeked", onSeeked);
+                v.play().catch(() => {});
+              };
+              v.addEventListener("seeked", onSeeked);
+              break;
+            }
           }
         }
+
         // Throttle state updates to ~15fps to avoid render storm
         const now = performance.now();
         if (now - lastUpdateRef.current > 66) {

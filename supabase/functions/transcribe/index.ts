@@ -74,7 +74,15 @@ CRITICAL TIMING RULES:
 - Words must be in chronological order
 - There must be NO gaps between consecutive words within a sentence (the end of word N should equal or be very close to the start of word N+1)
 - Silence gaps between sentences are fine
-- Be extremely precise with timing - these timestamps control subtitle display`,
+- Be extremely precise with timing - these timestamps control subtitle display
+
+QUALITY RULES:
+- Only transcribe clearly spoken, intelligible words
+- Skip filler sounds like "ähm", "äh", "hmm", "mhm" unless they're clearly intentional
+- Do NOT include random noise artifacts or unintelligible sounds as words
+- If a word is unclear, skip it rather than guessing
+- Set confidence below 0.5 for any word you're unsure about
+- Clean up the text for natural reading flow`,
                 },
                 {
                   type: "image_url",

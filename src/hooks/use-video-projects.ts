@@ -9,6 +9,24 @@ import { supabase } from "@/integrations/supabase/client";
 
 const CHUNK_DURATION = 0.05;
 
+// Filter out garbled/nonsensical words for clean subtitle flow
+function cleanTranscript(words: TranscriptWord[]): TranscriptWord[] {
+  return words.filter((w) => {
+    const text = w.text.trim();
+    // Remove empty words
+    if (!text) return false;
+    // Remove very low confidence words
+    if (w.confidence < 0.4) return false;
+    // Remove single characters that aren't real words (allow "I", "a" etc)
+    if (text.length === 1 && !/[A-Za-zÄÖÜäöü0-9]/.test(text)) return false;
+    // Remove words that are just punctuation/symbols
+    if (/^[^\p{L}\p{N}]+$/u.test(text)) return false;
+    // Remove words with impossible timing (negative duration or extremely short)
+    if (w.end - w.start < 0.01) return false;
+    return true;
+  });
+}
+
 function redetectSilences(
   amplitudes: number[],
   chunkDuration: number,
@@ -121,7 +139,7 @@ export function useVideoProjects() {
         formData.append("language", "de");
         const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
         if (error) throw error;
-        if (data?.transcript?.length > 0) transcriptResult = data.transcript;
+        if (data?.transcript?.length > 0) transcriptResult = cleanTranscript(data.transcript);
         else throw new Error("Empty");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
