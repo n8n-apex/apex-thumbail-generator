@@ -73,7 +73,9 @@ export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
   positionX: 50,
   positionY: 86,
   accentColor: "#FFFFFF",
-  timeOffset: -0.2,
+  timeOffset: -0.15,
+  boxWidth: 85,
+  boxHeight: 2,
 };
 
 export const DEFAULT_SPEAKER_SETTINGS: SpeakerSettings = {
