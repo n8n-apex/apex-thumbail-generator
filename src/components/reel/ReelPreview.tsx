@@ -170,8 +170,8 @@ const ReelPreview = ({
       )}
 
       <div
-        className={`relative overflow-hidden rounded-[1.5rem] bg-background h-full ${slideClass}`}
-        style={{ aspectRatio: "9/16", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}
+        className={`relative overflow-hidden rounded-[2rem] bg-foreground h-full ${slideClass}`}
+        style={{ aspectRatio: "9/16", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.1)" }}
       >
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-2.5">
