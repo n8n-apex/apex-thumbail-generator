@@ -138,9 +138,12 @@ const ControlsPanel = ({
               {ACCENT_COLORS.map((c) => (
                 <button key={c} onClick={() => upd({ accentColor: c })}
                   className={`h-7 w-7 rounded-full border-2 transition-all ${
-                    style.accentColor === c ? "border-foreground/30 scale-110 shadow-lg" : "border-white/60 shadow-sm hover:scale-105"
+                    style.accentColor === c ? "border-foreground/30 scale-110 shadow-lg" : "border-border shadow-sm hover:scale-105"
                   }`}
-                  style={{ backgroundColor: c }}
+                  style={{
+                    backgroundColor: c,
+                    boxShadow: c === "#FFFFFF" ? "inset 0 0 0 1px rgba(0,0,0,0.12)" : undefined,
+                  }}
                 />
               ))}
             </div>
