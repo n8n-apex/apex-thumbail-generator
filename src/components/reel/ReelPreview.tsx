@@ -201,6 +201,16 @@ const ReelPreview = ({
           </div>
         </div>
 
+        {/* Blurred background video — visible when zoomed out or repositioned */}
+        <video
+          src={videoUrl}
+          className="absolute inset-0 h-full w-full pointer-events-none"
+          style={{ objectFit: "cover", filter: "blur(20px) brightness(0.5)", transform: "scale(1.1)" }}
+          playsInline
+          muted
+          aria-hidden
+        />
+
         <video
           ref={videoRef}
           src={videoUrl}
