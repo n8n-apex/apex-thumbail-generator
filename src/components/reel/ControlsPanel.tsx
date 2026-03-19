@@ -47,10 +47,10 @@ const ControlsPanel = ({
         <div className="glass rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
             <User className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-bold text-foreground">Speaker</span>
+            <span className="text-xs font-bold text-foreground">Sprecher</span>
           </div>
           <div className="flex items-center justify-between mb-2.5">
-            <span className="text-[11px] text-muted-foreground">Center & Stabilize</span>
+            <span className="text-[11px] text-muted-foreground">Zentrieren & Stabilisieren</span>
             <button
               onClick={() => updSpk({ centerSpeaker: !speaker.centerSpeaker })}
               className={`relative h-5 w-9 rounded-full transition-colors ${
