@@ -18,11 +18,11 @@ interface ReelPreviewProps {
   onSeek: (t: number) => void;
   onDurationChange: (d: number) => void;
   onRemove: () => void;
-  // Multi-video navigation
   totalVideos: number;
   currentIndex: number;
   onNavigate: (direction: -1 | 1) => void;
   fileName: string;
+  onVideoRef?: (el: HTMLVideoElement | null) => void;
 }
 
 const fmt = (s: number) => {
