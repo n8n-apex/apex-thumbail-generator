@@ -16,6 +16,8 @@ interface ControlsPanelProps {
   onStyleChange: (s: SubtitleStyle) => void;
   onSpeakerChange: (s: SpeakerSettings) => void;
   onSilenceCutChange: (s: SilenceCutSettings) => void;
+  onColorGradingChange: (s: ColorGradingSettings) => void;
+  onTranscriptChange: (words: TranscriptWord[]) => void;
   onExport: () => void;
   onAddMore: () => void;
   onRegenerate: () => void;
