@@ -59,7 +59,7 @@ export async function exportVideoWithoutSilences(
 
   const ff = await getProcessor(onProgress);
 
-  // Clean up any leftover files from previous failed exports
+  // Cleanup leftovers from previous failed runs
   try { await ff.deleteFile("input.mp4"); } catch {}
   try { await ff.deleteFile("output.mp4"); } catch {}
 
@@ -67,51 +67,80 @@ export async function exportVideoWithoutSilences(
   const inputData = await fetchFile(videoFile);
   await ff.writeFile("input.mp4", inputData);
 
-  try {
-    if (segments.length === 1) {
-      const s = segments[0];
-      onProgress?.("Trimming...");
-      await ff.exec([
-        "-i", "input.mp4",
-        "-ss", s.start.toFixed(3),
-        "-to", s.end.toFixed(3),
-        "-c", "copy",
-        "-avoid_negative_ts", "make_zero",
-        "-y", "output.mp4",
-      ]);
+  const sorted = [...segments]
+    .filter((s) => s.end - s.start >= 0.08)
+    .sort((a, b) => a.start - b.start);
+
+  const merged: { start: number; end: number }[] = [];
+  for (const s of sorted) {
+    if (merged.length === 0) {
+      merged.push({ ...s });
+      continue;
+    }
+    const last = merged[merged.length - 1];
+    if (s.start <= last.end + 0.03) {
+      last.end = Math.max(last.end, s.end);
     } else {
-      // Limit segments to avoid filter_complex overflow (max ~50 segments)
-      const maxSegments = 50;
-      const segs = segments.length > maxSegments
-        ? segments.filter((_, i) => i % Math.ceil(segments.length / maxSegments) === 0 || i === segments.length - 1)
-        : segments;
+      merged.push({ ...s });
+    }
+  }
 
-      const filters: string[] = [];
-      const concatInputs: string[] = [];
+  const safeSegments = merged.length > 0 ? merged : [{ start: 0, end: 0.5 }];
+  const maxSegments = 60;
+  const step = Math.ceil(safeSegments.length / maxSegments);
+  const segs = step > 1
+    ? safeSegments.filter((_, i) => i % step === 0 || i === safeSegments.length - 1)
+    : safeSegments;
 
-      for (let i = 0; i < segs.length; i++) {
-        const s = segs[i];
+  const runExport = async (includeAudio: boolean) => {
+    const filters: string[] = [];
+    const concatInputs: string[] = [];
+
+    for (let i = 0; i < segs.length; i++) {
+      const s = segs[i];
+      if (includeAudio) {
         filters.push(
           `[0:v]trim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},setpts=PTS-STARTPTS[v${i}];` +
           `[0:a]atrim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},asetpts=PTS-STARTPTS[a${i}]`
         );
         concatInputs.push(`[v${i}][a${i}]`);
+      } else {
+        filters.push(
+          `[0:v]trim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},setpts=PTS-STARTPTS[v${i}]`
+        );
+        concatInputs.push(`[v${i}]`);
       }
+    }
 
-      const filterComplex =
-        filters.join(";") +
-        `;${concatInputs.join("")}concat=n=${segs.length}:v=1:a=1[outv][outa]`;
+    const concatTail = includeAudio
+      ? `${concatInputs.join("")}concat=n=${segs.length}:v=1:a=1[outv][outa]`
+      : `${concatInputs.join("")}concat=n=${segs.length}:v=1:a=0[outv]`;
 
-      onProgress?.(`Processing ${segs.length} segments...`);
-      await ff.exec([
-        "-i", "input.mp4",
-        "-filter_complex", filterComplex,
-        "-map", "[outv]",
-        "-map", "[outa]",
-        "-preset", "ultrafast",
-        "-crf", "23",
-        "-y", "output.mp4",
-      ]);
+    const filterComplex = `${filters.join(";")};${concatTail}`;
+
+    const args = [
+      "-i", "input.mp4",
+      "-filter_complex", filterComplex,
+      "-map", "[outv]",
+      ...(includeAudio ? ["-map", "[outa]"] : []),
+      "-preset", "ultrafast",
+      "-crf", "23",
+      "-movflags", "+faststart",
+      "-y", "output.mp4",
+    ];
+
+    await ff.exec(args);
+  };
+
+  try {
+    onProgress?.(`Processing ${segs.length} segments...`);
+
+    try {
+      await runExport(true);
+    } catch (audioErr) {
+      console.warn("[VideoProcessor] Audio export failed, retrying without audio", audioErr);
+      onProgress?.("Retry without audio...");
+      await runExport(false);
     }
 
     onProgress?.("Finalizing...");
@@ -119,16 +148,15 @@ export async function exportVideoWithoutSilences(
     if (!(data instanceof Uint8Array) || data.length < 1000) {
       throw new Error("Export produced empty or invalid file");
     }
+
     const blob = new Blob([new Uint8Array(data)], { type: "video/mp4" });
 
-    // Cleanup
     try { await ff.deleteFile("input.mp4"); } catch {}
     try { await ff.deleteFile("output.mp4"); } catch {}
 
     onProgress?.("Done!");
     return blob;
   } catch (e) {
-    // Cleanup on error
     try { await ff.deleteFile("input.mp4"); } catch {}
     try { await ff.deleteFile("output.mp4"); } catch {}
     console.error("[VideoProcessor] Export failed:", e);

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Image, Sparkles, Download, RefreshCw, Type, Focus, Wand2 } from "lucide-react";
 import { TranscriptWord } from "@/types/editor";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,7 @@ const ThumbnailPanel = ({ videoRef, transcript }: ThumbnailPanelProps) => {
   const [suggesting, setSuggesting] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const autoSuggestedRef = useRef(false);
 
   const captureFrame = useCallback((): string | null => {
     if (!videoRef || !canvasRef.current) return null;
@@ -66,6 +67,15 @@ const ThumbnailPanel = ({ videoRef, transcript }: ThumbnailPanelProps) => {
       setSuggesting(false);
     }
   }, [transcript]);
+
+  useEffect(() => {
+    if (!transcript || transcript.length === 0) return;
+    if (autoSuggestedRef.current) return;
+    if (prompt.trim() || overlayText.trim()) return;
+
+    autoSuggestedRef.current = true;
+    void suggestFromTranscript();
+  }, [transcript, prompt, overlayText, suggestFromTranscript]);
 
   const generateThumbnail = useCallback(async () => {
     if (!prompt.trim() && !overlayText.trim()) {
