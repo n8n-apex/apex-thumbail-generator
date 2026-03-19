@@ -133,13 +133,13 @@ Antworte NUR im JSON-Format:
 
     const userContent: any[] = [];
 
-    let fullPrompt = `Create an ultra-realistic, cinematic YouTube/Instagram thumbnail. ${prompt}`;
+    let fullPrompt = `Create an ultra-realistic, cinematic Instagram/TikTok Reel thumbnail in PORTRAIT 9:16 aspect ratio (1080x1920). ${prompt}`;
     
     if (overlayText) {
       fullPrompt += ` Include the text "${overlayText}" in a frosted glass / liquid glass style overlay box with rounded corners, subtle blur, and light refraction effects. The text should be bold, clearly legible, and prominent.`;
     }
 
-    fullPrompt += ` Style: ultra-high quality, 4K cinematic look, dramatic lighting, shallow depth of field, professional color grading. The thumbnail should be eye-catching and scroll-stopping.`;
+    fullPrompt += ` Style: ultra-high quality, 4K cinematic look, dramatic lighting, shallow depth of field, professional color grading. The image MUST be in vertical 9:16 portrait format. The thumbnail should be eye-catching and scroll-stopping.`;
 
     userContent.push({ type: "text", text: fullPrompt });
 
