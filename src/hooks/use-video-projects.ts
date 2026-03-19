@@ -140,8 +140,15 @@ export function useVideoProjects() {
         formData.append("language", "de");
         const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
         if (error) throw error;
-        if (data?.transcript?.length > 0) transcriptResult = cleanTranscript(data.transcript);
-        else throw new Error("Empty");
+        if (data?.transcript?.length > 0) {
+          const cleaned = cleanTranscript(data.transcript);
+          // Self-checking validation: repair timing issues
+          const validated = validateAndRepairTranscript(cleaned);
+          if (validated.fixes.length > 0) {
+            console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
+          }
+          transcriptResult = validated.words;
+        } else throw new Error("Empty");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
         transcriptResult = MOCK_TRANSCRIPT;
