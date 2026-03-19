@@ -38,7 +38,7 @@ const UploadScreen = ({ onFileSelect }: UploadScreenProps) => {
             Auto Subtitles & Silence Cut
           </div>
           <h1 className="mb-2 text-4xl font-black tracking-tight text-foreground leading-none">
-            Reel<span className="text-primary">.</span>ai
+            apex<span className="text-primary">Clip</span>.ai
           </h1>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">
             Drop your video — get modern subtitles, speaker centering & automatic silence removal.
@@ -71,6 +71,17 @@ const UploadScreen = ({ onFileSelect }: UploadScreenProps) => {
           <span>✦ Auto Subtitles</span>
           <span>✦ Silence Cut</span>
           <span>✦ Speaker Centering</span>
+        </div>
+
+        <div className="mt-8">
+          <a
+            href="https://apex-consulting.ai/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-[10px] text-muted-foreground/60 hover:text-primary transition-colors"
+          >
+            Powered by <span className="font-semibold text-muted-foreground/80">APEX AI Tech</span>
+          </a>
         </div>
       </div>
     </div>
