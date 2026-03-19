@@ -1,17 +1,34 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useCallback, useState } from "react";
 import { TranscriptWord, SubtitleStyle, SubtitlePreset, SUBTITLE_FONTS } from "@/types/editor";
 
 interface SubtitleOverlayProps {
   transcript: TranscriptWord[];
   currentTime: number;
   style: SubtitleStyle;
+  silences?: { start: number; end: number }[];
+  onPositionChange?: (x: number, y: number) => void;
 }
 
-function getCurrentPhrase(transcript: TranscriptWord[], currentTime: number, timeOffset: number) {
+const SNAP_THRESHOLD = 3; // percentage units to snap
+
+function getCurrentPhrase(
+  transcript: TranscriptWord[],
+  currentTime: number,
+  timeOffset: number,
+  silences?: { start: number; end: number }[],
+) {
   if (transcript.length === 0) return { words: [], activeWordIdx: -1 };
 
-  // Apply time offset - shift the effective time forward to compensate for AI delay
   const t = currentTime - (timeOffset ?? 0);
+
+  // Don't show subtitles during silence gaps
+  if (silences) {
+    for (const s of silences) {
+      if (currentTime >= s.start && currentTime < s.end) {
+        return { words: [], activeWordIdx: -1 };
+      }
+    }
+  }
 
   let activeIdx = -1;
   for (let i = 0; i < transcript.length; i++) {
@@ -38,50 +55,117 @@ function getCurrentPhrase(transcript: TranscriptWord[], currentTime: number, tim
   return { words, activeWordIdx: localActiveIdx };
 }
 
-const SubtitleOverlay = ({ transcript, currentTime, style }: SubtitleOverlayProps) => {
+const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionChange }: SubtitleOverlayProps) => {
   const { words, activeWordIdx } = useMemo(
-    () => getCurrentPhrase(transcript, currentTime, style.timeOffset),
-    [transcript, currentTime, style.timeOffset]
+    () => getCurrentPhrase(transcript, currentTime, style.timeOffset, silences),
+    [transcript, currentTime, style.timeOffset, silences]
   );
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0, startX: 0, startY: 0 });
+
+  const [snapX, setSnapX] = useState(false);
+  const [snapY, setSnapY] = useState(false);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (!onPositionChange || !containerRef.current) return;
+    dragging.current = true;
+    dragStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      startX: style.positionX,
+      startY: style.positionY,
+    };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    e.preventDefault();
+    e.stopPropagation();
+  }, [onPositionChange, style.positionX, style.positionY]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragging.current || !containerRef.current?.parentElement) return;
+    const parent = containerRef.current.parentElement;
+    const rect = parent.getBoundingClientRect();
+
+    const dx = ((e.clientX - dragStart.current.x) / rect.width) * 100;
+    const dy = ((e.clientY - dragStart.current.y) / rect.height) * 100;
+
+    let newX = Math.max(5, Math.min(95, dragStart.current.startX + dx));
+    let newY = Math.max(5, Math.min(95, dragStart.current.startY + dy));
+
+    // Snap to center
+    const isSnapX = Math.abs(newX - 50) < SNAP_THRESHOLD;
+    const isSnapY = Math.abs(newY - 50) < SNAP_THRESHOLD;
+    if (isSnapX) newX = 50;
+    if (isSnapY) newY = 50;
+
+    setSnapX(isSnapX);
+    setSnapY(isSnapY);
+
+    onPositionChange?.(newX, newY);
+  }, [onPositionChange]);
+
+  const handlePointerUp = useCallback(() => {
+    dragging.current = false;
+    setSnapX(false);
+    setSnapY(false);
+  }, []);
 
   if (words.length === 0) return null;
 
   const fontConfig = SUBTITLE_FONTS[style.font] ?? SUBTITLE_FONTS.montserrat;
-  const posClass =
-    style.position === "top" ? "top-[12%]"
-    : style.position === "center" ? "top-1/2 -translate-y-1/2"
-    : "bottom-[14%]";
-
   const scale = style.fontSize / 44;
 
   return (
-    <div className={`absolute left-2 right-2 flex justify-center ${posClass} pointer-events-none`}>
-      <div
-        className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px]"
-        style={{ maxWidth: "96%", fontFamily: fontConfig.family, fontStyle: fontConfig.italic ? "italic" : "normal" }}
-      >
-        {words.map((word, i) => {
-          const isActive = i === activeWordIdx;
-          const isPast = i < activeWordIdx;
-          const size = 15 * scale;
-          const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
+    <>
+      {/* Snap guide lines */}
+      {snapX && (
+        <div className="absolute top-0 bottom-0 left-1/2 w-px bg-primary/50 z-40 pointer-events-none" />
+      )}
+      {snapY && (
+        <div className="absolute left-0 right-0 top-1/2 h-px bg-primary/50 z-40 pointer-events-none" />
+      )}
 
-          return (
-            <span
-              key={`${word.start}-${word.text}`}
-              className="inline-block will-change-transform"
-              style={{
-                ...s,
-                transform: isActive ? "scale(1.12) translateY(-1px)" : "scale(1)",
-                transition: "all 0.08s cubic-bezier(0.22, 1, 0.36, 1)",
-              }}
-            >
-              {word.text.toUpperCase()}
-            </span>
-          );
-        })}
+      <div
+        ref={containerRef}
+        className="absolute z-30 flex justify-center cursor-grab active:cursor-grabbing"
+        style={{
+          left: `${style.positionX}%`,
+          top: `${style.positionY}%`,
+          transform: "translate(-50%, -50%)",
+          pointerEvents: onPositionChange ? "auto" : "none",
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      >
+        <div
+          className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px]"
+          style={{ maxWidth: "96%", fontFamily: fontConfig.family, fontStyle: fontConfig.italic ? "italic" : "normal" }}
+        >
+          {words.map((word, i) => {
+            const isActive = i === activeWordIdx;
+            const isPast = i < activeWordIdx;
+            const size = 15 * scale;
+            const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
+
+            return (
+              <span
+                key={`${word.start}-${word.text}`}
+                className="inline-block will-change-transform select-none"
+                style={{
+                  ...s,
+                  transform: isActive ? "scale(1.12) translateY(-1px)" : "scale(1)",
+                  transition: "all 0.08s cubic-bezier(0.22, 1, 0.36, 1)",
+                }}
+              >
+                {word.text.toUpperCase()}
+              </span>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

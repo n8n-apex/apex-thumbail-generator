@@ -148,7 +148,7 @@ const ReelPreview = ({
       )}
 
       <div
-        className={`relative overflow-hidden rounded-[1.5rem] bg-black h-full ${slideClass}`}
+        className={`relative overflow-hidden rounded-[1.5rem] bg-background h-full ${slideClass}`}
         style={{ aspectRatio: "9/16", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}
       >
         {/* Top bar */}
@@ -187,7 +187,17 @@ const ReelPreview = ({
           playsInline
         />
 
-        <SubtitleOverlay transcript={transcript} currentTime={currentTime} style={subtitleStyle} />
+        <SubtitleOverlay
+          transcript={transcript}
+          currentTime={currentTime}
+          style={subtitleStyle}
+          silences={silences}
+          onPositionChange={(x, y) => {
+            // Bubble up position change — handled via onTimeUpdate parent pattern
+            const event = new CustomEvent("subtitle-position", { detail: { x, y } });
+            window.dispatchEvent(event);
+          }}
+        />
 
         {/* Bottom controls */}
         <div className="absolute bottom-0 left-0 right-0 p-3">
