@@ -1,109 +1,115 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { toBlobURL, fetchFile } from "@ffmpeg/util";
 
-let ffmpegInstance: FFmpeg | null = null;
+let instance: FFmpeg | null = null;
 let loadPromise: Promise<FFmpeg> | null = null;
 
 /**
- * Load FFmpeg WASM (singleton, lazy)
+ * Load video processing engine (singleton, lazy)
  */
-export async function getFFmpeg(
+export async function getProcessor(
   onProgress?: (msg: string) => void
 ): Promise<FFmpeg> {
-  if (ffmpegInstance?.loaded) return ffmpegInstance;
-
+  if (instance?.loaded) return instance;
   if (loadPromise) return loadPromise;
 
   loadPromise = (async () => {
-    const ffmpeg = new FFmpeg();
+    onProgress?.("Loading video engine...");
+    const ff = new FFmpeg();
 
-    ffmpeg.on("log", ({ message }) => {
-      console.log("[FFmpeg]", message);
+    ff.on("log", ({ message }) => {
+      console.log("[VideoProcessor]", message);
     });
 
-    ffmpeg.on("progress", ({ progress }) => {
-      onProgress?.(`Processing: ${Math.round(progress * 100)}%`);
+    ff.on("progress", ({ progress }) => {
+      if (progress > 0 && progress <= 1) {
+        onProgress?.(`Processing: ${Math.round(progress * 100)}%`);
+      }
     });
 
-    // Use single-threaded core (no SharedArrayBuffer needed)
     const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-    await ffmpeg.load({
+    await ff.load({
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
       wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
     });
 
-    ffmpegInstance = ffmpeg;
-    return ffmpeg;
+    instance = ff;
+    return ff;
   })();
 
   return loadPromise;
 }
 
 /**
- * Export video with silences removed using FFmpeg concat demuxer
+ * Export video with silences removed — single-pass trim+concat
  */
 export async function exportVideoWithoutSilences(
   videoFile: File,
   segments: { start: number; end: number }[],
   onProgress?: (msg: string) => void
 ): Promise<Blob> {
-  const ffmpeg = await getFFmpeg(onProgress);
+  if (segments.length === 0) throw new Error("No segments to export");
 
-  // Write input file
+  const ff = await getProcessor(onProgress);
+
+  onProgress?.("Preparing video...");
   const inputData = await fetchFile(videoFile);
-  await ffmpeg.writeFile("input.mp4", inputData);
+  await ff.writeFile("input.mp4", inputData);
 
-  onProgress?.("Cutting segments...");
-
-  // Cut each segment
-  const segmentFiles: string[] = [];
-  for (let i = 0; i < segments.length; i++) {
-    const seg = segments[i];
-    const outName = `seg_${i}.mp4`;
-
-    await ffmpeg.exec([
+  // Build a single complex filter that trims and concatenates all segments
+  // This is much faster than cutting each segment individually
+  if (segments.length === 1) {
+    // Single segment — simple trim, no filter needed
+    const s = segments[0];
+    onProgress?.("Trimming...");
+    await ff.exec([
       "-i", "input.mp4",
-      "-ss", seg.start.toFixed(3),
-      "-to", seg.end.toFixed(3),
+      "-ss", s.start.toFixed(3),
+      "-to", s.end.toFixed(3),
       "-c", "copy",
       "-avoid_negative_ts", "make_zero",
-      outName,
+      "output.mp4",
     ]);
+  } else {
+    // Multiple segments — use concat with trim filter in one pass
+    // Build filter_complex string
+    const filters: string[] = [];
+    const concatInputs: string[] = [];
 
-    segmentFiles.push(outName);
-    onProgress?.(`Cut segment ${i + 1}/${segments.length}`);
+    for (let i = 0; i < segments.length; i++) {
+      const s = segments[i];
+      filters.push(
+        `[0:v]trim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},setpts=PTS-STARTPTS[v${i}];` +
+        `[0:a]atrim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},asetpts=PTS-STARTPTS[a${i}]`
+      );
+      concatInputs.push(`[v${i}][a${i}]`);
+    }
+
+    const filterComplex =
+      filters.join(";") +
+      `;${concatInputs.join("")}concat=n=${segments.length}:v=1:a=1[outv][outa]`;
+
+    onProgress?.("Processing video...");
+    await ff.exec([
+      "-i", "input.mp4",
+      "-filter_complex", filterComplex,
+      "-map", "[outv]",
+      "-map", "[outa]",
+      "-preset", "ultrafast",
+      "-crf", "23",
+      "output.mp4",
+    ]);
   }
 
-  // Create concat list
-  const concatList = segmentFiles.map((f) => `file '${f}'`).join("\n");
-  const encoder = new TextEncoder();
-  await ffmpeg.writeFile("concat.txt", encoder.encode(concatList));
-
-  onProgress?.("Merging segments...");
-
-  // Concat all segments
-  await ffmpeg.exec([
-    "-f", "concat",
-    "-safe", "0",
-    "-i", "concat.txt",
-    "-c", "copy",
-    "output.mp4",
-  ]);
-
-  // Read output
-  const data = await ffmpeg.readFile("output.mp4");
-  const uint8 = data as Uint8Array;
-  const blob = new Blob([new Uint8Array(uint8)], { type: "video/mp4" });
+  onProgress?.("Finalizing...");
+  const data = await ff.readFile("output.mp4");
+  const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: "video/mp4" });
 
   // Cleanup
-  await ffmpeg.deleteFile("input.mp4");
-  for (const f of segmentFiles) {
-    await ffmpeg.deleteFile(f);
-  }
-  await ffmpeg.deleteFile("concat.txt");
-  await ffmpeg.deleteFile("output.mp4");
+  await ff.deleteFile("input.mp4");
+  await ff.deleteFile("output.mp4");
 
-  onProgress?.("Export complete!");
+  onProgress?.("Done!");
   return blob;
 }
 
@@ -115,12 +121,12 @@ export async function extractFrame(
   timeInSeconds: number,
   onProgress?: (msg: string) => void
 ): Promise<Blob> {
-  const ffmpeg = await getFFmpeg(onProgress);
+  const ff = await getProcessor(onProgress);
 
   const inputData = await fetchFile(videoFile);
-  await ffmpeg.writeFile("thumb_input.mp4", inputData);
+  await ff.writeFile("thumb_input.mp4", inputData);
 
-  await ffmpeg.exec([
+  await ff.exec([
     "-i", "thumb_input.mp4",
     "-ss", timeInSeconds.toFixed(3),
     "-frames:v", "1",
@@ -128,12 +134,11 @@ export async function extractFrame(
     "thumbnail.jpg",
   ]);
 
-  const data = await ffmpeg.readFile("thumbnail.jpg");
-  const uint8 = data as Uint8Array;
-  const blob = new Blob([new Uint8Array(uint8)], { type: "image/jpeg" });
+  const data = await ff.readFile("thumbnail.jpg");
+  const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: "image/jpeg" });
 
-  await ffmpeg.deleteFile("thumb_input.mp4");
-  await ffmpeg.deleteFile("thumbnail.jpg");
+  await ff.deleteFile("thumb_input.mp4");
+  await ff.deleteFile("thumbnail.jpg");
 
   return blob;
 }
