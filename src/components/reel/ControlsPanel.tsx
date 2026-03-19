@@ -246,7 +246,7 @@ const ControlsPanel = ({
         </button>
 
         {/* Thumbnail Generator */}
-        <ThumbnailPanel videoRef={videoRef} />
+        <ThumbnailPanel videoRef={videoRef} transcript={style.__transcript} />
       </div>
 
       {/* Bottom actions */}
