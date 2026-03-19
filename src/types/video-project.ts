@@ -34,6 +34,7 @@ export interface VideoProject {
   subtitleStyle: SubtitleStyle;
   speaker: SpeakerSettings;
   silenceCut: SilenceCutSettings;
+  colorGrading: ColorGradingSettings;
   isExporting: boolean;
   exportProgress: string;
   progress: number;
