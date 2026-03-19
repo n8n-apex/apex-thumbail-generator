@@ -137,7 +137,9 @@ const ReelPreview = ({
 
   const seekTo = useCallback((t: number) => {
     const v = videoRef.current;
+    const bg = bgVideoRef.current;
     if (v) { v.currentTime = t; onSeek(t); }
+    if (bg) { bg.currentTime = t; }
   }, [onSeek]);
 
   const progressPct = duration ? (currentTime / duration) * 100 : 0;
