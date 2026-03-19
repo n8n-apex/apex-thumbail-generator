@@ -86,16 +86,6 @@ const ControlsPanel = ({
           </div>
         )}
 
-        {/* Timeline Trimmer */}
-        <TimelineTrimmer
-          duration={duration}
-          currentTime={currentTime}
-          trimRegions={trimRegions}
-          silences={silences}
-          rawAmplitudes={rawAmplitudes}
-          onTrimRegionsChange={onTrimRegionsChange}
-          onSeek={onSeek}
-        />
 
         {/* Silence Cutting */}
         <SilenceCutPanel
