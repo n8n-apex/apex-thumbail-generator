@@ -81,7 +81,7 @@ const ControlsPanel = ({
         <div className="glass rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
             <Type className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-bold text-foreground">Subtitle Style</span>
+            <span className="text-xs font-bold text-foreground">Untertitel-Stil</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
             {(Object.keys(SUBTITLE_PRESETS) as SubtitlePreset[]).map((preset) => {
