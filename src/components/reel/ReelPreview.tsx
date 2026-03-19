@@ -35,7 +35,7 @@ const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
   currentTime, duration, isPlaying, silences,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
-  onRemove, totalVideos, currentIndex, onNavigate, fileName,
+  onRemove, totalVideos, currentIndex, onNavigate, fileName, onVideoRef,
 }: ReelPreviewProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
