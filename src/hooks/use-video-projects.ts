@@ -375,8 +375,9 @@ export function useVideoProjects() {
           redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc),
           validated.words
         );
+        const corrected = applyCorrections(validated.words);
         updateProject(id, {
-          transcript: validated.words,
+          transcript: corrected,
           silences: reconciledSilences,
         });
         toast.success(`Neu transkribiert: ${validated.words.length} Wörter (Score: ${validated.score}/100)`);
