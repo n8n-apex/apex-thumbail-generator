@@ -21,6 +21,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 24px 0;
+  box-sizing: border-box;
 }
 
 /* Desktop: force 16:9 */
