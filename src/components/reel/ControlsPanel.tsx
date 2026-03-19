@@ -32,11 +32,6 @@ interface ControlsPanelProps {
   duration: number;
   sanityCheck?: SanityCheckResult;
   calibrationReasoning?: string;
-  trimRegions: TrimRegion[];
-  rawAmplitudes: number[];
-  silences: { start: number; end: number }[];
-  onTrimRegionsChange: (regions: TrimRegion[]) => void;
-  onSeek: (t: number) => void;
 }
 
 const ACCENT_COLORS = [
