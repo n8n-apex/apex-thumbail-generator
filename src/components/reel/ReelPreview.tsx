@@ -38,6 +38,7 @@ const ReelPreview = ({
   onRemove, totalVideos, currentIndex, onNavigate, fileName, onVideoRef,
 }: ReelPreviewProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
   const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -123,14 +124,22 @@ const ReelPreview = ({
 
   useEffect(() => {
     const v = videoRef.current;
+    const bg = bgVideoRef.current;
     if (!v) return;
-    if (isPlaying) v.play().catch(() => {});
-    else v.pause();
+    if (isPlaying) {
+      v.play().catch(() => {});
+      if (bg) { bg.currentTime = v.currentTime; bg.play().catch(() => {}); }
+    } else {
+      v.pause();
+      bg?.pause();
+    }
   }, [isPlaying]);
 
   const seekTo = useCallback((t: number) => {
     const v = videoRef.current;
+    const bg = bgVideoRef.current;
     if (v) { v.currentTime = t; onSeek(t); }
+    if (bg) { bg.currentTime = t; }
   }, [onSeek]);
 
   const progressPct = duration ? (currentTime / duration) * 100 : 0;
@@ -200,6 +209,17 @@ const ReelPreview = ({
             </button>
           </div>
         </div>
+
+        {/* Blurred background video — visible when zoomed out or repositioned */}
+        <video
+          ref={bgVideoRef}
+          src={videoUrl}
+          className="absolute inset-0 h-full w-full pointer-events-none"
+          style={{ objectFit: "cover", filter: "blur(20px) brightness(0.5)", transform: "scale(1.1)" }}
+          playsInline
+          muted
+          aria-hidden
+        />
 
         <video
           ref={videoRef}
