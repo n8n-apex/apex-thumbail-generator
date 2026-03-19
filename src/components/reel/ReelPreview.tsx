@@ -110,17 +110,26 @@ const ReelPreview = ({
     return () => cancelAnimationFrame(rafRef.current);
   }, [onTimeUpdate, silences]);
 
+  // Auto-skip initial silence: jump to first speech when video loads
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     onVideoRef?.(v);
-    const onDur = () => onDurationChange(v.duration);
+    const onDur = () => {
+      onDurationChange(v.duration);
+      // Skip to first speech if there's a leading silence
+      if (silences.length > 0 && silences[0].start < 0.1) {
+        const skipTo = silences[0].end;
+        v.currentTime = skipTo;
+        onTimeUpdate(skipTo);
+      }
+    };
     v.addEventListener("loadedmetadata", onDur);
     return () => {
       v.removeEventListener("loadedmetadata", onDur);
       onVideoRef?.(null);
     };
-  }, [onDurationChange, onVideoRef]);
+  }, [onDurationChange, onVideoRef, silences, onTimeUpdate]);
 
   useEffect(() => {
     const v = videoRef.current;
