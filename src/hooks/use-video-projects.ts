@@ -121,7 +121,7 @@ export function useVideoProjects() {
         formData.append("language", "de");
         const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
         if (error) throw error;
-        if (data?.transcript?.length > 0) transcriptResult = data.transcript;
+        if (data?.transcript?.length > 0) transcriptResult = cleanTranscript(data.transcript);
         else throw new Error("Empty");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
