@@ -114,6 +114,7 @@ export async function analyzeAudio(
     silences,
     duration,
     amplitudes: normalizedAmplitudes,
+    rawAmplitudes: amplitudes,
   };
 }
 
