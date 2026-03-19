@@ -41,6 +41,7 @@ const ReelPreview = ({
   const rafRef = useRef<number>(0);
   const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const facePos = useFaceTracking(videoRef, speaker.centerSpeaker);
 
   // Touch swipe support
   const touchStartX = useRef(0);
