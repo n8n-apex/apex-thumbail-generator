@@ -124,9 +124,15 @@ const ReelPreview = ({
 
   useEffect(() => {
     const v = videoRef.current;
+    const bg = bgVideoRef.current;
     if (!v) return;
-    if (isPlaying) v.play().catch(() => {});
-    else v.pause();
+    if (isPlaying) {
+      v.play().catch(() => {});
+      if (bg) { bg.currentTime = v.currentTime; bg.play().catch(() => {}); }
+    } else {
+      v.pause();
+      bg?.pause();
+    }
   }, [isPlaying]);
 
   const seekTo = useCallback((t: number) => {
