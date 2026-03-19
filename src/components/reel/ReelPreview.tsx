@@ -33,6 +33,29 @@ const fmt = (s: number) => {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 };
 
+/** Sample average luminance from bottom 30% of video frame */
+function sampleLuminance(video: HTMLVideoElement): number {
+  try {
+    const canvas = document.createElement("canvas");
+    const w = 64, h = 36;
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx || video.videoWidth === 0) return 0.5;
+    ctx.drawImage(video, 0, 0, w, h);
+    const bottomY = Math.floor(h * 0.7);
+    const data = ctx.getImageData(0, bottomY, w, h - bottomY).data;
+    let sum = 0;
+    const pixels = data.length / 4;
+    for (let i = 0; i < data.length; i += 4) {
+      sum += (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+    }
+    return sum / pixels;
+  } catch {
+    return 0.5;
+  }
+}
+
 const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
   currentTime, duration, isPlaying, silences, colorGrading,
@@ -47,6 +70,10 @@ const ReelPreview = ({
   const facePos = useFaceTracking(videoRef, speaker.centerSpeaker);
   const gradingCSS = useMemo(() => colorGrading ? colorGradingToCSS(colorGrading) : "", [colorGrading]);
   const vignetteStyle = useMemo(() => colorGrading ? colorGradingVignetteCSS(colorGrading) : null, [colorGrading]);
+
+  // Adaptive color based on video luminance
+  const [isDarkBg, setIsDarkBg] = useState(true);
+  const lumCheckRef = useRef(0);
 
   // Touch swipe support
   const touchStartX = useRef(0);
@@ -74,43 +101,55 @@ const ReelPreview = ({
     touchDeltaX.current = 0;
   }, [currentIndex, totalVideos, onNavigate]);
 
-  // Skip over silence gaps during playback — simple non-blocking approach
-  const lastUpdateRef = useRef(0);
+  // Stable refs for the playback loop to avoid re-creating it
+  const silencesRef = useRef(silences);
+  silencesRef.current = silences;
+  const onTimeUpdateRef = useRef(onTimeUpdate);
+  onTimeUpdateRef.current = onTimeUpdate;
+
+  // Smooth playback loop — no dependency churn, uses refs
   useEffect(() => {
+    let lastReport = 0;
     const tick = () => {
       const v = videoRef.current;
       if (v && !v.paused && !v.seeking) {
         const t = v.currentTime;
 
-        // Jump past silence gaps instantly
-        for (const s of silences) {
+        // Jump past silence gaps
+        for (const s of silencesRef.current) {
           if (t >= s.start && t < s.end - 0.01) {
             v.currentTime = s.end;
             break;
           }
         }
 
-        // Throttle state updates to ~15fps to avoid render storm
+        // Throttle state updates to ~15fps
         const now = performance.now();
-        if (now - lastUpdateRef.current > 66) {
-          lastUpdateRef.current = now;
-          onTimeUpdate(v.currentTime);
+        if (now - lastReport > 66) {
+          lastReport = now;
+          onTimeUpdateRef.current(v.currentTime);
+
+          // Sample luminance every ~500ms for adaptive controls
+          if (now - lumCheckRef.current > 500) {
+            lumCheckRef.current = now;
+            const lum = sampleLuminance(v);
+            setIsDarkBg(lum < 0.45);
+          }
         }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [onTimeUpdate, silences]);
+  }, []);
 
-  // Auto-skip initial silence: jump to first speech when video loads
+  // Auto-skip initial silence
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     onVideoRef?.(v);
     const onDur = () => {
       onDurationChange(v.duration);
-      // Skip to first speech if there's a leading silence
       if (silences.length > 0 && silences[0].start < 0.1) {
         const skipTo = silences[0].end;
         v.currentTime = skipTo;
@@ -152,6 +191,17 @@ const ReelPreview = ({
     ? "animate-slide-out-right"
     : "animate-fade-in";
 
+  // Adaptive color classes
+  const ctrlText = isDarkBg ? "text-white" : "text-black";
+  const ctrlTextMuted = isDarkBg ? "text-white/70" : "text-black/60";
+  const ctrlTextFaint = isDarkBg ? "text-white/50" : "text-black/40";
+  const ctrlBg = isDarkBg ? "glass-dark" : "bg-white/60 backdrop-blur-md";
+  const ctrlHover = isDarkBg ? "hover:bg-white/20" : "hover:bg-black/10";
+  const progressBg = isDarkBg ? "bg-white/15" : "bg-black/15";
+  const progressFill = isDarkBg ? "bg-white" : "bg-black";
+  const dotActive = isDarkBg ? "bg-white" : "bg-black";
+  const dotInactive = isDarkBg ? "bg-white/40" : "bg-black/30";
+
   return (
     <div
       ref={containerRef}
@@ -160,7 +210,7 @@ const ReelPreview = ({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Navigation arrows — desktop only */}
+      {/* Navigation arrows */}
       {totalVideos > 1 && currentIndex > 0 && (
         <button
           onClick={() => {
@@ -190,14 +240,13 @@ const ReelPreview = ({
       >
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-2.5">
-          {/* Video counter */}
           {totalVideos > 1 && (
             <div className="flex items-center gap-1">
               {Array.from({ length: totalVideos }).map((_, i) => (
                 <div
                   key={i}
                   className={`h-1 rounded-full transition-all duration-300 ${
-                    i === currentIndex ? "w-5 bg-white" : "w-1.5 bg-white/40"
+                    i === currentIndex ? `w-5 ${dotActive}` : `w-1.5 ${dotInactive}`
                   }`}
                 />
               ))}
@@ -205,14 +254,14 @@ const ReelPreview = ({
           )}
           <div className="ml-auto flex gap-1.5">
             <button onClick={onRemove} title="Video entfernen"
-              className="flex h-7 w-7 items-center justify-center rounded-full glass-dark text-white/80 transition hover:bg-destructive/80 hover:text-white"
+              className={`flex h-7 w-7 items-center justify-center rounded-full ${ctrlBg} ${ctrlTextMuted} transition hover:bg-destructive/80 hover:text-white`}
             >
               <X className="h-3 w-3" />
             </button>
           </div>
         </div>
 
-        {/* Blurred background video — visible when zoomed out or repositioned */}
+        {/* Blurred background video */}
         <video
           ref={bgVideoRef}
           src={videoUrl}
@@ -239,7 +288,6 @@ const ReelPreview = ({
           playsInline
         />
 
-        {/* Vignette overlay */}
         {vignetteStyle && <div style={vignetteStyle} />}
 
         <SubtitleOverlay
@@ -248,7 +296,6 @@ const ReelPreview = ({
           style={subtitleStyle}
           silences={silences}
           onPositionChange={(x, y) => {
-            // Bubble up position change — handled via onTimeUpdate parent pattern
             const event = new CustomEvent("subtitle-position", { detail: { x, y } });
             window.dispatchEvent(event);
           }}
@@ -256,11 +303,10 @@ const ReelPreview = ({
 
         {/* Bottom controls */}
         <div className="absolute bottom-0 left-0 right-0 p-3">
-          {/* File name */}
-          <p className="text-[9px] text-white/50 truncate mb-1.5 font-medium">{fileName}</p>
+          <p className={`text-[9px] ${ctrlTextFaint} truncate mb-1.5 font-medium`}>{fileName}</p>
 
           <div
-            className="relative mb-2.5 h-1.5 w-full cursor-pointer rounded-full bg-white/15 overflow-hidden backdrop-blur-sm"
+            className={`relative mb-2.5 h-1.5 w-full cursor-pointer rounded-full ${progressBg} overflow-hidden backdrop-blur-sm`}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               seekTo(((e.clientX - rect.left) / rect.width) * (duration || 1));
@@ -276,21 +322,21 @@ const ReelPreview = ({
                 }}
               />
             ))}
-            <div className="absolute top-0 h-full rounded-full bg-white transition-all" style={{ width: `${progressPct}%` }} />
+            <div className={`absolute top-0 h-full rounded-full ${progressFill} transition-all`} style={{ width: `${progressPct}%` }} />
           </div>
 
           <div className="flex items-center gap-2">
             <button onClick={onPlayPause}
-              className="flex h-8 w-8 items-center justify-center rounded-full glass-dark text-white transition hover:bg-white/20"
+              className={`flex h-8 w-8 items-center justify-center rounded-full ${ctrlBg} ${ctrlText} transition ${ctrlHover}`}
             >
               {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
             </button>
             <button onClick={() => seekTo(0)}
-              className="flex h-8 w-8 items-center justify-center rounded-full glass-dark text-white transition hover:bg-white/20"
+              className={`flex h-8 w-8 items-center justify-center rounded-full ${ctrlBg} ${ctrlText} transition ${ctrlHover}`}
             >
               <RotateCcw className="h-3 w-3" />
             </button>
-            <span className="ml-auto text-[10px] tabular-nums text-white/70 font-medium">
+            <span className={`ml-auto text-[10px] tabular-nums ${ctrlTextMuted} font-medium`}>
               {fmt(currentTime)} / {fmt(duration || 0)}
             </span>
           </div>
