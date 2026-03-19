@@ -132,30 +132,52 @@ export function useVideoProjects() {
     if (processingRef.current.has(project.id)) return;
     processingRef.current.add(project.id);
     const id = project.id;
-    const sc = project.silenceCut;
 
     try {
+      // Step 1: Analyze audio
       const result = await analyzeAudio(project.file, {
-        silenceThreshold: sc.threshold,
-        minSilenceDuration: sc.minDuration,
+        silenceThreshold: 0.015, // Initial pass — will be overridden by calibration
+        minSilenceDuration: 0.4,
         chunkDuration: CHUNK_DURATION,
         onProgress: (p) => updateProject(id, { progress: p }),
       });
 
       updateProjectStep(id, 0, { done: true, active: false });
       updateProjectStep(id, 1, { active: true });
-      updateProject(id, { currentStep: "Pausen erkannt", rawAmplitudes: result.rawAmplitudes, duration: result.duration, progress: 0 });
+      updateProject(id, { 
+        currentStep: "KI kalibriert Parameter...", 
+        rawAmplitudes: result.rawAmplitudes, 
+        duration: result.duration, 
+        progress: 0 
+      });
 
-      const detectedSilences = redetectSilences(result.rawAmplitudes, CHUNK_DURATION, result.duration, sc);
+      // Step 2: Auto-calibrate — analyze audio profile and derive optimal settings per video
+      const calibration = autoCalibrateFromAmplitudes(
+        result.rawAmplitudes, CHUNK_DURATION, result.duration
+      );
+      console.log(`Auto-calibration (confidence ${calibration.confidence}/100): ${calibration.reasoning}`);
+
+      // Apply calibrated silence settings
+      const calibratedSC = calibration.silenceCut;
+      updateProject(id, { 
+        silenceCut: calibratedSC,
+        calibrationReasoning: calibration.reasoning,
+      });
+
+      const detectedSilences = redetectSilences(
+        result.rawAmplitudes, CHUNK_DURATION, result.duration, calibratedSC
+      );
+
       updateProjectStep(id, 1, { done: true, active: false });
       updateProjectStep(id, 2, { active: true });
       updateProject(id, { currentStep: "Audio wird extrahiert..." });
 
+      // Step 3: Transcribe
       let transcriptResult: TranscriptWord[] = [];
       try {
         const audioBlob = await extractAudioBlob(project.file, 120);
         const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
-        updateProject(id, { currentStep: "KI verarbeitet..." });
+        updateProject(id, { currentStep: "KI transkribiert..." });
         const formData = new FormData();
         formData.append("audio", audioFile);
         formData.append("language", "de");
@@ -163,7 +185,6 @@ export function useVideoProjects() {
         if (error) throw error;
         if (data?.transcript?.length > 0) {
           const cleaned = cleanTranscript(data.transcript);
-          // Self-checking validation: repair timing issues
           const validated = validateAndRepairTranscript(cleaned);
           if (validated.fixes.length > 0) {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
@@ -176,15 +197,44 @@ export function useVideoProjects() {
       }
 
       const reconciledSilences = reconcileSilencesWithTranscript(detectedSilences, transcriptResult);
+
       updateProjectStep(id, 2, { done: true, active: false });
-      updateProjectStep(id, 3, { done: true });
-      updateProject(id, {
+      updateProjectStep(id, 3, { active: true });
+      updateProject(id, { 
+        currentStep: "Qualitätsprüfung...",
         transcript: transcriptResult,
         silences: reconciledSilences,
+      });
+
+      // Step 4: Sanity check — AI agent validates everything
+      try {
+        const { data: checkData, error: checkError } = await supabase.functions.invoke("sanity-check", {
+          body: {
+            transcript: transcriptResult,
+            silences: reconciledSilences,
+            calibration: { reasoning: calibration.reasoning, confidence: calibration.confidence },
+            duration: result.duration,
+          },
+        });
+        if (!checkError && checkData?.result) {
+          const check = checkData.result;
+          updateProject(id, { sanityCheck: check });
+          if (check.passed) {
+            toast.success(`✅ ${project.file.name}: Export-bereit! (Score: ${check.overall_score}/100)`);
+          } else {
+            toast.warning(`⚠️ ${project.file.name}: ${check.summary}`);
+          }
+          console.log("Sanity check:", check);
+        }
+      } catch (e) {
+        console.warn("Sanity check failed (non-critical):", e);
+      }
+
+      updateProjectStep(id, 3, { done: true, active: false });
+      updateProject(id, {
         currentStep: "Fertig!",
         phase: "ready",
       });
-      toast.success(`${project.file.name}: ${reconciledSilences.length} Pausen, ${transcriptResult.length} Wörter`);
     } catch {
       toast.error(`${project.file.name}: Fehler, Demo-Daten`);
       updateProject(id, {
