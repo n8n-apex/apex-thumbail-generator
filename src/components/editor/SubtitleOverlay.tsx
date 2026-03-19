@@ -38,7 +38,7 @@ function getCurrentPhrase(
     }
   }
 
-  // Adaptive word matching with verification
+  // Adaptive word matching — widen windows to eliminate gaps between words
   let activeIdx = -1;
   let bestScore = -Infinity;
 
@@ -47,15 +47,14 @@ function getCurrentPhrase(
     const wordMid = (w.start + w.end) / 2;
     const wordDur = w.end - w.start;
     
-    // Adaptive pre-roll: shorter words need tighter windows
-    const preRoll = Math.min(0.08, wordDur * 0.3);
-    // Adaptive post-hold: hold word visible slightly after it ends
-    const postHold = i < transcript.length - 1
-      ? Math.min(transcript[i + 1].start - w.end, 0.12)
-      : 0.2;
+    // Pre-roll: show word slightly before it starts
+    const preRoll = Math.min(0.12, wordDur * 0.4);
+    // Post-hold: keep word visible until next word starts (bridge gaps)
+    const nextStart = i < transcript.length - 1 ? transcript[i + 1].start : w.end + 0.5;
+    const gapToNext = nextStart - w.end;
+    const postHold = Math.min(gapToNext, 0.4); // hold up to 400ms or until next word
 
     if (t >= w.start - preRoll && t < w.end + postHold) {
-      // Score: prefer words where we're closest to the middle
       const distFromMid = Math.abs(t - wordMid);
       const score = 1 / (distFromMid + 0.001);
       if (score > bestScore) {
@@ -65,14 +64,15 @@ function getCurrentPhrase(
     }
   }
 
-  // Self-check: if we found a word, verify it makes sense
-  if (activeIdx >= 0) {
-    const w = transcript[activeIdx];
-    // Check if there's a closer word that we might have missed
-    if (activeIdx > 0) {
-      const prev = transcript[activeIdx - 1];
-      if (t < w.start && t >= prev.start && t <= prev.end + 0.05) {
-        activeIdx = activeIdx - 1; // Previous word is actually still active
+  // Fallback: if no match, find nearest word within 0.5s
+  if (activeIdx === -1) {
+    let minDist = 0.5;
+    for (let i = 0; i < transcript.length; i++) {
+      const w = transcript[i];
+      const dist = t < w.start ? w.start - t : t - w.end;
+      if (dist < minDist && dist >= 0) {
+        minDist = dist;
+        activeIdx = i;
       }
     }
   }
