@@ -25,3 +25,18 @@ html, body, #root {
   padding: 0;
   box-sizing: border-box;
 }
+
+/* Desktop: give the editor layout more breathing room */
+@media (min-width: 640px) {
+  .app-frame {
+    padding: 12px;
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-frame {
+    padding: 16px;
+    gap: 16px;
+  }
+}

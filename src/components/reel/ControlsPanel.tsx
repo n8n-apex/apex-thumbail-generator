@@ -36,8 +36,8 @@ const ControlsPanel = ({
   const updSpk = (p: Partial<SpeakerSettings>) => onSpeakerChange({ ...speaker, ...p });
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto py-3 px-3 sm:py-4 sm:pr-4 sm:pl-2 w-full sm:w-[340px] sm:flex-shrink-0">
-      <div className="space-y-3 sm:space-y-3.5 flex-1">
+    <div className="flex flex-col h-full overflow-y-auto py-3 px-3 sm:py-4 sm:pr-4 sm:pl-2 w-full sm:w-[340px] lg:w-[380px] sm:flex-shrink-0">
+      <div className="space-y-3 sm:space-y-3.5 lg:space-y-4 flex-1">
         {/* Silence Cutting */}
         <SilenceCutPanel
           settings={silenceCut}
