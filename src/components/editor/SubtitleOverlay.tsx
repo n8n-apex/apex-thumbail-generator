@@ -46,7 +46,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style }: SubtitleOverlayProp
 
   if (words.length === 0) return null;
 
-  const fontConfig = SUBTITLE_FONTS[style.font];
+  const fontConfig = SUBTITLE_FONTS[style.font] ?? SUBTITLE_FONTS.montserrat;
   const posClass =
     style.position === "top" ? "top-[12%]"
     : style.position === "center" ? "top-1/2 -translate-y-1/2"
