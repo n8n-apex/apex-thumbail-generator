@@ -1,11 +1,13 @@
 import {
   SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings, SilenceCutSettings,
-  TranscriptWord, SUBTITLE_PRESETS, SUBTITLE_FONTS,
+  TranscriptWord, ColorGradingSettings, SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
 import { SanityCheckResult } from "@/types/video-project";
 import { Type, Palette, Move, User, Download, Maximize, Clock, Plus, RefreshCw, RectangleHorizontal, ShieldCheck, AlertTriangle } from "lucide-react";
 import SilenceCutPanel from "./SilenceCutPanel";
 import ThumbnailPanel from "./ThumbnailPanel";
+import TranscriptEditor from "./TranscriptEditor";
+import ColorGradingPanel from "./ColorGradingPanel";
 
 interface ControlsPanelProps {
   style: SubtitleStyle;
