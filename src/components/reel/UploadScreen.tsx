@@ -57,7 +57,7 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
   return (
     <div className="flex h-full w-full items-center justify-center mesh-gradient pt-0">
       <div className="w-full max-w-md text-center px-6 -mt-12">
-        <div className="mb-8">
+        <div className="mb-5">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-[10px] font-bold tracking-wider text-primary uppercase">
             <Zap className="h-3 w-3" />
             Auto Subtitles & Silence Cut
