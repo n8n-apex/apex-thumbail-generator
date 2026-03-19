@@ -9,13 +9,13 @@ interface ProcessingScreenProps {
 
 const ProcessingScreen = ({ fileName, progress, currentStep, steps }: ProcessingScreenProps) => {
   return (
-    <div className="flex min-h-screen items-center justify-center mesh-gradient p-6">
-      <div className="w-full max-w-sm glass rounded-3xl p-8 text-center">
-        <Loader2 className="mx-auto mb-5 h-8 w-8 animate-spin text-primary" />
-        <h2 className="text-base font-bold text-foreground mb-1">Processing</h2>
-        <p className="truncate text-[11px] text-muted-foreground mb-6">{fileName}</p>
+    <div className="flex h-full w-full items-center justify-center mesh-gradient">
+      <div className="w-full max-w-sm glass rounded-2xl p-7 text-center">
+        <Loader2 className="mx-auto mb-4 h-7 w-7 animate-spin text-primary" />
+        <h2 className="text-sm font-bold text-foreground mb-1">Processing</h2>
+        <p className="truncate text-[11px] text-muted-foreground mb-5">{fileName}</p>
 
-        <div className="space-y-2.5 text-left">
+        <div className="space-y-2 text-left">
           {steps.map((step) => (
             <div key={step.label} className="flex items-center gap-3">
               <div className={`h-2 w-2 rounded-full flex-shrink-0 ${
@@ -34,7 +34,7 @@ const ProcessingScreen = ({ fileName, progress, currentStep, steps }: Processing
           ))}
         </div>
 
-        <p className="mt-5 text-[10px] text-muted-foreground">{currentStep}</p>
+        <p className="mt-4 text-[10px] text-muted-foreground">{currentStep}</p>
       </div>
     </div>
   );
