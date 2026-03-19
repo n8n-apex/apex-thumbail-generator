@@ -156,10 +156,21 @@ const TimelineTrimmer = ({
       {/* Timeline track */}
       <div
         ref={trackRef}
-        className="relative h-14 rounded-xl bg-muted/30 cursor-crosshair overflow-hidden select-none"
-        onClick={handleTrackClick}
+        className="relative h-14 rounded-xl bg-muted/30 cursor-crosshair overflow-hidden select-none touch-none"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          if (dragging) return;
+          const time = getTimeFromX(e.clientX);
+          onSeek(time);
+        }}
         onMouseMove={handleTrackHover}
         onMouseLeave={() => setHoveredTime(null)}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          if (dragging) return;
+          const time = getTimeFromX(e.touches[0].clientX);
+          onSeek(time);
+        }}
       >
         {/* Waveform */}
         <div className="absolute inset-0 flex items-end px-px gap-px pointer-events-none">
