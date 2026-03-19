@@ -10,14 +10,93 @@ interface SubtitleOverlayProps {
 }
 
 const SNAP_THRESHOLD = 3;
+const WORDS_PER_LINE = 3;
 
-/**
- * Improved phrase detection with adaptive timing window.
- * Uses a self-checking approach:
- * 1. Find the best matching word based on current time
- * 2. Verify the match by checking neighboring words
- * 3. Use adaptive lookahead based on speech rate
- */
+interface LineWord {
+  word: TranscriptWord;
+  idx: number;
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+function getTimingWindow(transcript: TranscriptWord[], idx: number) {
+  const current = transcript[idx];
+  const prev = idx > 0 ? transcript[idx - 1] : null;
+  const next = idx < transcript.length - 1 ? transcript[idx + 1] : null;
+
+  const duration = Math.max(0.06, current.end - current.start);
+  const leftGap = prev ? Math.max(0, current.start - prev.end) : duration;
+  const rightGap = next ? Math.max(0, next.start - current.end) : duration;
+  const pace = clamp((duration + leftGap + rightGap) / 3, 0.08, 0.34);
+
+  return {
+    preRoll: clamp(pace * 0.55, 0.03, 0.16),
+    hold: clamp(pace * 0.6, 0.08, 0.22),
+  };
+}
+
+function findActiveWordIndex(transcript: TranscriptWord[], t: number): number {
+  if (transcript.length === 0) return -1;
+
+  let lo = 0;
+  let hi = transcript.length - 1;
+
+  while (lo <= hi) {
+    const mid = (lo + hi) >>> 1;
+    const word = transcript[mid];
+
+    if (t < word.start) {
+      hi = mid - 1;
+    } else if (t > word.end) {
+      lo = mid + 1;
+    } else {
+      return mid;
+    }
+  }
+
+  const anchor = clamp(lo, 0, transcript.length - 1);
+  let bestIdx = -1;
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  for (let i = Math.max(0, anchor - 2); i <= Math.min(transcript.length - 1, anchor + 2); i++) {
+    const word = transcript[i];
+    const window = getTimingWindow(transcript, i);
+    const inWindow = t >= word.start - window.preRoll && t <= word.end + window.hold;
+    if (!inWindow) continue;
+
+    const center = (word.start + word.end) / 2;
+    const inWord = t >= word.start && t <= word.end;
+    const confidencePenalty = (1 - clamp(word.confidence ?? 1, 0, 1)) * 0.03;
+    const score = Math.abs(t - center) - (inWord ? 0.08 : 0) + confidencePenalty;
+
+    if (score < bestScore) {
+      bestScore = score;
+      bestIdx = i;
+    }
+  }
+
+  if (bestIdx !== -1) return bestIdx;
+
+  const prev = lo - 1;
+  const next = lo;
+
+  if (prev >= 0) {
+    const hold = getTimingWindow(transcript, prev).hold;
+    if (t >= transcript[prev].start && t - transcript[prev].end <= hold) {
+      return prev;
+    }
+  }
+
+  if (next < transcript.length) {
+    const preRoll = getTimingWindow(transcript, next).preRoll;
+    if (transcript[next].start - t <= preRoll) {
+      return next;
+    }
+  }
+
+  return -1;
+}
+
 function getCurrentPhrase(
   transcript: TranscriptWord[],
   currentTime: number,
@@ -29,91 +108,58 @@ function getCurrentPhrase(
 
   const t = currentTime - (timeOffset ?? 0);
 
-  // Don't show subtitles during silence gaps
   if (silences) {
     for (const s of silences) {
-      if (currentTime >= s.start && currentTime < s.end) {
+      if (t >= s.start && t < s.end) {
         return { words: [], activeWordIdx: -1 };
       }
     }
   }
 
-  // Binary search for the word whose time range contains `t`
-  let activeIdx = -1;
-  let lo = 0;
-  let hi = transcript.length - 1;
+  const phraseSize = WORDS_PER_LINE * Math.max(1, maxLines);
+  const activeIdx = findActiveWordIndex(transcript, t);
 
-  while (lo <= hi) {
-    const mid = (lo + hi) >>> 1;
-    const w = transcript[mid];
-    if (t < w.start) {
-      hi = mid - 1;
-    } else if (t > w.end) {
-      lo = mid + 1;
-    } else {
-      // t is within [start, end] — exact match
-      activeIdx = mid;
-      break;
-    }
-  }
-
-  // If no exact hit, check the gap between two words
   if (activeIdx === -1) {
-    // `lo` is where t would be inserted — check if we're in the gap just after word `lo-1`
-    const prev = lo - 1;
-    const next = lo;
+    if (t < transcript[0].start && transcript[0].start - t <= 0.85) {
+      return {
+        words: transcript.slice(0, Math.min(phraseSize, transcript.length)),
+        activeWordIdx: -1,
+      };
+    }
 
-    // If before all words: show first phrase but no highlight
-    if (prev < 0) {
-      const phraseSize = 3 * maxLines;
-      const words = transcript.slice(0, Math.min(phraseSize, transcript.length));
-      // Only show if we're within 1s of first word
-      if (transcript[0].start - t <= 1.0) {
-        return { words, activeWordIdx: -1 };
-      }
+    const last = transcript[transcript.length - 1];
+    if (t > last.end + 0.35) {
       return { words: [], activeWordIdx: -1 };
     }
 
-    // If after all words: hide
-    if (next >= transcript.length) {
-      return { words: [], activeWordIdx: -1 };
-    }
-
-    // We're in a gap between prev and next word
-    const gapSize = transcript[next].start - transcript[prev].end;
-
-    if (gapSize <= 0.35) {
-      // Small gap (<350ms): hold on previous word for continuity
-      activeIdx = prev;
-    } else {
-      // Larger gap: show next word early if within 200ms, otherwise hold previous briefly
-      const timeToNext = transcript[next].start - t;
-      const timeSincePrev = t - transcript[prev].end;
-
-      if (timeToNext <= 0.2) {
-        activeIdx = next; // Pre-roll next word
-      } else if (timeSincePrev <= 0.15) {
-        activeIdx = prev; // Brief hold on previous
-      } else {
-        // True pause — hide subtitles
-        return { words: [], activeWordIdx: -1 };
-      }
-    }
+    return { words: [], activeWordIdx: -1 };
   }
 
-  if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
-
-  // Strictly enforce maxLines by limiting total words in the phrase.
-  // Use exactly `wordsPerLine * maxLines` words per group.
-  const wordsPerLine = 3;
-  const phraseSize = wordsPerLine * maxLines; // e.g. 3*2 = 6 words max
   const phraseStart = Math.floor(activeIdx / phraseSize) * phraseSize;
   const phraseEnd = Math.min(phraseStart + phraseSize, transcript.length);
-
   const words = transcript.slice(phraseStart, phraseEnd);
-  const localActiveIdx = activeIdx - phraseStart;
 
-  return { words, activeWordIdx: localActiveIdx };
+  return {
+    words,
+    activeWordIdx: activeIdx - phraseStart,
+  };
+}
+
+function buildSubtitleLines(words: TranscriptWord[], maxLines: number): LineWord[][] {
+  const lines: LineWord[][] = [];
+  const lineCount = Math.max(1, maxLines);
+
+  let cursor = 0;
+  for (let line = 0; line < lineCount && cursor < words.length; line++) {
+    const chunk = words.slice(cursor, cursor + WORDS_PER_LINE).map((word, localIdx) => ({
+      word,
+      idx: cursor + localIdx,
+    }));
+    lines.push(chunk);
+    cursor += WORDS_PER_LINE;
+  }
+
+  return lines;
 }
 
 const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionChange }: SubtitleOverlayProps) => {
@@ -171,12 +217,13 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
     setSnapY(false);
   }, []);
 
-  if (words.length === 0) return null;
-
   const fontConfig = SUBTITLE_FONTS[style.font] ?? SUBTITLE_FONTS.montserrat;
   const scale = style.fontSize / 44;
   const boxWidth = style.boxWidth ?? 85;
   const maxLines = style.boxHeight ?? 2;
+  const lines = useMemo(() => buildSubtitleLines(words, maxLines), [words, maxLines]);
+
+  if (words.length === 0) return null;
 
   return (
     <>
@@ -202,34 +249,39 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
         onPointerUp={handlePointerUp}
       >
         <div
-          className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px] overflow-hidden"
+          className="flex flex-col items-center gap-y-[3px]"
           style={{
             width: "100%",
             fontFamily: fontConfig.family,
             fontStyle: fontConfig.italic ? "italic" : "normal",
-            maxHeight: `${maxLines * (15 * scale * 1.15 + 6)}px`,
+            overflow: "visible",
+            padding: `${Math.max(3, 5 * scale)}px 0`,
           }}
         >
-          {words.map((word, i) => {
-            const isActive = i === activeWordIdx;
-            const isPast = i < activeWordIdx;
-            const size = 15 * scale;
-            const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
-            const anim = getAnimation(style.preset, isActive);
+          {lines.map((line, lineIdx) => (
+            <div key={`line-${lineIdx}`} className="flex w-full justify-center gap-x-[5px] flex-nowrap">
+              {line.map(({ word, idx }) => {
+                const isActive = idx === activeWordIdx;
+                const isPast = idx < activeWordIdx;
+                const size = 15 * scale;
+                const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
+                const anim = getAnimation(style.preset, isActive);
 
-            return (
-              <span
-                key={`${word.start}-${word.text}`}
-                className="inline-block will-change-transform select-none"
-                style={{
-                  ...s,
-                  ...anim,
-                }}
-              >
-                {word.text.toUpperCase()}
-              </span>
-            );
-          })}
+                return (
+                  <span
+                    key={`${word.start}-${word.text}-${idx}`}
+                    className="inline-block will-change-transform select-none"
+                    style={{
+                      ...s,
+                      ...anim,
+                    }}
+                  >
+                    {word.text.toUpperCase()}
+                  </span>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
     </>

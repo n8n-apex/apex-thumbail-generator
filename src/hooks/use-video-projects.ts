@@ -6,6 +6,7 @@ import { analyzeAudio, getActiveSegments, type SilenceGap } from "@/lib/audio-an
 import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
 import { validateAndRepairTranscript } from "@/lib/transcript-validator";
+import { alignTranscriptToAudioTimeline } from "@/lib/transcript-sync";
 import { autoCalibrateFromAmplitudes } from "@/lib/auto-calibrate";
 import { applyCorrections } from "@/components/reel/TranscriptEditor";
 import { supabase } from "@/integrations/supabase/client";
@@ -190,7 +191,15 @@ export function useVideoProjects() {
           if (validated.fixes.length > 0) {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
           }
-          transcriptResult = applyCorrections(validated.words);
+
+          const synced = alignTranscriptToAudioTimeline(validated.words, detectedSilences, result.duration);
+          if (synced.appliedAdjustments > 0) {
+            console.log(
+              `Transcript sync alignment: ${synced.appliedAdjustments} adjusted words, shift ${synced.globalShiftMs}ms`
+            );
+          }
+
+          transcriptResult = applyCorrections(synced.words);
         } else throw new Error("Empty");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
@@ -389,11 +398,12 @@ export function useVideoProjects() {
         // Re-read project from ref for latest silenceCut settings
         const latestProj = projectsRef.current.find((p) => p.id === id);
         const sc = latestProj?.silenceCut ?? proj.silenceCut;
-        const reconciledSilences = reconcileSilencesWithTranscript(
-          redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc),
-          validated.words
-        );
-        const corrected = applyCorrections(validated.words);
+        const rawSilences = redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc);
+
+        const synced = alignTranscriptToAudioTimeline(validated.words, rawSilences, proj.duration);
+        const corrected = applyCorrections(synced.words);
+        const reconciledSilences = reconcileSilencesWithTranscript(rawSilences, corrected);
+
         updateProject(id, {
           transcript: corrected,
           silences: reconciledSilences,
