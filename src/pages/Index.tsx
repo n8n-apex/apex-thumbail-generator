@@ -121,7 +121,7 @@ const Index = () => {
       });
 
       // Store raw amplitudes for re-analysis
-      rawAmplitudesRef.current = result.amplitudes;
+      rawAmplitudesRef.current = result.rawAmplitudes;
 
       updateStep(0, { done: true, active: false });
       updateStep(1, { active: true });
