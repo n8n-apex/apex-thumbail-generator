@@ -86,7 +86,6 @@ export async function analyzeAudio(
     } else if (!isSilent && silenceStart !== null) {
       const silenceDuration = time - silenceStart;
       if (silenceDuration >= minSilenceDuration) {
-        // Add small padding to keep natural speech rhythm
         silences.push({
           start: silenceStart + 0.1,
           end: time - 0.05,
@@ -105,6 +104,20 @@ export async function analyzeAudio(
         end: duration - 0.05,
       });
     }
+  }
+
+  // Force-trim leading background noise (first 0.3s if mostly quiet)
+  const leadChunks = Math.min(Math.ceil(0.3 / chunkDuration), amplitudes.length);
+  const leadAvg = amplitudes.slice(0, leadChunks).reduce((a, b) => a + b, 0) / leadChunks;
+  if (leadAvg < silenceThreshold * 3 && (silences.length === 0 || silences[0].start > 0.15)) {
+    silences.unshift({ start: 0, end: Math.min(0.3, duration) });
+  }
+
+  // Force-trim trailing background noise (last 0.3s if mostly quiet)
+  const tailStart = Math.max(0, amplitudes.length - leadChunks);
+  const tailAvg = amplitudes.slice(tailStart).reduce((a, b) => a + b, 0) / leadChunks;
+  if (tailAvg < silenceThreshold * 3 && (silences.length === 0 || silences[silences.length - 1].end < duration - 0.15)) {
+    silences.push({ start: Math.max(0, duration - 0.3), end: duration });
   }
 
   onProgress?.(1);
