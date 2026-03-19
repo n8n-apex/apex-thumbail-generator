@@ -191,7 +191,15 @@ export function useVideoProjects() {
           if (validated.fixes.length > 0) {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
           }
-          transcriptResult = applyCorrections(validated.words);
+
+          const synced = alignTranscriptToAudioTimeline(validated.words, detectedSilences, result.duration);
+          if (synced.appliedAdjustments > 0) {
+            console.log(
+              `Transcript sync alignment: ${synced.appliedAdjustments} adjusted words, shift ${synced.globalShiftMs}ms`
+            );
+          }
+
+          transcriptResult = applyCorrections(synced.words);
         } else throw new Error("Empty");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
