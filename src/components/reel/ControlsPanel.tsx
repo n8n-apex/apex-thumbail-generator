@@ -33,6 +33,14 @@ const ControlsPanel = ({
 
   return (
     <div className="w-[360px] space-y-5 overflow-y-auto max-h-[calc(100vh-120px)] pr-1">
+      {/* Silence Cutting - TOP PRIORITY */}
+      <SilenceCutPanel
+        settings={silenceCut}
+        onChange={onSilenceCutChange}
+        silenceCount={silenceCount}
+        timeSaved={timeSaved}
+        duration={duration}
+      />
       {/* Speaker Centering */}
       <div className="glass rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
