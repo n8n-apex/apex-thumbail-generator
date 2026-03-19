@@ -43,7 +43,7 @@ export interface VideoProject {
   steps: ProcessingStep[];
   sanityCheck?: SanityCheckResult;
   calibrationReasoning?: string;
-  trimRegions: TrimRegion[];
+  
 }
 
 export function createVideoProject(file: File): VideoProject {
