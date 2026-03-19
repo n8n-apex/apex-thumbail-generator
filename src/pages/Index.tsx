@@ -141,8 +141,8 @@ const Index = () => {
         onSpeakerChange={(s) => updateProject(proj.id, { speaker: s })}
         onSilenceCutChange={(s) => {
           updateProject(proj.id, { silenceCut: s });
-          // Trigger redetection on next render via useEffect
         }}
+        onExport={() => exportProject(proj.id)}
         onRegenerate={() => regenerateTranscript(proj.id)}
         onAddMore={handleAddMore}
         isExporting={proj.isExporting}
