@@ -18,7 +18,8 @@ export interface SubtitleStyle {
   preset: SubtitlePreset;
   font: SubtitleFont;
   fontSize: number;
-  position: "bottom" | "center" | "top";
+  positionX: number; // 0-100 percentage from left
+  positionY: number; // 0-100 percentage from top
   accentColor: string;
   timeOffset: number; // seconds to shift subtitles earlier (negative = earlier)
 }
