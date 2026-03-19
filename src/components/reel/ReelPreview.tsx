@@ -70,22 +70,22 @@ const ReelPreview = ({
   const progressPct = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex h-full items-center justify-center py-4 px-6 flex-shrink-0">
       <div
-        className="relative w-[340px] overflow-hidden rounded-[2rem] bg-black"
-        style={{ aspectRatio: "9/16", boxShadow: "0 24px 80px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)" }}
+        className="relative overflow-hidden rounded-[1.5rem] bg-black h-full"
+        style={{ aspectRatio: "9/16", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}
       >
         {/* Top action buttons */}
-        <div className="absolute top-3 right-3 z-20 flex gap-1.5">
+        <div className="absolute top-2.5 right-2.5 z-20 flex gap-1.5">
           <button onClick={onSwapVideo} title="Anderes Video"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-black/60 hover:text-white"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-black/60 hover:text-white"
           >
-            <RefreshCw className="h-3.5 w-3.5" />
+            <RefreshCw className="h-3 w-3" />
           </button>
           <button onClick={onReset} title="Video entfernen"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-red-500/80 hover:text-white"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-red-500/80 hover:text-white"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-3 w-3" />
           </button>
         </div>
 
@@ -103,15 +103,14 @@ const ReelPreview = ({
 
         <SubtitleOverlay transcript={transcript} currentTime={currentTime} style={subtitleStyle} />
 
-        <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="absolute bottom-0 left-0 right-0 p-3">
           <div
-            className="relative mb-3 h-1.5 w-full cursor-pointer rounded-full bg-white/20 overflow-hidden"
+            className="relative mb-2.5 h-1 w-full cursor-pointer rounded-full bg-white/20 overflow-hidden"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               seekTo(((e.clientX - rect.left) / rect.width) * (duration || 1));
             }}
           >
-            {/* Silence markers */}
             {duration > 0 && silences.map((s, i) => (
               <div
                 key={i}
@@ -125,18 +124,18 @@ const ReelPreview = ({
             <div className="absolute top-0 h-full rounded-full bg-white transition-all" style={{ width: `${progressPct}%` }} />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button onClick={onPlayPause}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-white transition hover:bg-white/30"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-white transition hover:bg-white/30"
             >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
+              {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
             </button>
             <button onClick={() => seekTo(0)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-white transition hover:bg-white/30"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-white transition hover:bg-white/30"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-3 w-3" />
             </button>
-            <span className="ml-auto text-[11px] tabular-nums text-white/70 font-medium">
+            <span className="ml-auto text-[10px] tabular-nums text-white/70 font-medium">
               {fmt(currentTime)} / {fmt(duration || 0)}
             </span>
           </div>
