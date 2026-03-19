@@ -103,9 +103,10 @@ function getCurrentPhrase(
 
   if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
 
-  // Build phrase window
+  // Strictly enforce maxLines by limiting total words in the phrase.
+  // Use exactly `wordsPerLine * maxLines` words per group.
   const wordsPerLine = 3;
-  const phraseSize = wordsPerLine * maxLines;
+  const phraseSize = wordsPerLine * maxLines; // e.g. 3*2 = 6 words max
   const phraseStart = Math.floor(activeIdx / phraseSize) * phraseSize;
   const phraseEnd = Math.min(phraseStart + phraseSize, transcript.length);
 
@@ -175,6 +176,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
   const fontConfig = SUBTITLE_FONTS[style.font] ?? SUBTITLE_FONTS.montserrat;
   const scale = style.fontSize / 44;
   const boxWidth = style.boxWidth ?? 85;
+  const maxLines = style.boxHeight ?? 2;
 
   return (
     <>
@@ -200,11 +202,12 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
         onPointerUp={handlePointerUp}
       >
         <div
-          className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px]"
+          className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px] overflow-hidden"
           style={{
             width: "100%",
             fontFamily: fontConfig.family,
             fontStyle: fontConfig.italic ? "italic" : "normal",
+            maxHeight: `${maxLines * (15 * scale * 1.15 + 6)}px`,
           }}
         >
           {words.map((word, i) => {
