@@ -60,13 +60,13 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
         <div className="mb-3">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-[10px] font-bold tracking-wider text-primary uppercase">
             <Zap className="h-3 w-3" />
-            Auto Subtitles & Silence Cut
+            Auto-Untertitel & Pausen-Schnitt
           </div>
           <h1 className="mb-1.5 text-3xl sm:text-4xl font-black tracking-tight text-foreground leading-none">
             apex<span className="text-primary">Clip</span>.ai
           </h1>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-            Drop your videos — get modern subtitles, speaker centering & automatic silence removal.
+            Videos ablegen — automatische Untertitel, Speaker-Zentrierung & Pausen-Entfernung.
           </p>
         </div>
 
