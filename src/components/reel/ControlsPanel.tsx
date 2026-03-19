@@ -298,6 +298,7 @@ const ControlsPanel = ({
             transcript={transcript}
             currentTime={currentTime}
             onTranscriptChange={onTranscriptChange}
+            onRequestRegenerate={onRegenerate}
           />
         )}
 
