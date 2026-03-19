@@ -200,11 +200,14 @@ const ReelPreview = ({
         <video
           ref={videoRef}
           src={videoUrl}
-          className="absolute inset-0 h-full w-full transition-transform duration-500"
+          className="absolute inset-0 h-full w-full"
           style={{
             objectFit: "cover",
             transform: speaker.centerSpeaker ? `scale(${speaker.zoom})` : "scale(1)",
-            objectPosition: speaker.centerSpeaker ? "center 30%" : "center center",
+            objectPosition: speaker.centerSpeaker
+              ? `${facePos.x}% ${facePos.y}%`
+              : "center center",
+            transition: "transform 0.5s ease, object-position 0.3s ease-out",
           }}
           playsInline
         />
