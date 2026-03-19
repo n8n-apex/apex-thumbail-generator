@@ -171,7 +171,7 @@ const Index = () => {
 
       // Re-detect with current settings using raw amplitudes
       const detectedSilences = redetectSilences(result.rawAmplitudes, CHUNK_DURATION, result.duration, silenceCut);
-      setSilences(detectedSilences);
+      // Don't set silences yet — will reconcile after transcript is ready
       setDuration(result.duration);
       setProgress(0);
       updateStep(1, { done: true, active: false });
