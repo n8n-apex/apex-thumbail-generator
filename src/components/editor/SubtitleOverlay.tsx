@@ -38,41 +38,72 @@ function getCurrentPhrase(
     }
   }
 
-  // Direct time-range matching — prioritize exact hits, minimal lookahead
+  // Binary search for the word whose time range contains `t`
   let activeIdx = -1;
+  let lo = 0;
+  let hi = transcript.length - 1;
 
-  for (let i = 0; i < transcript.length; i++) {
-    const w = transcript[i];
-    // Tight pre-roll: show word 50ms before it starts (lip-sync perception)
-    const preRoll = 0.05;
-    // Post-hold: keep highlighting until next word starts (no gap flicker)
-    const nextStart = i < transcript.length - 1 ? transcript[i + 1].start : w.end + 0.3;
-    const holdEnd = Math.min(w.end + 0.15, nextStart);
-
-    if (t >= w.start - preRoll && t < holdEnd) {
-      activeIdx = i;
-      break; // First match wins — words are chronological
+  while (lo <= hi) {
+    const mid = (lo + hi) >>> 1;
+    const w = transcript[mid];
+    if (t < w.start) {
+      hi = mid - 1;
+    } else if (t > w.end) {
+      lo = mid + 1;
+    } else {
+      // t is within [start, end] — exact match
+      activeIdx = mid;
+      break;
     }
   }
 
-  // Fallback: find nearest upcoming word within 500ms, or show first word if before any speech
+  // If no exact hit, check the gap between two words
   if (activeIdx === -1) {
-    for (let i = 0; i < transcript.length; i++) {
-      const w = transcript[i];
-      if (w.start > t && w.start - t < 0.5) {
-        activeIdx = i;
-        break;
+    // `lo` is where t would be inserted — check if we're in the gap just after word `lo-1`
+    const prev = lo - 1;
+    const next = lo;
+
+    // If before all words: show first phrase but no highlight
+    if (prev < 0) {
+      const phraseSize = 3 * maxLines;
+      const words = transcript.slice(0, Math.min(phraseSize, transcript.length));
+      // Only show if we're within 1s of first word
+      if (transcript[0].start - t <= 1.0) {
+        return { words, activeWordIdx: -1 };
       }
+      return { words: [], activeWordIdx: -1 };
     }
-    // If still no match and we're before the first word, show first phrase
-    if (activeIdx === -1 && transcript.length > 0 && t < transcript[0].start) {
-      activeIdx = 0;
+
+    // If after all words: hide
+    if (next >= transcript.length) {
+      return { words: [], activeWordIdx: -1 };
+    }
+
+    // We're in a gap between prev and next word
+    const gapSize = transcript[next].start - transcript[prev].end;
+
+    if (gapSize <= 0.35) {
+      // Small gap (<350ms): hold on previous word for continuity
+      activeIdx = prev;
+    } else {
+      // Larger gap: show next word early if within 200ms, otherwise hold previous briefly
+      const timeToNext = transcript[next].start - t;
+      const timeSincePrev = t - transcript[prev].end;
+
+      if (timeToNext <= 0.2) {
+        activeIdx = next; // Pre-roll next word
+      } else if (timeSincePrev <= 0.15) {
+        activeIdx = prev; // Brief hold on previous
+      } else {
+        // True pause — hide subtitles
+        return { words: [], activeWordIdx: -1 };
+      }
     }
   }
 
   if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
 
-  // Adaptive phrase size based on maxLines
+  // Build phrase window
   const wordsPerLine = 3;
   const phraseSize = wordsPerLine * maxLines;
   const phraseStart = Math.floor(activeIdx / phraseSize) * phraseSize;
