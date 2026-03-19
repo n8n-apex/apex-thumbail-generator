@@ -6,6 +6,7 @@ import { analyzeAudio, getActiveSegments, type SilenceGap } from "@/lib/audio-an
 import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
 import { validateAndRepairTranscript } from "@/lib/transcript-validator";
+import { alignTranscriptToAudioTimeline } from "@/lib/transcript-sync";
 import { autoCalibrateFromAmplitudes } from "@/lib/auto-calibrate";
 import { applyCorrections } from "@/components/reel/TranscriptEditor";
 import { supabase } from "@/integrations/supabase/client";
