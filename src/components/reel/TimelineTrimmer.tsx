@@ -20,7 +20,7 @@ const fmt = (s: number) => {
 };
 
 const TimelineTrimmer = ({
-  duration, currentTime, trimRegions, silences, rawAmplitudes,
+  duration, currentTime, trimRegions = [], silences = [], rawAmplitudes = [],
   onTrimRegionsChange, onSeek,
 }: TimelineTrimmerProps) => {
   const trackRef = useRef<HTMLDivElement>(null);
