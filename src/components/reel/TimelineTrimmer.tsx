@@ -59,6 +59,7 @@ const TimelineTrimmer = ({
     if (!dragging) return;
 
     const onMove = (e: MouseEvent | TouchEvent) => {
+      e.preventDefault();
       const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
       const time = getTimeFromX(clientX);
       
@@ -76,9 +77,9 @@ const TimelineTrimmer = ({
 
     const onUp = () => setDragging(null);
 
-    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", onMove, { passive: false });
     window.addEventListener("mouseup", onUp);
-    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchmove", onMove, { passive: false });
     window.addEventListener("touchend", onUp);
     return () => {
       window.removeEventListener("mousemove", onMove);
