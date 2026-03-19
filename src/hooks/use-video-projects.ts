@@ -398,11 +398,12 @@ export function useVideoProjects() {
         // Re-read project from ref for latest silenceCut settings
         const latestProj = projectsRef.current.find((p) => p.id === id);
         const sc = latestProj?.silenceCut ?? proj.silenceCut;
-        const reconciledSilences = reconcileSilencesWithTranscript(
-          redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc),
-          validated.words
-        );
-        const corrected = applyCorrections(validated.words);
+        const rawSilences = redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc);
+
+        const synced = alignTranscriptToAudioTimeline(validated.words, rawSilences, proj.duration);
+        const corrected = applyCorrections(synced.words);
+        const reconciledSilences = reconcileSilencesWithTranscript(rawSilences, corrected);
+
         updateProject(id, {
           transcript: corrected,
           silences: reconciledSilences,
