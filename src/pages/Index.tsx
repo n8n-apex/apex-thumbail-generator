@@ -163,6 +163,14 @@ const Index = () => {
         duration={proj.duration}
         sanityCheck={proj.sanityCheck}
         calibrationReasoning={proj.calibrationReasoning}
+        trimRegions={proj.trimRegions}
+        rawAmplitudes={proj.rawAmplitudes}
+        silences={proj.silences}
+        onTrimRegionsChange={(regions) => updateProject(proj.id, { trimRegions: regions })}
+        onSeek={(t) => {
+          updateProject(proj.id, { currentTime: t });
+          if (videoEl) videoEl.currentTime = t;
+        }}
       />
     </div>
   );
