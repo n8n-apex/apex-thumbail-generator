@@ -190,7 +190,7 @@ const ReelPreview = ({
           )}
           <div className="ml-auto flex gap-1.5">
             <button onClick={onRemove} title="Video entfernen"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-red-500/80 hover:text-white"
+              className="flex h-7 w-7 items-center justify-center rounded-full glass-dark text-white/80 transition hover:bg-destructive/80 hover:text-white"
             >
               <X className="h-3 w-3" />
             </button>
