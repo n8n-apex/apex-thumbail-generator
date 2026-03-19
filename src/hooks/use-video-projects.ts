@@ -109,7 +109,7 @@ export function useVideoProjects() {
       const detectedSilences = redetectSilences(result.rawAmplitudes, CHUNK_DURATION, result.duration, sc);
       updateProjectStep(id, 1, { done: true, active: false });
       updateProjectStep(id, 2, { active: true });
-      updateProject(id, { currentStep: "Extracting audio for transcription..." });
+      updateProject(id, { currentStep: "Audio wird extrahiert..." });
 
       let transcriptResult: TranscriptWord[] = [];
       try {
