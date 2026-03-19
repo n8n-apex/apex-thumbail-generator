@@ -46,6 +46,7 @@ const ReelPreview = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const facePos = useFaceTracking(videoRef, speaker.centerSpeaker);
   const gradingCSS = useMemo(() => colorGrading ? colorGradingToCSS(colorGrading) : "", [colorGrading]);
+  const vignetteStyle = useMemo(() => colorGrading ? colorGradingVignetteCSS(colorGrading) : null, [colorGrading]);
 
   // Touch swipe support
   const touchStartX = useRef(0);
