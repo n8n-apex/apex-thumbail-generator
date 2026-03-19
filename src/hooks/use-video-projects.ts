@@ -104,7 +104,7 @@ export function useVideoProjects() {
 
       updateProjectStep(id, 0, { done: true, active: false });
       updateProjectStep(id, 1, { active: true });
-      updateProject(id, { currentStep: "Silences detected", rawAmplitudes: result.rawAmplitudes, duration: result.duration, progress: 0 });
+      updateProject(id, { currentStep: "Pausen erkannt", rawAmplitudes: result.rawAmplitudes, duration: result.duration, progress: 0 });
 
       const detectedSilences = redetectSilences(result.rawAmplitudes, CHUNK_DURATION, result.duration, sc);
       updateProjectStep(id, 1, { done: true, active: false });
