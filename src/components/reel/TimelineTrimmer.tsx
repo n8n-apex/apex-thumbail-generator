@@ -216,22 +216,22 @@ const TimelineTrimmer = ({
               <Trash2 className="h-2.5 w-2.5" />
             </button>
 
-            {/* Left handle */}
+            {/* Left handle — wider hit area */}
             <div
-              className="absolute left-0 top-0 h-full w-2 cursor-col-resize z-10 flex items-center justify-center hover:bg-destructive/40 transition-colors"
-              onMouseDown={(e) => { e.stopPropagation(); setDragging({ regionId: region.id, edge: "start" }); }}
-              onTouchStart={(e) => { e.stopPropagation(); setDragging({ regionId: region.id, edge: "start" }); }}
+              className="absolute -left-2 top-0 h-full w-5 cursor-col-resize z-10 flex items-center justify-center"
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); setDragging({ regionId: region.id, edge: "start" }); }}
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setDragging({ regionId: region.id, edge: "start" }); }}
             >
-              <GripVertical className="h-3 w-3 text-destructive" />
+              <div className="w-1 h-8 rounded-full bg-destructive/70 group-hover:bg-destructive transition-colors shadow-sm" />
             </div>
 
-            {/* Right handle */}
+            {/* Right handle — wider hit area */}
             <div
-              className="absolute right-0 top-0 h-full w-2 cursor-col-resize z-10 flex items-center justify-center hover:bg-destructive/40 transition-colors"
-              onMouseDown={(e) => { e.stopPropagation(); setDragging({ regionId: region.id, edge: "end" }); }}
-              onTouchStart={(e) => { e.stopPropagation(); setDragging({ regionId: region.id, edge: "end" }); }}
+              className="absolute -right-2 top-0 h-full w-5 cursor-col-resize z-10 flex items-center justify-center"
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); setDragging({ regionId: region.id, edge: "end" }); }}
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setDragging({ regionId: region.id, edge: "end" }); }}
             >
-              <GripVertical className="h-3 w-3 text-destructive" />
+              <div className="w-1 h-8 rounded-full bg-destructive/70 group-hover:bg-destructive transition-colors shadow-sm" />
             </div>
           </div>
         ))}
