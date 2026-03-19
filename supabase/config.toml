@@ -2,3 +2,9 @@ project_id = "rjatjdryriojllrgkgvf"
 
 [functions.transcribe]
 verify_jwt = false
+
+[functions.generate-thumbnail]
+verify_jwt = false
+
+[functions.sanity-check]
+verify_jwt = false
