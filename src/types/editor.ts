@@ -10,7 +10,7 @@ export interface SilenceGap {
   end: number;
 }
 
-export type SubtitleFont = "montserrat" | "bebas" | "anton" | "space" | "outfit" | "dela";
+export type SubtitleFont = "montserrat" | "bebas" | "anton" | "space" | "outfit" | "dela" | "righteous" | "lobster" | "bangers";
 
 export type SubtitlePreset = "karaoke" | "pop" | "neon" | "minimal" | "block" | "outline";
 
