@@ -17,6 +17,7 @@ interface ControlsPanelProps {
   onAddMore: () => void;
   onRegenerate: () => void;
   videoRef?: HTMLVideoElement | null;
+  transcript?: TranscriptWord[];
   isExporting: boolean;
   exportProgress: string;
   silenceCount: number;
