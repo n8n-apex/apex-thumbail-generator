@@ -206,28 +206,62 @@ export function useVideoProjects() {
         silences: reconciledSilences,
       });
 
-      // Step 4: Sanity check — AI agent validates everything
-      try {
-        const { data: checkData, error: checkError } = await supabase.functions.invoke("sanity-check", {
-          body: {
-            transcript: transcriptResult,
-            silences: reconciledSilences,
-            calibration: { reasoning: calibration.reasoning, confidence: calibration.confidence },
-            duration: result.duration,
-          },
-        });
-        if (!checkError && checkData?.result) {
-          const check = checkData.result;
-          updateProject(id, { sanityCheck: check });
-          if (check.passed) {
-            toast.success(`✅ ${project.file.name}: Export-bereit! (Score: ${check.overall_score}/100)`);
-          } else {
-            toast.warning(`⚠️ ${project.file.name}: ${check.summary}`);
+      // Step 4: Sanity check — AI agent validates everything (auto-retry if score < 80)
+      const MAX_RETRIES = 2;
+      let currentTranscript = transcriptResult;
+      let currentSilences = reconciledSilences;
+      let lastCheck: any = null;
+
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          if (attempt > 0) {
+            updateProject(id, { currentStep: `Optimierung (Versuch ${attempt + 1})...` });
+            toast.info(`🔄 ${project.file.name}: Score zu niedrig, Re-Kalibrierung #${attempt}...`);
+
+            // Re-calibrate with tighter parameters based on previous issues
+            const adjustedSC = { ...calibratedSC };
+            adjustedSC.threshold = Math.max(0.005, adjustedSC.threshold * (1 - attempt * 0.15));
+            adjustedSC.minDuration = Math.max(0.15, adjustedSC.minDuration * (1 - attempt * 0.1));
+            adjustedSC.padding = Math.min(0.15, adjustedSC.padding + attempt * 0.02);
+            updateProject(id, { silenceCut: adjustedSC });
+
+            currentSilences = reconcileSilencesWithTranscript(
+              redetectSilences(result.rawAmplitudes, CHUNK_DURATION, result.duration, adjustedSC),
+              currentTranscript
+            );
+            updateProject(id, { silences: currentSilences });
           }
-          console.log("Sanity check:", check);
+
+          const { data: checkData, error: checkError } = await supabase.functions.invoke("sanity-check", {
+            body: {
+              transcript: currentTranscript,
+              silences: currentSilences,
+              calibration: { reasoning: calibration.reasoning, confidence: calibration.confidence },
+              duration: result.duration,
+            },
+          });
+
+          if (!checkError && checkData?.result) {
+            lastCheck = checkData.result;
+            updateProject(id, { sanityCheck: lastCheck });
+            console.log(`Sanity check attempt ${attempt + 1}:`, lastCheck);
+
+            if (lastCheck.overall_score >= 80) {
+              toast.success(`✅ ${project.file.name}: Export-bereit! (Score: ${lastCheck.overall_score}/100)`);
+              break;
+            }
+          } else {
+            break; // API error, don't retry
+          }
+        } catch (e) {
+          console.warn(`Sanity check attempt ${attempt + 1} failed:`, e);
+          break;
         }
-      } catch (e) {
-        console.warn("Sanity check failed (non-critical):", e);
+      }
+
+      // Final toast if still below threshold after all retries
+      if (lastCheck && lastCheck.overall_score < 80) {
+        toast.warning(`⚠️ ${project.file.name}: Score ${lastCheck.overall_score}/100 — manuelle Optimierung empfohlen`);
       }
 
       updateProjectStep(id, 3, { done: true, active: false });
