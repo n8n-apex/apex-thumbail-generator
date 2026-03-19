@@ -55,14 +55,14 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
   }
 
   return (
-    <div className="flex h-full w-full items-center justify-center mesh-gradient">
+    <div className="flex h-full w-full items-center justify-center mesh-gradient overflow-hidden">
       <div className="w-full max-w-md text-center px-6">
-        <div className="mb-5 mt-6">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-[10px] font-bold tracking-wider text-primary uppercase">
+        <div className="mb-3">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-[10px] font-bold tracking-wider text-primary uppercase">
             <Zap className="h-3 w-3" />
             Auto Subtitles & Silence Cut
           </div>
-          <h1 className="mb-2 text-3xl sm:text-4xl font-black tracking-tight text-foreground leading-none">
+          <h1 className="mb-1.5 text-3xl sm:text-4xl font-black tracking-tight text-foreground leading-none">
             apex<span className="text-primary">Clip</span>.ai
           </h1>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">
@@ -74,14 +74,14 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 sm:p-14 transition-all duration-300 ${
+          className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 sm:p-10 transition-all duration-300 ${
             isDragOver
               ? "border-primary bg-primary/5 scale-[1.02] shadow-xl shadow-primary/10"
               : "border-border/80 hover:border-primary/40 glass"
           }`}
         >
           <input type="file" accept="video/*,.mp4,.mov,.webm,.avi" multiple onChange={handleInputChange} className="hidden" />
-          <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+          <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl transition-all ${
             isDragOver ? "bg-primary/15 text-primary scale-110" : "bg-secondary text-muted-foreground group-hover:text-primary group-hover:bg-primary/10"
           }`}>
             <Upload className="h-5 w-5" />
@@ -92,13 +92,13 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
           <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM — multiple files supported</p>
         </label>
 
-        <div className="mt-6 flex justify-center gap-5 text-[10px] text-muted-foreground">
+        <div className="mt-4 flex justify-center gap-5 text-[10px] text-muted-foreground">
           <span>✦ Auto Subtitles</span>
           <span>✦ Silence Cut</span>
           <span>✦ Speaker Centering</span>
         </div>
 
-        <div className="mt-8 mb-8">
+        <div className="mt-4">
           <a
             href="https://apex-consulting.ai/"
             target="_blank"
