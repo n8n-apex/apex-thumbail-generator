@@ -68,7 +68,8 @@ export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
   preset: "karaoke",
   font: "montserrat",
   fontSize: 44,
-  position: "bottom",
+  positionX: 50,
+  positionY: 86,
   accentColor: "#FFCC00",
   timeOffset: -0.2,
 };
