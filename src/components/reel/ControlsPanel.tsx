@@ -1,6 +1,6 @@
 import {
   SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings, SilenceCutSettings,
-  SUBTITLE_PRESETS, SUBTITLE_FONTS,
+  TranscriptWord, SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
 import { Type, Palette, Move, User, Download, Maximize, Clock, Plus, RefreshCw, RectangleHorizontal } from "lucide-react";
 import SilenceCutPanel from "./SilenceCutPanel";
