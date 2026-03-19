@@ -127,8 +127,8 @@ const Index = () => {
       updateStep(1, { active: true });
       setCurrentStep("Silences detected");
 
-      // Re-detect with current settings (amplitudes from analyzeAudio are normalized, use raw)
-      const detectedSilences = redetectSilences(result.amplitudes, CHUNK_DURATION, result.duration, silenceCut);
+      // Re-detect with current settings using raw amplitudes
+      const detectedSilences = redetectSilences(result.rawAmplitudes, CHUNK_DURATION, result.duration, silenceCut);
       setSilences(detectedSilences);
       setDuration(result.duration);
       setProgress(0);
