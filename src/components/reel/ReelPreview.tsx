@@ -233,6 +233,7 @@ const ReelPreview = ({
               ? `${facePos.x}% ${facePos.y}%`
               : "center center",
             transition: "transform 0.5s ease, object-position 0.3s ease-out",
+            filter: gradingCSS || undefined,
           }}
           playsInline
         />
