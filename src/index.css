@@ -90,3 +90,15 @@
 ::-webkit-scrollbar-thumb { background: hsl(220 15% 85%); border-radius: 3px; }
 
 .tabular-nums { font-variant-numeric: tabular-nums; }
+
+@keyframes slide-out-left {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-30px); opacity: 0; }
+}
+@keyframes slide-out-right {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(30px); opacity: 0; }
+}
+.animate-slide-out-left { animation: slide-out-left 0.25s ease-out forwards; }
+.animate-slide-out-right { animation: slide-out-right 0.25s ease-out forwards; }
+.animate-fade-in { animation: fade-in 0.25s ease-out; }
