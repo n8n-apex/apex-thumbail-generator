@@ -4,7 +4,7 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: hsl(220 15% 96%);
+  background: hsl(0 0% 100%);
 }
 
 #root {
