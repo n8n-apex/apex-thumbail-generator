@@ -28,6 +28,20 @@ const Index = () => {
     activeProject?.silenceCut.enabled,
   ]);
 
+  // Listen for subtitle drag position changes
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { x, y } = (e as CustomEvent).detail;
+      if (activeProject) {
+        updateProject(activeProject.id, {
+          subtitleStyle: { ...activeProject.subtitleStyle, positionX: x, positionY: y },
+        });
+      }
+    };
+    window.addEventListener("subtitle-position", handler);
+    return () => window.removeEventListener("subtitle-position", handler);
+  }, [activeProject, updateProject]);
+
   const handleFilesSelect = useCallback((files: File[]) => {
     addFiles(files);
   }, [addFiles]);
