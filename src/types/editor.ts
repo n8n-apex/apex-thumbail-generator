@@ -42,13 +42,16 @@ export const DEFAULT_SILENCE_CUT: SilenceCutSettings = {
   padding: 0.1,
 };
 
-export const SUBTITLE_FONTS: Record<SubtitleFont, { label: string; family: string; weight: number }> = {
+export const SUBTITLE_FONTS: Record<SubtitleFont, { label: string; family: string; weight: number; italic?: boolean }> = {
   montserrat: { label: "Montserrat", family: "'Montserrat'", weight: 900 },
   bebas: { label: "Bebas Neue", family: "'Bebas Neue'", weight: 400 },
   anton: { label: "Anton", family: "'Anton'", weight: 400 },
   space: { label: "Space Grotesk", family: "'Space Grotesk'", weight: 700 },
   outfit: { label: "Outfit", family: "'Outfit'", weight: 800 },
   dela: { label: "Dela Gothic", family: "'Dela Gothic One'", weight: 400 },
+  righteous: { label: "Righteous", family: "'Righteous'", weight: 400 },
+  lobster: { label: "Lobster", family: "'Lobster'", weight: 400, italic: true },
+  bangers: { label: "Bangers", family: "'Bangers'", weight: 400 },
 };
 
 export const SUBTITLE_PRESETS: Record<SubtitlePreset, { label: string; emoji: string }> = {

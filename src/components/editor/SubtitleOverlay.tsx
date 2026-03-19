@@ -58,7 +58,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style }: SubtitleOverlayProp
     <div className={`absolute left-2 right-2 flex justify-center ${posClass} pointer-events-none`}>
       <div
         className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px]"
-        style={{ maxWidth: "96%", fontFamily: fontConfig.family }}
+        style={{ maxWidth: "96%", fontFamily: fontConfig.family, fontStyle: fontConfig.italic ? "italic" : "normal" }}
       >
         {words.map((word, i) => {
           const isActive = i === activeWordIdx;

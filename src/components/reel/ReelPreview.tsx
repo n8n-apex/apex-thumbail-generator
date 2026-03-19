@@ -35,17 +35,26 @@ const ReelPreview = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
 
+  // Skip over silence gaps during playback
   useEffect(() => {
     const tick = () => {
       const v = videoRef.current;
       if (v && !v.paused) {
+        const t = v.currentTime;
+        // Check if current time is inside a silence gap — if so, skip to end
+        for (const s of silences) {
+          if (t >= s.start && t < s.end) {
+            v.currentTime = s.end;
+            break;
+          }
+        }
         onTimeUpdate(v.currentTime);
       }
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [onTimeUpdate]);
+  }, [onTimeUpdate, silences]);
 
   useEffect(() => {
     const v = videoRef.current;
