@@ -1,17 +1,23 @@
 import {
-  SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings,
+  SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings, SilenceCutSettings,
   SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
 import { Type, Palette, Move, User, Download, Maximize, Clock } from "lucide-react";
+import SilenceCutPanel from "./SilenceCutPanel";
 
 interface ControlsPanelProps {
   style: SubtitleStyle;
   speaker: SpeakerSettings;
+  silenceCut: SilenceCutSettings;
   onStyleChange: (s: SubtitleStyle) => void;
   onSpeakerChange: (s: SpeakerSettings) => void;
+  onSilenceCutChange: (s: SilenceCutSettings) => void;
   onExport: () => void;
   isExporting: boolean;
   exportProgress: string;
+  silenceCount: number;
+  timeSaved: number;
+  duration: number;
 }
 
 const ACCENT_COLORS = [
