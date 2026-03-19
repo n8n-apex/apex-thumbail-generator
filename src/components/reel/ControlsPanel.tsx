@@ -198,7 +198,7 @@ const ControlsPanel = ({
           className="w-full flex items-center justify-center gap-2 rounded-2xl bg-secondary py-2.5 text-xs font-bold text-secondary-foreground transition-all hover:bg-secondary/80"
         >
           <Plus className="h-3.5 w-3.5" />
-          Add More Videos
+          Weitere Videos hinzufügen
         </button>
         <button onClick={onExport} disabled={isExporting}
           className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl disabled:opacity-50"
