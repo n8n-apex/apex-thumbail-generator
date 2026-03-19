@@ -103,9 +103,10 @@ function getCurrentPhrase(
 
   if (activeIdx === -1) return { words: [], activeWordIdx: -1 };
 
-  // Build phrase window
+  // Strictly enforce maxLines by limiting total words in the phrase.
+  // Use exactly `wordsPerLine * maxLines` words per group.
   const wordsPerLine = 3;
-  const phraseSize = wordsPerLine * maxLines;
+  const phraseSize = wordsPerLine * maxLines; // e.g. 3*2 = 6 words max
   const phraseStart = Math.floor(activeIdx / phraseSize) * phraseSize;
   const phraseEnd = Math.min(phraseStart + phraseSize, transcript.length);
 
