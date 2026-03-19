@@ -69,14 +69,13 @@ const Index = () => {
   // Active project still processing
   if (proj.phase === "processing") {
     return (
-      <div className="h-screen w-screen overflow-hidden">
+      <div className="app-frame">
         <ProcessingScreen
           fileName={proj.file.name}
           progress={proj.progress}
           currentStep={proj.currentStep}
           steps={proj.steps}
         />
-        {/* Show counter if multiple */}
         {projects.length > 1 && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 glass rounded-full px-4 py-2 text-[11px] font-semibold text-muted-foreground">
             Video {activeIndex + 1} / {projects.length}
