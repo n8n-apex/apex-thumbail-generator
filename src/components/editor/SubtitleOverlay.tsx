@@ -177,6 +177,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
             const isPast = i < activeWordIdx;
             const size = 15 * scale;
             const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
+            const anim = getAnimation(style.preset, isActive);
 
             return (
               <span
@@ -184,8 +185,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
                 className="inline-block will-change-transform select-none"
                 style={{
                   ...s,
-                  transform: isActive ? "scale(1.12) translateY(-1px)" : "scale(1)",
-                  transition: "all 0.08s cubic-bezier(0.22, 1, 0.36, 1)",
+                  ...anim,
                 }}
               >
                 {word.text.toUpperCase()}
