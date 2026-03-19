@@ -7,6 +7,7 @@ import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
 import { validateAndRepairTranscript } from "@/lib/transcript-validator";
 import { autoCalibrateFromAmplitudes } from "@/lib/auto-calibrate";
+import { applyCorrections } from "@/components/reel/TranscriptEditor";
 import { supabase } from "@/integrations/supabase/client";
 
 const CHUNK_DURATION = 0.05;
