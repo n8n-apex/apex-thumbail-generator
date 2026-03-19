@@ -16,6 +16,7 @@ interface ControlsPanelProps {
   onExport: () => void;
   onAddMore: () => void;
   onRegenerate: () => void;
+  videoRef?: HTMLVideoElement | null;
   isExporting: boolean;
   exportProgress: string;
   silenceCount: number;
