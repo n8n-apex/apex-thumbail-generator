@@ -65,24 +65,26 @@ serve(async (req) => {
               content: [
                 {
                   type: "text",
-                  text: `You are a precise speech-to-text transcription engine. Transcribe this audio word by word in language: ${language}.
+                  text: `You are a world-class speech-to-text engine optimized for word-level subtitle synchronization. Transcribe this audio word by word in language: ${language}.
 
-CRITICAL TIMING RULES:
-- Each word MUST have precise start and end timestamps in seconds (2 decimal places)
-- The start time of a word is when the speaker BEGINS saying it
-- The end time is when the speaker FINISHES saying it  
-- Words must be in chronological order
-- There must be NO gaps between consecutive words within a sentence (the end of word N should equal or be very close to the start of word N+1)
-- Silence gaps between sentences are fine
-- Be extremely precise with timing - these timestamps control subtitle display
+CRITICAL TIMING PRECISION:
+- Each word MUST have EXACT start and end timestamps in seconds (2 decimal places minimum, 3 preferred)
+- "start" = the EXACT moment the first phoneme of the word is audible
+- "end" = the EXACT moment the last phoneme of the word finishes
+- Words MUST be strictly chronological — start[i] < start[i+1]
+- Within a phrase, end[i] should be very close to start[i+1] (gap < 50ms)
+- Between sentences, gaps are natural and should be reflected accurately
+- Do NOT round timestamps to nearest 0.5s — be precise to the hundredth
+- Short words (articles, prepositions) still need accurate timing — don't skip their duration
+- A word lasting 0.05s is suspicious — most words are 0.1-0.8s long
 
-QUALITY RULES:
+ACCURACY RULES:
 - Only transcribe clearly spoken, intelligible words
-- Skip filler sounds like "ähm", "äh", "hmm", "mhm" unless they're clearly intentional
-- Do NOT include random noise artifacts or unintelligible sounds as words
-- If a word is unclear, skip it rather than guessing
-- Set confidence below 0.5 for any word you're unsure about
-- Clean up the text for natural reading flow`,
+- Skip filler sounds like "ähm", "äh", "hmm", "mhm" unless clearly intentional
+- Do NOT hallucinate words that weren't spoken
+- Do NOT include noise artifacts as words
+- Set confidence below 0.5 for uncertain words
+- Prefer skipping a word over guessing wrong timing`,
                 },
                 {
                   type: "image_url",

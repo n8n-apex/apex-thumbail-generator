@@ -38,41 +38,30 @@ function getCurrentPhrase(
     }
   }
 
-  // Adaptive word matching — widen windows to eliminate gaps between words
+  // Direct time-range matching — prioritize exact hits, minimal lookahead
   let activeIdx = -1;
-  let bestScore = -Infinity;
 
   for (let i = 0; i < transcript.length; i++) {
     const w = transcript[i];
-    const wordMid = (w.start + w.end) / 2;
-    const wordDur = w.end - w.start;
-    
-    // Pre-roll: show word slightly before it starts
-    const preRoll = Math.min(0.12, wordDur * 0.4);
-    // Post-hold: keep word visible until next word starts (bridge gaps)
-    const nextStart = i < transcript.length - 1 ? transcript[i + 1].start : w.end + 0.5;
-    const gapToNext = nextStart - w.end;
-    const postHold = Math.min(gapToNext, 0.4); // hold up to 400ms or until next word
+    // Tight pre-roll: show word 50ms before it starts (lip-sync perception)
+    const preRoll = 0.05;
+    // Post-hold: keep highlighting until next word starts (no gap flicker)
+    const nextStart = i < transcript.length - 1 ? transcript[i + 1].start : w.end + 0.3;
+    const holdEnd = Math.min(w.end + 0.15, nextStart);
 
-    if (t >= w.start - preRoll && t < w.end + postHold) {
-      const distFromMid = Math.abs(t - wordMid);
-      const score = 1 / (distFromMid + 0.001);
-      if (score > bestScore) {
-        bestScore = score;
-        activeIdx = i;
-      }
+    if (t >= w.start - preRoll && t < holdEnd) {
+      activeIdx = i;
+      break; // First match wins — words are chronological
     }
   }
 
-  // Fallback: if no match, find nearest word within 0.5s
+  // Fallback: find nearest upcoming word within 300ms (about to speak)
   if (activeIdx === -1) {
-    let minDist = 0.5;
     for (let i = 0; i < transcript.length; i++) {
       const w = transcript[i];
-      const dist = t < w.start ? w.start - t : t - w.end;
-      if (dist < minDist && dist >= 0) {
-        minDist = dist;
+      if (w.start > t && w.start - t < 0.3) {
         activeIdx = i;
+        break;
       }
     }
   }
