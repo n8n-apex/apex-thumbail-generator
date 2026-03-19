@@ -18,11 +18,11 @@ interface ReelPreviewProps {
   onSeek: (t: number) => void;
   onDurationChange: (d: number) => void;
   onRemove: () => void;
-  // Multi-video navigation
   totalVideos: number;
   currentIndex: number;
   onNavigate: (direction: -1 | 1) => void;
   fileName: string;
+  onVideoRef?: (el: HTMLVideoElement | null) => void;
 }
 
 const fmt = (s: number) => {
@@ -35,7 +35,7 @@ const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
   currentTime, duration, isPlaying, silences,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
-  onRemove, totalVideos, currentIndex, onNavigate, fileName,
+  onRemove, totalVideos, currentIndex, onNavigate, fileName, onVideoRef,
 }: ReelPreviewProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
@@ -112,10 +112,14 @@ const ReelPreview = ({
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    onVideoRef?.(v);
     const onDur = () => onDurationChange(v.duration);
     v.addEventListener("loadedmetadata", onDur);
-    return () => v.removeEventListener("loadedmetadata", onDur);
-  }, [onDurationChange]);
+    return () => {
+      v.removeEventListener("loadedmetadata", onDur);
+      onVideoRef?.(null);
+    };
+  }, [onDurationChange, onVideoRef]);
 
   useEffect(() => {
     const v = videoRef.current;

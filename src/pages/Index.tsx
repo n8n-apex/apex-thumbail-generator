@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { toast } from "sonner";
 import UploadScreen from "@/components/reel/UploadScreen";
 import ProcessingScreen from "@/components/reel/ProcessingScreen";
@@ -15,6 +15,7 @@ const Index = () => {
   } = useVideoProjects();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
 
   // Re-detect silences when settings change for active project
   useEffect(() => {
@@ -132,6 +133,7 @@ const Index = () => {
         currentIndex={activeIndex}
         onNavigate={handleNavigate}
         fileName={proj.file.name}
+        onVideoRef={setVideoEl}
       />
       <ControlsPanel
         style={proj.subtitleStyle}
@@ -145,6 +147,7 @@ const Index = () => {
         onExport={() => exportProject(proj.id)}
         onRegenerate={() => regenerateTranscript(proj.id)}
         onAddMore={handleAddMore}
+        videoRef={videoEl}
         isExporting={proj.isExporting}
         exportProgress={proj.exportProgress}
         silenceCount={proj.silences.length}

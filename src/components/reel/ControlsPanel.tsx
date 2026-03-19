@@ -4,6 +4,7 @@ import {
 } from "@/types/editor";
 import { Type, Palette, Move, User, Download, Maximize, Clock, Plus, RefreshCw, RectangleHorizontal } from "lucide-react";
 import SilenceCutPanel from "./SilenceCutPanel";
+import ThumbnailPanel from "./ThumbnailPanel";
 
 interface ControlsPanelProps {
   style: SubtitleStyle;
@@ -15,6 +16,7 @@ interface ControlsPanelProps {
   onExport: () => void;
   onAddMore: () => void;
   onRegenerate: () => void;
+  videoRef?: HTMLVideoElement | null;
   isExporting: boolean;
   exportProgress: string;
   silenceCount: number;
@@ -28,7 +30,7 @@ const ACCENT_COLORS = [
 
 const ControlsPanel = ({
   style, speaker, silenceCut, onStyleChange, onSpeakerChange, onSilenceCutChange,
-  onExport, onAddMore, onRegenerate, isExporting, exportProgress, silenceCount, timeSaved, duration,
+  onExport, onAddMore, onRegenerate, videoRef, isExporting, exportProgress, silenceCount, timeSaved, duration,
 }: ControlsPanelProps) => {
   const upd = (p: Partial<SubtitleStyle>) => onStyleChange({ ...style, ...p });
   const updSpk = (p: Partial<SpeakerSettings>) => onSpeakerChange({ ...speaker, ...p });
@@ -241,6 +243,9 @@ const ControlsPanel = ({
           <RefreshCw className="h-3.5 w-3.5" />
           Transkript neu generieren
         </button>
+
+        {/* Thumbnail Generator */}
+        <ThumbnailPanel videoRef={videoRef} />
       </div>
 
       {/* Bottom actions */}
