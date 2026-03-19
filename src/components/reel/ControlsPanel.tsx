@@ -135,7 +135,7 @@ const ControlsPanel = ({
           </div>
         </div>
 
-        {/* Color + Size + Position + Timing */}
+        {/* Color + Size + Box + Timing */}
         <div className="glass-elevated rounded-2xl p-3.5 space-y-3">
           <div>
             <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
@@ -166,6 +166,32 @@ const ControlsPanel = ({
             <input type="range" min={28} max={96} value={style.fontSize}
               onChange={(e) => upd({ fontSize: Number(e.target.value) })}
               className="w-full h-1" />
+          </div>
+
+          <div>
+            <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              <RectangleHorizontal className="h-3 w-3" /> Textbox
+            </span>
+            <div className="space-y-2">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-muted-foreground font-medium">Breite</span>
+                  <span className="text-[10px] tabular-nums font-bold">{style.boxWidth ?? 85}%</span>
+                </div>
+                <input type="range" min={30} max={100} value={style.boxWidth ?? 85}
+                  onChange={(e) => upd({ boxWidth: Number(e.target.value) })}
+                  className="w-full h-1" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-muted-foreground font-medium">Zeilen</span>
+                  <span className="text-[10px] tabular-nums font-bold">{style.boxHeight ?? 2}</span>
+                </div>
+                <input type="range" min={1} max={6} step={1} value={style.boxHeight ?? 2}
+                  onChange={(e) => upd({ boxHeight: Number(e.target.value) })}
+                  className="w-full h-1" />
+              </div>
+            </div>
           </div>
 
           <div>
@@ -207,6 +233,14 @@ const ControlsPanel = ({
             <p className="text-[9px] text-muted-foreground mt-1.5 opacity-60">Oder direkt im Video ziehen</p>
           </div>
         </div>
+
+        {/* Regenerate transcript */}
+        <button onClick={onRegenerate}
+          className="w-full flex items-center justify-center gap-2 rounded-2xl glass-item py-2.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Transkript neu generieren
+        </button>
       </div>
 
       {/* Bottom actions */}
