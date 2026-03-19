@@ -239,6 +239,9 @@ const ReelPreview = ({
           playsInline
         />
 
+        {/* Vignette overlay */}
+        {vignetteStyle && <div style={vignetteStyle} />}
+
         <SubtitleOverlay
           transcript={transcript}
           currentTime={currentTime}
