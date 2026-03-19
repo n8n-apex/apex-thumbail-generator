@@ -67,7 +67,8 @@ const ReelPreview = ({
     touchDeltaX.current = 0;
   }, [currentIndex, totalVideos, onNavigate]);
 
-  // Skip over silence gaps during playback
+  // Skip over silence gaps during playback — throttle state updates
+  const lastUpdateRef = useRef(0);
   useEffect(() => {
     const tick = () => {
       const v = videoRef.current;
@@ -79,7 +80,12 @@ const ReelPreview = ({
             break;
           }
         }
-        onTimeUpdate(v.currentTime);
+        // Throttle state updates to ~15fps to avoid render storm
+        const now = performance.now();
+        if (now - lastUpdateRef.current > 66) {
+          lastUpdateRef.current = now;
+          onTimeUpdate(v.currentTime);
+        }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
