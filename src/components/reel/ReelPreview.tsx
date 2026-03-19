@@ -210,6 +210,7 @@ const ReelPreview = ({
 
         {/* Blurred background video — visible when zoomed out or repositioned */}
         <video
+          ref={bgVideoRef}
           src={videoUrl}
           className="absolute inset-0 h-full w-full pointer-events-none"
           style={{ objectFit: "cover", filter: "blur(20px) brightness(0.5)", transform: "scale(1.1)" }}
