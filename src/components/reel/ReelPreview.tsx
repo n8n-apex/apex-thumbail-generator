@@ -152,7 +152,7 @@ const ReelPreview = ({
             setSlideDirection("right");
             setTimeout(() => { onNavigate(-1); setSlideDirection(null); }, 250);
           }}
-          className="absolute left-1 sm:left-2 z-30 flex h-8 w-8 items-center justify-center rounded-full glass text-foreground/70 hover:text-foreground transition-colors"
+          className="absolute left-1 sm:left-2 z-30 flex h-8 w-8 items-center justify-center rounded-full glass-elevated text-foreground/70 hover:text-foreground transition-colors"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
