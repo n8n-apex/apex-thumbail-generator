@@ -84,7 +84,7 @@ export const DEFAULT_COLOR_GRADING: ColorGradingSettings = {
 export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
   preset: "neon",
   font: "montserrat",
-  fontSize: 36,
+  fontSize: 82,
   positionX: 50,
   positionY: 72, // Safe zone: avoids Instagram/TikTok bottom UI overlap
   accentColor: "#FFFFFF",

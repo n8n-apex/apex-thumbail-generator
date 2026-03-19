@@ -2,12 +2,13 @@ import {
   SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings, SilenceCutSettings,
   TranscriptWord, ColorGradingSettings, SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
-import { SanityCheckResult } from "@/types/video-project";
+import { SanityCheckResult, TrimRegion } from "@/types/video-project";
 import { Type, Palette, Move, User, Download, Maximize, Clock, Plus, RefreshCw, RectangleHorizontal, ShieldCheck, AlertTriangle } from "lucide-react";
 import SilenceCutPanel from "./SilenceCutPanel";
 import ThumbnailPanel from "./ThumbnailPanel";
 import TranscriptEditor from "./TranscriptEditor";
 import ColorGradingPanel from "./ColorGradingPanel";
+import TimelineTrimmer from "./TimelineTrimmer";
 
 interface ControlsPanelProps {
   style: SubtitleStyle;
@@ -32,6 +33,11 @@ interface ControlsPanelProps {
   duration: number;
   sanityCheck?: SanityCheckResult;
   calibrationReasoning?: string;
+  trimRegions: TrimRegion[];
+  rawAmplitudes: number[];
+  silences: { start: number; end: number }[];
+  onTrimRegionsChange: (regions: TrimRegion[]) => void;
+  onSeek: (t: number) => void;
 }
 
 const ACCENT_COLORS = [
@@ -42,6 +48,7 @@ const ControlsPanel = ({
   style, speaker, silenceCut, colorGrading, onStyleChange, onSpeakerChange, onSilenceCutChange,
   onColorGradingChange, onTranscriptChange, onExport, onAddMore, onRegenerate, videoRef, transcript,
   currentTime, isExporting, exportProgress, silenceCount, timeSaved, duration, sanityCheck, calibrationReasoning,
+  trimRegions, rawAmplitudes, silences, onTrimRegionsChange, onSeek,
 }: ControlsPanelProps) => {
   const upd = (p: Partial<SubtitleStyle>) => onStyleChange({ ...style, ...p });
   const updSpk = (p: Partial<SpeakerSettings>) => onSpeakerChange({ ...speaker, ...p });
@@ -85,6 +92,17 @@ const ControlsPanel = ({
             )}
           </div>
         )}
+
+        {/* Timeline Trimmer */}
+        <TimelineTrimmer
+          duration={duration}
+          currentTime={currentTime}
+          trimRegions={trimRegions}
+          silences={silences}
+          rawAmplitudes={rawAmplitudes}
+          onTrimRegionsChange={onTrimRegionsChange}
+          onSeek={onSeek}
+        />
 
         {/* Silence Cutting */}
         <SilenceCutPanel
@@ -213,7 +231,7 @@ const ControlsPanel = ({
               <span className="text-[10px] text-muted-foreground font-medium">Größe</span>
               <span className="text-[10px] tabular-nums font-bold">{style.fontSize}px</span>
             </div>
-            <input type="range" min={28} max={96} value={style.fontSize}
+            <input type="range" min={28} max={140} value={style.fontSize}
               onChange={(e) => upd({ fontSize: Number(e.target.value) })}
               className="w-full h-1" />
           </div>

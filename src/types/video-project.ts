@@ -20,6 +20,12 @@ export interface SanityCheckResult {
   summary: string;
 }
 
+export interface TrimRegion {
+  id: string;
+  start: number;
+  end: number;
+}
+
 export interface VideoProject {
   id: string;
   file: File;
@@ -42,6 +48,7 @@ export interface VideoProject {
   steps: ProcessingStep[];
   sanityCheck?: SanityCheckResult;
   calibrationReasoning?: string;
+  trimRegions: TrimRegion[];
 }
 
 export function createVideoProject(file: File): VideoProject {
@@ -70,5 +77,6 @@ export function createVideoProject(file: File): VideoProject {
       { label: "KI-Transkription", done: false, active: false },
       { label: "Qualitätsprüfung", done: false, active: false },
     ],
+    trimRegions: [],
   };
 }
