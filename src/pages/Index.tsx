@@ -1,34 +1,93 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import UploadScreen from "@/components/reel/UploadScreen";
 import ProcessingScreen from "@/components/reel/ProcessingScreen";
 import ReelPreview from "@/components/reel/ReelPreview";
 import ControlsPanel from "@/components/reel/ControlsPanel";
 import {
-  SubtitleStyle, SpeakerSettings, TranscriptWord,
-  DEFAULT_SUBTITLE_STYLE, DEFAULT_SPEAKER_SETTINGS,
+  SubtitleStyle, SpeakerSettings, SilenceCutSettings, TranscriptWord,
+  DEFAULT_SUBTITLE_STYLE, DEFAULT_SPEAKER_SETTINGS, DEFAULT_SILENCE_CUT,
   MOCK_TRANSCRIPT, MOCK_SILENCES,
 } from "@/types/editor";
-import { analyzeAudio, getActiveSegments } from "@/lib/audio-analysis";
+import { analyzeAudio, getActiveSegments, calculateTimeSaved, type SilenceGap } from "@/lib/audio-analysis";
 import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
 import { supabase } from "@/integrations/supabase/client";
 
 type Phase = "upload" | "processing" | "ready";
 
+/**
+ * Re-detect silences from raw amplitudes with new threshold settings.
+ * Runs synchronously — no need to re-decode audio.
+ */
+function redetectSilences(
+  amplitudes: number[],
+  chunkDuration: number,
+  totalDuration: number,
+  settings: SilenceCutSettings,
+): SilenceGap[] {
+  if (!settings.enabled || amplitudes.length === 0) return [];
+
+  const silences: SilenceGap[] = [];
+  let silenceStart: number | null = null;
+
+  for (let i = 0; i < amplitudes.length; i++) {
+    const time = i * chunkDuration;
+    const isSilent = amplitudes[i] < settings.threshold;
+
+    if (isSilent && silenceStart === null) {
+      silenceStart = time;
+    } else if (!isSilent && silenceStart !== null) {
+      const dur = time - silenceStart;
+      if (dur >= settings.minDuration) {
+        silences.push({
+          start: silenceStart + settings.padding,
+          end: Math.max(time - settings.padding * 0.5, silenceStart + settings.padding + 0.01),
+        });
+      }
+      silenceStart = null;
+    }
+  }
+
+  if (silenceStart !== null) {
+    const dur = totalDuration - silenceStart;
+    if (dur >= settings.minDuration) {
+      silences.push({
+        start: silenceStart + settings.padding,
+        end: Math.max(totalDuration - settings.padding * 0.5, silenceStart + settings.padding + 0.01),
+      });
+    }
+  }
+
+  return silences;
+}
+
+const CHUNK_DURATION = 0.05;
+
 const Index = () => {
   const [phase, setPhase] = useState<Phase>("upload");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<TranscriptWord[]>([]);
-  const [silences, setSilences] = useState<{ start: number; end: number }[]>([]);
+  const [silences, setSilences] = useState<SilenceGap[]>([]);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [subtitleStyle, setSubtitleStyle] = useState<SubtitleStyle>(DEFAULT_SUBTITLE_STYLE);
   const [speaker, setSpeaker] = useState<SpeakerSettings>(DEFAULT_SPEAKER_SETTINGS);
+  const [silenceCut, setSilenceCut] = useState<SilenceCutSettings>(DEFAULT_SILENCE_CUT);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState("");
+
+  // Raw amplitudes stored for re-analysis without re-decoding
+  const rawAmplitudesRef = useRef<number[]>([]);
+
+  // Re-analyze when silence cut settings change
+  useEffect(() => {
+    if (rawAmplitudesRef.current.length === 0 || duration === 0) return;
+    const newSilences = redetectSilences(rawAmplitudesRef.current, CHUNK_DURATION, duration, silenceCut);
+    setSilences(newSilences);
+  }, [silenceCut.threshold, silenceCut.minDuration, silenceCut.padding, silenceCut.enabled, duration]);
 
   // Processing state
   const [progress, setProgress] = useState(0);
@@ -51,31 +110,36 @@ const Index = () => {
     setPhase("processing");
 
     try {
-      // Step 1: Audio analysis
       updateStep(0, { active: true });
       setCurrentStep("Decoding audio...");
 
       const result = await analyzeAudio(file, {
-        silenceThreshold: 0.015,
-        minSilenceDuration: 0.4,
+        silenceThreshold: silenceCut.threshold,
+        minSilenceDuration: silenceCut.minDuration,
+        chunkDuration: CHUNK_DURATION,
         onProgress: (p) => setProgress(p),
       });
+
+      // Store raw amplitudes for re-analysis
+      rawAmplitudesRef.current = result.rawAmplitudes;
 
       updateStep(0, { done: true, active: false });
       updateStep(1, { active: true });
       setCurrentStep("Silences detected");
-      setSilences(result.silences);
+
+      // Re-detect with current settings using raw amplitudes
+      const detectedSilences = redetectSilences(result.rawAmplitudes, CHUNK_DURATION, result.duration, silenceCut);
+      setSilences(detectedSilences);
       setDuration(result.duration);
       setProgress(0);
       updateStep(1, { done: true, active: false });
 
-      // Step 2: Extract audio & transcribe
+      // Transcription
       updateStep(2, { active: true });
       setCurrentStep("Extracting audio for transcription...");
 
       let transcriptResult: TranscriptWord[] = [];
       try {
-        // Extract compressed 16kHz mono WAV (much smaller than raw video)
         const audioBlob = await extractAudioBlob(file, 120);
         const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
 
@@ -103,7 +167,7 @@ const Index = () => {
 
       await new Promise((r) => setTimeout(r, 400));
       setPhase("ready");
-      toast.success(`${result.silences.length} pauses found, ${transcriptResult.length} words transcribed`);
+      toast.success(`${detectedSilences.length} Pausen gefunden, ${transcriptResult.length} Wörter transkribiert`);
     } catch {
       toast.error("Processing failed, using demo data");
       setTranscript(MOCK_TRANSCRIPT);
@@ -111,7 +175,7 @@ const Index = () => {
       setDuration(12);
       setPhase("ready");
     }
-  }, []);
+  }, [silenceCut]);
 
   const handleReset = useCallback(() => {
     if (videoUrl) URL.revokeObjectURL(videoUrl);
@@ -125,6 +189,7 @@ const Index = () => {
     setPhase("upload");
     setProgress(0);
     setCurrentStep("");
+    rawAmplitudesRef.current = [];
     setSteps([
       { label: "Analyzing audio", done: false, active: false },
       { label: "Detecting silences", done: false, active: false },
@@ -155,6 +220,8 @@ const Index = () => {
     }
   }, [videoFile, isExporting, silences, duration]);
 
+  const timeSaved = calculateTimeSaved(silences);
+
   if (phase === "upload") {
     return <UploadScreen onFileSelect={handleFileSelect} />;
   }
@@ -180,6 +247,7 @@ const Index = () => {
         currentTime={currentTime}
         duration={duration}
         isPlaying={isPlaying}
+        silences={silences}
         onTimeUpdate={setCurrentTime}
         onPlayPause={() => setIsPlaying((p) => !p)}
         onSeek={setCurrentTime}
@@ -190,11 +258,16 @@ const Index = () => {
       <ControlsPanel
         style={subtitleStyle}
         speaker={speaker}
+        silenceCut={silenceCut}
         onStyleChange={setSubtitleStyle}
         onSpeakerChange={setSpeaker}
+        onSilenceCutChange={setSilenceCut}
         onExport={handleExport}
         isExporting={isExporting}
         exportProgress={exportProgress}
+        silenceCount={silences.length}
+        timeSaved={timeSaved}
+        duration={duration}
       />
     </div>
   );

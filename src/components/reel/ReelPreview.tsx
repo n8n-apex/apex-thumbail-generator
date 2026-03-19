@@ -11,6 +11,7 @@ interface ReelPreviewProps {
   currentTime: number;
   duration: number;
   isPlaying: boolean;
+  silences: { start: number; end: number }[];
   onTimeUpdate: (t: number) => void;
   onPlayPause: () => void;
   onSeek: (t: number) => void;
@@ -27,7 +28,7 @@ const fmt = (s: number) => {
 
 const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
-  currentTime, duration, isPlaying,
+  currentTime, duration, isPlaying, silences,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
   onReset, onSwapVideo,
 }: ReelPreviewProps) => {
@@ -104,13 +105,24 @@ const ReelPreview = ({
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <div
-            className="mb-3 h-1 w-full cursor-pointer rounded-full bg-white/20 overflow-hidden"
+            className="relative mb-3 h-1.5 w-full cursor-pointer rounded-full bg-white/20 overflow-hidden"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               seekTo(((e.clientX - rect.left) / rect.width) * (duration || 1));
             }}
           >
-            <div className="h-full rounded-full bg-white transition-all" style={{ width: `${progressPct}%` }} />
+            {/* Silence markers */}
+            {duration > 0 && silences.map((s, i) => (
+              <div
+                key={i}
+                className="absolute top-0 h-full bg-red-500/50 rounded-full"
+                style={{
+                  left: `${(s.start / duration) * 100}%`,
+                  width: `${((s.end - s.start) / duration) * 100}%`,
+                }}
+              />
+            ))}
+            <div className="absolute top-0 h-full rounded-full bg-white transition-all" style={{ width: `${progressPct}%` }} />
           </div>
 
           <div className="flex items-center gap-3">

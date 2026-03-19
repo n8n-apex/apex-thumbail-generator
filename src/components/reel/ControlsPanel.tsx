@@ -1,17 +1,23 @@
 import {
-  SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings,
+  SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings, SilenceCutSettings,
   SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
 import { Type, Palette, Move, User, Download, Maximize, Clock } from "lucide-react";
+import SilenceCutPanel from "./SilenceCutPanel";
 
 interface ControlsPanelProps {
   style: SubtitleStyle;
   speaker: SpeakerSettings;
+  silenceCut: SilenceCutSettings;
   onStyleChange: (s: SubtitleStyle) => void;
   onSpeakerChange: (s: SpeakerSettings) => void;
+  onSilenceCutChange: (s: SilenceCutSettings) => void;
   onExport: () => void;
   isExporting: boolean;
   exportProgress: string;
+  silenceCount: number;
+  timeSaved: number;
+  duration: number;
 }
 
 const ACCENT_COLORS = [
@@ -19,14 +25,22 @@ const ACCENT_COLORS = [
 ];
 
 const ControlsPanel = ({
-  style, speaker, onStyleChange, onSpeakerChange,
-  onExport, isExporting, exportProgress,
+  style, speaker, silenceCut, onStyleChange, onSpeakerChange, onSilenceCutChange,
+  onExport, isExporting, exportProgress, silenceCount, timeSaved, duration,
 }: ControlsPanelProps) => {
   const upd = (p: Partial<SubtitleStyle>) => onStyleChange({ ...style, ...p });
   const updSpk = (p: Partial<SpeakerSettings>) => onSpeakerChange({ ...speaker, ...p });
 
   return (
     <div className="w-[360px] space-y-5 overflow-y-auto max-h-[calc(100vh-120px)] pr-1">
+      {/* Silence Cutting - TOP PRIORITY */}
+      <SilenceCutPanel
+        settings={silenceCut}
+        onChange={onSilenceCutChange}
+        silenceCount={silenceCount}
+        timeSaved={timeSaved}
+        duration={duration}
+      />
       {/* Speaker Centering */}
       <div className="glass rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">

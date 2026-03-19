@@ -28,6 +28,20 @@ export interface SpeakerSettings {
   zoom: number;
 }
 
+export interface SilenceCutSettings {
+  enabled: boolean;
+  threshold: number; // RMS threshold 0-1, default 0.015
+  minDuration: number; // minimum silence length in seconds, default 0.4
+  padding: number; // padding in seconds to keep around cuts, default 0.1
+}
+
+export const DEFAULT_SILENCE_CUT: SilenceCutSettings = {
+  enabled: true,
+  threshold: 0.015,
+  minDuration: 0.4,
+  padding: 0.1,
+};
+
 export const SUBTITLE_FONTS: Record<SubtitleFont, { label: string; family: string; weight: number }> = {
   montserrat: { label: "Montserrat", family: "'Montserrat'", weight: 900 },
   bebas: { label: "Bebas Neue", family: "'Bebas Neue'", weight: 400 },

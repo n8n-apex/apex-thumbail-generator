@@ -12,6 +12,7 @@ export interface AnalysisResult {
   silences: SilenceGap[];
   duration: number;
   amplitudes: number[]; // normalized 0-1 per chunk for waveform
+  rawAmplitudes: number[]; // raw RMS values for re-analysis
 }
 
 /**
@@ -113,6 +114,7 @@ export async function analyzeAudio(
     silences,
     duration,
     amplitudes: normalizedAmplitudes,
+    rawAmplitudes: amplitudes,
   };
 }
 
