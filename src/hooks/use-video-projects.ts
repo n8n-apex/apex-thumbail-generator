@@ -10,7 +10,22 @@ import { supabase } from "@/integrations/supabase/client";
 
 const CHUNK_DURATION = 0.05;
 
-// Filter out garbled/nonsensical words for clean subtitle flow
+// Filler words to remove across common languages (DE, EN, FR, ES, etc.)
+const FILLER_WORDS = new Set([
+  // German
+  "ähm", "äh", "ehm", "eh", "hm", "hmm", "mhm", "öhm", "öh", "ähh", "ehh",
+  "halt", "quasi", "sozusagen", "irgendwie", "eigentlich", "ja", "ne", "naja",
+  "genau", "also", "eben", "tja",
+  // English
+  "um", "uh", "uhm", "hmm", "hm", "er", "like", "you know", "i mean",
+  "basically", "literally", "actually", "right",
+  // French
+  "euh", "bah", "ben", "hein",
+  // Spanish
+  "este", "pues", "bueno",
+]);
+
+// Filter out garbled/nonsensical words and filler words for clean subtitle flow
 function cleanTranscript(words: TranscriptWord[]): TranscriptWord[] {
   return words.filter((w) => {
     const text = w.text.trim();
@@ -18,6 +33,8 @@ function cleanTranscript(words: TranscriptWord[]): TranscriptWord[] {
     if (!text) return false;
     // Remove very low confidence words
     if (w.confidence < 0.4) return false;
+    // Remove filler words (case-insensitive)
+    if (FILLER_WORDS.has(text.toLowerCase())) return false;
     // Remove single characters that aren't real words (allow "I", "a" etc)
     if (text.length === 1 && !/[A-Za-zÄÖÜäöü0-9]/.test(text)) return false;
     // Remove words that are just punctuation/symbols
