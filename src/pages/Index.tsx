@@ -15,6 +15,7 @@ const Index = () => {
   } = useVideoProjects();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
 
   // Re-detect silences when settings change for active project
   useEffect(() => {
