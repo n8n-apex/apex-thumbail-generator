@@ -23,6 +23,8 @@ interface ControlsPanelProps {
   onRegenerate: () => void;
   videoRef?: HTMLVideoElement | null;
   transcript?: TranscriptWord[];
+  currentTime: number;
+  colorGrading: ColorGradingSettings;
   isExporting: boolean;
   exportProgress: string;
   silenceCount: number;
