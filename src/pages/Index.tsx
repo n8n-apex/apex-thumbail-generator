@@ -203,6 +203,9 @@ const Index = () => {
       }
 
       setTranscript(transcriptResult);
+      // Now reconcile silences with actual transcript words
+      const reconciledSilences = reconcileSilencesWithTranscript(detectedSilences, transcriptResult);
+      setSilences(reconciledSilences);
       updateStep(2, { done: true, active: false });
       updateStep(3, { done: true });
       setCurrentStep("Ready!");
