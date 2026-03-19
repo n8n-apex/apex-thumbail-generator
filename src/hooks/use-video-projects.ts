@@ -191,7 +191,7 @@ export function useVideoProjects() {
   const exportProject = useCallback(async (id: string) => {
     const proj = projects.find((p) => p.id === id);
     if (!proj || proj.isExporting) return;
-    updateProject(id, { isExporting: true, exportProgress: "Preparing..." });
+    updateProject(id, { isExporting: true, exportProgress: "Vorbereitung..." });
     try {
       const segments = getActiveSegments(proj.silences, proj.duration);
       const blob = await exportVideoWithoutSilences(
