@@ -27,6 +27,7 @@ const Index = () => {
     activeProject?.silenceCut.minDuration,
     activeProject?.silenceCut.padding,
     activeProject?.silenceCut.enabled,
+    redetectForProject,
   ]);
 
   // Listen for subtitle drag position changes
