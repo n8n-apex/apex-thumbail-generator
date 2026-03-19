@@ -136,6 +136,7 @@ const Index = () => {
         onNavigate={handleNavigate}
         fileName={proj.file.name}
         onVideoRef={setVideoEl}
+        onReanalyze={() => regenerateTranscript(proj.id)}
       />
       <ControlsPanel
         style={proj.subtitleStyle}
