@@ -122,6 +122,7 @@ const Index = () => {
         duration={proj.duration}
         isPlaying={proj.isPlaying}
         silences={proj.silences}
+        colorGrading={proj.colorGrading}
         onTimeUpdate={(t) => updateProject(proj.id, { currentTime: t })}
         onPlayPause={() => updateProject(proj.id, { isPlaying: !proj.isPlaying })}
         onSeek={(t) => updateProject(proj.id, { currentTime: t })}
