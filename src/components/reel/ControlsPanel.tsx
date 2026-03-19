@@ -52,12 +52,14 @@ const ControlsPanel = ({
               ? <ShieldCheck className="h-4 w-4 text-emerald-500 flex-shrink-0" />
               : <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
             }
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold text-foreground">
-                  {sanityCheck.passed ? "Export-bereit" : "Optimierung empfohlen"}
+                  {sanityCheck.overall_score >= 80 ? "Export-bereit" : "Score zu niedrig"}
                 </span>
-                <span className="text-[10px] font-bold tabular-nums text-muted-foreground">
+                <span className={`text-[10px] font-bold tabular-nums ${
+                  sanityCheck.overall_score >= 80 ? "text-muted-foreground" : "text-destructive"
+                }`}>
                   {sanityCheck.overall_score}/100
                 </span>
               </div>
@@ -66,6 +68,15 @@ const ControlsPanel = ({
                 <p className="text-[8px] text-muted-foreground/60 mt-1 leading-tight">{calibrationReasoning}</p>
               )}
             </div>
+            {sanityCheck.overall_score < 80 && (
+              <button
+                onClick={onRegenerate}
+                className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive text-[10px] font-semibold transition-colors"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Neu
+              </button>
+            )}
           </div>
         )}
 
