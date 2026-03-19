@@ -57,7 +57,7 @@ const Index = () => {
   // No projects — show upload screen
   if (!hasProjects) {
     return (
-      <div className="h-screen w-screen overflow-hidden">
+      <div className="app-frame">
         <UploadScreen onFilesSelect={handleFilesSelect} />
       </div>
     );
