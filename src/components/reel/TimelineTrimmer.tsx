@@ -1,6 +1,6 @@
 import { useRef, useCallback, useState, useEffect, useMemo } from "react";
 import { TrimRegion } from "@/types/video-project";
-import { Scissors, Trash2, GripVertical } from "lucide-react";
+import { Scissors, Trash2 } from "lucide-react";
 
 interface TimelineTrimmerProps {
   duration: number;
@@ -59,6 +59,7 @@ const TimelineTrimmer = ({
     if (!dragging) return;
 
     const onMove = (e: MouseEvent | TouchEvent) => {
+      e.preventDefault();
       const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
       const time = getTimeFromX(clientX);
       
@@ -76,9 +77,9 @@ const TimelineTrimmer = ({
 
     const onUp = () => setDragging(null);
 
-    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", onMove, { passive: false });
     window.addEventListener("mouseup", onUp);
-    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchmove", onMove, { passive: false });
     window.addEventListener("touchend", onUp);
     return () => {
       window.removeEventListener("mousemove", onMove);
@@ -88,11 +89,8 @@ const TimelineTrimmer = ({
     };
   }, [dragging, trimRegions, onTrimRegionsChange, getTimeFromX]);
 
-  const handleTrackClick = useCallback((e: React.MouseEvent) => {
-    if (dragging) return;
-    const time = getTimeFromX(e.clientX);
-    onSeek(time);
-  }, [dragging, getTimeFromX, onSeek]);
+
+
 
   const handleTrackHover = useCallback((e: React.MouseEvent) => {
     const time = getTimeFromX(e.clientX);
@@ -155,10 +153,21 @@ const TimelineTrimmer = ({
       {/* Timeline track */}
       <div
         ref={trackRef}
-        className="relative h-14 rounded-xl bg-muted/30 cursor-crosshair overflow-hidden select-none"
-        onClick={handleTrackClick}
+        className="relative h-14 rounded-xl bg-muted/30 cursor-crosshair overflow-hidden select-none touch-none"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          if (dragging) return;
+          const time = getTimeFromX(e.clientX);
+          onSeek(time);
+        }}
         onMouseMove={handleTrackHover}
         onMouseLeave={() => setHoveredTime(null)}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          if (dragging) return;
+          const time = getTimeFromX(e.touches[0].clientX);
+          onSeek(time);
+        }}
       >
         {/* Waveform */}
         <div className="absolute inset-0 flex items-end px-px gap-px pointer-events-none">
@@ -204,22 +213,22 @@ const TimelineTrimmer = ({
               <Trash2 className="h-2.5 w-2.5" />
             </button>
 
-            {/* Left handle */}
+            {/* Left handle — wider hit area */}
             <div
-              className="absolute left-0 top-0 h-full w-2 cursor-col-resize z-10 flex items-center justify-center hover:bg-destructive/40 transition-colors"
-              onMouseDown={(e) => { e.stopPropagation(); setDragging({ regionId: region.id, edge: "start" }); }}
-              onTouchStart={(e) => { e.stopPropagation(); setDragging({ regionId: region.id, edge: "start" }); }}
+              className="absolute -left-2 top-0 h-full w-5 cursor-col-resize z-10 flex items-center justify-center"
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); setDragging({ regionId: region.id, edge: "start" }); }}
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setDragging({ regionId: region.id, edge: "start" }); }}
             >
-              <GripVertical className="h-3 w-3 text-destructive" />
+              <div className="w-1 h-8 rounded-full bg-destructive/70 group-hover:bg-destructive transition-colors shadow-sm" />
             </div>
 
-            {/* Right handle */}
+            {/* Right handle — wider hit area */}
             <div
-              className="absolute right-0 top-0 h-full w-2 cursor-col-resize z-10 flex items-center justify-center hover:bg-destructive/40 transition-colors"
-              onMouseDown={(e) => { e.stopPropagation(); setDragging({ regionId: region.id, edge: "end" }); }}
-              onTouchStart={(e) => { e.stopPropagation(); setDragging({ regionId: region.id, edge: "end" }); }}
+              className="absolute -right-2 top-0 h-full w-5 cursor-col-resize z-10 flex items-center justify-center"
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); setDragging({ regionId: region.id, edge: "end" }); }}
+              onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setDragging({ regionId: region.id, edge: "end" }); }}
             >
-              <GripVertical className="h-3 w-3 text-destructive" />
+              <div className="w-1 h-8 rounded-full bg-destructive/70 group-hover:bg-destructive transition-colors shadow-sm" />
             </div>
           </div>
         ))}
