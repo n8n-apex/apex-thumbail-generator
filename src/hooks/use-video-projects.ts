@@ -5,6 +5,7 @@ import { VideoProject, createVideoProject } from "@/types/video-project";
 import { analyzeAudio, getActiveSegments, type SilenceGap } from "@/lib/audio-analysis";
 import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
+import { validateAndRepairTranscript } from "@/lib/transcript-validator";
 import { supabase } from "@/integrations/supabase/client";
 
 const CHUNK_DURATION = 0.05;
