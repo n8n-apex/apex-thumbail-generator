@@ -1,6 +1,6 @@
 import { useRef, useCallback, useState, useEffect, useMemo } from "react";
 import { TrimRegion } from "@/types/video-project";
-import { Scissors, Trash2, GripVertical } from "lucide-react";
+import { Scissors, Trash2 } from "lucide-react";
 
 interface TimelineTrimmerProps {
   duration: number;
