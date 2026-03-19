@@ -1,8 +1,9 @@
-import { useRef, useEffect, useCallback, useState } from "react";
-import { TranscriptWord, SubtitleStyle, SpeakerSettings } from "@/types/editor";
+import { useRef, useEffect, useCallback, useState, useMemo } from "react";
+import { TranscriptWord, SubtitleStyle, SpeakerSettings, ColorGradingSettings } from "@/types/editor";
 import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
 import { useFaceTracking } from "@/hooks/use-face-tracking";
+import { colorGradingToCSS } from "./ColorGradingPanel";
 
 interface ReelPreviewProps {
   videoUrl: string;
