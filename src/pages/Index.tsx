@@ -88,7 +88,7 @@ const Index = () => {
   const timeSaved = calculateTimeSaved(proj.silences);
 
   return (
-    <div className="flex flex-col sm:flex-row h-screen w-screen overflow-hidden mesh-gradient">
+    <div className="app-frame flex-col sm:flex-row mesh-gradient">
       <input
         ref={fileInputRef}
         type="file"
