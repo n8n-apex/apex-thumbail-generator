@@ -63,6 +63,24 @@ export const SUBTITLE_PRESETS: Record<SubtitlePreset, { label: string; emoji: st
   outline: { label: "Outline", emoji: "✏️" },
 };
 
+export interface ColorGradingSettings {
+  brightness: number;   // -100 to 100, default 0
+  contrast: number;     // -100 to 100, default 0
+  saturation: number;   // -100 to 100, default 0
+  warmth: number;       // -100 to 100, default 0 (negative = cool, positive = warm)
+  fade: number;         // 0 to 100, default 0 (lifted blacks)
+  vignette: number;     // 0 to 100, default 0
+}
+
+export const DEFAULT_COLOR_GRADING: ColorGradingSettings = {
+  brightness: 0,
+  contrast: 0,
+  saturation: 0,
+  warmth: 0,
+  fade: 0,
+  vignette: 0,
+};
+
 export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
   preset: "karaoke",
   font: "montserrat",
