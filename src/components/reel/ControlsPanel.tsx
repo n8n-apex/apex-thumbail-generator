@@ -25,8 +25,8 @@ const ACCENT_COLORS = [
 ];
 
 const ControlsPanel = ({
-  style, speaker, onStyleChange, onSpeakerChange,
-  onExport, isExporting, exportProgress,
+  style, speaker, silenceCut, onStyleChange, onSpeakerChange, onSilenceCutChange,
+  onExport, isExporting, exportProgress, silenceCount, timeSaved, duration,
 }: ControlsPanelProps) => {
   const upd = (p: Partial<SubtitleStyle>) => onStyleChange({ ...style, ...p });
   const updSpk = (p: Partial<SpeakerSettings>) => onSpeakerChange({ ...speaker, ...p });
