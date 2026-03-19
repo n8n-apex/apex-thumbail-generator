@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { TranscriptWord, SubtitleStyle, SpeakerSettings, ColorGradingSettings } from "@/types/editor";
-import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
 import { useFaceTracking } from "@/hooks/use-face-tracking";
 import { colorGradingToCSS, colorGradingVignetteCSS } from "./ColorGradingPanel";
@@ -25,6 +25,7 @@ interface ReelPreviewProps {
   onNavigate: (direction: -1 | 1) => void;
   fileName: string;
   onVideoRef?: (el: HTMLVideoElement | null) => void;
+  onReanalyze?: () => void;
 }
 
 const fmt = (s: number) => {
@@ -60,7 +61,7 @@ const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
   currentTime, duration, isPlaying, silences, colorGrading,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
-  onRemove, totalVideos, currentIndex, onNavigate, fileName, onVideoRef,
+  onRemove, totalVideos, currentIndex, onNavigate, fileName, onVideoRef, onReanalyze,
 }: ReelPreviewProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
@@ -342,6 +343,15 @@ const ReelPreview = ({
           </div>
         </div>
       </div>
+      {onReanalyze && (
+        <button
+          onClick={onReanalyze}
+          className="mt-2 w-full flex items-center justify-center gap-2 rounded-2xl glass-item py-2.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Clip neu analysieren
+        </button>
+      )}
     </div>
   );
 };
