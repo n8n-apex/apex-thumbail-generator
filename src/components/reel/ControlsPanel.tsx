@@ -24,6 +24,8 @@ interface ControlsPanelProps {
   silenceCount: number;
   timeSaved: number;
   duration: number;
+  sanityCheck?: SanityCheckResult;
+  calibrationReasoning?: string;
 }
 
 const ACCENT_COLORS = [
