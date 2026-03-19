@@ -124,12 +124,12 @@ const Index = () => {
   // Raw amplitudes stored for re-analysis without re-decoding
   const rawAmplitudesRef = useRef<number[]>([]);
 
-  // Re-analyze when silence cut settings change
+  // Re-analyze when silence cut settings change — reconcile with transcript
   useEffect(() => {
     if (rawAmplitudesRef.current.length === 0 || duration === 0) return;
-    const newSilences = redetectSilences(rawAmplitudesRef.current, CHUNK_DURATION, duration, silenceCut);
-    setSilences(newSilences);
-  }, [silenceCut.threshold, silenceCut.minDuration, silenceCut.padding, silenceCut.enabled, duration]);
+    const raw = redetectSilences(rawAmplitudesRef.current, CHUNK_DURATION, duration, silenceCut);
+    setSilences(reconcileSilencesWithTranscript(raw, transcript));
+  }, [silenceCut.threshold, silenceCut.minDuration, silenceCut.padding, silenceCut.enabled, duration, transcript]);
 
   // Processing state
   const [progress, setProgress] = useState(0);
