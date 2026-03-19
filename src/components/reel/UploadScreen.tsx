@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
-import { Upload, Zap } from "lucide-react";
+import { Upload, Zap, Plus } from "lucide-react";
 
 interface UploadScreenProps {
-  onFileSelect: (file: File) => void;
+  onFilesSelect: (files: File[]) => void;
+  compact?: boolean;
 }
 
-const UploadScreen = ({ onFileSelect }: UploadScreenProps) => {
+const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -15,19 +16,43 @@ const UploadScreen = ({ onFileSelect }: UploadScreenProps) => {
 
   const handleDragLeave = useCallback(() => setIsDragOver(false), []);
 
+  const extractVideoFiles = (fileList: FileList) =>
+    Array.from(fileList).filter(
+      (f) => f.type.startsWith("video/") || f.name.match(/\.(mp4|mov|webm|avi)$/i)
+    );
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file && (file.type.startsWith("video/") || file.name.match(/\.(mp4|mov|webm|avi)$/i))) {
-      onFileSelect(file);
-    }
-  }, [onFileSelect]);
+    const files = extractVideoFiles(e.dataTransfer.files);
+    if (files.length > 0) onFilesSelect(files);
+  }, [onFilesSelect]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) onFileSelect(file);
-  }, [onFileSelect]);
+    if (e.target.files) {
+      const files = extractVideoFiles(e.target.files);
+      if (files.length > 0) onFilesSelect(files);
+    }
+  }, [onFilesSelect]);
+
+  if (compact) {
+    return (
+      <label
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition-all duration-300 h-full ${
+          isDragOver
+            ? "border-primary bg-primary/5 scale-[1.02]"
+            : "border-border/60 hover:border-primary/40 glass"
+        }`}
+      >
+        <input type="file" accept="video/*,.mp4,.mov,.webm,.avi" multiple onChange={handleInputChange} className="hidden" />
+        <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+        <p className="mt-2 text-[11px] font-medium text-muted-foreground">Add more</p>
+      </label>
+    );
+  }
 
   return (
     <div className="flex h-full w-full items-center justify-center mesh-gradient">
@@ -37,11 +62,11 @@ const UploadScreen = ({ onFileSelect }: UploadScreenProps) => {
             <Zap className="h-3 w-3" />
             Auto Subtitles & Silence Cut
           </div>
-          <h1 className="mb-2 text-4xl font-black tracking-tight text-foreground leading-none">
+          <h1 className="mb-2 text-3xl sm:text-4xl font-black tracking-tight text-foreground leading-none">
             apex<span className="text-primary">Clip</span>.ai
           </h1>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-            Drop your video — get modern subtitles, speaker centering & automatic silence removal.
+            Drop your videos — get modern subtitles, speaker centering & automatic silence removal.
           </p>
         </div>
 
@@ -49,22 +74,22 @@ const UploadScreen = ({ onFileSelect }: UploadScreenProps) => {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-14 transition-all duration-300 ${
+          className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 sm:p-14 transition-all duration-300 ${
             isDragOver
               ? "border-primary bg-primary/5 scale-[1.02] shadow-xl shadow-primary/10"
               : "border-border/80 hover:border-primary/40 glass"
           }`}
         >
-          <input type="file" accept="video/*,.mp4,.mov,.webm,.avi" onChange={handleInputChange} className="hidden" />
+          <input type="file" accept="video/*,.mp4,.mov,.webm,.avi" multiple onChange={handleInputChange} className="hidden" />
           <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
             isDragOver ? "bg-primary/15 text-primary scale-110" : "bg-secondary text-muted-foreground group-hover:text-primary group-hover:bg-primary/10"
           }`}>
             <Upload className="h-5 w-5" />
           </div>
           <p className="text-sm font-semibold text-foreground mb-1">
-            {isDragOver ? "Drop it!" : "Drop your raw reel"}
+            {isDragOver ? "Drop it!" : "Drop your raw reels"}
           </p>
-          <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM</p>
+          <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM — multiple files supported</p>
         </label>
 
         <div className="mt-6 flex justify-center gap-5 text-[10px] text-muted-foreground">

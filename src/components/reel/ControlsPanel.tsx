@@ -2,7 +2,7 @@ import {
   SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings, SilenceCutSettings,
   SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
-import { Type, Palette, Move, User, Download, Maximize, Clock } from "lucide-react";
+import { Type, Palette, Move, User, Download, Maximize, Clock, Plus } from "lucide-react";
 import SilenceCutPanel from "./SilenceCutPanel";
 
 interface ControlsPanelProps {
@@ -13,6 +13,7 @@ interface ControlsPanelProps {
   onSpeakerChange: (s: SpeakerSettings) => void;
   onSilenceCutChange: (s: SilenceCutSettings) => void;
   onExport: () => void;
+  onAddMore: () => void;
   isExporting: boolean;
   exportProgress: string;
   silenceCount: number;
@@ -26,14 +27,14 @@ const ACCENT_COLORS = [
 
 const ControlsPanel = ({
   style, speaker, silenceCut, onStyleChange, onSpeakerChange, onSilenceCutChange,
-  onExport, isExporting, exportProgress, silenceCount, timeSaved, duration,
+  onExport, onAddMore, isExporting, exportProgress, silenceCount, timeSaved, duration,
 }: ControlsPanelProps) => {
   const upd = (p: Partial<SubtitleStyle>) => onStyleChange({ ...style, ...p });
   const updSpk = (p: Partial<SpeakerSettings>) => onSpeakerChange({ ...speaker, ...p });
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto py-4 pr-4 pl-2" style={{ width: 340 }}>
-      <div className="space-y-4 flex-1">
+    <div className="flex flex-col h-full overflow-y-auto py-3 px-3 sm:py-4 sm:pr-4 sm:pl-2 w-full sm:w-[340px] sm:flex-shrink-0">
+      <div className="space-y-3 sm:space-y-4 flex-1">
         {/* Silence Cutting */}
         <SilenceCutPanel
           settings={silenceCut}
@@ -87,7 +88,7 @@ const ControlsPanel = ({
               const isActive = style.preset === preset;
               return (
                 <button key={preset} onClick={() => upd({ preset })}
-                  className={`rounded-xl p-2.5 text-center transition-all ${
+                  className={`rounded-xl p-2 sm:p-2.5 text-center transition-all ${
                     isActive ? "bg-primary/10 ring-2 ring-primary/30 shadow-sm" : "bg-secondary/60 hover:bg-secondary"
                   }`}
                 >
@@ -113,7 +114,7 @@ const ControlsPanel = ({
               const isActive = style.font === font;
               return (
                 <button key={font} onClick={() => upd({ font })}
-                  className={`rounded-xl p-2.5 transition-all ${
+                  className={`rounded-xl p-2 sm:p-2.5 transition-all ${
                     isActive ? "bg-primary/10 ring-2 ring-primary/30" : "bg-secondary/60 hover:bg-secondary"
                   }`}
                 >
@@ -188,13 +189,19 @@ const ControlsPanel = ({
         </div>
       </div>
 
-      {/* Export - sticky at bottom */}
-      <div className="pt-4 mt-auto">
+      {/* Bottom actions */}
+      <div className="pt-3 sm:pt-4 mt-auto space-y-2">
+        <button onClick={onAddMore}
+          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-secondary py-2.5 text-xs font-bold text-secondary-foreground transition-all hover:bg-secondary/80"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Add More Videos
+        </button>
         <button onClick={onExport} disabled={isExporting}
           className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
-          {isExporting ? exportProgress : "Export Reel"}
+          {isExporting ? exportProgress : "Export Clip"}
         </button>
       </div>
     </div>

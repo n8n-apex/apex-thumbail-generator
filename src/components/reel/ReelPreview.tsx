@@ -1,6 +1,6 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { TranscriptWord, SubtitleStyle, SpeakerSettings } from "@/types/editor";
-import { Play, Pause, RotateCcw, X, RefreshCw } from "lucide-react";
+import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
 
 interface ReelPreviewProps {
@@ -16,8 +16,12 @@ interface ReelPreviewProps {
   onPlayPause: () => void;
   onSeek: (t: number) => void;
   onDurationChange: (d: number) => void;
-  onReset: () => void;
-  onSwapVideo: () => void;
+  onRemove: () => void;
+  // Multi-video navigation
+  totalVideos: number;
+  currentIndex: number;
+  onNavigate: (direction: -1 | 1) => void;
+  fileName: string;
 }
 
 const fmt = (s: number) => {
@@ -30,10 +34,38 @@ const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
   currentTime, duration, isPlaying, silences,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
-  onReset, onSwapVideo,
+  onRemove, totalVideos, currentIndex, onNavigate, fileName,
 }: ReelPreviewProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
+  const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Touch swipe support
+  const touchStartX = useRef(0);
+  const touchDeltaX = useRef(0);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (Math.abs(touchDeltaX.current) > 60) {
+      if (touchDeltaX.current > 0 && currentIndex > 0) {
+        setSlideDirection("right");
+        setTimeout(() => { onNavigate(-1); setSlideDirection(null); }, 250);
+      } else if (touchDeltaX.current < 0 && currentIndex < totalVideos - 1) {
+        setSlideDirection("left");
+        setTimeout(() => { onNavigate(1); setSlideDirection(null); }, 250);
+      }
+    }
+    touchDeltaX.current = 0;
+  }, [currentIndex, totalVideos, onNavigate]);
 
   // Skip over silence gaps during playback
   useEffect(() => {
@@ -41,7 +73,6 @@ const ReelPreview = ({
       const v = videoRef.current;
       if (v && !v.paused) {
         const t = v.currentTime;
-        // Check if current time is inside a silence gap — if so, skip to end
         for (const s of silences) {
           if (t >= s.start && t < s.end) {
             v.currentTime = s.end;
@@ -78,24 +109,70 @@ const ReelPreview = ({
 
   const progressPct = duration ? (currentTime / duration) * 100 : 0;
 
+  const slideClass = slideDirection === "left"
+    ? "animate-slide-out-left"
+    : slideDirection === "right"
+    ? "animate-slide-out-right"
+    : "animate-fade-in";
+
   return (
-    <div className="flex h-full items-center justify-center py-4 px-6 flex-shrink-0">
+    <div
+      ref={containerRef}
+      className="relative flex h-full items-center justify-center py-3 px-3 sm:py-4 sm:px-6 flex-shrink-0"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Navigation arrows — desktop only */}
+      {totalVideos > 1 && currentIndex > 0 && (
+        <button
+          onClick={() => {
+            setSlideDirection("right");
+            setTimeout(() => { onNavigate(-1); setSlideDirection(null); }, 250);
+          }}
+          className="absolute left-1 sm:left-2 z-30 flex h-8 w-8 items-center justify-center rounded-full glass text-foreground/70 hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      )}
+      {totalVideos > 1 && currentIndex < totalVideos - 1 && (
+        <button
+          onClick={() => {
+            setSlideDirection("left");
+            setTimeout(() => { onNavigate(1); setSlideDirection(null); }, 250);
+          }}
+          className="absolute right-1 sm:right-2 z-30 flex h-8 w-8 items-center justify-center rounded-full glass text-foreground/70 hover:text-foreground transition-colors"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      )}
+
       <div
-        className="relative overflow-hidden rounded-[1.5rem] bg-black h-full"
+        className={`relative overflow-hidden rounded-[1.5rem] bg-black h-full ${slideClass}`}
         style={{ aspectRatio: "9/16", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}
       >
-        {/* Top action buttons */}
-        <div className="absolute top-2.5 right-2.5 z-20 flex gap-1.5">
-          <button onClick={onSwapVideo} title="Anderes Video"
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-black/60 hover:text-white"
-          >
-            <RefreshCw className="h-3 w-3" />
-          </button>
-          <button onClick={onReset} title="Video entfernen"
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-red-500/80 hover:text-white"
-          >
-            <X className="h-3 w-3" />
-          </button>
+        {/* Top bar */}
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-2.5">
+          {/* Video counter */}
+          {totalVideos > 1 && (
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalVideos }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1 rounded-full transition-all duration-300 ${
+                    i === currentIndex ? "w-5 bg-white" : "w-1.5 bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+          <div className="ml-auto flex gap-1.5">
+            <button onClick={onRemove} title="Video entfernen"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-red-500/80 hover:text-white"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
         </div>
 
         <video
@@ -112,7 +189,11 @@ const ReelPreview = ({
 
         <SubtitleOverlay transcript={transcript} currentTime={currentTime} style={subtitleStyle} />
 
+        {/* Bottom controls */}
         <div className="absolute bottom-0 left-0 right-0 p-3">
+          {/* File name */}
+          <p className="text-[9px] text-white/50 truncate mb-1.5 font-medium">{fileName}</p>
+
           <div
             className="relative mb-2.5 h-1 w-full cursor-pointer rounded-full bg-white/20 overflow-hidden"
             onClick={(e) => {
