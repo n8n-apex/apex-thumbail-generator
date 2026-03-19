@@ -70,30 +70,19 @@ const ReelPreview = ({
     touchDeltaX.current = 0;
   }, [currentIndex, totalVideos, onNavigate]);
 
-  // Skip over silence gaps during playback — throttle state updates
+  // Skip over silence gaps during playback — simple non-blocking approach
   const lastUpdateRef = useRef(0);
-  const skippingRef = useRef(false);
   useEffect(() => {
     const tick = () => {
       const v = videoRef.current;
-      if (v && !v.paused) {
+      if (v && !v.paused && !v.seeking) {
         const t = v.currentTime;
 
-        // Check if we're inside a silence gap
-        if (!skippingRef.current) {
-          for (const s of silences) {
-            if (t >= s.start && t < s.end) {
-              skippingRef.current = true;
-              v.currentTime = s.end;
-              // Resume playback after seek completes
-              const onSeeked = () => {
-                skippingRef.current = false;
-                v.removeEventListener("seeked", onSeeked);
-                v.play().catch(() => {});
-              };
-              v.addEventListener("seeked", onSeeked);
-              break;
-            }
+        // Jump past silence gaps instantly
+        for (const s of silences) {
+          if (t >= s.start && t < s.end - 0.01) {
+            v.currentTime = s.end;
+            break;
           }
         }
 
