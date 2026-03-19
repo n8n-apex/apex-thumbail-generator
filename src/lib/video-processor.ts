@@ -59,65 +59,81 @@ export async function exportVideoWithoutSilences(
 
   const ff = await getProcessor(onProgress);
 
+  // Clean up any leftover files from previous failed exports
+  try { await ff.deleteFile("input.mp4"); } catch {}
+  try { await ff.deleteFile("output.mp4"); } catch {}
+
   onProgress?.("Preparing video...");
   const inputData = await fetchFile(videoFile);
   await ff.writeFile("input.mp4", inputData);
 
-  // Build a single complex filter that trims and concatenates all segments
-  // This is much faster than cutting each segment individually
-  if (segments.length === 1) {
-    // Single segment — simple trim, no filter needed
-    const s = segments[0];
-    onProgress?.("Trimming...");
-    await ff.exec([
-      "-i", "input.mp4",
-      "-ss", s.start.toFixed(3),
-      "-to", s.end.toFixed(3),
-      "-c", "copy",
-      "-avoid_negative_ts", "make_zero",
-      "output.mp4",
-    ]);
-  } else {
-    // Multiple segments — use concat with trim filter in one pass
-    // Build filter_complex string
-    const filters: string[] = [];
-    const concatInputs: string[] = [];
+  try {
+    if (segments.length === 1) {
+      const s = segments[0];
+      onProgress?.("Trimming...");
+      await ff.exec([
+        "-i", "input.mp4",
+        "-ss", s.start.toFixed(3),
+        "-to", s.end.toFixed(3),
+        "-c", "copy",
+        "-avoid_negative_ts", "make_zero",
+        "-y", "output.mp4",
+      ]);
+    } else {
+      // Limit segments to avoid filter_complex overflow (max ~50 segments)
+      const maxSegments = 50;
+      const segs = segments.length > maxSegments
+        ? segments.filter((_, i) => i % Math.ceil(segments.length / maxSegments) === 0 || i === segments.length - 1)
+        : segments;
 
-    for (let i = 0; i < segments.length; i++) {
-      const s = segments[i];
-      filters.push(
-        `[0:v]trim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},setpts=PTS-STARTPTS[v${i}];` +
-        `[0:a]atrim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},asetpts=PTS-STARTPTS[a${i}]`
-      );
-      concatInputs.push(`[v${i}][a${i}]`);
+      const filters: string[] = [];
+      const concatInputs: string[] = [];
+
+      for (let i = 0; i < segs.length; i++) {
+        const s = segs[i];
+        filters.push(
+          `[0:v]trim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},setpts=PTS-STARTPTS[v${i}];` +
+          `[0:a]atrim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},asetpts=PTS-STARTPTS[a${i}]`
+        );
+        concatInputs.push(`[v${i}][a${i}]`);
+      }
+
+      const filterComplex =
+        filters.join(";") +
+        `;${concatInputs.join("")}concat=n=${segs.length}:v=1:a=1[outv][outa]`;
+
+      onProgress?.(`Processing ${segs.length} segments...`);
+      await ff.exec([
+        "-i", "input.mp4",
+        "-filter_complex", filterComplex,
+        "-map", "[outv]",
+        "-map", "[outa]",
+        "-preset", "ultrafast",
+        "-crf", "23",
+        "-y", "output.mp4",
+      ]);
     }
 
-    const filterComplex =
-      filters.join(";") +
-      `;${concatInputs.join("")}concat=n=${segments.length}:v=1:a=1[outv][outa]`;
+    onProgress?.("Finalizing...");
+    const data = await ff.readFile("output.mp4");
+    if (!(data instanceof Uint8Array) || data.length < 1000) {
+      throw new Error("Export produced empty or invalid file");
+    }
+    const blob = new Blob([new Uint8Array(data)], { type: "video/mp4" });
 
-    onProgress?.("Processing video...");
-    await ff.exec([
-      "-i", "input.mp4",
-      "-filter_complex", filterComplex,
-      "-map", "[outv]",
-      "-map", "[outa]",
-      "-preset", "ultrafast",
-      "-crf", "23",
-      "output.mp4",
-    ]);
+    // Cleanup
+    try { await ff.deleteFile("input.mp4"); } catch {}
+    try { await ff.deleteFile("output.mp4"); } catch {}
+
+    onProgress?.("Done!");
+    return blob;
+  } catch (e) {
+    // Cleanup on error
+    try { await ff.deleteFile("input.mp4"); } catch {}
+    try { await ff.deleteFile("output.mp4"); } catch {}
+    console.error("[VideoProcessor] Export failed:", e);
+    throw e;
   }
-
-  onProgress?.("Finalizing...");
-  const data = await ff.readFile("output.mp4");
-  const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: "video/mp4" });
-
-  // Cleanup
-  await ff.deleteFile("input.mp4");
-  await ff.deleteFile("output.mp4");
-
-  onProgress?.("Done!");
-  return blob;
 }
 
 /**
