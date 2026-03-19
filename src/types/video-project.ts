@@ -1,4 +1,4 @@
-import { TranscriptWord, SubtitleStyle, SpeakerSettings, SilenceCutSettings, DEFAULT_SUBTITLE_STYLE, DEFAULT_SPEAKER_SETTINGS, DEFAULT_SILENCE_CUT } from "./editor";
+import { TranscriptWord, SubtitleStyle, SpeakerSettings, SilenceCutSettings, ColorGradingSettings, DEFAULT_SUBTITLE_STYLE, DEFAULT_SPEAKER_SETTINGS, DEFAULT_SILENCE_CUT, DEFAULT_COLOR_GRADING } from "./editor";
 import { type SilenceGap } from "@/lib/audio-analysis";
 
 export type VideoPhase = "processing" | "ready";
