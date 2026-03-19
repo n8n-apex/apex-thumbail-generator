@@ -44,7 +44,7 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
         className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition-all duration-300 h-full ${
           isDragOver
             ? "border-primary bg-primary/5 scale-[1.02]"
-            : "border-border/60 hover:border-primary/40 glass"
+            : "border-border hover:border-primary/40 glass-elevated"
         }`}
       >
         <input type="file" accept="video/*,.mp4,.mov,.webm,.avi" multiple onChange={handleInputChange} className="hidden" />
@@ -57,8 +57,8 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
   return (
     <div className="flex h-full w-full items-center justify-center mesh-gradient overflow-hidden">
       <div className="w-full max-w-md text-center px-6">
-        <div className="mb-3">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-[10px] font-bold tracking-wider text-primary uppercase">
+        <div className="mb-4">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full glass-elevated px-4 py-1.5 text-[10px] font-bold tracking-wider text-primary uppercase">
             <Zap className="h-3 w-3" />
             Auto-Untertitel & Pausen-Schnitt
           </div>
@@ -74,15 +74,15 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 sm:p-10 transition-all duration-300 ${
+          className={`group flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 sm:p-10 transition-all duration-300 ${
             isDragOver
-              ? "border-primary bg-primary/5 scale-[1.02] shadow-xl shadow-primary/10"
-              : "border-border/80 hover:border-primary/40 glass"
+              ? "border-primary bg-primary/8 scale-[1.02] shadow-xl shadow-primary/10"
+              : "border-border hover:border-primary/40 glass-elevated"
           }`}
         >
           <input type="file" accept="video/*,.mp4,.mov,.webm,.avi" multiple onChange={handleInputChange} className="hidden" />
-          <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl transition-all ${
-            isDragOver ? "bg-primary/15 text-primary scale-110" : "bg-secondary text-muted-foreground group-hover:text-primary group-hover:bg-primary/10"
+          <div className={`mb-3 flex h-12 w-12 items-center justify-center rounded-2xl transition-all ${
+            isDragOver ? "bg-primary/15 text-primary scale-110" : "glass-item text-muted-foreground group-hover:text-primary"
           }`}>
             <Upload className="h-5 w-5" />
           </div>
@@ -92,7 +92,7 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
           <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM — mehrere Dateien möglich</p>
         </label>
 
-        <div className="mt-4 flex justify-center gap-5 text-[10px] text-muted-foreground">
+        <div className="mt-5 flex justify-center gap-5 text-[10px] text-muted-foreground">
           <span>✦ Auto-Untertitel</span>
           <span>✦ Pausen-Schnitt</span>
           <span>✦ Speaker-Zentrierung</span>

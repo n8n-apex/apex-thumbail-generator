@@ -152,7 +152,7 @@ const ReelPreview = ({
             setSlideDirection("right");
             setTimeout(() => { onNavigate(-1); setSlideDirection(null); }, 250);
           }}
-          className="absolute left-1 sm:left-2 z-30 flex h-8 w-8 items-center justify-center rounded-full glass text-foreground/70 hover:text-foreground transition-colors"
+          className="absolute left-1 sm:left-2 z-30 flex h-8 w-8 items-center justify-center rounded-full glass-elevated text-foreground/70 hover:text-foreground transition-colors"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -163,15 +163,15 @@ const ReelPreview = ({
             setSlideDirection("left");
             setTimeout(() => { onNavigate(1); setSlideDirection(null); }, 250);
           }}
-          className="absolute right-1 sm:right-2 z-30 flex h-8 w-8 items-center justify-center rounded-full glass text-foreground/70 hover:text-foreground transition-colors"
+          className="absolute right-1 sm:right-2 z-30 flex h-8 w-8 items-center justify-center rounded-full glass-elevated text-foreground/70 hover:text-foreground transition-colors"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
       )}
 
       <div
-        className={`relative overflow-hidden rounded-[1.5rem] bg-background h-full ${slideClass}`}
-        style={{ aspectRatio: "9/16", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}
+        className={`relative overflow-hidden rounded-[2rem] bg-foreground h-full ${slideClass}`}
+        style={{ aspectRatio: "9/16", maxHeight: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.1)" }}
       >
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-2.5">
@@ -190,7 +190,7 @@ const ReelPreview = ({
           )}
           <div className="ml-auto flex gap-1.5">
             <button onClick={onRemove} title="Video entfernen"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/80 transition hover:bg-red-500/80 hover:text-white"
+              className="flex h-7 w-7 items-center justify-center rounded-full glass-dark text-white/80 transition hover:bg-destructive/80 hover:text-white"
             >
               <X className="h-3 w-3" />
             </button>
@@ -230,7 +230,7 @@ const ReelPreview = ({
           <p className="text-[9px] text-white/50 truncate mb-1.5 font-medium">{fileName}</p>
 
           <div
-            className="relative mb-2.5 h-1 w-full cursor-pointer rounded-full bg-white/20 overflow-hidden"
+            className="relative mb-2.5 h-1.5 w-full cursor-pointer rounded-full bg-white/15 overflow-hidden backdrop-blur-sm"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               seekTo(((e.clientX - rect.left) / rect.width) * (duration || 1));
@@ -239,7 +239,7 @@ const ReelPreview = ({
             {duration > 0 && silences.map((s, i) => (
               <div
                 key={i}
-                className="absolute top-0 h-full bg-red-500/50 rounded-full"
+                className="absolute top-0 h-full bg-destructive/40 rounded-full"
                 style={{
                   left: `${(s.start / duration) * 100}%`,
                   width: `${((s.end - s.start) / duration) * 100}%`,
@@ -251,12 +251,12 @@ const ReelPreview = ({
 
           <div className="flex items-center gap-2">
             <button onClick={onPlayPause}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-white transition hover:bg-white/30"
+              className="flex h-8 w-8 items-center justify-center rounded-full glass-dark text-white transition hover:bg-white/20"
             >
               {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
             </button>
             <button onClick={() => seekTo(0)}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-white transition hover:bg-white/30"
+              className="flex h-8 w-8 items-center justify-center rounded-full glass-dark text-white transition hover:bg-white/20"
             >
               <RotateCcw className="h-3 w-3" />
             </button>

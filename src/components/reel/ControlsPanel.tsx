@@ -34,7 +34,7 @@ const ControlsPanel = ({
 
   return (
     <div className="flex flex-col h-full overflow-y-auto py-3 px-3 sm:py-4 sm:pr-4 sm:pl-2 w-full sm:w-[340px] sm:flex-shrink-0">
-      <div className="space-y-3 sm:space-y-4 flex-1">
+      <div className="space-y-3 sm:space-y-3.5 flex-1">
         {/* Silence Cutting */}
         <SilenceCutPanel
           settings={silenceCut}
@@ -44,21 +44,23 @@ const ControlsPanel = ({
           duration={duration}
         />
         {/* Speaker Centering */}
-        <div className="glass rounded-2xl p-3.5">
+        <div className="glass-elevated rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
-            <User className="h-3.5 w-3.5 text-primary" />
+            <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-primary/15">
+              <User className="h-3 w-3 text-primary" />
+            </div>
             <span className="text-xs font-bold text-foreground">Sprecher</span>
           </div>
           <div className="flex items-center justify-between mb-2.5">
-            <span className="text-[11px] text-muted-foreground">Zentrieren & Stabilisieren</span>
+            <span className="text-[11px] text-muted-foreground">Zentrieren & Tracking</span>
             <button
               onClick={() => updSpk({ centerSpeaker: !speaker.centerSpeaker })}
-              className={`relative h-5 w-9 rounded-full transition-colors ${
-                speaker.centerSpeaker ? "bg-primary shadow-sm shadow-primary/20" : "bg-border"
+              className={`relative h-6 w-10 rounded-full transition-all ${
+                speaker.centerSpeaker ? "bg-primary shadow-md shadow-primary/25" : "glass-item"
               }`}
             >
-              <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-                speaker.centerSpeaker ? "left-[18px]" : "left-0.5"
+              <span className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                speaker.centerSpeaker ? "left-[22px]" : "left-1"
               }`} />
             </button>
           </div>
@@ -72,15 +74,17 @@ const ControlsPanel = ({
               </div>
               <input type="range" min={1} max={2} step={0.1} value={speaker.zoom}
                 onChange={(e) => updSpk({ zoom: parseFloat(e.target.value) })}
-                className="w-full accent-primary h-1" />
+                className="w-full h-1" />
             </div>
           )}
         </div>
 
         {/* Subtitle Style Presets */}
-        <div className="glass rounded-2xl p-3.5">
+        <div className="glass-elevated rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
-            <Type className="h-3.5 w-3.5 text-primary" />
+            <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-primary/15">
+              <Type className="h-3 w-3 text-primary" />
+            </div>
             <span className="text-xs font-bold text-foreground">Untertitel-Stil</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
@@ -89,7 +93,7 @@ const ControlsPanel = ({
               return (
                 <button key={preset} onClick={() => upd({ preset })}
                   className={`rounded-xl p-2 sm:p-2.5 text-center transition-all ${
-                    isActive ? "bg-primary/10 ring-2 ring-primary/30 shadow-sm" : "bg-secondary/60 hover:bg-secondary"
+                    isActive ? "bg-primary/15 ring-2 ring-primary/30 shadow-sm" : "glass-item"
                   }`}
                 >
                   <span className="text-sm">{SUBTITLE_PRESETS[preset].emoji}</span>
@@ -103,9 +107,11 @@ const ControlsPanel = ({
         </div>
 
         {/* Font Picker */}
-        <div className="glass rounded-2xl p-3.5">
+        <div className="glass-elevated rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
-            <Type className="h-3.5 w-3.5 text-primary" />
+            <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-primary/15">
+              <Type className="h-3 w-3 text-primary" />
+            </div>
             <span className="text-xs font-bold text-foreground">Schriftart</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
@@ -115,7 +121,7 @@ const ControlsPanel = ({
               return (
                 <button key={font} onClick={() => upd({ font })}
                   className={`rounded-xl p-2 sm:p-2.5 transition-all ${
-                    isActive ? "bg-primary/10 ring-2 ring-primary/30" : "bg-secondary/60 hover:bg-secondary"
+                    isActive ? "bg-primary/15 ring-2 ring-primary/30" : "glass-item"
                   }`}
                 >
                   <span style={{ fontFamily: cfg.family, fontWeight: cfg.weight, fontSize: 13 }} className="text-foreground">
@@ -129,7 +135,7 @@ const ControlsPanel = ({
         </div>
 
         {/* Color + Size + Position + Timing */}
-        <div className="glass rounded-2xl p-3.5 space-y-3">
+        <div className="glass-elevated rounded-2xl p-3.5 space-y-3">
           <div>
             <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
               <Palette className="h-3 w-3" /> Farbe
@@ -142,7 +148,9 @@ const ControlsPanel = ({
                   }`}
                   style={{
                     backgroundColor: c,
-                    boxShadow: c === "#FFFFFF" ? "inset 0 0 0 1px rgba(0,0,0,0.12)" : undefined,
+                    boxShadow: c === "#FFFFFF"
+                      ? `inset 0 0 0 1px rgba(0,0,0,0.1)${style.accentColor === c ? ', 0 0 12px rgba(0,0,0,0.1)' : ''}`
+                      : undefined,
                   }}
                 />
               ))}
@@ -156,7 +164,7 @@ const ControlsPanel = ({
             </div>
             <input type="range" min={28} max={96} value={style.fontSize}
               onChange={(e) => upd({ fontSize: Number(e.target.value) })}
-              className="w-full accent-primary h-1" />
+              className="w-full h-1" />
           </div>
 
           <div>
@@ -168,7 +176,7 @@ const ControlsPanel = ({
             </div>
             <input type="range" min={-500} max={200} value={style.timeOffset * 1000}
               onChange={(e) => upd({ timeOffset: Number(e.target.value) / 1000 })}
-              className="w-full accent-primary h-1" />
+              className="w-full h-1" />
           </div>
 
           <div>
@@ -184,10 +192,10 @@ const ControlsPanel = ({
                 const isActive = style.positionY === p.y && style.positionX === p.x;
                 return (
                   <button key={p.label} onClick={() => upd({ positionX: p.x, positionY: p.y })}
-                    className={`rounded-lg py-1.5 text-[10px] font-bold transition-all ${
+                    className={`rounded-xl py-1.5 text-[10px] font-bold transition-all ${
                       isActive
-                        ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                        : "bg-secondary text-muted-foreground hover:text-foreground"
+                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                        : "glass-item text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {p.label}
@@ -203,13 +211,13 @@ const ControlsPanel = ({
       {/* Bottom actions */}
       <div className="pt-3 sm:pt-4 mt-auto space-y-2">
         <button onClick={onAddMore}
-          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-secondary py-2.5 text-xs font-bold text-secondary-foreground transition-all hover:bg-secondary/80"
+          className="w-full flex items-center justify-center gap-2 rounded-2xl glass-item py-2.5 text-xs font-bold text-secondary-foreground"
         >
           <Plus className="h-3.5 w-3.5" />
           Weitere Videos hinzufügen
         </button>
         <button onClick={onExport} disabled={isExporting}
-          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 rounded-2xl glass-button-primary py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
           {isExporting ? exportProgress : "Clip exportieren"}

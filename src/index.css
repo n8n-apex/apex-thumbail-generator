@@ -6,47 +6,48 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 220 16% 96%;
     --foreground: 220 20% 10%;
 
     --card: 0 0% 100%;
     --card-foreground: 220 20% 10%;
 
-    --popover: 0 0% 100% / 0.9;
+    --popover: 0 0% 100% / 0.85;
     --popover-foreground: 220 20% 10%;
 
     --primary: 195 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 95%;
+    --secondary: 220 15% 92%;
     --secondary-foreground: 220 20% 20%;
 
-    --muted: 220 14% 93%;
+    --muted: 220 14% 90%;
     --muted-foreground: 220 10% 46%;
 
-    --accent: 220 15% 94%;
+    --accent: 220 15% 92%;
     --accent-foreground: 220 20% 15%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 91%;
+    --border: 0 0% 100% / 0.5;
     --input: 220 15% 91%;
     --ring: 195 100% 50%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
-    --glass-bg: 0 0% 100% / 0.6;
-    --glass-border: 0 0% 100% / 0.8;
-    --glass-blur: 24px;
+    --glass-bg: 0 0% 100% / 0.35;
+    --glass-border: 0 0% 100% / 0.55;
+    --glass-blur: 28px;
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 
-    --sidebar-background: 0 0% 100% / 0.5;
+    --sidebar-background: 0 0% 100% / 0.3;
     --sidebar-foreground: 220 20% 15%;
     --sidebar-primary: 220 90% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 15% 94%;
     --sidebar-accent-foreground: 220 20% 15%;
-    --sidebar-border: 220 15% 90%;
+    --sidebar-border: 0 0% 100% / 0.4;
     --sidebar-ring: 220 90% 56%;
   }
 }
@@ -62,32 +63,64 @@
   }
 }
 
+/* Liquid Glass — primary surface */
 .glass {
   background: hsl(var(--glass-bg));
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid hsl(var(--glass-border));
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--glass-shadow);
 }
 
+/* Liquid Glass — elevated */
+.glass-elevated {
+  background: hsl(0 0% 100% / 0.45);
+  backdrop-filter: blur(36px) saturate(1.6);
+  -webkit-backdrop-filter: blur(36px) saturate(1.6);
+  border: 1px solid hsl(0 0% 100% / 0.65);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Liquid Glass — dark variant (for overlays on video) */
 .glass-dark {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Liquid Glass — interactive item */
+.glass-item {
+  background: hsl(0 0% 100% / 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(0 0% 100% / 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.2s ease;
+}
+.glass-item:hover {
+  background: hsl(0 0% 100% / 0.55);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .mesh-gradient {
   background: 
-    radial-gradient(ellipse at 15% 50%, hsl(220 90% 56% / 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 20%, hsl(280 70% 60% / 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 90%, hsl(190 80% 50% / 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 10% 40%, hsl(195 100% 60% / 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 20%, hsl(270 60% 65% / 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 90%, hsl(195 80% 50% / 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, hsl(320 60% 60% / 0.04) 0%, transparent 40%),
     hsl(var(--background));
 }
 
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: hsl(220 15% 85%); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: hsl(0 0% 80% / 0.5); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(0 0% 70% / 0.6); }
 
 .tabular-nums { font-variant-numeric: tabular-nums; }
 
@@ -101,4 +134,62 @@
 }
 .animate-slide-out-left { animation: slide-out-left 0.25s ease-out forwards; }
 .animate-slide-out-right { animation: slide-out-right 0.25s ease-out forwards; }
-.animate-fade-in { animation: fade-in 0.25s ease-out; }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+
+/* Liquid glass shimmer on primary buttons */
+.glass-button-primary {
+  background: linear-gradient(135deg, hsl(195 100% 50%), hsl(195 100% 42%));
+  box-shadow:
+    0 4px 16px hsl(195 100% 50% / 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 hsl(195 100% 70% / 0.4);
+  transition: all 0.2s ease;
+}
+.glass-button-primary:hover {
+  box-shadow:
+    0 6px 24px hsl(195 100% 50% / 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 hsl(195 100% 70% / 0.5);
+  transform: translateY(-1px);
+}
+
+/* Range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 4px;
+  background: hsl(0 0% 100% / 0.4);
+  border: 1px solid hsl(0 0% 100% / 0.3);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  margin-top: -6px;
+  box-shadow: 0 2px 6px hsl(195 100% 50% / 0.3), 0 0 0 2px hsl(0 0% 100% / 0.8);
+  transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 4px;
+  background: hsl(0 0% 100% / 0.4);
+  border: 1px solid hsl(0 0% 100% / 0.3);
+}
+input[type="range"]::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  border: none;
+  background: hsl(var(--primary));
+  box-shadow: 0 2px 6px hsl(195 100% 50% / 0.3), 0 0 0 2px hsl(0 0% 100% / 0.8);
+}
