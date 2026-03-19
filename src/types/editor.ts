@@ -22,6 +22,8 @@ export interface SubtitleStyle {
   positionY: number; // 0-100 percentage from top
   accentColor: string;
   timeOffset: number; // seconds to shift subtitles earlier (negative = earlier)
+  boxWidth: number; // percentage of container width (20-100)
+  boxHeight: number; // max lines visible (1-6)
 }
 
 export interface SpeakerSettings {
