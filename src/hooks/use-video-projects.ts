@@ -92,6 +92,9 @@ export function useVideoProjects() {
   const [projects, setProjects] = useState<VideoProject[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const processingRef = useRef(new Set<string>());
+  const projectsRef = useRef<VideoProject[]>([]);
+  // Keep ref in sync so callbacks always see latest state
+  projectsRef.current = projects;
 
   const updateProject = useCallback((id: string, updates: Partial<VideoProject>) => {
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
