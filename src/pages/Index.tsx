@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { toast } from "sonner";
 import UploadScreen from "@/components/reel/UploadScreen";
 import ProcessingScreen from "@/components/reel/ProcessingScreen";
