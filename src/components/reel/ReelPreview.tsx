@@ -35,7 +35,7 @@ const fmt = (s: number) => {
 
 const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
-  currentTime, duration, isPlaying, silences,
+  currentTime, duration, isPlaying, silences, colorGrading,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
   onRemove, totalVideos, currentIndex, onNavigate, fileName, onVideoRef,
 }: ReelPreviewProps) => {
@@ -45,6 +45,7 @@ const ReelPreview = ({
   const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const facePos = useFaceTracking(videoRef, speaker.centerSpeaker);
+  const gradingCSS = useMemo(() => colorGrading ? colorGradingToCSS(colorGrading) : "", [colorGrading]);
 
   // Touch swipe support
   const touchStartX = useRef(0);
