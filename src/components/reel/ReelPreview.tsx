@@ -230,7 +230,7 @@ const ReelPreview = ({
           <p className="text-[9px] text-white/50 truncate mb-1.5 font-medium">{fileName}</p>
 
           <div
-            className="relative mb-2.5 h-1 w-full cursor-pointer rounded-full bg-white/20 overflow-hidden"
+            className="relative mb-2.5 h-1.5 w-full cursor-pointer rounded-full bg-white/15 overflow-hidden backdrop-blur-sm"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               seekTo(((e.clientX - rect.left) / rect.width) * (duration || 1));
@@ -239,7 +239,7 @@ const ReelPreview = ({
             {duration > 0 && silences.map((s, i) => (
               <div
                 key={i}
-                className="absolute top-0 h-full bg-red-500/50 rounded-full"
+                className="absolute top-0 h-full bg-destructive/40 rounded-full"
                 style={{
                   left: `${(s.start / duration) * 100}%`,
                   width: `${((s.end - s.start) / duration) * 100}%`,
@@ -251,12 +251,12 @@ const ReelPreview = ({
 
           <div className="flex items-center gap-2">
             <button onClick={onPlayPause}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-white transition hover:bg-white/30"
+              className="flex h-8 w-8 items-center justify-center rounded-full glass-dark text-white transition hover:bg-white/20"
             >
               {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
             </button>
             <button onClick={() => seekTo(0)}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm text-white transition hover:bg-white/30"
+              className="flex h-8 w-8 items-center justify-center rounded-full glass-dark text-white transition hover:bg-white/20"
             >
               <RotateCcw className="h-3 w-3" />
             </button>
