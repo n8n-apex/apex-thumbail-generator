@@ -144,7 +144,7 @@ const ReelPreview = ({
   return (
     <div
       ref={containerRef}
-      className="relative flex h-full items-center justify-center py-1 px-1 sm:py-2 sm:px-3 flex-1 min-w-0"
+      className="relative flex items-center justify-center py-2 px-2 sm:py-2 sm:px-3 flex-1 min-w-0 min-h-[70vh] sm:min-h-0 sm:h-full"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
