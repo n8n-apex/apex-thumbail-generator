@@ -55,14 +55,18 @@ function getCurrentPhrase(
     }
   }
 
-  // Fallback: find nearest upcoming word within 300ms (about to speak)
+  // Fallback: find nearest upcoming word within 500ms, or show first word if before any speech
   if (activeIdx === -1) {
     for (let i = 0; i < transcript.length; i++) {
       const w = transcript[i];
-      if (w.start > t && w.start - t < 0.3) {
+      if (w.start > t && w.start - t < 0.5) {
         activeIdx = i;
         break;
       }
+    }
+    // If still no match and we're before the first word, show first phrase
+    if (activeIdx === -1 && transcript.length > 0 && t < transcript[0].start) {
+      activeIdx = 0;
     }
   }
 

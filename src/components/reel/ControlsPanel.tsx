@@ -213,7 +213,7 @@ const ControlsPanel = ({
               <span className="text-[10px] text-muted-foreground font-medium">Größe</span>
               <span className="text-[10px] tabular-nums font-bold">{style.fontSize}px</span>
             </div>
-            <input type="range" min={28} max={96} value={style.fontSize}
+            <input type="range" min={28} max={140} value={style.fontSize}
               onChange={(e) => upd({ fontSize: Number(e.target.value) })}
               className="w-full h-1" />
           </div>
