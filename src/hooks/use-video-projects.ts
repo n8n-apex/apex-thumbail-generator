@@ -248,9 +248,12 @@ export function useVideoProjects() {
   }, [projects]);
 
   const regenerateTranscript = useCallback(async (id: string) => {
-    const proj = projects.find((p) => p.id === id);
-    if (!proj || proj.phase !== "ready") return;
-    updateProject(id, { currentStep: "Transkript wird neu generiert..." });
+    const proj = projectsRef.current.find((p) => p.id === id);
+    if (!proj || proj.phase !== "ready") {
+      toast.error("Projekt nicht bereit für Regenerierung");
+      return;
+    }
+    toast.info("Transkript wird neu generiert...");
     try {
       const audioBlob = await extractAudioBlob(proj.file, 120);
       const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
@@ -262,23 +265,26 @@ export function useVideoProjects() {
       if (data?.transcript?.length > 0) {
         const cleaned = cleanTranscript(data.transcript);
         const validated = validateAndRepairTranscript(cleaned);
+        // Re-read project from ref for latest silenceCut settings
+        const latestProj = projectsRef.current.find((p) => p.id === id);
+        const sc = latestProj?.silenceCut ?? proj.silenceCut;
         const reconciledSilences = reconcileSilencesWithTranscript(
-          redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, proj.silenceCut),
+          redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc),
           validated.words
         );
         updateProject(id, {
           transcript: validated.words,
           silences: reconciledSilences,
-          currentStep: "Fertig!",
         });
         toast.success(`Neu transkribiert: ${validated.words.length} Wörter (Score: ${validated.score}/100)`);
       } else {
         throw new Error("Empty transcript");
       }
-    } catch {
+    } catch (e) {
+      console.error("Regenerate failed:", e);
       toast.error("Transkription fehlgeschlagen");
     }
-  }, [projects, updateProject]);
+  }, [updateProject]);
 
   return {
     projects,
