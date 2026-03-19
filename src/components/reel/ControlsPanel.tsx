@@ -75,7 +75,7 @@ const ControlsPanel = ({
                 </span>
                 <span className="text-[10px] tabular-nums font-semibold">{speaker.zoom.toFixed(1)}x</span>
               </div>
-              <input type="range" min={1} max={2} step={0.1} value={speaker.zoom}
+              <input type="range" min={0.5} max={2} step={0.1} value={speaker.zoom}
                 onChange={(e) => updSpk({ zoom: parseFloat(e.target.value) })}
                 className="w-full h-1" />
             </div>
