@@ -321,28 +321,46 @@ export function useVideoProjects() {
   }, []);
 
   const exportProject = useCallback(async (id: string) => {
-    const proj = projects.find((p) => p.id === id);
+    const proj = projectsRef.current.find((p) => p.id === id);
     if (!proj || proj.isExporting) return;
+    if (proj.duration <= 0) {
+      toast.error("Video hat keine gültige Dauer");
+      return;
+    }
+
     updateProject(id, { isExporting: true, exportProgress: "Vorbereitung..." });
     try {
+      // Build active segments (non-silence parts)
       const segments = getActiveSegments(proj.silences, proj.duration);
+
+      // If no silences detected or cutting disabled, export the full video
+      const exportSegments = segments.length > 0
+        ? segments
+        : [{ start: 0, end: proj.duration }];
+
+      console.log(`[Export] ${exportSegments.length} segments, total duration: ${proj.duration.toFixed(1)}s`);
+
       const blob = await exportVideoWithoutSilences(
-        proj.file, segments,
+        proj.file, exportSegments,
         (msg) => updateProject(id, { exportProgress: msg })
       );
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `clip_${proj.file.name.replace(/\.[^.]+$/, "")}_${Date.now()}.mp4`;
+      a.download = `apexclip_${proj.file.name.replace(/\.[^.]+$/, "")}.mp4`;
       a.click();
-      URL.revokeObjectURL(url);
-      toast.success(`${proj.file.name} exportiert!`);
-    } catch {
-      toast.error("Export fehlgeschlagen");
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+      const sizeMB = (blob.size / 1024 / 1024).toFixed(1);
+      toast.success(`✅ ${proj.file.name} exportiert (${sizeMB} MB)`);
+    } catch (e) {
+      console.error("[Export] Failed:", e);
+      toast.error(`Export fehlgeschlagen: ${e instanceof Error ? e.message : "Unbekannter Fehler"}`);
     } finally {
       updateProject(id, { isExporting: false, exportProgress: "" });
     }
-  }, [projects, updateProject]);
+  }, [updateProject]);
 
   const resetAll = useCallback(() => {
     projects.forEach((p) => URL.revokeObjectURL(p.url));
