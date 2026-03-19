@@ -216,7 +216,7 @@ const ReelPreview = ({
           ref={bgVideoRef}
           src={videoUrl}
           className="absolute inset-0 h-full w-full pointer-events-none"
-          style={{ objectFit: "cover", filter: "blur(20px) brightness(0.5)", transform: "scale(1.1)" }}
+          style={{ objectFit: "cover", filter: `blur(20px) brightness(0.5) ${gradingCSS}`, transform: "scale(1.1)" }}
           playsInline
           muted
           aria-hidden
