@@ -122,6 +122,7 @@ const Index = () => {
         duration={proj.duration}
         isPlaying={proj.isPlaying}
         silences={proj.silences}
+        colorGrading={proj.colorGrading}
         onTimeUpdate={(t) => updateProject(proj.id, { currentTime: t })}
         onPlayPause={() => updateProject(proj.id, { isPlaying: !proj.isPlaying })}
         onSeek={(t) => updateProject(proj.id, { currentTime: t })}
@@ -140,16 +141,20 @@ const Index = () => {
         style={proj.subtitleStyle}
         speaker={proj.speaker}
         silenceCut={proj.silenceCut}
+        colorGrading={proj.colorGrading}
         onStyleChange={(s) => updateProject(proj.id, { subtitleStyle: s })}
         onSpeakerChange={(s) => updateProject(proj.id, { speaker: s })}
         onSilenceCutChange={(s) => {
           updateProject(proj.id, { silenceCut: s });
         }}
+        onColorGradingChange={(s) => updateProject(proj.id, { colorGrading: s })}
+        onTranscriptChange={(words) => updateProject(proj.id, { transcript: words })}
         onExport={() => exportProject(proj.id)}
         onRegenerate={() => regenerateTranscript(proj.id)}
         onAddMore={handleAddMore}
         videoRef={videoEl}
         transcript={proj.transcript}
+        currentTime={proj.currentTime}
         isExporting={proj.isExporting}
         exportProgress={proj.exportProgress}
         silenceCount={proj.silences.length}

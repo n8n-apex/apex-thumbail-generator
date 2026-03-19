@@ -1,4 +1,4 @@
-import { TranscriptWord, SubtitleStyle, SpeakerSettings, SilenceCutSettings, DEFAULT_SUBTITLE_STYLE, DEFAULT_SPEAKER_SETTINGS, DEFAULT_SILENCE_CUT } from "./editor";
+import { TranscriptWord, SubtitleStyle, SpeakerSettings, SilenceCutSettings, ColorGradingSettings, DEFAULT_SUBTITLE_STYLE, DEFAULT_SPEAKER_SETTINGS, DEFAULT_SILENCE_CUT, DEFAULT_COLOR_GRADING } from "./editor";
 import { type SilenceGap } from "@/lib/audio-analysis";
 
 export type VideoPhase = "processing" | "ready";
@@ -34,6 +34,7 @@ export interface VideoProject {
   subtitleStyle: SubtitleStyle;
   speaker: SpeakerSettings;
   silenceCut: SilenceCutSettings;
+  colorGrading: ColorGradingSettings;
   isExporting: boolean;
   exportProgress: string;
   progress: number;
@@ -58,6 +59,7 @@ export function createVideoProject(file: File): VideoProject {
     subtitleStyle: { ...DEFAULT_SUBTITLE_STYLE },
     speaker: { ...DEFAULT_SPEAKER_SETTINGS },
     silenceCut: { ...DEFAULT_SILENCE_CUT },
+    colorGrading: { ...DEFAULT_COLOR_GRADING },
     isExporting: false,
     exportProgress: "",
     progress: 0,

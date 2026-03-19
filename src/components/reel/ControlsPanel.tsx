@@ -1,11 +1,13 @@
 import {
   SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings, SilenceCutSettings,
-  TranscriptWord, SUBTITLE_PRESETS, SUBTITLE_FONTS,
+  TranscriptWord, ColorGradingSettings, SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
 import { SanityCheckResult } from "@/types/video-project";
 import { Type, Palette, Move, User, Download, Maximize, Clock, Plus, RefreshCw, RectangleHorizontal, ShieldCheck, AlertTriangle } from "lucide-react";
 import SilenceCutPanel from "./SilenceCutPanel";
 import ThumbnailPanel from "./ThumbnailPanel";
+import TranscriptEditor from "./TranscriptEditor";
+import ColorGradingPanel from "./ColorGradingPanel";
 
 interface ControlsPanelProps {
   style: SubtitleStyle;
@@ -14,11 +16,15 @@ interface ControlsPanelProps {
   onStyleChange: (s: SubtitleStyle) => void;
   onSpeakerChange: (s: SpeakerSettings) => void;
   onSilenceCutChange: (s: SilenceCutSettings) => void;
+  onColorGradingChange: (s: ColorGradingSettings) => void;
+  onTranscriptChange: (words: TranscriptWord[]) => void;
   onExport: () => void;
   onAddMore: () => void;
   onRegenerate: () => void;
   videoRef?: HTMLVideoElement | null;
   transcript?: TranscriptWord[];
+  currentTime: number;
+  colorGrading: ColorGradingSettings;
   isExporting: boolean;
   exportProgress: string;
   silenceCount: number;
@@ -33,9 +39,9 @@ const ACCENT_COLORS = [
 ];
 
 const ControlsPanel = ({
-  style, speaker, silenceCut, onStyleChange, onSpeakerChange, onSilenceCutChange,
-  onExport, onAddMore, onRegenerate, videoRef, transcript, isExporting, exportProgress, silenceCount, timeSaved, duration,
-  sanityCheck, calibrationReasoning,
+  style, speaker, silenceCut, colorGrading, onStyleChange, onSpeakerChange, onSilenceCutChange,
+  onColorGradingChange, onTranscriptChange, onExport, onAddMore, onRegenerate, videoRef, transcript,
+  currentTime, isExporting, exportProgress, silenceCount, timeSaved, duration, sanityCheck, calibrationReasoning,
 }: ControlsPanelProps) => {
   const upd = (p: Partial<SubtitleStyle>) => onStyleChange({ ...style, ...p });
   const updSpk = (p: Partial<SpeakerSettings>) => onSpeakerChange({ ...speaker, ...p });
@@ -285,6 +291,18 @@ const ControlsPanel = ({
           <RefreshCw className="h-3.5 w-3.5" />
           Transkript neu generieren
         </button>
+
+        {/* Transcript Editor */}
+        {transcript && transcript.length > 0 && (
+          <TranscriptEditor
+            transcript={transcript}
+            currentTime={currentTime}
+            onTranscriptChange={onTranscriptChange}
+          />
+        )}
+
+        {/* Color Grading */}
+        <ColorGradingPanel settings={colorGrading} onChange={onColorGradingChange} />
 
         {/* Thumbnail Generator */}
         <ThumbnailPanel videoRef={videoRef} transcript={transcript} />

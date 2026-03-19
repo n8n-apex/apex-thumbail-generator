@@ -7,6 +7,7 @@ import { extractAudioBlob } from "@/lib/audio-extract";
 import { exportVideoWithoutSilences } from "@/lib/video-processor";
 import { validateAndRepairTranscript } from "@/lib/transcript-validator";
 import { autoCalibrateFromAmplitudes } from "@/lib/auto-calibrate";
+import { applyCorrections } from "@/components/reel/TranscriptEditor";
 import { supabase } from "@/integrations/supabase/client";
 
 const CHUNK_DURATION = 0.05;
@@ -189,7 +190,7 @@ export function useVideoProjects() {
           if (validated.fixes.length > 0) {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
           }
-          transcriptResult = validated.words;
+          transcriptResult = applyCorrections(validated.words);
         } else throw new Error("Empty");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
@@ -374,8 +375,9 @@ export function useVideoProjects() {
           redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc),
           validated.words
         );
+        const corrected = applyCorrections(validated.words);
         updateProject(id, {
-          transcript: validated.words,
+          transcript: corrected,
           silences: reconciledSilences,
         });
         toast.success(`Neu transkribiert: ${validated.words.length} Wörter (Score: ${validated.score}/100)`);

@@ -1,8 +1,9 @@
-import { useRef, useEffect, useCallback, useState } from "react";
-import { TranscriptWord, SubtitleStyle, SpeakerSettings } from "@/types/editor";
+import { useRef, useEffect, useCallback, useState, useMemo } from "react";
+import { TranscriptWord, SubtitleStyle, SpeakerSettings, ColorGradingSettings } from "@/types/editor";
 import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
 import { useFaceTracking } from "@/hooks/use-face-tracking";
+import { colorGradingToCSS } from "./ColorGradingPanel";
 
 interface ReelPreviewProps {
   videoUrl: string;
@@ -13,6 +14,7 @@ interface ReelPreviewProps {
   duration: number;
   isPlaying: boolean;
   silences: { start: number; end: number }[];
+  colorGrading?: ColorGradingSettings;
   onTimeUpdate: (t: number) => void;
   onPlayPause: () => void;
   onSeek: (t: number) => void;
@@ -33,7 +35,7 @@ const fmt = (s: number) => {
 
 const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
-  currentTime, duration, isPlaying, silences,
+  currentTime, duration, isPlaying, silences, colorGrading,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
   onRemove, totalVideos, currentIndex, onNavigate, fileName, onVideoRef,
 }: ReelPreviewProps) => {
@@ -43,6 +45,7 @@ const ReelPreview = ({
   const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const facePos = useFaceTracking(videoRef, speaker.centerSpeaker);
+  const gradingCSS = useMemo(() => colorGrading ? colorGradingToCSS(colorGrading) : "", [colorGrading]);
 
   // Touch swipe support
   const touchStartX = useRef(0);
@@ -213,7 +216,7 @@ const ReelPreview = ({
           ref={bgVideoRef}
           src={videoUrl}
           className="absolute inset-0 h-full w-full pointer-events-none"
-          style={{ objectFit: "cover", filter: "blur(20px) brightness(0.5)", transform: "scale(1.1)" }}
+          style={{ objectFit: "cover", filter: `blur(20px) brightness(0.5) ${gradingCSS}`, transform: "scale(1.1)" }}
           playsInline
           muted
           aria-hidden
@@ -230,6 +233,7 @@ const ReelPreview = ({
               ? `${facePos.x}% ${facePos.y}%`
               : "center center",
             transition: "transform 0.5s ease, object-position 0.3s ease-out",
+            filter: gradingCSS || undefined,
           }}
           playsInline
         />
