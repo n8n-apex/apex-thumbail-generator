@@ -35,15 +35,15 @@ html, body, #root {
 /* Desktop: give the editor layout more breathing room */
 @media (min-width: 640px) {
   .app-frame {
-    padding: 12px;
-    gap: 12px;
+    padding: 6px;
+    gap: 8px;
     overflow: hidden;
   }
 }
 
 @media (min-width: 1024px) {
   .app-frame {
-    padding: 16px;
-    gap: 16px;
+    padding: 8px;
+    gap: 10px;
   }
 }
