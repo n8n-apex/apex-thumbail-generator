@@ -59,6 +59,7 @@ export function createVideoProject(file: File): VideoProject {
     subtitleStyle: { ...DEFAULT_SUBTITLE_STYLE },
     speaker: { ...DEFAULT_SPEAKER_SETTINGS },
     silenceCut: { ...DEFAULT_SILENCE_CUT },
+    colorGrading: { ...DEFAULT_COLOR_GRADING },
     isExporting: false,
     exportProgress: "",
     progress: 0,
