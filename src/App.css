@@ -4,4 +4,12 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  background: hsl(220 15% 96%);
+}
+
+/* Center the app in a 16:9 container on desktop */
+#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
