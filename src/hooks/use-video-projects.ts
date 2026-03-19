@@ -134,7 +134,7 @@ export function useVideoProjects() {
       updateProject(id, {
         transcript: transcriptResult,
         silences: reconciledSilences,
-        currentStep: "Ready!",
+        currentStep: "Fertig!",
         phase: "ready",
       });
       toast.success(`${project.file.name}: ${reconciledSilences.length} Pausen, ${transcriptResult.length} Wörter`);
