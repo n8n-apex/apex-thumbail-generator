@@ -243,6 +243,9 @@ const ControlsPanel = ({
           <RefreshCw className="h-3.5 w-3.5" />
           Transkript neu generieren
         </button>
+
+        {/* Thumbnail Generator */}
+        <ThumbnailPanel videoRef={videoRef} />
       </div>
 
       {/* Bottom actions */}
