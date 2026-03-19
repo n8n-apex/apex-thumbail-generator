@@ -11,7 +11,7 @@ const Index = () => {
   const {
     projects, activeIndex, setActiveIndex, activeProject,
     addFiles, removeProject, updateProject, redetectForProject,
-    exportProject, resetAll, hasProjects,
+    exportProject, resetAll, hasProjects, regenerateTranscript,
   } = useVideoProjects();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
