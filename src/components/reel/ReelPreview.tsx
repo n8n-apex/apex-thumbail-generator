@@ -187,7 +187,15 @@ const ReelPreview = ({
           playsInline
         />
 
-        <SubtitleOverlay transcript={transcript} currentTime={currentTime} style={subtitleStyle} />
+        <SubtitleOverlay
+          transcript={transcript}
+          currentTime={currentTime}
+          style={subtitleStyle}
+          silences={silences}
+          onPositionChange={(x, y) => {
+            // This will be handled by parent through event bubbling
+          }}
+        />
 
         {/* Bottom controls */}
         <div className="absolute bottom-0 left-0 right-0 p-3">
