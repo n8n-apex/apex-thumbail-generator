@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { TranscriptWord, SubtitleStyle, SpeakerSettings } from "@/types/editor";
 import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
+import { useFaceTracking } from "@/hooks/use-face-tracking";
 
 interface ReelPreviewProps {
   videoUrl: string;
@@ -40,6 +41,7 @@ const ReelPreview = ({
   const rafRef = useRef<number>(0);
   const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const facePos = useFaceTracking(videoRef, speaker.centerSpeaker);
 
   // Touch swipe support
   const touchStartX = useRef(0);
@@ -198,11 +200,14 @@ const ReelPreview = ({
         <video
           ref={videoRef}
           src={videoUrl}
-          className="absolute inset-0 h-full w-full transition-transform duration-500"
+          className="absolute inset-0 h-full w-full"
           style={{
             objectFit: "cover",
             transform: speaker.centerSpeaker ? `scale(${speaker.zoom})` : "scale(1)",
-            objectPosition: speaker.centerSpeaker ? "center 30%" : "center center",
+            objectPosition: speaker.centerSpeaker
+              ? `${facePos.x}% ${facePos.y}%`
+              : "center center",
+            transition: "transform 0.5s ease, object-position 0.3s ease-out",
           }}
           playsInline
         />
