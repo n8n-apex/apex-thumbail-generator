@@ -10,9 +10,9 @@
 
 import { TranscriptWord } from "@/types/editor";
 
-const MAX_CHARS_PER_SECOND = 25; // ~5 syllables/sec max for fast speech
-const MIN_WORD_DURATION = 0.05; // minimum 50ms per word
-const MAX_GAP_IN_PHRASE = 0.3; // gaps < 300ms within phrases get filled
+const MAX_CHARS_PER_SECOND = 20; // tighter limit for sync accuracy
+const MIN_WORD_DURATION = 0.08; // minimum 80ms per word (more realistic)
+const MAX_GAP_IN_PHRASE = 0.15; // only fill very small gaps (150ms) to avoid drift
 
 interface ValidationResult {
   words: TranscriptWord[];
