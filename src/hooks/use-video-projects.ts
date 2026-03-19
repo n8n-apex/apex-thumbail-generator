@@ -115,7 +115,7 @@ export function useVideoProjects() {
       try {
         const audioBlob = await extractAudioBlob(project.file, 120);
         const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
-        updateProject(id, { currentStep: "Sending to AI..." });
+        updateProject(id, { currentStep: "KI verarbeitet..." });
         const formData = new FormData();
         formData.append("audio", audioFile);
         formData.append("language", "de");
