@@ -89,11 +89,8 @@ const TimelineTrimmer = ({
     };
   }, [dragging, trimRegions, onTrimRegionsChange, getTimeFromX]);
 
-  const handleTrackClick = useCallback((e: React.MouseEvent) => {
-    if (dragging) return;
-    const time = getTimeFromX(e.clientX);
-    onSeek(time);
-  }, [dragging, getTimeFromX, onSeek]);
+
+
 
   const handleTrackHover = useCallback((e: React.MouseEvent) => {
     const time = getTimeFromX(e.clientX);
