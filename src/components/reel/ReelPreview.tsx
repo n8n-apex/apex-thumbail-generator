@@ -112,10 +112,14 @@ const ReelPreview = ({
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    onVideoRef?.(v);
     const onDur = () => onDurationChange(v.duration);
     v.addEventListener("loadedmetadata", onDur);
-    return () => v.removeEventListener("loadedmetadata", onDur);
-  }, [onDurationChange]);
+    return () => {
+      v.removeEventListener("loadedmetadata", onDur);
+      onVideoRef?.(null);
+    };
+  }, [onDurationChange, onVideoRef]);
 
   useEffect(() => {
     const v = videoRef.current;
