@@ -28,7 +28,7 @@ const fmt = (s: number) => {
 
 const ReelPreview = ({
   videoUrl, transcript, subtitleStyle, speaker,
-  currentTime, duration, isPlaying,
+  currentTime, duration, isPlaying, silences,
   onTimeUpdate, onPlayPause, onSeek, onDurationChange,
   onReset, onSwapVideo,
 }: ReelPreviewProps) => {
