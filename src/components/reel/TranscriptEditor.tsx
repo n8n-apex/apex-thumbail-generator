@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TranscriptWord } from "@/types/editor";
-import { Pencil, Save, BookOpen, X } from "lucide-react";
+import { Pencil, Save, BookOpen, X, Loader2 } from "lucide-react";
 
 interface TranscriptEditorProps {
   transcript: TranscriptWord[];
   currentTime: number;
   onTranscriptChange: (words: TranscriptWord[]) => void;
+  onRequestRegenerate?: () => void;
 }
 
 // Corrections dictionary — persisted in localStorage
@@ -38,12 +39,14 @@ export function applyCorrections(words: TranscriptWord[]): TranscriptWord[] {
   });
 }
 
-const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange }: TranscriptEditorProps) => {
+const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onRequestRegenerate }: TranscriptEditorProps) => {
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
   const [corrections, setCorrections] = useState<Record<string, string>>(loadCorrections);
   const [showDict, setShowDict] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const activeRef = useRef<HTMLButtonElement>(null);
+  const regenTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Auto-scroll to active word
   useEffect(() => {
@@ -69,16 +72,26 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange }: Trans
     setCorrections(updated);
     saveCorrections(updated);
 
-    // Apply to transcript
+    // Apply to transcript immediately
     const newTranscript = transcript.map((w, i) => {
       if (i === editingIdx) return { ...w, text: newText };
-      // Also apply this correction to other instances
       if (w.text.toLowerCase() === oldText.toLowerCase()) return { ...w, text: newText };
       return w;
     });
     onTranscriptChange(newTranscript);
     setEditingIdx(null);
-  }, [editingIdx, editValue, transcript, corrections, onTranscriptChange]);
+
+    // Debounced AI regeneration — wait 1.5s after last edit, then trigger
+    if (onRequestRegenerate) {
+      if (regenTimeoutRef.current) clearTimeout(regenTimeoutRef.current);
+      setIsRegenerating(true);
+      regenTimeoutRef.current = setTimeout(() => {
+        onRequestRegenerate();
+        // Reset regenerating state after a delay (will be overridden by actual completion)
+        setTimeout(() => setIsRegenerating(false), 3000);
+      }, 1500);
+    }
+  }, [editingIdx, editValue, transcript, corrections, onTranscriptChange, onRequestRegenerate]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSave();
@@ -106,6 +119,12 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange }: Trans
           </div>
           <span className="text-xs font-bold text-foreground">Transkript</span>
           <span className="text-[9px] text-muted-foreground">{transcript.length} Wörter</span>
+          {isRegenerating && (
+            <span className="flex items-center gap-1 text-[9px] text-primary animate-pulse">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              KI passt an…
+            </span>
+          )}
         </div>
         <button
           onClick={() => setShowDict(!showDict)}

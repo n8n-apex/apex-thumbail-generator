@@ -82,14 +82,14 @@ export const DEFAULT_COLOR_GRADING: ColorGradingSettings = {
 };
 
 export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
-  preset: "karaoke",
+  preset: "neon",
   font: "montserrat",
-  fontSize: 44,
+  fontSize: 36,
   positionX: 50,
-  positionY: 75, // Safe zone: avoids Instagram/TikTok bottom UI overlap
+  positionY: 72, // Safe zone: avoids Instagram/TikTok bottom UI overlap
   accentColor: "#FFFFFF",
   timeOffset: -0.15,
-  boxWidth: 85,
+  boxWidth: 80,
   boxHeight: 2,
 };
 
