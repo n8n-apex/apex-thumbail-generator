@@ -14,27 +14,34 @@ export async function getProcessor(
   if (loadPromise) return loadPromise;
 
   loadPromise = (async () => {
-    onProgress?.("Loading video engine...");
-    const ff = new FFmpeg();
+    try {
+      onProgress?.("Loading video engine...");
+      const ff = new FFmpeg();
 
-    ff.on("log", ({ message }) => {
-      console.log("[VideoProcessor]", message);
-    });
+      ff.on("log", ({ message }) => {
+        console.log("[VideoProcessor]", message);
+      });
 
-    ff.on("progress", ({ progress }) => {
-      if (progress > 0 && progress <= 1) {
-        onProgress?.(`Processing: ${Math.round(progress * 100)}%`);
-      }
-    });
+      ff.on("progress", ({ progress }) => {
+        if (progress > 0 && progress <= 1) {
+          onProgress?.(`Processing: ${Math.round(progress * 100)}%`);
+        }
+      });
 
-    const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-    await ff.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-    });
+      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+      await ff.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+      });
 
-    instance = ff;
-    return ff;
+      instance = ff;
+      return ff;
+    } catch (e) {
+      // Reset so next call can retry
+      loadPromise = null;
+      instance = null;
+      throw e;
+    }
   })();
 
   return loadPromise;
