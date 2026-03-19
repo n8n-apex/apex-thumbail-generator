@@ -176,6 +176,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
   const fontConfig = SUBTITLE_FONTS[style.font] ?? SUBTITLE_FONTS.montserrat;
   const scale = style.fontSize / 44;
   const boxWidth = style.boxWidth ?? 85;
+  const maxLines = style.boxHeight ?? 2;
 
   return (
     <>
