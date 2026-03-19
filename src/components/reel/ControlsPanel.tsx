@@ -47,10 +47,10 @@ const ControlsPanel = ({
         <div className="glass rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
             <User className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-bold text-foreground">Speaker</span>
+            <span className="text-xs font-bold text-foreground">Sprecher</span>
           </div>
           <div className="flex items-center justify-between mb-2.5">
-            <span className="text-[11px] text-muted-foreground">Center & Stabilize</span>
+            <span className="text-[11px] text-muted-foreground">Zentrieren & Stabilisieren</span>
             <button
               onClick={() => updSpk({ centerSpeaker: !speaker.centerSpeaker })}
               className={`relative h-5 w-9 rounded-full transition-colors ${
@@ -81,7 +81,7 @@ const ControlsPanel = ({
         <div className="glass rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
             <Type className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-bold text-foreground">Subtitle Style</span>
+            <span className="text-xs font-bold text-foreground">Untertitel-Stil</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
             {(Object.keys(SUBTITLE_PRESETS) as SubtitlePreset[]).map((preset) => {
@@ -106,7 +106,7 @@ const ControlsPanel = ({
         <div className="glass rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-2.5">
             <Type className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-bold text-foreground">Font</span>
+            <span className="text-xs font-bold text-foreground">Schriftart</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
             {(Object.keys(SUBTITLE_FONTS) as SubtitleFont[]).map((font) => {
@@ -132,7 +132,7 @@ const ControlsPanel = ({
         <div className="glass rounded-2xl p-3.5 space-y-3">
           <div>
             <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-              <Palette className="h-3 w-3" /> Color
+              <Palette className="h-3 w-3" /> Farbe
             </span>
             <div className="flex gap-2">
               {ACCENT_COLORS.map((c) => (
@@ -148,7 +148,7 @@ const ControlsPanel = ({
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-muted-foreground font-medium">Size</span>
+              <span className="text-[10px] text-muted-foreground font-medium">Größe</span>
               <span className="text-[10px] tabular-nums font-bold">{style.fontSize}px</span>
             </div>
             <input type="range" min={28} max={96} value={style.fontSize}
@@ -173,17 +173,20 @@ const ControlsPanel = ({
               <Move className="h-3 w-3" /> Position
             </span>
             <div className="grid grid-cols-3 gap-1">
-              {(["top", "center", "bottom"] as const).map((p) => (
-                <button key={p} onClick={() => upd({ position: p })}
-                  className={`rounded-lg py-1.5 text-[10px] font-bold transition-all ${
-                    style.position === p
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                      : "bg-secondary text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
-                </button>
-              ))}
+              {(["top", "center", "bottom"] as const).map((p) => {
+                const labels = { top: "Oben", center: "Mitte", bottom: "Unten" };
+                return (
+                  <button key={p} onClick={() => upd({ position: p })}
+                    className={`rounded-lg py-1.5 text-[10px] font-bold transition-all ${
+                      style.position === p
+                        ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                        : "bg-secondary text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {labels[p]}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -195,13 +198,13 @@ const ControlsPanel = ({
           className="w-full flex items-center justify-center gap-2 rounded-2xl bg-secondary py-2.5 text-xs font-bold text-secondary-foreground transition-all hover:bg-secondary/80"
         >
           <Plus className="h-3.5 w-3.5" />
-          Add More Videos
+          Weitere Videos hinzufügen
         </button>
         <button onClick={onExport} disabled={isExporting}
           className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-xl disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
-          {isExporting ? exportProgress : "Export Clip"}
+          {isExporting ? exportProgress : "Clip exportieren"}
         </button>
       </div>
     </div>

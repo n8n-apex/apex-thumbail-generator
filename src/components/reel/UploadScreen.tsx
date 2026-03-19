@@ -49,7 +49,7 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
       >
         <input type="file" accept="video/*,.mp4,.mov,.webm,.avi" multiple onChange={handleInputChange} className="hidden" />
         <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-        <p className="mt-2 text-[11px] font-medium text-muted-foreground">Add more</p>
+        <p className="mt-2 text-[11px] font-medium text-muted-foreground">Mehr hinzufügen</p>
       </label>
     );
   }
@@ -60,13 +60,13 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
         <div className="mb-3">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-[10px] font-bold tracking-wider text-primary uppercase">
             <Zap className="h-3 w-3" />
-            Auto Subtitles & Silence Cut
+            Auto-Untertitel & Pausen-Schnitt
           </div>
           <h1 className="mb-1.5 text-3xl sm:text-4xl font-black tracking-tight text-foreground leading-none">
             apex<span className="text-primary">Clip</span>.ai
           </h1>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-            Drop your videos — get modern subtitles, speaker centering & automatic silence removal.
+            Videos ablegen — automatische Untertitel, Speaker-Zentrierung & Pausen-Entfernung.
           </p>
         </div>
 
@@ -87,15 +87,15 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
             <Upload className="h-5 w-5" />
           </div>
           <p className="text-sm font-semibold text-foreground mb-1">
-            {isDragOver ? "Drop it!" : "Drop your raw reels"}
+            {isDragOver ? "Loslassen!" : "Videos hier ablegen"}
           </p>
-          <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM — multiple files supported</p>
+          <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM — mehrere Dateien möglich</p>
         </label>
 
         <div className="mt-4 flex justify-center gap-5 text-[10px] text-muted-foreground">
-          <span>✦ Auto Subtitles</span>
-          <span>✦ Silence Cut</span>
-          <span>✦ Speaker Centering</span>
+          <span>✦ Auto-Untertitel</span>
+          <span>✦ Pausen-Schnitt</span>
+          <span>✦ Speaker-Zentrierung</span>
         </div>
 
         <div className="mt-4">

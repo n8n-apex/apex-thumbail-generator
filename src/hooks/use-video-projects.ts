@@ -104,18 +104,18 @@ export function useVideoProjects() {
 
       updateProjectStep(id, 0, { done: true, active: false });
       updateProjectStep(id, 1, { active: true });
-      updateProject(id, { currentStep: "Silences detected", rawAmplitudes: result.rawAmplitudes, duration: result.duration, progress: 0 });
+      updateProject(id, { currentStep: "Pausen erkannt", rawAmplitudes: result.rawAmplitudes, duration: result.duration, progress: 0 });
 
       const detectedSilences = redetectSilences(result.rawAmplitudes, CHUNK_DURATION, result.duration, sc);
       updateProjectStep(id, 1, { done: true, active: false });
       updateProjectStep(id, 2, { active: true });
-      updateProject(id, { currentStep: "Extracting audio for transcription..." });
+      updateProject(id, { currentStep: "Audio wird extrahiert..." });
 
       let transcriptResult: TranscriptWord[] = [];
       try {
         const audioBlob = await extractAudioBlob(project.file, 120);
         const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
-        updateProject(id, { currentStep: "Sending to AI..." });
+        updateProject(id, { currentStep: "KI verarbeitet..." });
         const formData = new FormData();
         formData.append("audio", audioFile);
         formData.append("language", "de");
@@ -134,7 +134,7 @@ export function useVideoProjects() {
       updateProject(id, {
         transcript: transcriptResult,
         silences: reconciledSilences,
-        currentStep: "Ready!",
+        currentStep: "Fertig!",
         phase: "ready",
       });
       toast.success(`${project.file.name}: ${reconciledSilences.length} Pausen, ${transcriptResult.length} Wörter`);
@@ -191,7 +191,7 @@ export function useVideoProjects() {
   const exportProject = useCallback(async (id: string) => {
     const proj = projects.find((p) => p.id === id);
     if (!proj || proj.isExporting) return;
-    updateProject(id, { isExporting: true, exportProgress: "Preparing..." });
+    updateProject(id, { isExporting: true, exportProgress: "Vorbereitung..." });
     try {
       const segments = getActiveSegments(proj.silences, proj.duration);
       const blob = await exportVideoWithoutSilences(

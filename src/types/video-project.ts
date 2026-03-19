@@ -48,12 +48,12 @@ export function createVideoProject(file: File): VideoProject {
     isExporting: false,
     exportProgress: "",
     progress: 0,
-    currentStep: "Decoding audio...",
+    currentStep: "Audio wird analysiert...",
     steps: [
-      { label: "Analyzing audio", done: false, active: true },
-      { label: "Detecting silences", done: false, active: false },
-      { label: "AI transcription", done: false, active: false },
-      { label: "Done", done: false, active: false },
+      { label: "Audio analysieren", done: false, active: true },
+      { label: "Pausen erkennen", done: false, active: false },
+      { label: "KI-Transkription", done: false, active: false },
+      { label: "Fertig", done: false, active: false },
     ],
   };
 }
