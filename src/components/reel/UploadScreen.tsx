@@ -93,9 +93,9 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
         </label>
 
         <div className="mt-4 flex justify-center gap-5 text-[10px] text-muted-foreground">
-          <span>✦ Auto Subtitles</span>
-          <span>✦ Silence Cut</span>
-          <span>✦ Speaker Centering</span>
+          <span>✦ Auto-Untertitel</span>
+          <span>✦ Pausen-Schnitt</span>
+          <span>✦ Speaker-Zentrierung</span>
         </div>
 
         <div className="mt-4">
