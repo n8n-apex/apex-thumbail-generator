@@ -22,7 +22,7 @@ interface ControlsPanelProps {
 }
 
 const ACCENT_COLORS = [
-  "#FFCC00", "#34D399", "#F87171", "#3B82F6", "#EC4899", "#FFFFFF",
+  "#FFFFFF", "#FFCC00", "#34D399", "#F87171", "#3B82F6", "#EC4899",
 ];
 
 const ControlsPanel = ({
