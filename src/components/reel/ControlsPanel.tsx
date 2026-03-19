@@ -148,7 +148,7 @@ const ControlsPanel = ({
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-muted-foreground font-medium">Size</span>
+              <span className="text-[10px] text-muted-foreground font-medium">Größe</span>
               <span className="text-[10px] tabular-nums font-bold">{style.fontSize}px</span>
             </div>
             <input type="range" min={28} max={96} value={style.fontSize}
