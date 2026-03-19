@@ -1,25 +1,27 @@
 import { useState, useRef, useCallback } from "react";
-import { Image, Sparkles, Download, RefreshCw, Type, Focus } from "lucide-react";
+import { Image, Sparkles, Download, RefreshCw, Type, Focus, Wand2 } from "lucide-react";
+import { TranscriptWord } from "@/types/editor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface ThumbnailPanelProps {
   videoRef?: HTMLVideoElement | null;
-  onCaptureFocusPoint?: () => { x: number; y: number } | null;
+  transcript?: TranscriptWord[];
 }
 
 const FOCUS_OPTIONS = [
-  { label: "Gesicht", value: "face", desc: "Fokus auf Gesicht/Person" },
-  { label: "Mitte", value: "center", desc: "Zentraler Fokus" },
-  { label: "Produkt", value: "product", desc: "Fokus auf Objekt/Produkt" },
-  { label: "Text", value: "text", desc: "Text im Vordergrund" },
+  { label: "Gesicht", value: "face" },
+  { label: "Mitte", value: "center" },
+  { label: "Produkt", value: "product" },
+  { label: "Text", value: "text" },
 ];
 
-const ThumbnailPanel = ({ videoRef }: ThumbnailPanelProps) => {
+const ThumbnailPanel = ({ videoRef, transcript }: ThumbnailPanelProps) => {
   const [prompt, setPrompt] = useState("");
   const [overlayText, setOverlayText] = useState("");
   const [focusType, setFocusType] = useState("face");
   const [generating, setGenerating] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -34,6 +36,37 @@ const ThumbnailPanel = ({ videoRef }: ThumbnailPanelProps) => {
     return canvas.toDataURL("image/jpeg", 0.8);
   }, [videoRef]);
 
+  const suggestFromTranscript = useCallback(async () => {
+    if (!transcript || transcript.length === 0) {
+      toast.error("Kein Transkript vorhanden");
+      return;
+    }
+
+    setSuggesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-thumbnail", {
+        body: { action: "suggest", transcript },
+      });
+
+      if (error) throw error;
+
+      const suggestion = data?.suggestion;
+      if (suggestion) {
+        setPrompt(suggestion.prompt || "");
+        setOverlayText(suggestion.overlayText || "");
+        if (suggestion.focusType) setFocusType(suggestion.focusType);
+        toast.success("KI-Vorschlag geladen!");
+      } else {
+        throw new Error(data?.error || "Kein Vorschlag erhalten");
+      }
+    } catch (e: any) {
+      console.error("Suggest error:", e);
+      toast.error(e.message || "Vorschlag fehlgeschlagen");
+    } finally {
+      setSuggesting(false);
+    }
+  }, [transcript]);
+
   const generateThumbnail = useCallback(async () => {
     if (!prompt.trim() && !overlayText.trim()) {
       toast.error("Bitte Beschreibung oder Text eingeben");
@@ -43,7 +76,7 @@ const ThumbnailPanel = ({ videoRef }: ThumbnailPanelProps) => {
     setGenerating(true);
     try {
       const frameImage = captureFrame();
-      
+
       const focusPrompt = {
         face: "Focus on the person's face with dramatic close-up, shallow depth of field blurring the background.",
         center: "Centered composition with balanced framing.",
@@ -54,11 +87,7 @@ const ThumbnailPanel = ({ videoRef }: ThumbnailPanelProps) => {
       const fullPrompt = `${prompt}. ${focusPrompt}`;
 
       const { data, error } = await supabase.functions.invoke("generate-thumbnail", {
-        body: {
-          prompt: fullPrompt,
-          frameImage,
-          overlayText: overlayText.trim() || undefined,
-        },
+        body: { prompt: fullPrompt, frameImage, overlayText: overlayText.trim() || undefined },
       });
 
       if (error) throw error;
@@ -84,13 +113,31 @@ const ThumbnailPanel = ({ videoRef }: ThumbnailPanelProps) => {
     a.click();
   }, [thumbnailUrl]);
 
+  const hasTranscript = transcript && transcript.length > 0;
+
   return (
     <div className="glass-elevated rounded-2xl p-3.5 space-y-3">
-      <div className="flex items-center gap-2 mb-1">
-        <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-primary/15">
-          <Image className="h-3 w-3 text-primary" />
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-primary/15">
+            <Image className="h-3 w-3 text-primary" />
+          </div>
+          <span className="text-xs font-bold text-foreground">KI-Thumbnail</span>
         </div>
-        <span className="text-xs font-bold text-foreground">KI-Thumbnail</span>
+        {hasTranscript && (
+          <button
+            onClick={suggestFromTranscript}
+            disabled={suggesting}
+            className="flex items-center gap-1 rounded-lg px-2 py-1 text-[9px] font-bold bg-accent text-accent-foreground hover:bg-accent/80 transition-colors disabled:opacity-50"
+          >
+            {suggesting ? (
+              <RefreshCw className="h-3 w-3 animate-spin" />
+            ) : (
+              <Wand2 className="h-3 w-3" />
+            )}
+            {suggesting ? "Analysiert..." : "KI-Vorschlag"}
+          </button>
+        )}
       </div>
 
       {/* Prompt input */}
@@ -98,7 +145,7 @@ const ThumbnailPanel = ({ videoRef }: ThumbnailPanelProps) => {
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Beschreibe dein Thumbnail... z.B. 'Person schaut überrascht in die Kamera, neon Hintergrund'"
+          placeholder="Beschreibe dein Thumbnail... oder klicke 'KI-Vorschlag' für automatische Analyse"
           className="w-full rounded-xl glass-item p-2.5 text-[11px] text-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-1 focus:ring-primary/30"
           rows={2}
         />
@@ -162,11 +209,7 @@ const ThumbnailPanel = ({ videoRef }: ThumbnailPanelProps) => {
       {thumbnailUrl && (
         <div className="space-y-2">
           <div className="rounded-xl overflow-hidden border border-border/30">
-            <img
-              src={thumbnailUrl}
-              alt="Generated thumbnail"
-              className="w-full h-auto"
-            />
+            <img src={thumbnailUrl} alt="Generated thumbnail" className="w-full h-auto" />
           </div>
           <button
             onClick={downloadThumbnail}

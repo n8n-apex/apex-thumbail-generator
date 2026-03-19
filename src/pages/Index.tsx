@@ -148,6 +148,7 @@ const Index = () => {
         onRegenerate={() => regenerateTranscript(proj.id)}
         onAddMore={handleAddMore}
         videoRef={videoEl}
+        transcript={proj.transcript}
         isExporting={proj.isExporting}
         exportProgress={proj.exportProgress}
         silenceCount={proj.silences.length}
