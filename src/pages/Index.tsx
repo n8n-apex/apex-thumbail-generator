@@ -155,6 +155,8 @@ const Index = () => {
         silenceCount={proj.silences.length}
         timeSaved={timeSaved}
         duration={proj.duration}
+        sanityCheck={proj.sanityCheck}
+        calibrationReasoning={proj.calibrationReasoning}
       />
     </div>
   );
