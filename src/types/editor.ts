@@ -71,7 +71,7 @@ export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
   font: "montserrat",
   fontSize: 44,
   positionX: 50,
-  positionY: 86,
+  positionY: 75, // Safe zone: avoids Instagram/TikTok bottom UI overlap
   accentColor: "#FFFFFF",
   timeOffset: -0.15,
   boxWidth: 85,

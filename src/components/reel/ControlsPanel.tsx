@@ -215,9 +215,9 @@ const ControlsPanel = ({
             </span>
             <div className="grid grid-cols-3 gap-1">
               {([
-                { label: "Oben", x: 50, y: 12 },
+                { label: "Oben", x: 50, y: 15 },
                 { label: "Mitte", x: 50, y: 50 },
-                { label: "Unten", x: 50, y: 86 },
+                { label: "Unten", x: 50, y: 75 },
               ] as const).map((p) => {
                 const isActive = style.positionY === p.y && style.positionX === p.x;
                 return (
