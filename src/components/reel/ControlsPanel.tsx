@@ -173,17 +173,20 @@ const ControlsPanel = ({
               <Move className="h-3 w-3" /> Position
             </span>
             <div className="grid grid-cols-3 gap-1">
-              {(["top", "center", "bottom"] as const).map((p) => (
-                <button key={p} onClick={() => upd({ position: p })}
-                  className={`rounded-lg py-1.5 text-[10px] font-bold transition-all ${
-                    style.position === p
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                      : "bg-secondary text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
-                </button>
-              ))}
+              {(["top", "center", "bottom"] as const).map((p) => {
+                const labels = { top: "Oben", center: "Mitte", bottom: "Unten" };
+                return (
+                  <button key={p} onClick={() => upd({ position: p })}
+                    className={`rounded-lg py-1.5 text-[10px] font-bold transition-all ${
+                      style.position === p
+                        ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                        : "bg-secondary text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {labels[p]}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
