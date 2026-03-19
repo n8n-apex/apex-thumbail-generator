@@ -223,22 +223,28 @@ const Index = () => {
   const timeSaved = calculateTimeSaved(silences);
 
   if (phase === "upload") {
-    return <UploadScreen onFileSelect={handleFileSelect} />;
+    return (
+      <div className="h-screen w-screen overflow-hidden">
+        <UploadScreen onFileSelect={handleFileSelect} />
+      </div>
+    );
   }
 
   if (phase === "processing") {
     return (
-      <ProcessingScreen
-        fileName={videoFile?.name || "video.mp4"}
-        progress={progress}
-        currentStep={currentStep}
-        steps={steps}
-      />
+      <div className="h-screen w-screen overflow-hidden">
+        <ProcessingScreen
+          fileName={videoFile?.name || "video.mp4"}
+          progress={progress}
+          currentStep={currentStep}
+          steps={steps}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center gap-10 mesh-gradient p-8">
+    <div className="flex h-screen w-screen overflow-hidden mesh-gradient">
       <ReelPreview
         videoUrl={videoUrl!}
         transcript={transcript}
