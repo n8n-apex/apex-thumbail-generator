@@ -3,7 +3,7 @@ import { TranscriptWord, SubtitleStyle, SpeakerSettings, ColorGradingSettings } 
 import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
 import { useFaceTracking } from "@/hooks/use-face-tracking";
-import { colorGradingToCSS } from "./ColorGradingPanel";
+import { colorGradingToCSS, colorGradingVignetteCSS } from "./ColorGradingPanel";
 
 interface ReelPreviewProps {
   videoUrl: string;
