@@ -212,7 +212,7 @@ const Index = () => {
 
       await new Promise((r) => setTimeout(r, 400));
       setPhase("ready");
-      toast.success(`${detectedSilences.length} Pausen gefunden, ${transcriptResult.length} Wörter transkribiert`);
+      toast.success(`${reconciledSilences.length} Pausen gefunden, ${transcriptResult.length} Wörter transkribiert`);
     } catch {
       toast.error("Processing failed, using demo data");
       setTranscript(MOCK_TRANSCRIPT);
