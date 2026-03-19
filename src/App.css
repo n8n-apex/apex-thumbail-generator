@@ -41,6 +41,6 @@ html, body, #root {
   .app-frame {
     height: 100vh;
     height: 100dvh;
-    padding: 8px 0;
+    padding: 0;
   }
 }
