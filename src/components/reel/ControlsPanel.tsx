@@ -173,21 +173,26 @@ const ControlsPanel = ({
               <Move className="h-3 w-3" /> Position
             </span>
             <div className="grid grid-cols-3 gap-1">
-              {(["top", "center", "bottom"] as const).map((p) => {
-                const labels = { top: "Oben", center: "Mitte", bottom: "Unten" };
+              {([
+                { label: "Oben", x: 50, y: 12 },
+                { label: "Mitte", x: 50, y: 50 },
+                { label: "Unten", x: 50, y: 86 },
+              ] as const).map((p) => {
+                const isActive = style.positionY === p.y && style.positionX === p.x;
                 return (
-                  <button key={p} onClick={() => upd({ position: p })}
+                  <button key={p.label} onClick={() => upd({ positionX: p.x, positionY: p.y })}
                     className={`rounded-lg py-1.5 text-[10px] font-bold transition-all ${
-                      style.position === p
+                      isActive
                         ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                         : "bg-secondary text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {labels[p]}
+                    {p.label}
                   </button>
                 );
               })}
             </div>
+            <p className="text-[9px] text-muted-foreground mt-1.5 opacity-60">Oder direkt im Video ziehen</p>
           </div>
         </div>
       </div>

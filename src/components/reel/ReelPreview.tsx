@@ -193,7 +193,9 @@ const ReelPreview = ({
           style={subtitleStyle}
           silences={silences}
           onPositionChange={(x, y) => {
-            // This will be handled by parent through event bubbling
+            // Bubble up position change — handled via onTimeUpdate parent pattern
+            const event = new CustomEvent("subtitle-position", { detail: { x, y } });
+            window.dispatchEvent(event);
           }}
         />
 
