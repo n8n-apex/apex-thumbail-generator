@@ -190,7 +190,7 @@ export function useVideoProjects() {
           if (validated.fixes.length > 0) {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
           }
-          transcriptResult = validated.words;
+          transcriptResult = applyCorrections(validated.words);
         } else throw new Error("Empty");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
