@@ -19,6 +19,8 @@ html, body, #root {
   max-height: 100vh;
   overflow: hidden;
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Desktop: force 16:9 */
