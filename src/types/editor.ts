@@ -70,7 +70,7 @@ export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
   fontSize: 44,
   positionX: 50,
   positionY: 86,
-  accentColor: "#FFCC00",
+  accentColor: "#FFFFFF",
   timeOffset: -0.2,
 };
 

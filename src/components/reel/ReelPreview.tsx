@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { TranscriptWord, SubtitleStyle, SpeakerSettings } from "@/types/editor";
 import { Play, Pause, RotateCcw, X, ChevronLeft, ChevronRight } from "lucide-react";
 import SubtitleOverlay from "@/components/editor/SubtitleOverlay";
+import { useFaceTracking } from "@/hooks/use-face-tracking";
 
 interface ReelPreviewProps {
   videoUrl: string;
