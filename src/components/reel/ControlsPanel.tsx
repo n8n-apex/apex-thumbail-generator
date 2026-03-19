@@ -42,7 +42,6 @@ const ControlsPanel = ({
   style, speaker, silenceCut, colorGrading, onStyleChange, onSpeakerChange, onSilenceCutChange,
   onColorGradingChange, onTranscriptChange, onExport, onAddMore, onRegenerate, videoRef, transcript,
   currentTime, isExporting, exportProgress, silenceCount, timeSaved, duration, sanityCheck, calibrationReasoning,
-  trimRegions, rawAmplitudes, silences, onTrimRegionsChange, onSeek,
 }: ControlsPanelProps) => {
   const upd = (p: Partial<SubtitleStyle>) => onStyleChange({ ...style, ...p });
   const updSpk = (p: Partial<SpeakerSettings>) => onSpeakerChange({ ...speaker, ...p });
