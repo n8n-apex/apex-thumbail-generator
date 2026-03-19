@@ -202,11 +202,12 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
         onPointerUp={handlePointerUp}
       >
         <div
-          className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px]"
+          className="flex flex-wrap justify-center gap-x-[5px] gap-y-[3px] overflow-hidden"
           style={{
             width: "100%",
             fontFamily: fontConfig.family,
             fontStyle: fontConfig.italic ? "italic" : "normal",
+            maxHeight: `${maxLines * (15 * scale * 1.15 + 6)}px`,
           }}
         >
           {words.map((word, i) => {
