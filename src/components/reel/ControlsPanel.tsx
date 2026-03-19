@@ -292,6 +292,18 @@ const ControlsPanel = ({
           Transkript neu generieren
         </button>
 
+        {/* Transcript Editor */}
+        {transcript && transcript.length > 0 && (
+          <TranscriptEditor
+            transcript={transcript}
+            currentTime={currentTime}
+            onTranscriptChange={onTranscriptChange}
+          />
+        )}
+
+        {/* Color Grading */}
+        <ColorGradingPanel settings={colorGrading} onChange={onColorGradingChange} />
+
         {/* Thumbnail Generator */}
         <ThumbnailPanel videoRef={videoRef} transcript={transcript} />
       </div>
