@@ -43,6 +43,32 @@ const ControlsPanel = ({
   return (
     <div className="flex flex-col h-full overflow-y-auto py-3 px-3 sm:py-4 sm:pr-4 sm:pl-2 w-full sm:w-[340px] lg:w-[380px] sm:flex-shrink-0">
       <div className="space-y-3 sm:space-y-3.5 lg:space-y-4 flex-1">
+        {/* Quality Score Badge */}
+        {sanityCheck && (
+          <div className={`rounded-2xl p-3 flex items-center gap-2.5 ${
+            sanityCheck.passed ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-amber-500/10 border border-amber-500/20"
+          }`}>
+            {sanityCheck.passed 
+              ? <ShieldCheck className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+              : <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+            }
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold text-foreground">
+                  {sanityCheck.passed ? "Export-bereit" : "Optimierung empfohlen"}
+                </span>
+                <span className="text-[10px] font-bold tabular-nums text-muted-foreground">
+                  {sanityCheck.overall_score}/100
+                </span>
+              </div>
+              <p className="text-[9px] text-muted-foreground mt-0.5 leading-tight">{sanityCheck.summary}</p>
+              {calibrationReasoning && (
+                <p className="text-[8px] text-muted-foreground/60 mt-1 leading-tight">{calibrationReasoning}</p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Silence Cutting */}
         <SilenceCutPanel
           settings={silenceCut}
