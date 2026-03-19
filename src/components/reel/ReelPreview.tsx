@@ -343,15 +343,6 @@ const ReelPreview = ({
           </div>
         </div>
       </div>
-      {onReanalyze && (
-        <button
-          onClick={onReanalyze}
-          className="mt-2 w-full flex items-center justify-center gap-2 rounded-2xl glass-item py-2.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          Clip neu analysieren
-        </button>
-      )}
     </div>
   );
 };
