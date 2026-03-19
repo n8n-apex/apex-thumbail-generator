@@ -87,9 +87,9 @@ const UploadScreen = ({ onFilesSelect, compact }: UploadScreenProps) => {
             <Upload className="h-5 w-5" />
           </div>
           <p className="text-sm font-semibold text-foreground mb-1">
-            {isDragOver ? "Drop it!" : "Drop your raw reels"}
+            {isDragOver ? "Loslassen!" : "Videos hier ablegen"}
           </p>
-          <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM — multiple files supported</p>
+          <p className="text-[11px] text-muted-foreground">MP4, MOV, WebM — mehrere Dateien möglich</p>
         </label>
 
         <div className="mt-4 flex justify-center gap-5 text-[10px] text-muted-foreground">
