@@ -25,6 +25,7 @@ interface ReelPreviewProps {
   onNavigate: (direction: -1 | 1) => void;
   fileName: string;
   onVideoRef?: (el: HTMLVideoElement | null) => void;
+  onReanalyze?: () => void;
 }
 
 const fmt = (s: number) => {
