@@ -38,7 +38,7 @@ const UploadScreen = ({ onFileSelect }: UploadScreenProps) => {
             Auto Subtitles & Silence Cut
           </div>
           <h1 className="mb-2 text-4xl font-black tracking-tight text-foreground leading-none">
-            Reel<span className="text-primary">.</span>ai
+            apex<span className="text-primary">Clip</span>.ai
           </h1>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">
             Drop your video — get modern subtitles, speaker centering & automatic silence removal.
