@@ -1,5 +1,5 @@
 import {
-  SubtitleStyle, SubtitlePreset, SubtitleFont, SpeakerSettings, SilenceCutSettings,
+  SubtitleStyle, SubtitlePreset, SubtitleFont, SubtitleBackground, SpeakerSettings, SilenceCutSettings,
   TranscriptWord, ColorGradingSettings, SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
 import { SanityCheckResult } from "@/types/video-project";
