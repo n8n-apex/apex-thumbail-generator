@@ -165,7 +165,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
     
     if (mp4Data instanceof Uint8Array && mp4Data.length > 1000) {
       onProgress("Fertig!");
-      return new Blob([mp4Data], { type: "video/mp4" });
+      return new Blob([new Uint8Array(mp4Data)], { type: "video/mp4" });
     }
     
     // If remux produced empty file, fall back to WebM
