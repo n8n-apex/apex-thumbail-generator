@@ -241,10 +241,10 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
           left: `${style.positionX}%`,
           top: `${style.positionY}%`,
           width: `${boxWidth}%`,
-          maxWidth: "100%",
+          maxWidth: "96%",
           transform: "translate(-50%, -50%)",
           pointerEvents: onPositionChange ? "auto" : "none",
-          overflow: "hidden",
+          overflow: "visible",
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -254,15 +254,14 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
           className="flex flex-col items-center gap-y-[3px]"
           style={{
             width: "100%",
-            maxWidth: "100%",
             fontFamily: fontConfig.family,
             fontStyle: fontConfig.italic ? "italic" : "normal",
-            overflow: "hidden",
+            overflow: "visible",
             padding: `${Math.max(3, 5 * scale)}px 0`,
           }}
         >
           {lines.map((line, lineIdx) => (
-            <div key={`line-${lineIdx}`} className="flex w-full justify-center gap-x-[5px] flex-nowrap overflow-hidden">
+            <div key={`line-${lineIdx}`} className="flex w-full justify-center gap-x-[5px] flex-wrap">
               {line.map(({ word, idx }) => {
                 const isActive = idx === activeWordIdx;
                 const isPast = idx < activeWordIdx;
@@ -273,11 +272,11 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
                 return (
                   <span
                     key={`${word.start}-${word.text}-${idx}`}
-                    className="inline-block will-change-transform select-none whitespace-nowrap overflow-hidden text-ellipsis"
+                    className="inline-block will-change-transform select-none"
                     style={{
                       ...s,
                       ...anim,
-                      maxWidth: "100%",
+                      overflowWrap: "break-word",
                     }}
                   >
                     {word.text.toUpperCase()}
