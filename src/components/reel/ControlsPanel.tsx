@@ -319,10 +319,22 @@ const ControlsPanel = ({
           Weitere Videos hinzufügen
         </button>
         <button onClick={onExport} disabled={isExporting}
-          className="w-full flex items-center justify-center gap-2 rounded-2xl glass-button-primary py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
+          className="w-full relative overflow-hidden flex items-center justify-center gap-2 rounded-2xl glass-button-primary py-3 text-sm font-bold text-primary-foreground disabled:opacity-80"
         >
-          <Download className="h-4 w-4" />
-          {isExporting ? exportProgress : "Clip exportieren"}
+          {isExporting && (
+            <div
+              className="absolute inset-0 bg-primary/30 transition-all duration-300 ease-out"
+              style={{ width: `${parseProgressPercent(exportProgress)}%` }}
+            />
+          )}
+          <span className="relative z-10 flex items-center gap-2">
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            {isExporting ? exportProgress || "Wird exportiert..." : "Clip exportieren"}
+          </span>
         </button>
       </div>
     </div>
