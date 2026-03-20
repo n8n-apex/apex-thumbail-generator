@@ -227,38 +227,41 @@ async function exportSimpleTrim(
   end: number,
   onProgress?: (msg: string) => void,
 ): Promise<boolean> {
+  const duration = end - start;
   try {
+    // Re-encode for frame-accurate cutting (stream copy cuts at keyframes = imprecise)
     onProgress?.("Video wird geschnitten...");
     await ff.exec([
-      "-i", "input.mp4",
       "-ss", start.toFixed(3),
-      "-to", end.toFixed(3),
-      "-c", "copy",
+      "-i", "input.mp4",
+      "-t", duration.toFixed(3),
+      "-c:v", "libx264",
+      "-crf", "18",
+      "-preset", "ultrafast",
+      "-c:a", "aac",
+      "-b:a", "192k",
       "-avoid_negative_ts", "make_zero",
       "-movflags", "+faststart",
       "-y", "output.mp4",
     ]);
     return true;
   } catch (e) {
-    console.warn("[FFmpeg] Simple trim with copy failed:", e);
-    // Try with re-encode
+    console.warn("[FFmpeg] Re-encode trim failed:", e);
+    // Fallback: stream copy (less accurate but more compatible)
     try {
-      onProgress?.("Re-Encode Export...");
+      onProgress?.("Fallback-Export...");
       await ff.exec([
-        "-i", "input.mp4",
         "-ss", start.toFixed(3),
-        "-to", end.toFixed(3),
-        "-c:v", "libx264",
-        "-crf", "18",
-        "-preset", "ultrafast",
-        "-c:a", "aac",
-        "-b:a", "192k",
+        "-i", "input.mp4",
+        "-t", duration.toFixed(3),
+        "-c", "copy",
+        "-avoid_negative_ts", "make_zero",
         "-movflags", "+faststart",
         "-y", "output.mp4",
       ]);
       return true;
     } catch (e2) {
-      console.warn("[FFmpeg] Simple trim re-encode failed:", e2);
+      console.warn("[FFmpeg] Simple trim copy failed:", e2);
       return false;
     }
   }
