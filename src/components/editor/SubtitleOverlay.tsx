@@ -301,8 +301,13 @@ function getStyle(
   accent: string,
   size: number,
   fw: number,
+  bgBox: string = "none",
 ): React.CSSProperties {
   const base = { fontSize: size, fontWeight: fw, lineHeight: 1.15, padding: "2px 4px" };
+
+  // When background box is active, adapt text colors
+  const onDark = bgBox === "black";
+  const onLight = bgBox === "white";
 
   switch (preset) {
     case "karaoke":
