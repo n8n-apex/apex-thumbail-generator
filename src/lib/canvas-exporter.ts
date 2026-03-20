@@ -34,11 +34,10 @@ async function getRemuxer(onProgress: (msg: string) => void): Promise<FFmpeg> {
 
     const coreURL = `${window.location.origin}/wasm/ffmpeg-core.js`;
     const wasmURL = `${window.location.origin}/wasm/ffmpeg-core.wasm`;
-    const workerURL = `${window.location.origin}/wasm/ffmpeg-core.worker.js`;
 
     try {
       await Promise.race([
-        ff.load({ coreURL, wasmURL, workerURL }),
+        ff.load({ coreURL, wasmURL }),
         new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error("FFmpeg-Engine Timeout beim Laden")), 20000)
         ),
