@@ -4,7 +4,7 @@ import { TranscriptWord, SilenceCutSettings, MOCK_TRANSCRIPT, MOCK_SILENCES } fr
 import { VideoProject, createVideoProject } from "@/types/video-project";
 import { analyzeAudio, getActiveSegments, type SilenceGap } from "@/lib/audio-analysis";
 import { extractAudioBlob } from "@/lib/audio-extract";
-import { exportVideoWithoutSilences, preloadProcessor } from "@/lib/video-processor";
+import { exportWithSubtitles } from "@/lib/canvas-exporter";
 import { validateAndRepairTranscript } from "@/lib/transcript-validator";
 import { alignTranscriptToAudioTimeline } from "@/lib/transcript-sync";
 import { autoCalibrateFromAmplitudes } from "@/lib/auto-calibrate";
