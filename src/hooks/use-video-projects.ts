@@ -445,25 +445,27 @@ export function useVideoProjects() {
 
     updateProject(id, { isExporting: true, exportProgress: "Vorbereitung..." });
     try {
-      // Build active segments (non-silence parts)
       const segments = getActiveSegments(proj.silences, proj.duration);
-
-      // If no silences detected or cutting disabled, export the full video
       const exportSegments = segments.length > 0
         ? segments
         : [{ start: 0, end: proj.duration }];
 
       console.log(`[Export] ${exportSegments.length} segments, total duration: ${proj.duration.toFixed(1)}s`);
 
-      const blob = await exportVideoWithoutSilences(
-        proj.file, exportSegments,
-        (msg) => updateProject(id, { exportProgress: msg })
-      );
+      const blob = await exportWithSubtitles({
+        videoUrl: proj.url,
+        segments: exportSegments,
+        transcript: proj.transcript,
+        style: proj.subtitleStyle,
+        silences: proj.silences,
+        onProgress: (msg) => updateProject(id, { exportProgress: msg }),
+      });
 
+      const ext = blob.type.includes("mp4") ? "mp4" : "webm";
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `apexclip_${proj.file.name.replace(/\.[^.]+$/, "")}.mp4`;
+      a.download = `apexclip_${proj.file.name.replace(/\.[^.]+$/, "")}.${ext}`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
 
