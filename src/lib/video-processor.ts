@@ -31,23 +31,13 @@ export async function getProcessor(
         }
       });
 
-      // Use jsdelivr (faster, more reliable than unpkg) with direct URLs
-      const baseURL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
-      const coreURL = `${baseURL}/ffmpeg-core.js`;
-      const wasmURL = `${baseURL}/ffmpeg-core.wasm`;
+      // Self-hosted WASM files — no CDN, no CORS, no timeout issues
+      const coreURL = `${window.location.origin}/wasm/ffmpeg-core.js`;
+      const wasmURL = `${window.location.origin}/wasm/ffmpeg-core.wasm`;
 
-      onProgress?.("WASM-Engine wird initialisiert...");
-      console.log("[FFmpeg] Loading from jsdelivr with direct URLs...");
-
-      // Add timeout to detect hangs
-      const loadWithTimeout = Promise.race([
-        ff.load({ coreURL, wasmURL }),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("FFmpeg load timeout (30s)")), 30000)
-        ),
-      ]);
-
-      await loadWithTimeout;
+      console.log("[FFmpeg] Loading self-hosted WASM...");
+      onProgress?.("Engine wird initialisiert...");
+      await ff.load({ coreURL, wasmURL });
       console.log("[FFmpeg] Engine loaded successfully");
 
       instance = ff;
