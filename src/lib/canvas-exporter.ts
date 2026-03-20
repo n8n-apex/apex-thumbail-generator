@@ -1,10 +1,12 @@
 /**
  * Canvas-based video exporter — burns subtitles directly into the video.
- * No FFmpeg dependency. Uses canvas.captureStream() + MediaRecorder.
- * Output: WebM with audio.
+ * No heavy FFmpeg dependency for rendering. Uses canvas.captureStream() + MediaRecorder.
+ * Output: MP4 (via FFmpeg remux from WebM) with audio.
  */
 
 import { TranscriptWord, SubtitleStyle, SUBTITLE_FONTS } from "@/types/editor";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile } from "@ffmpeg/util";
 
 const WORDS_PER_LINE = 3;
 
@@ -17,6 +19,24 @@ interface ExportOptions {
   onProgress: (msg: string) => void;
 }
 
+/** Lightweight FFmpeg instance just for remuxing */
+let remuxFf: FFmpeg | null = null;
+
+async function getRemuxer(onProgress: (msg: string) => void): Promise<FFmpeg> {
+  if (remuxFf?.loaded) return remuxFf;
+  
+  onProgress("MP4-Engine wird geladen...");
+  const ff = new FFmpeg();
+  ff.on("log", ({ message }) => console.log("[Remux]", message));
+  
+  const coreURL = `${window.location.origin}/wasm/ffmpeg-core.js`;
+  const wasmURL = `${window.location.origin}/wasm/ffmpeg-core.wasm`;
+  
+  await ff.load({ coreURL, wasmURL });
+  remuxFf = ff;
+  return ff;
+}
+
 export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   const { videoUrl, segments, transcript, style, silences, onProgress } = opts;
 
@@ -24,7 +44,6 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   onProgress("Video wird vorbereitet...");
 
-  // Fresh video element for export (don't touch the preview one)
   const video = document.createElement("video");
   video.src = videoUrl;
   video.playsInline = true;
@@ -40,7 +59,6 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   const W = video.videoWidth || 1080;
   const H = video.videoHeight || 1920;
 
-  // Canvas for compositing
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -58,12 +76,11 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
       ...audioTracks,
     ]);
   } catch {
-    // Fallback: no audio (Safari doesn't support captureStream on video)
     console.warn("[Export] captureStream not available, exporting without audio");
     combined = canvasStream;
   }
 
-  // MediaRecorder setup
+  // MediaRecorder — WebM first (universally supported), then remux to MP4
   const mimeType = ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"]
     .find((m) => MediaRecorder.isTypeSupported(m)) || "video/webm";
 
@@ -85,16 +102,13 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   for (let i = 0; i < segments.length; i++) {
     const seg = segments[i];
 
-    // Seek
     video.currentTime = seg.start;
     await new Promise<void>((r) => {
       video.onseeked = () => r();
     });
 
-    // Play segment
     await video.play();
 
-    // Draw loop
     await new Promise<void>((resolve) => {
       const frame = () => {
         if (video.currentTime >= seg.end || video.paused || video.ended) {
@@ -118,17 +132,51 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
     elapsed += seg.end - seg.start;
   }
 
-  // Finalize
-  onProgress("Wird finalisiert...");
+  // Stop recording → WebM blob
+  onProgress("Aufnahme abgeschlossen...");
   recorder.stop();
   await new Promise<void>((r) => {
     recorder.onstop = () => r();
   });
 
   video.src = "";
-  onProgress("Fertig!");
+  const webmBlob = new Blob(chunks, { type: mimeType });
 
-  return new Blob(chunks, { type: mimeType });
+  // Remux WebM → MP4 via FFmpeg (no re-encoding, just container swap)
+  try {
+    const ff = await getRemuxer(onProgress);
+    
+    onProgress("Konvertiere zu MP4...");
+    const webmData = await fetchFile(webmBlob);
+    await ff.writeFile("input.webm", webmData);
+    
+    await ff.exec([
+      "-i", "input.webm",
+      "-c", "copy",
+      "-movflags", "+faststart",
+      "-y", "output.mp4",
+    ]);
+    
+    const mp4Data = await ff.readFile("output.mp4");
+    
+    // Cleanup
+    try { await ff.deleteFile("input.webm"); } catch {}
+    try { await ff.deleteFile("output.mp4"); } catch {}
+    
+    if (mp4Data instanceof Uint8Array && mp4Data.length > 1000) {
+      onProgress("Fertig!");
+      return new Blob([new Uint8Array(mp4Data)], { type: "video/mp4" });
+    }
+    
+    // If remux produced empty file, fall back to WebM
+    console.warn("[Export] Remux produced empty file, falling back to WebM");
+  } catch (e) {
+    console.warn("[Export] MP4 remux failed, delivering WebM:", e);
+  }
+
+  // Fallback: return WebM if remux fails
+  onProgress("Fertig!");
+  return webmBlob;
 }
 
 // ── Subtitle renderer for canvas ──────────────────────────────
