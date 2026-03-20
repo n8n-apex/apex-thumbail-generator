@@ -221,6 +221,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
   const scale = style.fontSize / 44;
   const boxWidth = style.boxWidth ?? 85;
   const maxLines = style.boxHeight ?? 2;
+  const bgBox = style.backgroundBox ?? "none";
   const lines = useMemo(() => buildSubtitleLines(words, maxLines), [words, maxLines]);
 
   if (words.length === 0) return null;
@@ -257,7 +258,9 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
             fontFamily: fontConfig.family,
             fontStyle: fontConfig.italic ? "italic" : "normal",
             overflow: "visible",
-            padding: `${Math.max(3, 5 * scale)}px 0`,
+            padding: `${Math.max(3, 5 * scale)}px ${bgBox !== "none" ? Math.max(8, 12 * scale) : 0}px`,
+            backgroundColor: bgBox === "black" ? "rgba(0,0,0,0.82)" : bgBox === "white" ? "rgba(255,255,255,0.92)" : "transparent",
+            borderRadius: bgBox !== "none" ? `${Math.max(6, 10 * scale)}px` : undefined,
           }}
         >
           {lines.map((line, lineIdx) => (
@@ -266,7 +269,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
                 const isActive = idx === activeWordIdx;
                 const isPast = idx < activeWordIdx;
                 const size = 15 * scale;
-                const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
+                const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight, bgBox);
                 const anim = getAnimation(style.preset, isActive);
 
                 return (
