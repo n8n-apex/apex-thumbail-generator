@@ -223,17 +223,35 @@ export function useVideoProjects() {
       updateProjectStep(id, 2, { active: true });
       updateProject(id, { currentStep: "Audio wird extrahiert..." });
 
-      // Step 3: Transcribe
+      // Step 3: Transcribe via Deepgram (precise word-level timestamps)
       let transcriptResult: TranscriptWord[] = [];
       try {
         const audioBlob = await extractAudioBlob(project.file, 120);
         const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
-        updateProject(id, { currentStep: "KI transkribiert..." });
+        updateProject(id, { currentStep: "Deepgram transkribiert..." });
         const formData = new FormData();
         formData.append("audio", audioFile);
         formData.append("language", "de");
-        const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
-        if (error) throw error;
+
+        // Try Deepgram first (precise word-level timestamps from speech engine)
+        let data: any = null;
+        let usedProvider = "deepgram";
+        try {
+          const dgResult = await supabase.functions.invoke("transcribe-deepgram", { body: formData });
+          if (dgResult.error) throw dgResult.error;
+          data = dgResult.data;
+        } catch (dgErr) {
+          console.warn("Deepgram failed, falling back to AI transcription:", dgErr);
+          usedProvider = "ai-fallback";
+          updateProject(id, { currentStep: "Fallback: KI transkribiert..." });
+          const fbForm = new FormData();
+          fbForm.append("audio", audioFile);
+          fbForm.append("language", "de");
+          const fbResult = await supabase.functions.invoke("transcribe", { body: fbForm });
+          if (fbResult.error) throw fbResult.error;
+          data = fbResult.data;
+        }
+
         if (data?.transcript?.length > 0) {
           const cleaned = cleanTranscript(data.transcript);
           const validated = validateAndRepairTranscript(cleaned);
@@ -241,15 +259,22 @@ export function useVideoProjects() {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
           }
 
-          const synced = alignTranscriptToAudioTimeline(validated.words, detectedSilences, result.duration);
-          if (synced.appliedAdjustments > 0) {
-            console.log(
-              `Transcript sync alignment: ${synced.appliedAdjustments} adjusted words, shift ${synced.globalShiftMs}ms`
-            );
+          // Deepgram timestamps are already precise — only align for AI fallback
+          let finalWords = validated.words;
+          if (usedProvider !== "deepgram") {
+            const synced = alignTranscriptToAudioTimeline(validated.words, detectedSilences, result.duration);
+            if (synced.appliedAdjustments > 0) {
+              console.log(
+                `Transcript sync alignment: ${synced.appliedAdjustments} adjusted words, shift ${synced.globalShiftMs}ms`
+              );
+            }
+            finalWords = synced.words;
+          } else {
+            console.log(`Deepgram: ${validated.words.length} words with native timestamps (no re-alignment needed)`);
           }
 
-          transcriptResult = applyCorrections(synced.words);
-        } else throw new Error("Empty");
+          transcriptResult = applyCorrections(finalWords);
+        } else throw new Error("Empty transcript");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
         transcriptResult = MOCK_TRANSCRIPT;
