@@ -221,6 +221,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
   const scale = style.fontSize / 44;
   const boxWidth = style.boxWidth ?? 85;
   const maxLines = style.boxHeight ?? 2;
+  const bgBox = style.backgroundBox ?? "none";
   const lines = useMemo(() => buildSubtitleLines(words, maxLines), [words, maxLines]);
 
   if (words.length === 0) return null;
@@ -257,7 +258,9 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
             fontFamily: fontConfig.family,
             fontStyle: fontConfig.italic ? "italic" : "normal",
             overflow: "visible",
-            padding: `${Math.max(3, 5 * scale)}px 0`,
+            padding: `${Math.max(3, 5 * scale)}px ${bgBox !== "none" ? Math.max(8, 12 * scale) : 0}px`,
+            backgroundColor: bgBox === "black" ? "rgba(0,0,0,0.82)" : bgBox === "white" ? "rgba(255,255,255,0.92)" : "transparent",
+            borderRadius: bgBox !== "none" ? `${Math.max(6, 10 * scale)}px` : undefined,
           }}
         >
           {lines.map((line, lineIdx) => (
@@ -266,7 +269,7 @@ const SubtitleOverlay = ({ transcript, currentTime, style, silences, onPositionC
                 const isActive = idx === activeWordIdx;
                 const isPast = idx < activeWordIdx;
                 const size = 15 * scale;
-                const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight);
+                const s = getStyle(style.preset, isActive, isPast, style.accentColor, size, fontConfig.weight, bgBox);
                 const anim = getAnimation(style.preset, isActive);
 
                 return (
@@ -298,49 +301,68 @@ function getStyle(
   accent: string,
   size: number,
   fw: number,
+  bgBox: string = "none",
 ): React.CSSProperties {
   const base = { fontSize: size, fontWeight: fw, lineHeight: 1.15, padding: "2px 4px" };
+
+  // When background box is active, adapt text colors
+  const onDark = bgBox === "black";
+  const onLight = bgBox === "white";
 
   switch (preset) {
     case "karaoke":
       return {
         ...base,
-        color: active ? accent : past ? "rgba(255,255,255,0.45)" : "#FFFFFF",
-        textShadow: `0 2px 12px rgba(0,0,0,0.8), 0 0 4px rgba(0,0,0,0.95)`,
+        color: active ? accent : past
+          ? (onLight ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.45)")
+          : (onLight ? "#000" : "#FFFFFF"),
+        textShadow: onLight ? "none" : `0 2px 12px rgba(0,0,0,0.8), 0 0 4px rgba(0,0,0,0.95)`,
         letterSpacing: "-0.02em",
       };
     case "pop":
       return {
         ...base,
-        color: active ? "#000" : past ? "rgba(255,255,255,0.4)" : "#FFF",
+        color: active ? "#000" : past
+          ? (onLight ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.4)")
+          : (onLight ? "#000" : "#FFF"),
         backgroundColor: active ? accent : "transparent",
         borderRadius: "8px",
         padding: "4px 10px",
-        textShadow: active ? "none" : "0 2px 12px rgba(0,0,0,0.85)",
+        textShadow: active ? "none" : (onLight ? "none" : "0 2px 12px rgba(0,0,0,0.85)"),
       };
     case "neon":
       return {
         ...base,
-        color: active ? "#FFF" : past ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.7)",
+        color: active
+          ? (onLight ? "#000" : "#FFF")
+          : past
+            ? (onLight ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.35)")
+            : (onLight ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.7)"),
         textShadow: active
-          ? `0 0 8px ${accent}, 0 0 20px ${accent}, 0 0 40px ${accent}90, 0 0 80px ${accent}40`
-          : "0 2px 8px rgba(0,0,0,0.6)",
+          ? (onLight
+            ? `0 0 8px ${accent}60, 0 0 20px ${accent}40`
+            : `0 0 8px ${accent}, 0 0 20px ${accent}, 0 0 40px ${accent}90, 0 0 80px ${accent}40`)
+          : (onLight ? "none" : "0 2px 8px rgba(0,0,0,0.6)"),
         letterSpacing: "0.02em",
       };
     case "minimal":
       return {
         ...base,
         fontSize: size * 0.88,
-        color: active ? "#FFFFFF" : past ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.5)",
-        textShadow: "0 1px 4px rgba(0,0,0,0.4)",
+        color: active
+          ? (onLight ? "#000" : "#FFFFFF")
+          : past
+            ? (onLight ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.3)")
+            : (onLight ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.5)"),
+        textShadow: onLight ? "none" : "0 1px 4px rgba(0,0,0,0.4)",
         letterSpacing: "0.04em",
       };
     case "block":
       return {
         ...base,
         fontSize: size * 0.92,
-        color: active ? "#000" : "#FFF",
-        backgroundColor: active ? accent : "rgba(0,0,0,0.65)",
+        color: active ? "#000" : (onLight ? "#000" : "#FFF"),
+        backgroundColor: active ? accent : (onLight ? "rgba(0,0,0,0.08)" : "rgba(0,0,0,0.65)"),
         borderRadius: "6px",
         padding: "5px 12px",
         margin: "2px",
@@ -350,7 +372,7 @@ function getStyle(
         ...base,
         fontSize: size * 1.05,
         color: active ? accent : "transparent",
-        WebkitTextStroke: active ? "0px" : `2px rgba(255,255,255,0.9)`,
+        WebkitTextStroke: active ? "0px" : `2px ${onLight ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.9)"}`,
         textShadow: active ? `0 0 20px ${accent}70` : "none",
         letterSpacing: "-0.01em",
       };
