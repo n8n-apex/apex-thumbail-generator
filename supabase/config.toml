@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.sanity-check]
 verify_jwt = false
+
+[functions.transcribe-deepgram]
+verify_jwt = false
