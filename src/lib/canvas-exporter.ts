@@ -143,13 +143,14 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   const webmBlob = new Blob(chunks, { type: mimeType });
 
   // Remux WebM → MP4 via FFmpeg (no re-encoding, just container swap)
+  const ff = await getRemuxer(onProgress);
+  
+  onProgress("Konvertiere zu MP4...");
+  const webmData = await fetchFile(webmBlob);
+  await ff.writeFile("input.webm", webmData);
+  
+  // Strategy 1: MP4
   try {
-    const ff = await getRemuxer(onProgress);
-    
-    onProgress("Konvertiere zu MP4...");
-    const webmData = await fetchFile(webmBlob);
-    await ff.writeFile("input.webm", webmData);
-    
     await ff.exec([
       "-i", "input.webm",
       "-c", "copy",
@@ -158,8 +159,6 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
     ]);
     
     const mp4Data = await ff.readFile("output.mp4");
-    
-    // Cleanup
     try { await ff.deleteFile("input.webm"); } catch {}
     try { await ff.deleteFile("output.mp4"); } catch {}
     
@@ -167,16 +166,32 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
       onProgress("Fertig!");
       return new Blob([new Uint8Array(mp4Data)], { type: "video/mp4" });
     }
-    
-    // If remux produced empty file, fall back to WebM
-    console.warn("[Export] Remux produced empty file, falling back to WebM");
   } catch (e) {
-    console.warn("[Export] MP4 remux failed, delivering WebM:", e);
+    console.warn("[Export] MP4 remux failed, trying MOV:", e);
   }
 
-  // Fallback: return WebM if remux fails
-  onProgress("Fertig!");
-  return webmBlob;
+  // Strategy 2: MOV fallback
+  try {
+    await ff.writeFile("input.webm", webmData);
+    await ff.exec([
+      "-i", "input.webm",
+      "-c", "copy",
+      "-y", "output.mov",
+    ]);
+    
+    const movData = await ff.readFile("output.mov");
+    try { await ff.deleteFile("input.webm"); } catch {}
+    try { await ff.deleteFile("output.mov"); } catch {}
+    
+    if (movData instanceof Uint8Array && movData.length > 1000) {
+      onProgress("Fertig!");
+      return new Blob([new Uint8Array(movData)], { type: "video/quicktime" });
+    }
+  } catch (e) {
+    console.warn("[Export] MOV remux also failed:", e);
+  }
+
+  throw new Error("Export fehlgeschlagen: Weder MP4 noch MOV konnten erzeugt werden");
 }
 
 // ── Subtitle renderer for canvas ──────────────────────────────
