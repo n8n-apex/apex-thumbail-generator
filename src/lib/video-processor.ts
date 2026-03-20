@@ -4,6 +4,12 @@ import { toBlobURL, fetchFile } from "@ffmpeg/util";
 let instance: FFmpeg | null = null;
 let loadPromise: Promise<FFmpeg> | null = null;
 
+/** Preload FFmpeg in background — call early, no-op if already loaded */
+export function preloadProcessor(): void {
+  if (instance?.loaded || loadPromise) return;
+  getProcessor().catch(() => {});
+}
+
 export async function getProcessor(
   onProgress?: (msg: string) => void
 ): Promise<FFmpeg> {
@@ -12,7 +18,7 @@ export async function getProcessor(
 
   loadPromise = (async () => {
     try {
-      onProgress?.("Video-Engine wird geladen...");
+      onProgress?.("Engine wird geladen (einmalig)...");
       const ff = new FFmpeg();
 
       ff.on("log", ({ message }) => {
@@ -27,7 +33,7 @@ export async function getProcessor(
 
       const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
 
-      // Try blob URL first (best perf), fall back to direct URL
+      onProgress?.("WASM-Modul wird heruntergeladen...");
       let coreURL: string;
       let wasmURL: string;
       try {
@@ -39,6 +45,7 @@ export async function getProcessor(
         wasmURL = `${baseURL}/ffmpeg-core.wasm`;
       }
 
+      onProgress?.("Engine wird initialisiert...");
       await ff.load({ coreURL, wasmURL });
 
       instance = ff;
