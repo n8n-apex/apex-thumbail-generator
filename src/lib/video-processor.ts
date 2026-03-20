@@ -88,7 +88,8 @@ async function exportViaSegmentConcat(
   const segFiles: string[] = [];
 
   try {
-    // Step 1: Cut each segment to its own file (stream copy = fast)
+    // Step 1: Cut each segment with re-encode for frame-accurate cuts
+    // Stream copy (-c copy) cuts at keyframes which causes imprecise start/end
     for (let i = 0; i < segs.length; i++) {
       const s = segs[i];
       const outName = `seg_${i}.mp4`;
@@ -96,11 +97,16 @@ async function exportViaSegmentConcat(
 
       onProgress?.(`Schneide Segment ${i + 1}/${segs.length}...`);
 
+      // Use -ss before -i for fast seeking, then re-encode for frame accuracy
       await ff.exec([
-        "-i", "input.mp4",
         "-ss", s.start.toFixed(3),
-        "-to", s.end.toFixed(3),
-        "-c", "copy",
+        "-i", "input.mp4",
+        "-t", (s.end - s.start).toFixed(3),
+        "-c:v", "libx264",
+        "-crf", "18",
+        "-preset", "ultrafast",
+        "-c:a", "aac",
+        "-b:a", "192k",
         "-avoid_negative_ts", "make_zero",
         "-y", outName,
       ]);
@@ -111,7 +117,7 @@ async function exportViaSegmentConcat(
     const encoder = new TextEncoder();
     await ff.writeFile("concat.txt", encoder.encode(concatList));
 
-    // Step 3: Concatenate all segments
+    // Step 3: Concatenate all segments (stream copy since all are same codec now)
     onProgress?.("Segmente werden zusammengefügt...");
     await ff.exec([
       "-f", "concat",
@@ -127,7 +133,6 @@ async function exportViaSegmentConcat(
     console.warn("[FFmpeg] Segment concat failed:", e);
     return false;
   } finally {
-    // Clean up segment files
     for (const f of segFiles) {
       await cleanup(ff, f);
     }

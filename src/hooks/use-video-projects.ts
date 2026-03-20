@@ -82,6 +82,55 @@ function redetectSilences(
       });
     }
   }
+
+  // Force-trim leading background noise (first 0.4s if mostly quiet)
+  const leadChunks = Math.min(Math.ceil(0.4 / chunkDuration), amplitudes.length);
+  const leadAvg = amplitudes.slice(0, leadChunks).reduce((a, b) => a + b, 0) / leadChunks;
+  if (leadAvg < settings.threshold * 3) {
+    // Find exact point where audio actually starts
+    let firstLoudChunk = 0;
+    for (let i = 0; i < amplitudes.length; i++) {
+      if (amplitudes[i] >= settings.threshold * 2) {
+        firstLoudChunk = i;
+        break;
+      }
+    }
+    const trimEnd = Math.max(firstLoudChunk * chunkDuration - 0.05, 0);
+    if (trimEnd > 0.02) {
+      // Remove any existing silence that overlaps with our forced trim
+      const filtered = silences.filter(s => s.start >= trimEnd);
+      silences.length = 0;
+      silences.unshift({ start: 0, end: trimEnd });
+      silences.push(...filtered);
+    }
+  }
+
+  // Force-trim trailing background noise (last 0.4s if mostly quiet)
+  const tailStart = Math.max(0, amplitudes.length - leadChunks);
+  const tailAvg = amplitudes.slice(tailStart).reduce((a, b) => a + b, 0) / leadChunks;
+  if (tailAvg < settings.threshold * 3) {
+    // Find exact point where audio ends
+    let lastLoudChunk = amplitudes.length - 1;
+    for (let i = amplitudes.length - 1; i >= 0; i--) {
+      if (amplitudes[i] >= settings.threshold * 2) {
+        lastLoudChunk = i;
+        break;
+      }
+    }
+    const trimStart = Math.min((lastLoudChunk + 1) * chunkDuration + 0.05, totalDuration);
+    if (totalDuration - trimStart > 0.02) {
+      // Remove any existing silence that overlaps with our forced trim
+      const filtered = silences.filter(s => s.end <= trimStart);
+      const nonOverlapping = silences.filter(s => s.end > trimStart);
+      if (nonOverlapping.length > 0) {
+        // Keep only the non-overlapping parts
+      }
+      silences.length = 0;
+      silences.push(...filtered);
+      silences.push({ start: trimStart, end: totalDuration });
+    }
+  }
+
   return silences;
 }
 

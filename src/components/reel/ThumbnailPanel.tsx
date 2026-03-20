@@ -84,6 +84,9 @@ const ThumbnailPanel = ({ videoRef, transcript }: ThumbnailPanelProps) => {
     }
 
     setGenerating(true);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 45000);
+
     try {
       const frameImage = captureFrame();
 
@@ -100,6 +103,11 @@ const ThumbnailPanel = ({ videoRef, transcript }: ThumbnailPanelProps) => {
         body: { prompt: fullPrompt, frameImage, overlayText: overlayText.trim() || undefined },
       });
 
+      if (controller.signal.aborted) {
+        toast.error("Thumbnail-Generierung hat zu lange gedauert (>45s). Versuche es mit einem kürzeren Prompt.");
+        return;
+      }
+
       if (error) throw error;
       if (data?.imageUrl) {
         setThumbnailUrl(data.imageUrl);
@@ -108,9 +116,14 @@ const ThumbnailPanel = ({ videoRef, transcript }: ThumbnailPanelProps) => {
         throw new Error(data?.error || "Keine Bilddaten erhalten");
       }
     } catch (e: any) {
-      console.error("Thumbnail error:", e);
-      toast.error(e.message || "Thumbnail-Generierung fehlgeschlagen");
+      if (e?.name === "AbortError" || controller.signal.aborted) {
+        toast.error("Timeout: Thumbnail-Generierung abgebrochen. Versuche einen kürzeren Prompt.");
+      } else {
+        console.error("Thumbnail error:", e);
+        toast.error(e.message || "Thumbnail-Generierung fehlgeschlagen");
+      }
     } finally {
+      clearTimeout(timeout);
       setGenerating(false);
     }
   }, [prompt, overlayText, focusType, captureFrame]);
