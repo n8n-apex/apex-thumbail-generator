@@ -298,8 +298,10 @@ export async function exportVideoWithoutSilences(
   const ff = await getProcessor(onProgress);
   await cleanup(ff, "input.mp4", "output.mp4");
 
-  onProgress?.("Video wird vorbereitet...");
+  const sizeMB = (videoFile.size / 1024 / 1024).toFixed(1);
+  onProgress?.(`Video wird gelesen (${sizeMB} MB)...`);
   const inputData = await fetchFile(videoFile);
+  onProgress?.("Video wird in Engine geschrieben...");
   await ff.writeFile("input.mp4", inputData);
 
   const segs = prepareSegments(segments);
