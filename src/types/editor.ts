@@ -12,6 +12,8 @@ export interface SilenceGap {
 
 export type SubtitleFont = "montserrat" | "bebas" | "anton" | "poppins" | "oswald" | "marker";
 
+export type SubtitlePreset = "karaoke" | "pop" | "neon" | "minimal" | "block" | "outline";
+
 export type SubtitleBackground = "none" | "black" | "white";
 
 export interface SubtitleStyle {
