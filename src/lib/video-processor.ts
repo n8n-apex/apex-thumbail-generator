@@ -26,14 +26,25 @@ export async function getProcessor(
       });
 
       const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-      await ff.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-      });
+
+      // Try blob URL first (best perf), fall back to direct URL
+      let coreURL: string;
+      let wasmURL: string;
+      try {
+        coreURL = await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript");
+        wasmURL = await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm");
+      } catch {
+        console.warn("[FFmpeg] toBlobURL failed, using direct URLs");
+        coreURL = `${baseURL}/ffmpeg-core.js`;
+        wasmURL = `${baseURL}/ffmpeg-core.wasm`;
+      }
+
+      await ff.load({ coreURL, wasmURL });
 
       instance = ff;
       return ff;
     } catch (e) {
+      console.error("[FFmpeg] Load failed:", e);
       loadPromise = null;
       instance = null;
       throw e;
