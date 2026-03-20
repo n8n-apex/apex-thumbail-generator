@@ -80,6 +80,11 @@ function prepareSegments(
  * Most reliable approach — cuts each segment individually with stream copy,
  * then concatenates using the concat demuxer. No complex filter graphs.
  */
+/**
+ * Strategy 1: Stream-copy concat (fastest — no re-encoding).
+ * Uses keyframe-aligned seeking for speed. Slightly less precise
+ * at cut boundaries but 10-50x faster than re-encode.
+ */
 async function exportViaSegmentConcat(
   ff: FFmpeg,
   segs: { start: number; end: number }[],
@@ -88,8 +93,6 @@ async function exportViaSegmentConcat(
   const segFiles: string[] = [];
 
   try {
-    // Step 1: Cut each segment with re-encode for frame-accurate cuts
-    // Stream copy (-c copy) cuts at keyframes which causes imprecise start/end
     for (let i = 0; i < segs.length; i++) {
       const s = segs[i];
       const outName = `seg_${i}.mp4`;
@@ -97,28 +100,22 @@ async function exportViaSegmentConcat(
 
       onProgress?.(`Schneide Segment ${i + 1}/${segs.length}...`);
 
-      // Use -ss before -i for fast seeking, then re-encode for frame accuracy
+      // Stream copy — no re-encoding, fastest possible
       await ff.exec([
         "-ss", s.start.toFixed(3),
         "-i", "input.mp4",
         "-t", (s.end - s.start).toFixed(3),
-        "-c:v", "libx264",
-        "-crf", "18",
-        "-preset", "ultrafast",
-        "-c:a", "aac",
-        "-b:a", "192k",
+        "-c", "copy",
         "-avoid_negative_ts", "make_zero",
         "-y", outName,
       ]);
     }
 
-    // Step 2: Create concat list file
+    // Concat all segments
     const concatList = segFiles.map((f) => `file '${f}'`).join("\n");
-    const encoder = new TextEncoder();
-    await ff.writeFile("concat.txt", encoder.encode(concatList));
+    await ff.writeFile("concat.txt", new TextEncoder().encode(concatList));
 
-    // Step 3: Concatenate all segments (stream copy since all are same codec now)
-    onProgress?.("Segmente werden zusammengefügt...");
+    onProgress?.("Zusammenfügen...");
     await ff.exec([
       "-f", "concat",
       "-safe", "0",
@@ -130,7 +127,7 @@ async function exportViaSegmentConcat(
 
     return true;
   } catch (e) {
-    console.warn("[FFmpeg] Segment concat failed:", e);
+    console.warn("[FFmpeg] Stream-copy concat failed:", e);
     return false;
   } finally {
     for (const f of segFiles) {
@@ -229,39 +226,39 @@ async function exportSimpleTrim(
 ): Promise<boolean> {
   const duration = end - start;
   try {
-    // Re-encode for frame-accurate cutting (stream copy cuts at keyframes = imprecise)
+    // Stream copy first — fastest
     onProgress?.("Video wird geschnitten...");
     await ff.exec([
       "-ss", start.toFixed(3),
       "-i", "input.mp4",
       "-t", duration.toFixed(3),
-      "-c:v", "libx264",
-      "-crf", "18",
-      "-preset", "ultrafast",
-      "-c:a", "aac",
-      "-b:a", "192k",
+      "-c", "copy",
       "-avoid_negative_ts", "make_zero",
       "-movflags", "+faststart",
       "-y", "output.mp4",
     ]);
     return true;
   } catch (e) {
-    console.warn("[FFmpeg] Re-encode trim failed:", e);
-    // Fallback: stream copy (less accurate but more compatible)
+    console.warn("[FFmpeg] Stream copy trim failed:", e);
+    // Fallback: re-encode (slower but handles codec issues)
     try {
-      onProgress?.("Fallback-Export...");
+      onProgress?.("Re-Encoding...");
       await ff.exec([
         "-ss", start.toFixed(3),
         "-i", "input.mp4",
         "-t", duration.toFixed(3),
-        "-c", "copy",
+        "-c:v", "libx264",
+        "-crf", "23",
+        "-preset", "ultrafast",
+        "-c:a", "aac",
+        "-b:a", "128k",
         "-avoid_negative_ts", "make_zero",
         "-movflags", "+faststart",
         "-y", "output.mp4",
       ]);
       return true;
     } catch (e2) {
-      console.warn("[FFmpeg] Simple trim copy failed:", e2);
+      console.warn("[FFmpeg] Re-encode trim failed:", e2);
       return false;
     }
   }
