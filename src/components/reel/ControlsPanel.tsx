@@ -247,6 +247,23 @@ const ControlsPanel = ({
                   onChange={(e) => upd({ boxHeight: Number(e.target.value) })}
                   className="w-full h-1" />
               </div>
+              <div>
+                <span className="text-[10px] text-muted-foreground font-medium mb-1.5 block">Hintergrund</span>
+                <div className="flex gap-1.5">
+                  {([["none", "Ohne"], ["black", "Schwarz"], ["white", "Weiß"]] as [SubtitleBackground, string][]).map(([val, label]) => {
+                    const isActive = (style.backgroundBox ?? "none") === val;
+                    return (
+                      <button key={val} onClick={() => upd({ backgroundBox: val })}
+                        className={`flex-1 rounded-lg py-1.5 text-[10px] font-semibold transition-all ${
+                          isActive ? "bg-primary/15 ring-1 ring-primary/30 text-foreground" : "glass-item text-muted-foreground"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
