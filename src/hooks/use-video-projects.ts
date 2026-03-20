@@ -223,27 +223,27 @@ export function useVideoProjects() {
       updateProjectStep(id, 2, { active: true });
       updateProject(id, { currentStep: "Audio wird extrahiert..." });
 
-      // Step 3: Transcribe via Deepgram (precise word-level timestamps)
+      // Step 3: Transcribe (precise word-level timestamps)
       let transcriptResult: TranscriptWord[] = [];
       try {
         const audioBlob = await extractAudioBlob(project.file, 120);
         const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
-        updateProject(id, { currentStep: "Deepgram transkribiert..." });
+        updateProject(id, { currentStep: "Sprache wird erkannt..." });
         const formData = new FormData();
         formData.append("audio", audioFile);
         formData.append("language", "de");
 
-        // Try Deepgram first (precise word-level timestamps from speech engine)
+        // Try primary speech engine first (precise word-level timestamps)
         let data: any = null;
         let usedProvider = "deepgram";
         try {
           const dgResult = await supabase.functions.invoke("transcribe-deepgram", { body: formData });
           if (dgResult.error) throw dgResult.error;
           data = dgResult.data;
-        } catch (dgErr) {
-          console.warn("Deepgram failed, falling back to AI transcription:", dgErr);
+        } catch (primaryErr) {
+          console.warn("Primary transcription failed, falling back to AI:", primaryErr);
           usedProvider = "ai-fallback";
-          updateProject(id, { currentStep: "Fallback: KI transkribiert..." });
+          updateProject(id, { currentStep: "KI transkribiert..." });
           const fbForm = new FormData();
           fbForm.append("audio", audioFile);
           fbForm.append("language", "de");
@@ -259,7 +259,7 @@ export function useVideoProjects() {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
           }
 
-          // Deepgram timestamps are already precise — only align for AI fallback
+          // Primary engine timestamps are already precise — only align for AI fallback
           let finalWords = validated.words;
           if (usedProvider !== "deepgram") {
             const synced = alignTranscriptToAudioTimeline(validated.words, detectedSilences, result.duration);
@@ -270,7 +270,7 @@ export function useVideoProjects() {
             }
             finalWords = synced.words;
           } else {
-            console.log(`Deepgram: ${validated.words.length} words with native timestamps (no re-alignment needed)`);
+            console.log(`Transcription: ${validated.words.length} words with native timestamps`);
           }
 
           transcriptResult = applyCorrections(finalWords);
@@ -457,7 +457,7 @@ export function useVideoProjects() {
       toast.error("Projekt nicht bereit für Regenerierung");
       return;
     }
-    toast.info("Transkript wird via Deepgram neu generiert...");
+    toast.info("Transkript wird neu generiert...");
     try {
       const audioBlob = await extractAudioBlob(proj.file, 120);
       const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
@@ -486,7 +486,7 @@ export function useVideoProjects() {
         const sc = latestProj?.silenceCut ?? proj.silenceCut;
         const rawSilences = redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc);
 
-        // Deepgram timestamps are precise — skip re-alignment
+        // Native timestamps are precise — skip re-alignment
         const corrected = applyCorrections(validated.words);
         const reconciledSilences = reconcileSilencesWithTranscript(rawSilences, corrected);
 
