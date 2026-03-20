@@ -3,7 +3,12 @@ import {
   TranscriptWord, ColorGradingSettings, SUBTITLE_PRESETS, SUBTITLE_FONTS,
 } from "@/types/editor";
 import { SanityCheckResult } from "@/types/video-project";
-import { Type, Palette, Move, User, Download, Maximize, Clock, Plus, RefreshCw, RectangleHorizontal, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Type, Palette, Move, User, Download, Maximize, Clock, Plus, RefreshCw, RectangleHorizontal, ShieldCheck, AlertTriangle, Loader2 } from "lucide-react";
+
+function parseProgressPercent(progress: string): number {
+  const match = progress.match(/(\d+)%/);
+  return match ? parseInt(match[1], 10) : 0;
+}
 import SilenceCutPanel from "./SilenceCutPanel";
 import ThumbnailPanel from "./ThumbnailPanel";
 import TranscriptEditor from "./TranscriptEditor";
