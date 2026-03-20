@@ -88,7 +88,8 @@ async function exportViaSegmentConcat(
   const segFiles: string[] = [];
 
   try {
-    // Step 1: Cut each segment to its own file (stream copy = fast)
+    // Step 1: Cut each segment with re-encode for frame-accurate cuts
+    // Stream copy (-c copy) cuts at keyframes which causes imprecise start/end
     for (let i = 0; i < segs.length; i++) {
       const s = segs[i];
       const outName = `seg_${i}.mp4`;
@@ -96,11 +97,16 @@ async function exportViaSegmentConcat(
 
       onProgress?.(`Schneide Segment ${i + 1}/${segs.length}...`);
 
+      // Use -ss before -i for fast seeking, then re-encode for frame accuracy
       await ff.exec([
-        "-i", "input.mp4",
         "-ss", s.start.toFixed(3),
-        "-to", s.end.toFixed(3),
-        "-c", "copy",
+        "-i", "input.mp4",
+        "-t", (s.end - s.start).toFixed(3),
+        "-c:v", "libx264",
+        "-crf", "18",
+        "-preset", "ultrafast",
+        "-c:a", "aac",
+        "-b:a", "192k",
         "-avoid_negative_ts", "make_zero",
         "-y", outName,
       ]);
@@ -111,7 +117,7 @@ async function exportViaSegmentConcat(
     const encoder = new TextEncoder();
     await ff.writeFile("concat.txt", encoder.encode(concatList));
 
-    // Step 3: Concatenate all segments
+    // Step 3: Concatenate all segments (stream copy since all are same codec now)
     onProgress?.("Segmente werden zusammengefügt...");
     await ff.exec([
       "-f", "concat",
@@ -127,7 +133,6 @@ async function exportViaSegmentConcat(
     console.warn("[FFmpeg] Segment concat failed:", e);
     return false;
   } finally {
-    // Clean up segment files
     for (const f of segFiles) {
       await cleanup(ff, f);
     }
@@ -222,38 +227,41 @@ async function exportSimpleTrim(
   end: number,
   onProgress?: (msg: string) => void,
 ): Promise<boolean> {
+  const duration = end - start;
   try {
+    // Re-encode for frame-accurate cutting (stream copy cuts at keyframes = imprecise)
     onProgress?.("Video wird geschnitten...");
     await ff.exec([
-      "-i", "input.mp4",
       "-ss", start.toFixed(3),
-      "-to", end.toFixed(3),
-      "-c", "copy",
+      "-i", "input.mp4",
+      "-t", duration.toFixed(3),
+      "-c:v", "libx264",
+      "-crf", "18",
+      "-preset", "ultrafast",
+      "-c:a", "aac",
+      "-b:a", "192k",
       "-avoid_negative_ts", "make_zero",
       "-movflags", "+faststart",
       "-y", "output.mp4",
     ]);
     return true;
   } catch (e) {
-    console.warn("[FFmpeg] Simple trim with copy failed:", e);
-    // Try with re-encode
+    console.warn("[FFmpeg] Re-encode trim failed:", e);
+    // Fallback: stream copy (less accurate but more compatible)
     try {
-      onProgress?.("Re-Encode Export...");
+      onProgress?.("Fallback-Export...");
       await ff.exec([
-        "-i", "input.mp4",
         "-ss", start.toFixed(3),
-        "-to", end.toFixed(3),
-        "-c:v", "libx264",
-        "-crf", "18",
-        "-preset", "ultrafast",
-        "-c:a", "aac",
-        "-b:a", "192k",
+        "-i", "input.mp4",
+        "-t", duration.toFixed(3),
+        "-c", "copy",
+        "-avoid_negative_ts", "make_zero",
         "-movflags", "+faststart",
         "-y", "output.mp4",
       ]);
       return true;
     } catch (e2) {
-      console.warn("[FFmpeg] Simple trim re-encode failed:", e2);
+      console.warn("[FFmpeg] Simple trim copy failed:", e2);
       return false;
     }
   }
