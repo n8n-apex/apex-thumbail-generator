@@ -12,7 +12,7 @@ export interface SilenceGap {
 
 export type SubtitleFont = "montserrat" | "bebas" | "anton" | "poppins" | "oswald" | "marker";
 
-export type SubtitlePreset = "karaoke" | "pop" | "neon" | "minimal" | "block" | "outline";
+export type SubtitleBackground = "none" | "black" | "white";
 
 export interface SubtitleStyle {
   preset: SubtitlePreset;
@@ -24,6 +24,7 @@ export interface SubtitleStyle {
   timeOffset: number; // seconds to shift subtitles earlier (negative = earlier)
   boxWidth: number; // percentage of container width (20-100)
   boxHeight: number; // max lines visible (1-6)
+  backgroundBox: SubtitleBackground; // none, black, or white background
 }
 
 export interface SpeakerSettings {
@@ -86,11 +87,12 @@ export const DEFAULT_SUBTITLE_STYLE: SubtitleStyle = {
   font: "montserrat",
   fontSize: 42,
   positionX: 50,
-  positionY: 72, // Safe zone: avoids Instagram/TikTok bottom UI overlap
+  positionY: 72,
   accentColor: "#FFFFFF",
   timeOffset: -0.15,
   boxWidth: 80,
   boxHeight: 2,
+  backgroundBox: "none",
 };
 
 export const DEFAULT_SPEAKER_SETTINGS: SpeakerSettings = {
