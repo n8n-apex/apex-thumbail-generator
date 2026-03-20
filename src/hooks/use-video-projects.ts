@@ -409,8 +409,7 @@ export function useVideoProjects() {
       }
       return prev;
     });
-    // Preload FFmpeg engine in background so export is instant later
-    preloadProcessor();
+    // Process all new projects
     // Process all new projects
     newProjects.forEach((p) => processVideo(p));
   }, [processVideo]);
