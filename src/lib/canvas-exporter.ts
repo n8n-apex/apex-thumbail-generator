@@ -21,20 +21,39 @@ interface ExportOptions {
 
 /** Lightweight FFmpeg instance just for remuxing */
 let remuxFf: FFmpeg | null = null;
+let remuxLoadPromise: Promise<FFmpeg> | null = null;
 
 async function getRemuxer(onProgress: (msg: string) => void): Promise<FFmpeg> {
   if (remuxFf?.loaded) return remuxFf;
-  
-  onProgress("MP4-Engine wird geladen...");
-  const ff = new FFmpeg();
-  ff.on("log", ({ message }) => console.log("[Remux]", message));
-  
-  const coreURL = `${window.location.origin}/wasm/ffmpeg-core.js`;
-  const wasmURL = `${window.location.origin}/wasm/ffmpeg-core.wasm`;
-  
-  await ff.load({ coreURL, wasmURL });
-  remuxFf = ff;
-  return ff;
+  if (remuxLoadPromise) return remuxLoadPromise;
+
+  remuxLoadPromise = (async () => {
+    onProgress("MP4-Engine wird geladen...");
+    const ff = new FFmpeg();
+    ff.on("log", ({ message }) => console.log("[Remux]", message));
+
+    const coreURL = `${window.location.origin}/wasm/ffmpeg-core.js`;
+    const wasmURL = `${window.location.origin}/wasm/ffmpeg-core.wasm`;
+    const workerURL = `${window.location.origin}/wasm/ffmpeg-core.worker.js`;
+
+    try {
+      await Promise.race([
+        ff.load({ coreURL, wasmURL, workerURL }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("FFmpeg-Engine Timeout beim Laden")), 20000)
+        ),
+      ]);
+
+      remuxFf = ff;
+      return ff;
+    } catch (error) {
+      remuxLoadPromise = null;
+      remuxFf = null;
+      throw error;
+    }
+  })();
+
+  return remuxLoadPromise;
 }
 
 export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
