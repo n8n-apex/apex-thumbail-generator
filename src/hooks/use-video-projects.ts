@@ -457,25 +457,37 @@ export function useVideoProjects() {
       toast.error("Projekt nicht bereit für Regenerierung");
       return;
     }
-    toast.info("Transkript wird neu generiert...");
+    toast.info("Transkript wird via Deepgram neu generiert...");
     try {
       const audioBlob = await extractAudioBlob(proj.file, 120);
       const audioFile = new File([audioBlob], "audio.wav", { type: "audio/wav" });
       const formData = new FormData();
       formData.append("audio", audioFile);
       formData.append("language", "de");
-      const { data, error } = await supabase.functions.invoke("transcribe", { body: formData });
-      if (error) throw error;
+
+      let data: any = null;
+      try {
+        const dgResult = await supabase.functions.invoke("transcribe-deepgram", { body: formData });
+        if (dgResult.error) throw dgResult.error;
+        data = dgResult.data;
+      } catch {
+        const fbForm = new FormData();
+        fbForm.append("audio", audioFile);
+        fbForm.append("language", "de");
+        const fbResult = await supabase.functions.invoke("transcribe", { body: fbForm });
+        if (fbResult.error) throw fbResult.error;
+        data = fbResult.data;
+      }
+
       if (data?.transcript?.length > 0) {
         const cleaned = cleanTranscript(data.transcript);
         const validated = validateAndRepairTranscript(cleaned);
-        // Re-read project from ref for latest silenceCut settings
         const latestProj = projectsRef.current.find((p) => p.id === id);
         const sc = latestProj?.silenceCut ?? proj.silenceCut;
         const rawSilences = redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc);
 
-        const synced = alignTranscriptToAudioTimeline(validated.words, rawSilences, proj.duration);
-        const corrected = applyCorrections(synced.words);
+        // Deepgram timestamps are precise — skip re-alignment
+        const corrected = applyCorrections(validated.words);
         const reconciledSilences = reconcileSilencesWithTranscript(rawSilences, corrected);
 
         updateProject(id, {
