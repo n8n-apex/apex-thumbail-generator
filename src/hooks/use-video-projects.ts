@@ -350,6 +350,35 @@ export function useVideoProjects() {
       }
 
       updateProjectStep(id, 3, { done: true, active: false });
+
+      // Auto color grading: sample a frame from the video
+      try {
+        const grading = await new Promise<import("@/types/editor").ColorGradingSettings>((resolve) => {
+          const tempVideo = document.createElement("video");
+          tempVideo.src = project.url;
+          tempVideo.muted = true;
+          tempVideo.playsInline = true;
+          tempVideo.preload = "auto";
+          const onSeek = () => {
+            tempVideo.removeEventListener("seeked", onSeek);
+            const grade = autoGradeFromVideo(tempVideo);
+            tempVideo.src = "";
+            resolve(grade);
+          };
+          tempVideo.addEventListener("seeked", onSeek);
+          tempVideo.addEventListener("loadeddata", () => {
+            // Seek to 1s or 30% to get a representative frame
+            tempVideo.currentTime = Math.min(1, (result?.duration ?? 3) * 0.3);
+          });
+          // Timeout fallback
+          setTimeout(() => { tempVideo.src = ""; resolve(autoGradeFromVideo(tempVideo)); }, 3000);
+        });
+        updateProject(id, { colorGrading: grading });
+        console.log("Auto color grading applied:", grading);
+      } catch {
+        console.warn("Auto color grading failed, using defaults");
+      }
+
       updateProject(id, {
         currentStep: "Fertig!",
         phase: "ready",
