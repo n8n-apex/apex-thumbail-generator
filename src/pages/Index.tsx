@@ -18,16 +18,28 @@ const Index = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
 
+  const proj = activeProject;
+
+  // Merge cut-word time ranges into silences for playback skipping & export
+  const effectiveSilences = useMemo(
+    () => proj ? mergeWordCutsWithSilences(proj.transcript, proj.silences) : [],
+    [proj?.transcript, proj?.silences]
+  );
+  const visibleTranscript = useMemo(
+    () => proj ? getVisibleTranscript(proj.transcript) : [],
+    [proj?.transcript]
+  );
+
   // Re-detect silences when settings change for active project
   useEffect(() => {
-    if (activeProject && activeProject.phase === "ready") {
-      redetectForProject(activeProject.id);
+    if (proj && proj.phase === "ready") {
+      redetectForProject(proj.id);
     }
   }, [
-    activeProject?.silenceCut.threshold,
-    activeProject?.silenceCut.minDuration,
-    activeProject?.silenceCut.padding,
-    activeProject?.silenceCut.enabled,
+    proj?.silenceCut.threshold,
+    proj?.silenceCut.minDuration,
+    proj?.silenceCut.padding,
+    proj?.silenceCut.enabled,
     redetectForProject,
   ]);
 
@@ -35,15 +47,15 @@ const Index = () => {
   useEffect(() => {
     const handler = (e: Event) => {
       const { x, y } = (e as CustomEvent).detail;
-      if (activeProject) {
-        updateProject(activeProject.id, {
-          subtitleStyle: { ...activeProject.subtitleStyle, positionX: x, positionY: y },
+      if (proj) {
+        updateProject(proj.id, {
+          subtitleStyle: { ...proj.subtitleStyle, positionX: x, positionY: y },
         });
       }
     };
     window.addEventListener("subtitle-position", handler);
     return () => window.removeEventListener("subtitle-position", handler);
-  }, [activeProject, updateProject]);
+  }, [proj, updateProject]);
 
   const handleFilesSelect = useCallback((files: File[]) => {
     addFiles(files);
@@ -80,7 +92,6 @@ const Index = () => {
     );
   }
 
-  const proj = activeProject;
   if (!proj) return null;
 
   // Active project still processing
@@ -101,16 +112,6 @@ const Index = () => {
       </div>
     );
   }
-
-  // Merge cut-word time ranges into silences for playback skipping & export
-  const effectiveSilences = useMemo(
-    () => mergeWordCutsWithSilences(proj.transcript, proj.silences),
-    [proj.transcript, proj.silences]
-  );
-  const visibleTranscript = useMemo(
-    () => getVisibleTranscript(proj.transcript),
-    [proj.transcript]
-  );
 
   const timeSaved = calculateTimeSaved(effectiveSilences);
 
