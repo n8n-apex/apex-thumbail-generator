@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TranscriptWord } from "@/types/editor";
-import { Pencil, Save, BookOpen, X, Loader2 } from "lucide-react";
+import { Pencil, Save, BookOpen, X, Loader2, Scissors, Undo2 } from "lucide-react";
 
 interface TranscriptEditorProps {
   transcript: TranscriptWord[];
@@ -45,6 +45,7 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
   const [corrections, setCorrections] = useState<Record<string, string>>(loadCorrections);
   const [showDict, setShowDict] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [cutMode, setCutMode] = useState(false);
   const activeRef = useRef<HTMLButtonElement>(null);
   const regenTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -54,9 +55,17 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
   }, [currentTime]);
 
   const handleEdit = useCallback((idx: number) => {
+    if (cutMode) {
+      // Toggle cut on this word
+      const newTranscript = transcript.map((w, i) =>
+        i === idx ? { ...w, isCut: !w.isCut } : w
+      );
+      onTranscriptChange(newTranscript);
+      return;
+    }
     setEditingIdx(idx);
     setEditValue(transcript[idx].text);
-  }, [transcript]);
+  }, [transcript, cutMode, onTranscriptChange]);
 
   const handleSave = useCallback(() => {
     if (editingIdx === null) return;
@@ -107,8 +116,14 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
 
   // Find active word index
   const activeIdx = transcript.findIndex(
-    (w) => currentTime >= w.start - 0.05 && currentTime < w.end + 0.15
+    (w) => !w.isCut && currentTime >= w.start - 0.05 && currentTime < w.end + 0.15
   );
+
+  const cutCount = transcript.filter((w) => w.isCut).length;
+
+  const restoreAll = useCallback(() => {
+    onTranscriptChange(transcript.map((w) => ({ ...w, isCut: false })));
+  }, [transcript, onTranscriptChange]);
 
   return (
     <div className="glass-elevated rounded-2xl p-3.5">
@@ -119,6 +134,9 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
           </div>
           <span className="text-xs font-bold text-foreground">Transkript</span>
           <span className="text-[9px] text-muted-foreground">{transcript.length} Wörter</span>
+          {cutCount > 0 && (
+            <span className="text-[9px] text-destructive font-semibold">{cutCount} geschnitten</span>
+          )}
           {isRegenerating && (
             <span className="flex items-center gap-1 text-[9px] text-primary animate-pulse">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -126,17 +144,38 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
             </span>
           )}
         </div>
-        <button
-          onClick={() => setShowDict(!showDict)}
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-semibold transition-all ${
-            showDict ? "bg-primary/15 text-primary" : "glass-item text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <BookOpen className="h-3 w-3" />
-          {Object.keys(corrections).length > 0 && (
-            <span className="tabular-nums">{Object.keys(corrections).length}</span>
+        <div className="flex items-center gap-1">
+          {cutCount > 0 && (
+            <button
+              onClick={restoreAll}
+              title="Alle Cuts zurücksetzen"
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-semibold glass-item text-muted-foreground hover:text-foreground transition-all"
+            >
+              <Undo2 className="h-3 w-3" />
+            </button>
           )}
-        </button>
+          <button
+            onClick={() => setCutMode(!cutMode)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-semibold transition-all ${
+              cutMode ? "bg-destructive/15 text-destructive ring-1 ring-destructive/30" : "glass-item text-muted-foreground hover:text-foreground"
+            }`}
+            title={cutMode ? "Schnitt-Modus beenden" : "Wörter wegschneiden"}
+          >
+            <Scissors className="h-3 w-3" />
+            {cutMode && <span>Schneiden</span>}
+          </button>
+          <button
+            onClick={() => setShowDict(!showDict)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-semibold transition-all ${
+              showDict ? "bg-primary/15 text-primary" : "glass-item text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BookOpen className="h-3 w-3" />
+            {Object.keys(corrections).length > 0 && (
+              <span className="tabular-nums">{Object.keys(corrections).length}</span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Corrections Dictionary */}
@@ -184,15 +223,21 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
               );
             }
 
+            const isCutWord = !!word.isCut;
+
             return (
               <button
                 key={`${word.start}-${i}`}
                 ref={isActive ? activeRef : undefined}
                 onClick={() => handleEdit(i)}
                 className={`px-1.5 py-0.5 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-primary/20 text-primary ring-1 ring-primary/30 scale-105"
-                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                  isCutWord
+                    ? "line-through opacity-40 bg-destructive/10 text-destructive hover:opacity-70"
+                    : isActive
+                      ? "bg-primary/20 text-primary ring-1 ring-primary/30 scale-105"
+                      : cutMode
+                        ? "text-muted-foreground hover:bg-destructive/20 hover:text-destructive"
+                        : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
                 }`}
               >
                 {word.text}

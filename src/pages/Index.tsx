@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect, useState } from "react";
+import { useCallback, useRef, useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import UploadScreen from "@/components/reel/UploadScreen";
 import ProcessingScreen from "@/components/reel/ProcessingScreen";
@@ -6,6 +6,7 @@ import ReelPreview from "@/components/reel/ReelPreview";
 import ControlsPanel from "@/components/reel/ControlsPanel";
 import { calculateTimeSaved } from "@/lib/audio-analysis";
 import { useVideoProjects } from "@/hooks/use-video-projects";
+import { mergeWordCutsWithSilences, getVisibleTranscript } from "@/types/editor";
 
 const Index = () => {
   const {
@@ -17,16 +18,28 @@ const Index = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
 
+  const proj = activeProject;
+
+  // Merge cut-word time ranges into silences for playback skipping & export
+  const effectiveSilences = useMemo(
+    () => proj ? mergeWordCutsWithSilences(proj.transcript, proj.silences) : [],
+    [proj?.transcript, proj?.silences]
+  );
+  const visibleTranscript = useMemo(
+    () => proj ? getVisibleTranscript(proj.transcript) : [],
+    [proj?.transcript]
+  );
+
   // Re-detect silences when settings change for active project
   useEffect(() => {
-    if (activeProject && activeProject.phase === "ready") {
-      redetectForProject(activeProject.id);
+    if (proj && proj.phase === "ready") {
+      redetectForProject(proj.id);
     }
   }, [
-    activeProject?.silenceCut.threshold,
-    activeProject?.silenceCut.minDuration,
-    activeProject?.silenceCut.padding,
-    activeProject?.silenceCut.enabled,
+    proj?.silenceCut.threshold,
+    proj?.silenceCut.minDuration,
+    proj?.silenceCut.padding,
+    proj?.silenceCut.enabled,
     redetectForProject,
   ]);
 
@@ -34,15 +47,15 @@ const Index = () => {
   useEffect(() => {
     const handler = (e: Event) => {
       const { x, y } = (e as CustomEvent).detail;
-      if (activeProject) {
-        updateProject(activeProject.id, {
-          subtitleStyle: { ...activeProject.subtitleStyle, positionX: x, positionY: y },
+      if (proj) {
+        updateProject(proj.id, {
+          subtitleStyle: { ...proj.subtitleStyle, positionX: x, positionY: y },
         });
       }
     };
     window.addEventListener("subtitle-position", handler);
     return () => window.removeEventListener("subtitle-position", handler);
-  }, [activeProject, updateProject]);
+  }, [proj, updateProject]);
 
   const handleFilesSelect = useCallback((files: File[]) => {
     addFiles(files);
@@ -79,7 +92,6 @@ const Index = () => {
     );
   }
 
-  const proj = activeProject;
   if (!proj) return null;
 
   // Active project still processing
@@ -101,7 +113,7 @@ const Index = () => {
     );
   }
 
-  const timeSaved = calculateTimeSaved(proj.silences);
+  const timeSaved = calculateTimeSaved(effectiveSilences);
 
   return (
     <div className="app-frame flex-col sm:flex-row mesh-gradient">
@@ -115,13 +127,13 @@ const Index = () => {
       />
       <ReelPreview
         videoUrl={proj.url}
-        transcript={proj.transcript}
+        transcript={visibleTranscript}
         subtitleStyle={proj.subtitleStyle}
         speaker={proj.speaker}
         currentTime={proj.currentTime}
         duration={proj.duration}
         isPlaying={proj.isPlaying}
-        silences={proj.silences}
+        silences={effectiveSilences}
         colorGrading={proj.colorGrading}
         onTimeUpdate={(t) => updateProject(proj.id, { currentTime: t })}
         onPlayPause={() => updateProject(proj.id, { isPlaying: !proj.isPlaying })}

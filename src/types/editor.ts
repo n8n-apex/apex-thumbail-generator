@@ -3,6 +3,39 @@ export interface TranscriptWord {
   start: number;
   end: number;
   confidence: number;
+  isCut?: boolean;
+}
+
+/** Generate silence gaps from cut words and merge with existing silences */
+export function mergeWordCutsWithSilences(
+  transcript: TranscriptWord[],
+  silences: { start: number; end: number }[],
+): { start: number; end: number }[] {
+  const cutRanges = transcript
+    .filter((w) => w.isCut)
+    .map((w) => ({ start: w.start, end: w.end }));
+
+  if (cutRanges.length === 0) return silences;
+
+  // Merge all ranges and sort
+  const all = [...silences, ...cutRanges].sort((a, b) => a.start - b.start);
+
+  // Consolidate overlapping ranges
+  const merged: { start: number; end: number }[] = [];
+  for (const r of all) {
+    const last = merged[merged.length - 1];
+    if (last && r.start <= last.end + 0.05) {
+      last.end = Math.max(last.end, r.end);
+    } else {
+      merged.push({ ...r });
+    }
+  }
+  return merged;
+}
+
+/** Filter transcript to only visible (non-cut) words */
+export function getVisibleTranscript(transcript: TranscriptWord[]): TranscriptWord[] {
+  return transcript.filter((w) => !w.isCut);
 }
 
 export interface SilenceGap {
