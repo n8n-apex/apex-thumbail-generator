@@ -102,7 +102,17 @@ const Index = () => {
     );
   }
 
-  const timeSaved = calculateTimeSaved(proj.silences);
+  // Merge cut-word time ranges into silences for playback skipping & export
+  const effectiveSilences = useMemo(
+    () => mergeWordCutsWithSilences(proj.transcript, proj.silences),
+    [proj.transcript, proj.silences]
+  );
+  const visibleTranscript = useMemo(
+    () => getVisibleTranscript(proj.transcript),
+    [proj.transcript]
+  );
+
+  const timeSaved = calculateTimeSaved(effectiveSilences);
 
   return (
     <div className="app-frame flex-col sm:flex-row mesh-gradient">
@@ -116,13 +126,13 @@ const Index = () => {
       />
       <ReelPreview
         videoUrl={proj.url}
-        transcript={proj.transcript}
+        transcript={visibleTranscript}
         subtitleStyle={proj.subtitleStyle}
         speaker={proj.speaker}
         currentTime={proj.currentTime}
         duration={proj.duration}
         isPlaying={proj.isPlaying}
-        silences={proj.silences}
+        silences={effectiveSilences}
         colorGrading={proj.colorGrading}
         onTimeUpdate={(t) => updateProject(proj.id, { currentTime: t })}
         onPlayPause={() => updateProject(proj.id, { isPlaying: !proj.isPlaying })}
