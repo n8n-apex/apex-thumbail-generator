@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TranscriptWord } from "@/types/editor";
-import { Pencil, Save, BookOpen, X, Loader2 } from "lucide-react";
+import { Pencil, Save, BookOpen, X, Loader2, Scissors, Undo2 } from "lucide-react";
 
 interface TranscriptEditorProps {
   transcript: TranscriptWord[];
