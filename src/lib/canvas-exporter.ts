@@ -3,6 +3,9 @@ import { fetchFile } from "@ffmpeg/util";
 import { getProcessor, preloadProcessor } from "@/lib/video-processor";
 
 const WORDS_PER_LINE = 3;
+const SEGMENT_END_EPSILON = 1 / 30;
+const STALL_FRAME_LIMIT = 45;
+const RECORDER_STOP_TIMEOUT_MS = 15_000;
 
 interface ExportOptions {
   videoUrl: string;
@@ -91,17 +94,40 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
     await video.play();
 
     await new Promise<void>((resolve) => {
+      let lastTime = -1;
+      let stalledFrames = 0;
+
       const frame = () => {
-        if (video.currentTime >= seg.end || video.paused || video.ended) {
+        const current = video.currentTime;
+        const nearEnd = current >= seg.end - SEGMENT_END_EPSILON;
+
+        if (nearEnd || video.paused || video.ended) {
           video.pause();
           resolve();
           return;
         }
 
-        ctx.drawImage(video, 0, 0, W, H);
-        renderSubtitles(ctx, transcript, video.currentTime, style, silences, W, H);
+        if (Math.abs(current - lastTime) < 0.0005) {
+          stalledFrames += 1;
+          if (stalledFrames >= STALL_FRAME_LIMIT) {
+            console.warn("[Export] Segment stalled near end, forcing next segment", {
+              segmentIndex: i,
+              currentTime: current,
+              segmentEnd: seg.end,
+            });
+            video.pause();
+            resolve();
+            return;
+          }
+        } else {
+          stalledFrames = 0;
+          lastTime = current;
+        }
 
-        const segElapsed = video.currentTime - seg.start;
+        ctx.drawImage(video, 0, 0, W, H);
+        renderSubtitles(ctx, transcript, current, style, silences, W, H);
+
+        const segElapsed = Math.min(current - seg.start, seg.end - seg.start);
         const pct = Math.round(((elapsed + segElapsed) / totalDuration) * 100);
         onProgress(`Aufnahme: ${pct}%`);
 
@@ -115,10 +141,31 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   // Stop recording → WebM blob
   onProgress("Aufnahme abgeschlossen...");
-  recorder.stop();
-  await new Promise<void>((r) => {
-    recorder.onstop = () => r();
+  const recorderStopPromise = new Promise<void>((resolve, reject) => {
+    const stopTimeout = setTimeout(() => {
+      reject(new Error("Recorder konnte nicht finalisiert werden (Timeout)"));
+    }, RECORDER_STOP_TIMEOUT_MS);
+
+    recorder.onstop = () => {
+      clearTimeout(stopTimeout);
+      resolve();
+    };
+
+    recorder.onerror = () => {
+      clearTimeout(stopTimeout);
+      reject(new Error("Recorder-Fehler beim Finalisieren"));
+    };
   });
+
+  recorder.stop();
+  await recorderStopPromise;
+
+  if (chunks.length === 0) {
+    throw new Error("Recorder hat keine Video-Daten erzeugt");
+  }
+
+  combined.getTracks().forEach((track) => track.stop());
+  canvasStream.getTracks().forEach((track) => track.stop());
 
   video.src = "";
   const webmBlob = new Blob(chunks, { type: mimeType });
