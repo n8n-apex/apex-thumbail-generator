@@ -7,6 +7,65 @@ const SEGMENT_END_EPSILON = 1 / 30;
 const STALL_FRAME_LIMIT = 45;
 const RECORDER_STOP_TIMEOUT_MS = 15_000;
 
+async function finalizeRecorder(recorder: MediaRecorder): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    let settled = false;
+
+    const cleanup = () => {
+      clearTimeout(timeoutId);
+      recorder.removeEventListener("stop", onStop);
+      recorder.removeEventListener("error", onError);
+    };
+
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve();
+    };
+
+    const fail = (message: string) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error(message));
+    };
+
+    const onStop = () => finish();
+    const onError = () => fail("Recorder-Fehler beim Finalisieren");
+
+    recorder.addEventListener("stop", onStop, { once: true });
+    recorder.addEventListener("error", onError, { once: true });
+
+    const timeoutId = window.setTimeout(() => {
+      if (recorder.state === "inactive") {
+        finish();
+        return;
+      }
+      fail("Recorder konnte nicht finalisiert werden (Timeout)");
+    }, RECORDER_STOP_TIMEOUT_MS);
+
+    // If the recorder already stopped before this handler was attached,
+    // we will never receive a stop event, so resolve on next microtask.
+    if (recorder.state === "inactive") {
+      queueMicrotask(finish);
+      return;
+    }
+
+    try {
+      recorder.requestData();
+    } catch {
+      // Ignore: requestData can throw depending on browser state.
+    }
+
+    try {
+      recorder.stop();
+    } catch {
+      fail("Recorder konnte nicht gestoppt werden");
+    }
+  });
+}
+
 interface ExportOptions {
   videoUrl: string;
   segments: { start: number; end: number }[];
@@ -141,24 +200,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   // Stop recording → WebM blob
   onProgress("Aufnahme abgeschlossen...");
-  const recorderStopPromise = new Promise<void>((resolve, reject) => {
-    const stopTimeout = setTimeout(() => {
-      reject(new Error("Recorder konnte nicht finalisiert werden (Timeout)"));
-    }, RECORDER_STOP_TIMEOUT_MS);
-
-    recorder.onstop = () => {
-      clearTimeout(stopTimeout);
-      resolve();
-    };
-
-    recorder.onerror = () => {
-      clearTimeout(stopTimeout);
-      reject(new Error("Recorder-Fehler beim Finalisieren"));
-    };
-  });
-
-  recorder.stop();
-  await recorderStopPromise;
+  await finalizeRecorder(recorder);
 
   if (chunks.length === 0) {
     throw new Error("Recorder hat keine Video-Daten erzeugt");
