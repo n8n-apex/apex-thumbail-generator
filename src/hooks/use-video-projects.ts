@@ -470,7 +470,9 @@ export function useVideoProjects() {
       const a = document.createElement("a");
       a.href = url;
       a.download = `apexclip_${proj.file.name.replace(/\.[^.]+$/, "")}.${ext}`;
+      document.body.appendChild(a);
       a.click();
+      a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
 
       const sizeMB = (blob.size / 1024 / 1024).toFixed(1);
