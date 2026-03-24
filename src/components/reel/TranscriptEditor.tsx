@@ -116,8 +116,14 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
 
   // Find active word index
   const activeIdx = transcript.findIndex(
-    (w) => currentTime >= w.start - 0.05 && currentTime < w.end + 0.15
+    (w) => !w.isCut && currentTime >= w.start - 0.05 && currentTime < w.end + 0.15
   );
+
+  const cutCount = transcript.filter((w) => w.isCut).length;
+
+  const restoreAll = useCallback(() => {
+    onTranscriptChange(transcript.map((w) => ({ ...w, isCut: false })));
+  }, [transcript, onTranscriptChange]);
 
   return (
     <div className="glass-elevated rounded-2xl p-3.5">
@@ -128,6 +134,9 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
           </div>
           <span className="text-xs font-bold text-foreground">Transkript</span>
           <span className="text-[9px] text-muted-foreground">{transcript.length} Wörter</span>
+          {cutCount > 0 && (
+            <span className="text-[9px] text-destructive font-semibold">{cutCount} geschnitten</span>
+          )}
           {isRegenerating && (
             <span className="flex items-center gap-1 text-[9px] text-primary animate-pulse">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -135,17 +144,38 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
             </span>
           )}
         </div>
-        <button
-          onClick={() => setShowDict(!showDict)}
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-semibold transition-all ${
-            showDict ? "bg-primary/15 text-primary" : "glass-item text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <BookOpen className="h-3 w-3" />
-          {Object.keys(corrections).length > 0 && (
-            <span className="tabular-nums">{Object.keys(corrections).length}</span>
+        <div className="flex items-center gap-1">
+          {cutCount > 0 && (
+            <button
+              onClick={restoreAll}
+              title="Alle Cuts zurücksetzen"
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-semibold glass-item text-muted-foreground hover:text-foreground transition-all"
+            >
+              <Undo2 className="h-3 w-3" />
+            </button>
           )}
-        </button>
+          <button
+            onClick={() => setCutMode(!cutMode)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-semibold transition-all ${
+              cutMode ? "bg-destructive/15 text-destructive ring-1 ring-destructive/30" : "glass-item text-muted-foreground hover:text-foreground"
+            }`}
+            title={cutMode ? "Schnitt-Modus beenden" : "Wörter wegschneiden"}
+          >
+            <Scissors className="h-3 w-3" />
+            {cutMode && <span>Schneiden</span>}
+          </button>
+          <button
+            onClick={() => setShowDict(!showDict)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-semibold transition-all ${
+              showDict ? "bg-primary/15 text-primary" : "glass-item text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BookOpen className="h-3 w-3" />
+            {Object.keys(corrections).length > 0 && (
+              <span className="tabular-nums">{Object.keys(corrections).length}</span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Corrections Dictionary */}
