@@ -45,6 +45,7 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
   const [corrections, setCorrections] = useState<Record<string, string>>(loadCorrections);
   const [showDict, setShowDict] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [cutMode, setCutMode] = useState(false);
   const activeRef = useRef<HTMLButtonElement>(null);
   const regenTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -54,9 +55,17 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
   }, [currentTime]);
 
   const handleEdit = useCallback((idx: number) => {
+    if (cutMode) {
+      // Toggle cut on this word
+      const newTranscript = transcript.map((w, i) =>
+        i === idx ? { ...w, isCut: !w.isCut } : w
+      );
+      onTranscriptChange(newTranscript);
+      return;
+    }
     setEditingIdx(idx);
     setEditValue(transcript[idx].text);
-  }, [transcript]);
+  }, [transcript, cutMode, onTranscriptChange]);
 
   const handleSave = useCallback(() => {
     if (editingIdx === null) return;
