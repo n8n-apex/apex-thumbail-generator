@@ -223,15 +223,21 @@ const TranscriptEditor = ({ transcript, currentTime, onTranscriptChange, onReque
               );
             }
 
+            const isCutWord = !!word.isCut;
+
             return (
               <button
                 key={`${word.start}-${i}`}
                 ref={isActive ? activeRef : undefined}
                 onClick={() => handleEdit(i)}
                 className={`px-1.5 py-0.5 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-primary/20 text-primary ring-1 ring-primary/30 scale-105"
-                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                  isCutWord
+                    ? "line-through opacity-40 bg-destructive/10 text-destructive hover:opacity-70"
+                    : isActive
+                      ? "bg-primary/20 text-primary ring-1 ring-primary/30 scale-105"
+                      : cutMode
+                        ? "text-muted-foreground hover:bg-destructive/20 hover:text-destructive"
+                        : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
                 }`}
               >
                 {word.text}

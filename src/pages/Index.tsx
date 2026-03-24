@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect, useState } from "react";
+import { useCallback, useRef, useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import UploadScreen from "@/components/reel/UploadScreen";
 import ProcessingScreen from "@/components/reel/ProcessingScreen";
@@ -6,6 +6,7 @@ import ReelPreview from "@/components/reel/ReelPreview";
 import ControlsPanel from "@/components/reel/ControlsPanel";
 import { calculateTimeSaved } from "@/lib/audio-analysis";
 import { useVideoProjects } from "@/hooks/use-video-projects";
+import { mergeWordCutsWithSilences, getVisibleTranscript } from "@/types/editor";
 
 const Index = () => {
   const {
