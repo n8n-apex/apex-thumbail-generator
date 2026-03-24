@@ -1,12 +1,62 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile } from "@ffmpeg/util";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 let instance: FFmpeg | null = null;
 let loadPromise: Promise<FFmpeg> | null = null;
 let loadingInstance: FFmpeg | null = null;
 let loadStartedAt = 0;
 
-const LOAD_TIMEOUT_MS = 45_000;
+const LOCAL_LOAD_TIMEOUT_MS = 70_000;
+const CDN_LOAD_TIMEOUT_MS = 140_000;
+const STALE_LOAD_TIMEOUT_MS = CDN_LOAD_TIMEOUT_MS + 10_000;
+const FFMPEG_CDN_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
+
+type FFmpegLoadConfig = Parameters<FFmpeg["load"]>[0];
+
+let cachedCdnConfig: FFmpegLoadConfig | null = null;
+
+const withTimeout = async <T>(promise: Promise<T>, ms: number, message: string): Promise<T> =>
+  Promise.race([
+    promise,
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+  ]);
+
+async function getCdnLoadConfig(): Promise<FFmpegLoadConfig> {
+  if (cachedCdnConfig) return cachedCdnConfig;
+
+  const coreURL = await toBlobURL(`${FFMPEG_CDN_BASE}/ffmpeg-core.js`, "text/javascript");
+  const wasmURL = await toBlobURL(`${FFMPEG_CDN_BASE}/ffmpeg-core.wasm`, "application/wasm");
+
+  cachedCdnConfig = { coreURL, wasmURL };
+  return cachedCdnConfig;
+}
+
+function wireFFmpegEvents(ff: FFmpeg, onProgress?: (msg: string) => void) {
+  ff.on("log", ({ message }) => {
+    console.log("[FFmpeg]", message);
+  });
+
+  ff.on("progress", ({ progress }) => {
+    if (progress > 0 && progress <= 1) {
+      onProgress?.(`Verarbeitung: ${Math.round(progress * 100)}%`);
+    }
+  });
+}
+
+async function loadWithStrategy(
+  ff: FFmpeg,
+  config: FFmpegLoadConfig,
+  timeoutMs: number,
+  label: string,
+  onProgress?: (msg: string) => void,
+): Promise<void> {
+  onProgress?.(`Engine wird geladen (${label})...`);
+  await withTimeout(
+    ff.load(config),
+    timeoutMs,
+    `FFmpeg-Ladevorgang überschreitet Zeitlimit (${label})`,
+  );
+}
 
 function resetLoadState(ff?: FFmpeg | null) {
   try {
@@ -38,7 +88,7 @@ export async function getProcessor(
 
   if (loadPromise) {
     const isStaleLoad =
-      loadStartedAt > 0 && Date.now() - loadStartedAt > LOAD_TIMEOUT_MS + 5_000;
+      loadStartedAt > 0 && Date.now() - loadStartedAt > STALE_LOAD_TIMEOUT_MS;
 
     if (!isStaleLoad) {
       onProgress?.("Engine wird bereits geladen...");
@@ -52,44 +102,66 @@ export async function getProcessor(
   loadStartedAt = Date.now();
 
   loadPromise = (async () => {
-    const ff = new FFmpeg();
-    loadingInstance = ff;
+    const localConfig: FFmpegLoadConfig = {
+      coreURL: `${window.location.origin}/wasm/ffmpeg-core.js`,
+      wasmURL: `${window.location.origin}/wasm/ffmpeg-core.wasm`,
+    };
+
+    const loadAttempts: Array<{
+      label: string;
+      timeoutMs: number;
+      getConfig: () => Promise<FFmpegLoadConfig>;
+    }> = [
+      {
+        label: "lokal",
+        timeoutMs: LOCAL_LOAD_TIMEOUT_MS,
+        getConfig: async () => localConfig,
+      },
+      {
+        label: "CDN Fallback",
+        timeoutMs: CDN_LOAD_TIMEOUT_MS,
+        getConfig: getCdnLoadConfig,
+      },
+    ];
+
+    let lastError: unknown = null;
 
     try {
-      onProgress?.("Engine wird geladen...");
+      for (let i = 0; i < loadAttempts.length; i++) {
+        const attempt = loadAttempts[i];
+        const ff = new FFmpeg();
+        loadingInstance = ff;
+        wireFFmpegEvents(ff, onProgress);
 
-      ff.on("log", ({ message }) => {
-        console.log("[FFmpeg]", message);
-      });
+        try {
+          const config = await attempt.getConfig();
+          console.log(`[FFmpeg] Loading (${attempt.label})...`);
+          onProgress?.(`Engine wird initialisiert (${attempt.label})...`);
 
-      ff.on("progress", ({ progress }) => {
-        if (progress > 0 && progress <= 1) {
-          onProgress?.(`Verarbeitung: ${Math.round(progress * 100)}%`);
+          await loadWithStrategy(ff, config, attempt.timeoutMs, attempt.label, onProgress);
+
+          console.log(`[FFmpeg] Engine loaded successfully (${attempt.label})`);
+          instance = ff;
+          return ff;
+        } catch (e) {
+          lastError = e;
+          console.error(`[FFmpeg] Load attempt failed (${attempt.label}):`, e);
+          try {
+            ff.terminate();
+          } catch {}
+
+          if (i < loadAttempts.length - 1) {
+            onProgress?.("Lokale Engine langsam/fehlgeschlagen, versuche Fallback...");
+          }
+        } finally {
+          if (loadingInstance === ff) loadingInstance = null;
         }
-      });
+      }
 
-      // Self-hosted WASM files — no CDN, no CORS, no timeout issues
-      const coreURL = `${window.location.origin}/wasm/ffmpeg-core.js`;
-      const wasmURL = `${window.location.origin}/wasm/ffmpeg-core.wasm`;
-
-      console.log("[FFmpeg] Loading self-hosted WASM...");
-      onProgress?.("Engine wird initialisiert...");
-      await Promise.race([
-        ff.load({ coreURL, wasmURL }),
-        new Promise<never>((_, reject) =>
-          setTimeout(
-            () => reject(new Error("FFmpeg-Ladevorgang überschreitet Zeitlimit")),
-            LOAD_TIMEOUT_MS
-          )
-        ),
-      ]);
-      console.log("[FFmpeg] Engine loaded successfully");
-
-      instance = ff;
-      return ff;
+      throw lastError ?? new Error("FFmpeg konnte nicht geladen werden");
     } catch (e) {
       console.error("[FFmpeg] Load failed:", e);
-      resetLoadState(ff);
+      resetLoadState();
       throw e;
     } finally {
       loadStartedAt = 0;
