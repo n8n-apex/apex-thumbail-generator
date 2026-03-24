@@ -1,17 +1,8 @@
-/**
- * Canvas-based video exporter — burns subtitles directly into the video.
- * No heavy FFmpeg dependency for rendering. Uses canvas.captureStream() + MediaRecorder.
- * Output: MP4 (via FFmpeg remux from WebM) with audio.
- */
-
 import { TranscriptWord, SubtitleStyle, SUBTITLE_FONTS } from "@/types/editor";
-import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
+import { getProcessor, preloadProcessor } from "@/lib/video-processor";
 
 const WORDS_PER_LINE = 3;
-const FFMPEG_LOAD_TIMEOUT_MS = 120_000;
-const FFMPEG_CORE_JS_PATH = "/wasm/ffmpeg-core.js";
-const FFMPEG_CORE_WASM_PATH = "/wasm/ffmpeg-core.wasm";
 
 interface ExportOptions {
   videoUrl: string;
@@ -22,73 +13,8 @@ interface ExportOptions {
   onProgress: (msg: string) => void;
 }
 
-/** Lightweight FFmpeg instance just for remuxing */
-let remuxFf: FFmpeg | null = null;
-let remuxLoadPromise: Promise<FFmpeg> | null = null;
-
-function getCoreUrls() {
-  return {
-    coreURL: `${window.location.origin}${FFMPEG_CORE_JS_PATH}`,
-    wasmURL: `${window.location.origin}${FFMPEG_CORE_WASM_PATH}`,
-  };
-}
-
-async function getRemuxer(onProgress: (msg: string) => void): Promise<FFmpeg> {
-  if (remuxFf?.loaded) return remuxFf;
-  if (remuxLoadPromise) {
-    onProgress("MP4-Engine wird geladen...");
-    return remuxLoadPromise;
-  }
-
-  remuxLoadPromise = (async () => {
-    onProgress("MP4-Engine wird geladen...");
-    const ff = new FFmpeg();
-    ff.on("log", ({ message }) => console.log("[Remux]", message));
-
-    const { coreURL, wasmURL } = getCoreUrls();
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-    try {
-      const [coreRes, wasmRes] = await Promise.all([
-        fetch(coreURL, { method: "HEAD" }),
-        fetch(wasmURL, { method: "HEAD" }),
-      ]);
-
-      if (!coreRes.ok || !wasmRes.ok) {
-        throw new Error("FFmpeg-Core Dateien fehlen im /wasm/ Verzeichnis");
-      }
-
-      await Promise.race([
-        ff.load({ coreURL, wasmURL }),
-        new Promise<never>((_, reject) =>
-          (timeoutId = setTimeout(
-            () => reject(new Error("FFmpeg-Engine Timeout beim Laden")),
-            FFMPEG_LOAD_TIMEOUT_MS,
-          ))
-        ),
-      ]);
-
-      remuxFf = ff;
-      return ff;
-    } catch (error) {
-      remuxLoadPromise = null;
-      remuxFf = null;
-      throw error;
-    } finally {
-      if (timeoutId) clearTimeout(timeoutId);
-    }
-  })();
-
-  return remuxLoadPromise;
-}
-
-/** Warm up remuxer in the background so export starts instantly. */
-export function preloadRemuxer(): void {
-  if (remuxFf?.loaded || remuxLoadPromise) return;
-  void getRemuxer(() => {}).catch((error) => {
-    console.warn("[Remux] Background preload failed:", error);
-  });
-}
+/** Warm up FFmpeg in the background so export starts instantly. */
+export const preloadRemuxer = preloadProcessor;
 
 export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   const { videoUrl, segments, transcript, style, silences, onProgress } = opts;
@@ -96,8 +22,8 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   if (segments.length === 0) throw new Error("Keine Segmente zum Exportieren");
 
   onProgress("Video wird vorbereitet...");
-  // Start loading FFmpeg in parallel while recording runs.
-  const remuxerPromise = getRemuxer(() => {});
+  // Start loading shared FFmpeg in parallel while recording runs.
+  const ffPromise = getProcessor((msg) => console.log("[Export FFmpeg]", msg));
 
   const video = document.createElement("video");
   video.src = videoUrl;
@@ -197,10 +123,11 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   video.src = "";
   const webmBlob = new Blob(chunks, { type: mimeType });
 
-  // Remux WebM → MP4 via FFmpeg (no re-encoding, just container swap)
-  const ff = await remuxerPromise;
-  
-  onProgress("Konvertiere zu MP4...");
+  // Remux WebM → MP4 via shared FFmpeg instance
+  onProgress("MP4-Engine wird geladen...");
+  const ff = await ffPromise;
+
+  onProgress("Konvertiere zu MP4...");  
   const webmData = await fetchFile(webmBlob);
   await ff.writeFile("input.webm", webmData);
   
