@@ -4,7 +4,7 @@ import { TranscriptWord, SilenceCutSettings, MOCK_TRANSCRIPT, MOCK_SILENCES, mer
 import { VideoProject, createVideoProject } from "@/types/video-project";
 import { analyzeAudio, getActiveSegments, type SilenceGap } from "@/lib/audio-analysis";
 import { extractAudioBlob } from "@/lib/audio-extract";
-import { exportWithSubtitles } from "@/lib/canvas-exporter";
+import { exportWithSubtitles, preloadRemuxer } from "@/lib/canvas-exporter";
 import { validateAndRepairTranscript } from "@/lib/transcript-validator";
 import { alignTranscriptToAudioTimeline } from "@/lib/transcript-sync";
 import { autoCalibrateFromAmplitudes } from "@/lib/auto-calibrate";
@@ -411,6 +411,7 @@ export function useVideoProjects() {
     });
     // Process all new projects
     // Process all new projects
+    preloadRemuxer();
     newProjects.forEach((p) => processVideo(p));
   }, [processVideo]);
 
