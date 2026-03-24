@@ -3,6 +3,27 @@ import { fetchFile } from "@ffmpeg/util";
 
 let instance: FFmpeg | null = null;
 let loadPromise: Promise<FFmpeg> | null = null;
+let loadingInstance: FFmpeg | null = null;
+let loadStartedAt = 0;
+
+const LOAD_TIMEOUT_MS = 45_000;
+
+function resetLoadState(ff?: FFmpeg | null) {
+  try {
+    ff?.terminate();
+  } catch {}
+
+  if (!instance?.loaded || instance === ff) {
+    instance = null;
+  }
+
+  if (!ff || loadingInstance === ff) {
+    loadingInstance = null;
+  }
+
+  loadPromise = null;
+  loadStartedAt = 0;
+}
 
 /** Preload FFmpeg in background — call early, no-op if already loaded */
 export function preloadProcessor(): void {
@@ -14,12 +35,28 @@ export async function getProcessor(
   onProgress?: (msg: string) => void
 ): Promise<FFmpeg> {
   if (instance?.loaded) return instance;
-  if (loadPromise) return loadPromise;
+
+  if (loadPromise) {
+    const isStaleLoad =
+      loadStartedAt > 0 && Date.now() - loadStartedAt > LOAD_TIMEOUT_MS + 5_000;
+
+    if (!isStaleLoad) {
+      onProgress?.("Engine wird bereits geladen...");
+      return loadPromise;
+    }
+
+    console.warn("[FFmpeg] Stale load detected, restarting engine load");
+    resetLoadState(loadingInstance);
+  }
+
+  loadStartedAt = Date.now();
 
   loadPromise = (async () => {
+    const ff = new FFmpeg();
+    loadingInstance = ff;
+
     try {
       onProgress?.("Engine wird geladen...");
-      const ff = new FFmpeg();
 
       ff.on("log", ({ message }) => {
         console.log("[FFmpeg]", message);
@@ -37,16 +74,26 @@ export async function getProcessor(
 
       console.log("[FFmpeg] Loading self-hosted WASM...");
       onProgress?.("Engine wird initialisiert...");
-      await ff.load({ coreURL, wasmURL });
+      await Promise.race([
+        ff.load({ coreURL, wasmURL }),
+        new Promise<never>((_, reject) =>
+          setTimeout(
+            () => reject(new Error("FFmpeg-Ladevorgang überschreitet Zeitlimit")),
+            LOAD_TIMEOUT_MS
+          )
+        ),
+      ]);
       console.log("[FFmpeg] Engine loaded successfully");
 
       instance = ff;
       return ff;
     } catch (e) {
       console.error("[FFmpeg] Load failed:", e);
-      loadPromise = null;
-      instance = null;
+      resetLoadState(ff);
       throw e;
+    } finally {
+      loadStartedAt = 0;
+      loadingInstance = null;
     }
   })();
 
