@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { TranscriptWord, SilenceCutSettings, MOCK_TRANSCRIPT, MOCK_SILENCES } from "@/types/editor";
+import { TranscriptWord, SilenceCutSettings, MOCK_TRANSCRIPT, MOCK_SILENCES, mergeWordCutsWithSilences, getVisibleTranscript } from "@/types/editor";
 import { VideoProject, createVideoProject } from "@/types/video-project";
 import { analyzeAudio, getActiveSegments, type SilenceGap } from "@/lib/audio-analysis";
 import { extractAudioBlob } from "@/lib/audio-extract";
@@ -444,7 +444,11 @@ export function useVideoProjects() {
 
     updateProject(id, { isExporting: true, exportProgress: "Vorbereitung..." });
     try {
-      const segments = getActiveSegments(proj.silences, proj.duration);
+      // Merge cut-word ranges into silences for export
+      const effectiveSilences = mergeWordCutsWithSilences(proj.transcript, proj.silences);
+      const visibleTranscript = getVisibleTranscript(proj.transcript);
+
+      const segments = getActiveSegments(effectiveSilences, proj.duration);
       const exportSegments = segments.length > 0
         ? segments
         : [{ start: 0, end: proj.duration }];
@@ -454,9 +458,9 @@ export function useVideoProjects() {
       const blob = await exportWithSubtitles({
         videoUrl: proj.url,
         segments: exportSegments,
-        transcript: proj.transcript,
+        transcript: visibleTranscript,
         style: proj.subtitleStyle,
-        silences: proj.silences,
+        silences: effectiveSilences,
         onProgress: (msg) => updateProject(id, { exportProgress: msg }),
       });
 
