@@ -103,7 +103,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   video.src = videoUrl;
   video.playsInline = true;
   video.preload = "auto";
-  video.muted = false;
+  video.muted = true;
 
   await new Promise<void>((resolve, reject) => {
     video.oncanplaythrough = () => resolve();
