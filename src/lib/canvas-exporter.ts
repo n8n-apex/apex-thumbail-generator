@@ -306,12 +306,11 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
     return webmBlob;
   }
 
-  onProgress("Konvertiere zu MP4...");
-  const webmData = await fetchFile(webmBlob);
-  await ff.writeFile("input.webm", webmData);
-
-  // Strategy 1: forced MP4 encode (works for any MediaRecorder WebM codec)
   try {
+    onProgress("MP4-Konvertierung...");
+    const webmData = await fetchFile(webmBlob);
+    await ff.writeFile("input.webm", webmData);
+
     await withRemuxTimeout(
       ff.exec([
         "-i", "input.webm",
@@ -329,54 +328,22 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
       REMUX_EXEC_TIMEOUT_MS,
       "MP4-Konvertierung",
     );
-    
+
     const mp4Data = await ff.readFile("output.mp4");
     try { await ff.deleteFile("output.mp4"); } catch {}
-    
+    try { await ff.deleteFile("input.webm"); } catch {}
+
     if (mp4Data instanceof Uint8Array && mp4Data.length > 1000) {
       onProgress("Fertig!");
-      try { await ff.deleteFile("input.webm"); } catch {}
       return new Blob([new Uint8Array(mp4Data)], { type: "video/mp4" });
     }
   } catch (e) {
-    console.warn("[Export] MP4 remux failed, trying MOV:", e);
+    console.warn("[Export] MP4 remux failed, delivering WebM:", e);
+    try { await ff.deleteFile("input.webm"); } catch {}
+    try { await ff.deleteFile("output.mp4"); } catch {}
   }
 
-  // Strategy 2: MOV fallback encode
-  try {
-    await withRemuxTimeout(
-      ff.exec([
-        "-i", "input.webm",
-        "-map", "0:v:0",
-        "-map", "0:a:0?",
-        "-c:v", "libx264",
-        "-preset", "ultrafast",
-        "-crf", "22",
-        "-pix_fmt", "yuv420p",
-        "-c:a", "aac",
-        "-b:a", "128k",
-        "-y", "output.mov",
-      ]),
-      REMUX_EXEC_TIMEOUT_MS,
-      "MOV-Konvertierung",
-    );
-    
-    const movData = await ff.readFile("output.mov");
-    try { await ff.deleteFile("output.mov"); } catch {}
-    
-    if (movData instanceof Uint8Array && movData.length > 1000) {
-      onProgress("Fertig!");
-      try { await ff.deleteFile("input.webm"); } catch {}
-      return new Blob([new Uint8Array(movData)], { type: "video/quicktime" });
-    }
-  } catch (e) {
-    console.warn("[Export] MOV remux also failed:", e);
-  }
-
-  try { await ff.deleteFile("input.webm"); } catch {}
-
-  console.warn("[Export] Returning WebM fallback because MP4/MOV remux failed");
-  onProgress("Fallback: WEBM wird bereitgestellt...");
+  onProgress("Fertig!");
   return webmBlob;
 }
 
