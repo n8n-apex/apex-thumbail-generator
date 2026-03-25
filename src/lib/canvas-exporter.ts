@@ -8,8 +8,8 @@ const STALL_FRAME_LIMIT = 45;
 const RECORDER_STOP_TIMEOUT_MS = 15_000;
 const RECORDER_STATE_POLL_MS = 120;
 const RECORDER_FORCE_SETTLE_MS = 1_500;
-const REMUX_ENGINE_TIMEOUT_MS = 45_000;
-const REMUX_EXEC_TIMEOUT_MS = 150_000;
+const REMUX_ENGINE_TIMEOUT_MS = 12_000;
+const REMUX_EXEC_TIMEOUT_MS = 60_000;
 
 interface FinalizeRecorderOptions {
   stream?: MediaStream;
@@ -285,28 +285,32 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   video.src = "";
   const webmBlob = new Blob(chunks, { type: mimeType });
 
-  // Remux WebM → MP4 via shared FFmpeg instance
-  onProgress("MP4-Engine wird geladen...");
-  let ff;
+  // Try remux WebM → MP4 via FFmpeg, but never block the export
+  onProgress("Konvertiere zu MP4...");
+  let ff: Awaited<typeof ffPromise> | null = null;
   try {
     ff = await Promise.race([
       ffPromise,
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("FFmpeg-Engine reagiert nicht (Timeout)")), REMUX_ENGINE_TIMEOUT_MS)
+        setTimeout(() => reject(new Error("Engine-Timeout")), REMUX_ENGINE_TIMEOUT_MS)
       ),
     ]);
   } catch (e) {
-    console.warn("[Export] FFmpeg engine unavailable, returning WebM fallback:", e);
-    onProgress("Fallback: WEBM wird bereitgestellt...");
+    console.warn("[Export] FFmpeg engine unavailable, delivering WebM:", e);
+    onProgress("Fertig!");
     return webmBlob;
   }
 
-  onProgress("Konvertiere zu MP4...");
-  const webmData = await fetchFile(webmBlob);
-  await ff.writeFile("input.webm", webmData);
+  if (!ff) {
+    onProgress("Fertig!");
+    return webmBlob;
+  }
 
-  // Strategy 1: forced MP4 encode (works for any MediaRecorder WebM codec)
   try {
+    onProgress("MP4-Konvertierung...");
+    const webmData = await fetchFile(webmBlob);
+    await ff.writeFile("input.webm", webmData);
+
     await withRemuxTimeout(
       ff.exec([
         "-i", "input.webm",
@@ -324,54 +328,22 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
       REMUX_EXEC_TIMEOUT_MS,
       "MP4-Konvertierung",
     );
-    
+
     const mp4Data = await ff.readFile("output.mp4");
     try { await ff.deleteFile("output.mp4"); } catch {}
-    
+    try { await ff.deleteFile("input.webm"); } catch {}
+
     if (mp4Data instanceof Uint8Array && mp4Data.length > 1000) {
       onProgress("Fertig!");
-      try { await ff.deleteFile("input.webm"); } catch {}
       return new Blob([new Uint8Array(mp4Data)], { type: "video/mp4" });
     }
   } catch (e) {
-    console.warn("[Export] MP4 remux failed, trying MOV:", e);
+    console.warn("[Export] MP4 remux failed, delivering WebM:", e);
+    try { await ff.deleteFile("input.webm"); } catch {}
+    try { await ff.deleteFile("output.mp4"); } catch {}
   }
 
-  // Strategy 2: MOV fallback encode
-  try {
-    await withRemuxTimeout(
-      ff.exec([
-        "-i", "input.webm",
-        "-map", "0:v:0",
-        "-map", "0:a:0?",
-        "-c:v", "libx264",
-        "-preset", "ultrafast",
-        "-crf", "22",
-        "-pix_fmt", "yuv420p",
-        "-c:a", "aac",
-        "-b:a", "128k",
-        "-y", "output.mov",
-      ]),
-      REMUX_EXEC_TIMEOUT_MS,
-      "MOV-Konvertierung",
-    );
-    
-    const movData = await ff.readFile("output.mov");
-    try { await ff.deleteFile("output.mov"); } catch {}
-    
-    if (movData instanceof Uint8Array && movData.length > 1000) {
-      onProgress("Fertig!");
-      try { await ff.deleteFile("input.webm"); } catch {}
-      return new Blob([new Uint8Array(movData)], { type: "video/quicktime" });
-    }
-  } catch (e) {
-    console.warn("[Export] MOV remux also failed:", e);
-  }
-
-  try { await ff.deleteFile("input.webm"); } catch {}
-
-  console.warn("[Export] Returning WebM fallback because MP4/MOV remux failed");
-  onProgress("Fallback: WEBM wird bereitgestellt...");
+  onProgress("Fertig!");
   return webmBlob;
 }
 
