@@ -6,10 +6,10 @@ let loadPromise: Promise<FFmpeg> | null = null;
 let loadingInstance: FFmpeg | null = null;
 let loadStartedAt = 0;
 
-const LOCAL_LOAD_TIMEOUT_MS = 70_000;
+const DEFAULT_LOAD_TIMEOUT_MS = 70_000;
 const CDN_LOAD_TIMEOUT_MS = 140_000;
 const STALE_LOAD_TIMEOUT_MS = CDN_LOAD_TIMEOUT_MS + 10_000;
-const FFMPEG_CDN_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
+const FFMPEG_CDN_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.9/dist/esm";
 
 type FFmpegLoadConfig = Parameters<FFmpeg["load"]>[0];
 
@@ -26,8 +26,9 @@ async function getCdnLoadConfig(): Promise<FFmpegLoadConfig> {
 
   const coreURL = await toBlobURL(`${FFMPEG_CDN_BASE}/ffmpeg-core.js`, "text/javascript");
   const wasmURL = await toBlobURL(`${FFMPEG_CDN_BASE}/ffmpeg-core.wasm`, "application/wasm");
+  const workerURL = await toBlobURL(`${FFMPEG_CDN_BASE}/ffmpeg-core.worker.js`, "text/javascript");
 
-  cachedCdnConfig = { coreURL, wasmURL };
+  cachedCdnConfig = { coreURL, wasmURL, workerURL };
   return cachedCdnConfig;
 }
 
@@ -102,23 +103,18 @@ export async function getProcessor(
   loadStartedAt = Date.now();
 
   loadPromise = (async () => {
-    const localConfig: FFmpegLoadConfig = {
-      coreURL: `${window.location.origin}/wasm/ffmpeg-core.js`,
-      wasmURL: `${window.location.origin}/wasm/ffmpeg-core.wasm`,
-    };
-
     const loadAttempts: Array<{
       label: string;
       timeoutMs: number;
       getConfig: () => Promise<FFmpegLoadConfig>;
     }> = [
       {
-        label: "lokal",
-        timeoutMs: LOCAL_LOAD_TIMEOUT_MS,
-        getConfig: async () => localConfig,
+        label: "Standard",
+        timeoutMs: DEFAULT_LOAD_TIMEOUT_MS,
+        getConfig: async () => ({}),
       },
       {
-        label: "CDN Fallback",
+        label: "CDN ESM Fallback",
         timeoutMs: CDN_LOAD_TIMEOUT_MS,
         getConfig: getCdnLoadConfig,
       },
@@ -151,7 +147,7 @@ export async function getProcessor(
           } catch {}
 
           if (i < loadAttempts.length - 1) {
-            onProgress?.("Lokale Engine langsam/fehlgeschlagen, versuche Fallback...");
+            onProgress?.("Engine-Start fehlgeschlagen, versuche Fallback...");
           }
         } finally {
           if (loadingInstance === ff) loadingInstance = null;
