@@ -8,6 +8,8 @@ const STALL_FRAME_LIMIT = 45;
 const RECORDER_STOP_TIMEOUT_MS = 15_000;
 const RECORDER_STATE_POLL_MS = 120;
 const RECORDER_FORCE_SETTLE_MS = 1_500;
+const REMUX_ENGINE_TIMEOUT_MS = 45_000;
+const REMUX_EXEC_TIMEOUT_MS = 150_000;
 
 interface FinalizeRecorderOptions {
   stream?: MediaStream;
@@ -120,6 +122,19 @@ async function finalizeRecorder(
     }
   });
 }
+
+const withRemuxTimeout = async (
+  task: Promise<unknown>,
+  timeoutMs: number,
+  label: string,
+) => {
+  await Promise.race([
+    task,
+    new Promise<never>((_, reject) => {
+      window.setTimeout(() => reject(new Error(`${label} Timeout`)), timeoutMs);
+    }),
+  ]);
+};
 
 interface ExportOptions {
   videoUrl: string;
@@ -272,32 +287,43 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   // Remux WebM → MP4 via shared FFmpeg instance
   onProgress("MP4-Engine wird geladen...");
-  const ff = await Promise.race([
-    ffPromise,
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("FFmpeg-Engine reagiert nicht (Timeout)")), 90_000)
-    ),
-  ]);
+  let ff;
+  try {
+    ff = await Promise.race([
+      ffPromise,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("FFmpeg-Engine reagiert nicht (Timeout)")), REMUX_ENGINE_TIMEOUT_MS)
+      ),
+    ]);
+  } catch (e) {
+    console.warn("[Export] FFmpeg engine unavailable, returning WebM fallback:", e);
+    onProgress("Fallback: WEBM wird bereitgestellt...");
+    return webmBlob;
+  }
 
-  onProgress("Konvertiere zu MP4...");  
+  onProgress("Konvertiere zu MP4...");
   const webmData = await fetchFile(webmBlob);
   await ff.writeFile("input.webm", webmData);
 
   // Strategy 1: forced MP4 encode (works for any MediaRecorder WebM codec)
   try {
-    await ff.exec([
-      "-i", "input.webm",
-      "-map", "0:v:0",
-      "-map", "0:a:0?",
-      "-c:v", "libx264",
-      "-preset", "veryfast",
-      "-crf", "18",
-      "-pix_fmt", "yuv420p",
-      "-c:a", "aac",
-      "-b:a", "160k",
-      "-movflags", "+faststart",
-      "-y", "output.mp4",
-    ]);
+    await withRemuxTimeout(
+      ff.exec([
+        "-i", "input.webm",
+        "-map", "0:v:0",
+        "-map", "0:a:0?",
+        "-c:v", "libx264",
+        "-preset", "ultrafast",
+        "-crf", "22",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        "-movflags", "+faststart",
+        "-y", "output.mp4",
+      ]),
+      REMUX_EXEC_TIMEOUT_MS,
+      "MP4-Konvertierung",
+    );
     
     const mp4Data = await ff.readFile("output.mp4");
     try { await ff.deleteFile("output.mp4"); } catch {}
@@ -313,18 +339,22 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   // Strategy 2: MOV fallback encode
   try {
-    await ff.exec([
-      "-i", "input.webm",
-      "-map", "0:v:0",
-      "-map", "0:a:0?",
-      "-c:v", "libx264",
-      "-preset", "veryfast",
-      "-crf", "18",
-      "-pix_fmt", "yuv420p",
-      "-c:a", "aac",
-      "-b:a", "160k",
-      "-y", "output.mov",
-    ]);
+    await withRemuxTimeout(
+      ff.exec([
+        "-i", "input.webm",
+        "-map", "0:v:0",
+        "-map", "0:a:0?",
+        "-c:v", "libx264",
+        "-preset", "ultrafast",
+        "-crf", "22",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        "-y", "output.mov",
+      ]),
+      REMUX_EXEC_TIMEOUT_MS,
+      "MOV-Konvertierung",
+    );
     
     const movData = await ff.readFile("output.mov");
     try { await ff.deleteFile("output.mov"); } catch {}
@@ -340,7 +370,9 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   try { await ff.deleteFile("input.webm"); } catch {}
 
-  throw new Error("Export fehlgeschlagen: Weder MP4 noch MOV konnten erzeugt werden");
+  console.warn("[Export] Returning WebM fallback because MP4/MOV remux failed");
+  onProgress("Fallback: WEBM wird bereitgestellt...");
+  return webmBlob;
 }
 
 // ── Subtitle renderer for canvas ──────────────────────────────
