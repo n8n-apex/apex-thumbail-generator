@@ -113,12 +113,10 @@ async function finalizeRecorder(
       // Ignore: requestData can throw depending on browser state.
     }
 
-    if (recorder.state !== "inactive") {
-      try {
-        recorder.stop();
-      } catch {
-        fail("Recorder konnte nicht gestoppt werden");
-      }
+    try {
+      recorder.stop();
+    } catch {
+      fail("Recorder konnte nicht gestoppt werden");
     }
   });
 }
