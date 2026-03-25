@@ -6,13 +6,40 @@ const WORDS_PER_LINE = 3;
 const SEGMENT_END_EPSILON = 1 / 30;
 const STALL_FRAME_LIMIT = 45;
 const RECORDER_STOP_TIMEOUT_MS = 15_000;
+const RECORDER_STATE_POLL_MS = 120;
+const RECORDER_FORCE_SETTLE_MS = 1_500;
 
-async function finalizeRecorder(recorder: MediaRecorder): Promise<void> {
+interface FinalizeRecorderOptions {
+  stream?: MediaStream;
+  hasChunks?: () => boolean;
+}
+
+function stopStreamTracks(stream?: MediaStream) {
+  if (!stream) return;
+  for (const track of stream.getTracks()) {
+    try {
+      track.stop();
+    } catch {
+      // ignore
+    }
+  }
+}
+
+async function finalizeRecorder(
+  recorder: MediaRecorder,
+  options: FinalizeRecorderOptions = {},
+): Promise<void> {
+  const { stream, hasChunks } = options;
+
   await new Promise<void>((resolve, reject) => {
     let settled = false;
+    let pollId: number | null = null;
+    let forceTimeoutId: number | null = null;
 
     const cleanup = () => {
       clearTimeout(timeoutId);
+      if (pollId !== null) clearInterval(pollId);
+      if (forceTimeoutId !== null) clearTimeout(forceTimeoutId);
       recorder.removeEventListener("stop", onStop);
       recorder.removeEventListener("error", onError);
     };
@@ -42,8 +69,36 @@ async function finalizeRecorder(recorder: MediaRecorder): Promise<void> {
         finish();
         return;
       }
-      fail("Recorder konnte nicht finalisiert werden (Timeout)");
+
+      try {
+        recorder.requestData();
+      } catch {
+        // Ignore: requestData can throw depending on browser state.
+      }
+
+      stopStreamTracks(stream);
+
+      forceTimeoutId = window.setTimeout(() => {
+        if (recorder.state === "inactive") {
+          finish();
+          return;
+        }
+
+        if (hasChunks?.()) {
+          console.warn("[Export] Recorder timeout fallback: using captured chunks");
+          finish();
+          return;
+        }
+
+        fail("Recorder konnte nicht finalisiert werden (Timeout)");
+      }, RECORDER_FORCE_SETTLE_MS);
     }, RECORDER_STOP_TIMEOUT_MS);
+
+    pollId = window.setInterval(() => {
+      if (recorder.state === "inactive") {
+        finish();
+      }
+    }, RECORDER_STATE_POLL_MS);
 
     // If the recorder already stopped before this handler was attached,
     // we will never receive a stop event, so resolve on next microtask.
@@ -200,7 +255,10 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   // Stop recording → WebM blob
   onProgress("Aufnahme abgeschlossen...");
-  await finalizeRecorder(recorder);
+  await finalizeRecorder(recorder, {
+    stream: combined,
+    hasChunks: () => chunks.length > 0,
+  });
 
   if (chunks.length === 0) {
     throw new Error("Recorder hat keine Video-Daten erzeugt");
