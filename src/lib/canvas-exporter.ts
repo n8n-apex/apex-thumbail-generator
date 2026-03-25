@@ -8,8 +8,8 @@ const STALL_FRAME_LIMIT = 45;
 const RECORDER_STOP_TIMEOUT_MS = 15_000;
 const RECORDER_STATE_POLL_MS = 120;
 const RECORDER_FORCE_SETTLE_MS = 1_500;
-const REMUX_ENGINE_TIMEOUT_MS = 45_000;
-const REMUX_EXEC_TIMEOUT_MS = 150_000;
+const REMUX_ENGINE_TIMEOUT_MS = 12_000;
+const REMUX_EXEC_TIMEOUT_MS = 60_000;
 
 interface FinalizeRecorderOptions {
   stream?: MediaStream;
@@ -285,19 +285,24 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   video.src = "";
   const webmBlob = new Blob(chunks, { type: mimeType });
 
-  // Remux WebM → MP4 via shared FFmpeg instance
-  onProgress("MP4-Engine wird geladen...");
-  let ff;
+  // Try remux WebM → MP4 via FFmpeg, but never block the export
+  onProgress("Konvertiere zu MP4...");
+  let ff: Awaited<typeof ffPromise> | null = null;
   try {
     ff = await Promise.race([
       ffPromise,
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("FFmpeg-Engine reagiert nicht (Timeout)")), REMUX_ENGINE_TIMEOUT_MS)
+        setTimeout(() => reject(new Error("Engine-Timeout")), REMUX_ENGINE_TIMEOUT_MS)
       ),
     ]);
   } catch (e) {
-    console.warn("[Export] FFmpeg engine unavailable, returning WebM fallback:", e);
-    onProgress("Fallback: WEBM wird bereitgestellt...");
+    console.warn("[Export] FFmpeg engine unavailable, delivering WebM:", e);
+    onProgress("Fertig!");
+    return webmBlob;
+  }
+
+  if (!ff) {
+    onProgress("Fertig!");
     return webmBlob;
   }
 
