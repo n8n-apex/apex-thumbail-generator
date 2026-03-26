@@ -5,11 +5,14 @@ import { getProcessor, preloadProcessor } from "@/lib/video-processor";
 const WORDS_PER_LINE = 3;
 const SEGMENT_END_EPSILON = 1 / 30;
 const STALL_FRAME_LIMIT = 45;
-const RECORDER_STOP_TIMEOUT_MS = 15_000;
+const RECORDER_STOP_TIMEOUT_MS = 30_000;
 const RECORDER_STATE_POLL_MS = 120;
-const RECORDER_FORCE_SETTLE_MS = 1_500;
-const REMUX_ENGINE_TIMEOUT_MS = 12_000;
-const REMUX_EXEC_TIMEOUT_MS = 60_000;
+const RECORDER_FORCE_SETTLE_MS = 3_000;
+const REMUX_ENGINE_TIMEOUT_MIN_MS = 25_000;
+const REMUX_ENGINE_TIMEOUT_MAX_MS = 120_000;
+const REMUX_EXEC_TIMEOUT_MIN_MS = 90_000;
+const REMUX_EXEC_TIMEOUT_MAX_MS = 9 * 60_000;
+const REMUX_EXEC_PER_SECOND_MS = 2_200;
 
 interface FinalizeRecorderOptions {
   stream?: MediaStream;
@@ -136,6 +139,32 @@ const withRemuxTimeout = async (
   ]);
 };
 
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
+
+function getAdaptiveRemuxTimeouts(
+  durationSeconds: number,
+  width: number,
+  height: number,
+) {
+  const safeDuration = Math.max(1, durationSeconds || 0);
+  const resolutionFactor = clamp((width * height) / (1280 * 720), 0.75, 3);
+
+  const engineMs = clamp(
+    REMUX_ENGINE_TIMEOUT_MIN_MS + Math.round(safeDuration * 350 * resolutionFactor),
+    REMUX_ENGINE_TIMEOUT_MIN_MS,
+    REMUX_ENGINE_TIMEOUT_MAX_MS,
+  );
+
+  const execMs = clamp(
+    30_000 + Math.round(safeDuration * REMUX_EXEC_PER_SECOND_MS * resolutionFactor),
+    REMUX_EXEC_TIMEOUT_MIN_MS,
+    REMUX_EXEC_TIMEOUT_MAX_MS,
+  );
+
+  return { engineMs, execMs };
+}
+
 interface ExportOptions {
   videoUrl: string;
   segments: { start: number; end: number }[];
@@ -208,6 +237,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   };
 
   const totalDuration = segments.reduce((sum, s) => sum + (s.end - s.start), 0);
+  const remuxTimeouts = getAdaptiveRemuxTimeouts(totalDuration, W, H);
   let elapsed = 0;
 
   recorder.start(100);
@@ -286,13 +316,16 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   const webmBlob = new Blob(chunks, { type: mimeType });
 
   // Try remux WebM → MP4 via FFmpeg, but never block the export
-  onProgress("Konvertiere zu MP4...");
+  onProgress("Konvertiere zu MP4 (kann bei längeren Videos mehrere Minuten dauern)...");
   let ff: Awaited<typeof ffPromise> | null = null;
   try {
     ff = await Promise.race([
       ffPromise,
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Engine-Timeout")), REMUX_ENGINE_TIMEOUT_MS)
+        setTimeout(
+          () => reject(new Error(`Engine-Timeout nach ${Math.round(remuxTimeouts.engineMs / 1000)}s`)),
+          remuxTimeouts.engineMs,
+        )
       ),
     ]);
   } catch (e) {
@@ -307,7 +340,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   }
 
   try {
-    onProgress("MP4-Konvertierung...");
+    onProgress("MP4-Konvertierung läuft...");
     const webmData = await fetchFile(webmBlob);
     await ff.writeFile("input.webm", webmData);
 
@@ -325,7 +358,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
         "-movflags", "+faststart",
         "-y", "output.mp4",
       ]),
-      REMUX_EXEC_TIMEOUT_MS,
+      remuxTimeouts.execMs,
       "MP4-Konvertierung",
     );
 
