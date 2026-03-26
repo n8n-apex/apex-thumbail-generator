@@ -6,10 +6,12 @@ let loadPromise: Promise<FFmpeg> | null = null;
 let loadingInstance: FFmpeg | null = null;
 let loadStartedAt = 0;
 
-const DEFAULT_LOAD_TIMEOUT_MS = 70_000;
-const CDN_LOAD_TIMEOUT_MS = 140_000;
-const STALE_LOAD_TIMEOUT_MS = CDN_LOAD_TIMEOUT_MS + 10_000;
+const LOCAL_LOAD_TIMEOUT_MS = 45_000;
+const DEFAULT_LOAD_TIMEOUT_MS = 90_000;
+const CDN_LOAD_TIMEOUT_MS = 180_000;
+const STALE_LOAD_TIMEOUT_MS = LOCAL_LOAD_TIMEOUT_MS + DEFAULT_LOAD_TIMEOUT_MS + CDN_LOAD_TIMEOUT_MS + 20_000;
 const FFMPEG_CDN_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.9/dist/esm";
+const LOCAL_WASM_BASE = "/wasm";
 
 type FFmpegLoadConfig = Parameters<FFmpeg["load"]>[0];
 
@@ -30,6 +32,14 @@ async function getCdnLoadConfig(): Promise<FFmpegLoadConfig> {
 
   cachedCdnConfig = { coreURL, wasmURL, workerURL };
   return cachedCdnConfig;
+}
+
+function getLocalLoadConfig(): FFmpegLoadConfig {
+  return {
+    coreURL: `${LOCAL_WASM_BASE}/ffmpeg-core.js`,
+    wasmURL: `${LOCAL_WASM_BASE}/ffmpeg-core.wasm`,
+    workerURL: `${LOCAL_WASM_BASE}/ffmpeg-core.worker.js`,
+  };
 }
 
 function wireFFmpegEvents(ff: FFmpeg, onProgress?: (msg: string) => void) {
@@ -108,6 +118,11 @@ export async function getProcessor(
       timeoutMs: number;
       getConfig: () => Promise<FFmpegLoadConfig>;
     }> = [
+      {
+        label: "Lokale WASM-Assets",
+        timeoutMs: LOCAL_LOAD_TIMEOUT_MS,
+        getConfig: async () => getLocalLoadConfig(),
+      },
       {
         label: "Standard",
         timeoutMs: DEFAULT_LOAD_TIMEOUT_MS,

@@ -8,8 +8,6 @@ const STALL_FRAME_LIMIT = 45;
 const RECORDER_STOP_TIMEOUT_MS = 30_000;
 const RECORDER_STATE_POLL_MS = 120;
 const RECORDER_FORCE_SETTLE_MS = 3_000;
-const REMUX_ENGINE_TIMEOUT_MIN_MS = 25_000;
-const REMUX_ENGINE_TIMEOUT_MAX_MS = 120_000;
 const REMUX_EXEC_TIMEOUT_MIN_MS = 90_000;
 const REMUX_EXEC_TIMEOUT_MAX_MS = 9 * 60_000;
 const REMUX_EXEC_PER_SECOND_MS = 2_200;
@@ -142,7 +140,7 @@ const withRemuxTimeout = async (
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
-function getAdaptiveRemuxTimeouts(
+function getAdaptiveRemuxExecTimeout(
   durationSeconds: number,
   width: number,
   height: number,
@@ -150,19 +148,13 @@ function getAdaptiveRemuxTimeouts(
   const safeDuration = Math.max(1, durationSeconds || 0);
   const resolutionFactor = clamp((width * height) / (1280 * 720), 0.75, 3);
 
-  const engineMs = clamp(
-    REMUX_ENGINE_TIMEOUT_MIN_MS + Math.round(safeDuration * 350 * resolutionFactor),
-    REMUX_ENGINE_TIMEOUT_MIN_MS,
-    REMUX_ENGINE_TIMEOUT_MAX_MS,
-  );
-
   const execMs = clamp(
     30_000 + Math.round(safeDuration * REMUX_EXEC_PER_SECOND_MS * resolutionFactor),
     REMUX_EXEC_TIMEOUT_MIN_MS,
     REMUX_EXEC_TIMEOUT_MAX_MS,
   );
 
-  return { engineMs, execMs };
+  return execMs;
 }
 
 interface ExportOptions {
@@ -237,7 +229,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   };
 
   const totalDuration = segments.reduce((sum, s) => sum + (s.end - s.start), 0);
-  const remuxTimeouts = getAdaptiveRemuxTimeouts(totalDuration, W, H);
+  const remuxExecTimeoutMs = getAdaptiveRemuxExecTimeout(totalDuration, W, H);
   let elapsed = 0;
 
   recorder.start(100);
@@ -319,15 +311,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   onProgress("Konvertiere zu MP4...");
   let ff: Awaited<typeof ffPromise> | null = null;
   try {
-    ff = await Promise.race([
-      ffPromise,
-      new Promise<never>((_, reject) =>
-        setTimeout(
-          () => reject(new Error(`Engine-Timeout nach ${Math.round(remuxTimeouts.engineMs / 1000)}s`)),
-          remuxTimeouts.engineMs,
-        )
-      ),
-    ]);
+    ff = await ffPromise;
   } catch (e) {
     console.warn("[Export] FFmpeg engine unavailable:", e);
     throw new Error("MP4-Engine konnte nicht geladen werden");
@@ -356,7 +340,7 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
         "-movflags", "+faststart",
         "-y", "output.mp4",
       ]),
-      remuxTimeouts.execMs,
+      remuxExecTimeoutMs,
       "MP4-Konvertierung",
     );
 
