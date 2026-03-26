@@ -28,9 +28,8 @@ async function getCdnLoadConfig(): Promise<FFmpegLoadConfig> {
 
   const coreURL = await toBlobURL(`${FFMPEG_CDN_BASE}/ffmpeg-core.js`, "text/javascript");
   const wasmURL = await toBlobURL(`${FFMPEG_CDN_BASE}/ffmpeg-core.wasm`, "application/wasm");
-  const workerURL = await toBlobURL(`${FFMPEG_CDN_BASE}/ffmpeg-core.worker.js`, "text/javascript");
 
-  cachedCdnConfig = { coreURL, wasmURL, workerURL };
+  cachedCdnConfig = { coreURL, wasmURL };
   return cachedCdnConfig;
 }
 
@@ -38,7 +37,6 @@ function getLocalLoadConfig(): FFmpegLoadConfig {
   return {
     coreURL: `${LOCAL_WASM_BASE}/ffmpeg-core.js`,
     wasmURL: `${LOCAL_WASM_BASE}/ffmpeg-core.wasm`,
-    workerURL: `${LOCAL_WASM_BASE}/ffmpeg-core.worker.js`,
   };
 }
 
