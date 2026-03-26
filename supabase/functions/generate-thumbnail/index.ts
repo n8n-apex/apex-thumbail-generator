@@ -139,7 +139,7 @@ Antworte NUR im JSON-Format:
       fullPrompt += ` Include the text "${overlayText}" in a frosted glass / liquid glass style overlay box with rounded corners, subtle blur, and light refraction effects. The text should be bold, clearly legible, and prominent.`;
     }
 
-    fullPrompt += ` Style: ultra-high quality, 4K cinematic look, dramatic lighting, shallow depth of field, professional color grading. The image MUST be in vertical 9:16 portrait format. The thumbnail should be eye-catching and scroll-stopping.`;
+    fullPrompt += ` Style: ultra-high quality, 4K cinematic look, dramatic lighting, shallow depth of field, professional color grading. Keep the background natural and clean; avoid strong blue/cyan gradients. If a gradient is used, it must be subtle and low-contrast. The image MUST be in vertical 9:16 portrait format. The thumbnail should be eye-catching and scroll-stopping.`;
 
     userContent.push({ type: "text", text: fullPrompt });
 

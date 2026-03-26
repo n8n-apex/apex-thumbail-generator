@@ -315,8 +315,8 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   video.src = "";
   const webmBlob = new Blob(chunks, { type: mimeType });
 
-  // Try remux WebM → MP4 via FFmpeg, but never block the export
-  onProgress("Konvertiere zu MP4 (kann bei längeren Videos mehrere Minuten dauern)...");
+  // Strict MP4 export
+  onProgress("Konvertiere zu MP4...");
   let ff: Awaited<typeof ffPromise> | null = null;
   try {
     ff = await Promise.race([
@@ -329,14 +329,12 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
       ),
     ]);
   } catch (e) {
-    console.warn("[Export] FFmpeg engine unavailable, delivering WebM:", e);
-    onProgress("Fertig!");
-    return webmBlob;
+    console.warn("[Export] FFmpeg engine unavailable:", e);
+    throw new Error("MP4-Engine konnte nicht geladen werden");
   }
 
   if (!ff) {
-    onProgress("Fertig!");
-    return webmBlob;
+    throw new Error("MP4-Engine nicht verfügbar");
   }
 
   try {
@@ -370,14 +368,14 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
       onProgress("Fertig!");
       return new Blob([new Uint8Array(mp4Data)], { type: "video/mp4" });
     }
+
+    throw new Error("MP4-Datei ungültig");
   } catch (e) {
-    console.warn("[Export] MP4 remux failed, delivering WebM:", e);
+    console.warn("[Export] MP4 remux failed:", e);
     try { await ff.deleteFile("input.webm"); } catch {}
     try { await ff.deleteFile("output.mp4"); } catch {}
+    throw new Error("MP4-Konvertierung fehlgeschlagen");
   }
-
-  onProgress("Fertig!");
-  return webmBlob;
 }
 
 // ── Subtitle renderer for canvas ──────────────────────────────
