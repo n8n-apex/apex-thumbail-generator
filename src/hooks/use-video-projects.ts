@@ -316,7 +316,8 @@ export function useVideoProjects() {
 
         if (data?.transcript?.length > 0) {
           const cleaned = cleanTranscript(data.transcript);
-          const validated = validateAndRepairTranscript(cleaned);
+          const deStuttered = markStutterRepeats(cleaned);
+          const validated = validateAndRepairTranscript(deStuttered);
           if (validated.fixes.length > 0) {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
           }
@@ -586,7 +587,8 @@ export function useVideoProjects() {
 
       if (data?.transcript?.length > 0) {
         const cleaned = cleanTranscript(data.transcript);
-        const validated = validateAndRepairTranscript(cleaned);
+        const deStuttered = markStutterRepeats(cleaned);
+        const validated = validateAndRepairTranscript(deStuttered);
         const latestProj = projectsRef.current.find((p) => p.id === id);
         const sc = latestProj?.silenceCut ?? proj.silenceCut;
         const rawSilences = redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc);
