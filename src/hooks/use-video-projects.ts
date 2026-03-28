@@ -631,7 +631,12 @@ export function useVideoProjects() {
             console.log(`Transcription: ${validated.words.length} words with native timestamps`);
           }
 
-          transcriptResult = applyCorrections(finalWords);
+          // Final coherence pass — ensure the script reads as natural speech
+          const coherent = validateScriptCoherence(finalWords);
+          if (coherent.fixes.length > 0) {
+            console.log(`Script coherence: ${coherent.fixes.length} fixes applied`);
+          }
+          transcriptResult = applyCorrections(coherent.words);
         } else throw new Error("Empty transcript");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
@@ -800,11 +805,19 @@ export function useVideoProjects() {
       return;
     }
 
-    updateProject(id, { isExporting: true, exportProgress: "Vorbereitung..." });
+    updateProject(id, { isExporting: true, exportProgress: "Skript-Prüfung..." });
     try {
+      // Final coherence validation before export — ensure script makes sense
+      const coherenceResult = validateScriptCoherence(proj.transcript);
+      const finalTranscript = coherenceResult.words;
+      if (coherenceResult.fixes.length > 0) {
+        console.log(`[Export] Pre-export coherence: ${coherenceResult.fixes.length} fixes`);
+        updateProject(id, { transcript: finalTranscript });
+      }
+
       // Merge cut-word ranges into silences for export
-      const effectiveSilences = mergeWordCutsWithSilences(proj.transcript, proj.silences);
-      const visibleTranscript = getVisibleTranscript(proj.transcript);
+      const effectiveSilences = mergeWordCutsWithSilences(finalTranscript, proj.silences);
+      const visibleTranscript = getVisibleTranscript(finalTranscript);
 
       const segments = getActiveSegments(effectiveSilences, proj.duration);
       const exportSegments = segments.length > 0
