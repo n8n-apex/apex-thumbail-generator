@@ -33,20 +33,81 @@ const FILLER_WORDS = new Set([
 function cleanTranscript(words: TranscriptWord[]): TranscriptWord[] {
   return words.filter((w) => {
     const text = w.text.trim();
-    // Remove empty words
     if (!text) return false;
-    // Remove very low confidence words
     if (w.confidence < 0.4) return false;
-    // Remove filler words (case-insensitive)
     if (FILLER_WORDS.has(text.toLowerCase())) return false;
-    // Remove single characters that aren't real words (allow "I", "a" etc)
     if (text.length === 1 && !/[A-Za-zÄÖÜäöü0-9]/.test(text)) return false;
-    // Remove words that are just punctuation/symbols
     if (/^[^\p{L}\p{N}]+$/u.test(text)) return false;
-    // Remove words with impossible timing (negative duration or extremely short)
     if (w.end - w.start < 0.01) return false;
     return true;
   });
+}
+
+/**
+ * Detect and mark stutter/repetition words as isCut.
+ * Handles patterns like:
+ *   "ich ich ich gehe" → keeps last "ich", cuts previous
+ *   "das das Tool" → keeps last "das", cuts previous
+ *   "wir wir wir wir müssen" → keeps last "wir", cuts all previous
+ *   "also ich al- also ich gehe" → detects partial-word stutters too
+ */
+function markStutterRepeats(words: TranscriptWord[]): TranscriptWord[] {
+  const result = words.map((w) => ({ ...w }));
+  const norm = (t: string) => t.toLowerCase().replace(/[.,!?\-–—]+$/g, "").trim();
+
+  for (let i = 0; i < result.length; i++) {
+    const word = norm(result[i].text);
+    if (!word || word.length < 2) continue;
+
+    // Look ahead for consecutive repeats of the same word
+    let runEnd = i;
+    while (runEnd + 1 < result.length) {
+      const next = norm(result[runEnd + 1].text);
+      // Exact match or partial stutter (e.g. "al-" matching "also")
+      if (next === word || isPartialStutter(next, word) || isPartialStutter(word, next)) {
+        runEnd++;
+      } else {
+        break;
+      }
+    }
+
+    // If we found a run of 2+, cut all but the last occurrence
+    if (runEnd > i) {
+      for (let j = i; j < runEnd; j++) {
+        result[j].isCut = true;
+      }
+      // Keep the last one (runEnd) — it's the "clean" version
+      i = runEnd; // skip ahead
+    }
+
+    // Also detect "false start" repetition: "ich gehe ich gehe morgen"
+    // where a short phrase (1-3 words) repeats immediately
+    if (i + 3 < result.length) {
+      for (let phraseLen = 1; phraseLen <= 3 && i + phraseLen * 2 <= result.length; phraseLen++) {
+        const phrase1 = result.slice(i, i + phraseLen).map((w) => norm(w.text)).join(" ");
+        const phrase2 = result.slice(i + phraseLen, i + phraseLen * 2).map((w) => norm(w.text)).join(" ");
+        if (phrase1 === phrase2 && phrase1.length >= 2) {
+          // Cut the first occurrence of the repeated phrase
+          for (let j = i; j < i + phraseLen; j++) {
+            result[j].isCut = true;
+          }
+          i = i + phraseLen - 1; // continue from the kept phrase
+          break;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+/** Check if `partial` is a truncated stutter of `full` (e.g. "al" or "al-" → "also") */
+function isPartialStutter(partial: string, full: string): boolean {
+  if (partial.length >= full.length) return false;
+  if (partial.length < 2) return false;
+  // Must match at least 2 chars of the start
+  const clean = partial.replace(/[-–—]+$/, "");
+  return clean.length >= 2 && full.startsWith(clean);
 }
 
 function redetectSilences(
@@ -255,7 +316,8 @@ export function useVideoProjects() {
 
         if (data?.transcript?.length > 0) {
           const cleaned = cleanTranscript(data.transcript);
-          const validated = validateAndRepairTranscript(cleaned);
+          const deStuttered = markStutterRepeats(cleaned);
+          const validated = validateAndRepairTranscript(deStuttered);
           if (validated.fixes.length > 0) {
             console.log(`Transcript validation: ${validated.fixes.length} fixes, score: ${validated.score}/100`);
           }
@@ -525,7 +587,8 @@ export function useVideoProjects() {
 
       if (data?.transcript?.length > 0) {
         const cleaned = cleanTranscript(data.transcript);
-        const validated = validateAndRepairTranscript(cleaned);
+        const deStuttered = markStutterRepeats(cleaned);
+        const validated = validateAndRepairTranscript(deStuttered);
         const latestProj = projectsRef.current.find((p) => p.id === id);
         const sc = latestProj?.silenceCut ?? proj.silenceCut;
         const rawSilences = redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc);
