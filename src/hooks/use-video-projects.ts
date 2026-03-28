@@ -287,6 +287,124 @@ function isPartialStutter(partial: string, full: string): boolean {
   return clean.length >= 2 && full.startsWith(clean);
 }
 
+/**
+ * Final coherence check before export.
+ * Ensures the visible script reads as natural, syntactically valid speech.
+ * Cuts any remaining fragments that break the flow.
+ */
+function validateScriptCoherence(words: TranscriptWord[]): { words: TranscriptWord[]; fixes: string[] } {
+  const result = words.map(w => ({ ...w }));
+  const fixes: string[] = [];
+  const norm = (t: string) => t.toLowerCase().replace(/[.,!?:;\-–—"'„"]+$/g, "").replace(/^[.,!?:;\-–—"'„"]+/, "").trim();
+
+  // Build visible segments (groups of consecutive non-cut words)
+  const segments: { startIdx: number; endIdx: number }[] = [];
+  let segStart: number | null = null;
+  for (let i = 0; i < result.length; i++) {
+    if (!result[i].isCut) {
+      if (segStart === null) segStart = i;
+    } else if (segStart !== null) {
+      segments.push({ startIdx: segStart, endIdx: i - 1 });
+      segStart = null;
+    }
+  }
+  if (segStart !== null) segments.push({ startIdx: segStart, endIdx: result.length - 1 });
+
+  // --- Check 1: Dangling sentence-ending fragments ---
+  // A segment that's just 1 word and is a verb/pronoun ending a cut sentence
+  const SENTENCE_ENDERS_ALONE = new Set(["ist", "war", "hat", "wird", "kann", "soll", "muss", "darf",
+    "is", "was", "has", "will", "can", "shall", "must", "does"]);
+  
+  for (const seg of segments) {
+    const visible = result.slice(seg.startIdx, seg.endIdx + 1).filter(w => !w.isCut);
+    if (visible.length === 1) {
+      const w = norm(visible[0].text);
+      if (SENTENCE_ENDERS_ALONE.has(w) || w.length <= 2) {
+        const idx = result.indexOf(visible[0]);
+        if (idx >= 0) {
+          result[idx].isCut = true;
+          fixes.push(`Einzelnes "${visible[0].text}" entfernt (kein Satzkontext)`);
+        }
+      }
+    }
+  }
+
+  // --- Check 2: Sentence starts with impossible grammar ---
+  // e.g. segment starts with a trailing punctuation word or ends mid-phrase
+  const IMPOSSIBLE_STARTERS = new Set([".", ",", "!", "?", "...", "…"]);
+  for (const seg of segments) {
+    const visible = result.slice(seg.startIdx, seg.endIdx + 1).filter(w => !w.isCut);
+    if (visible.length > 0 && IMPOSSIBLE_STARTERS.has(visible[0].text.trim())) {
+      const idx = result.indexOf(visible[0]);
+      if (idx >= 0) {
+        result[idx].isCut = true;
+        fixes.push(`Satzzeichen "${visible[0].text}" am Segmentanfang entfernt`);
+      }
+    }
+  }
+
+  // --- Check 3: Incomplete verb phrases (subject without predicate in short segments) ---
+  // If a segment is 2-3 words and it's just pronouns + conjunction, cut it
+  const PRONOUNS = new Set(["ich", "du", "er", "sie", "es", "wir", "ihr", "i", "you", "he", "she", "we", "they", "it"]);
+  const CONJUNCTIONS = new Set(["und", "oder", "aber", "denn", "weil", "dass", "wenn", "ob", "als",
+    "and", "or", "but", "because", "that", "when", "if"]);
+
+  // Re-build segments after check 1-2 modifications
+  const segments2: { startIdx: number; endIdx: number }[] = [];
+  segStart = null;
+  for (let i = 0; i < result.length; i++) {
+    if (!result[i].isCut) {
+      if (segStart === null) segStart = i;
+    } else if (segStart !== null) {
+      segments2.push({ startIdx: segStart, endIdx: i - 1 });
+      segStart = null;
+    }
+  }
+  if (segStart !== null) segments2.push({ startIdx: segStart, endIdx: result.length - 1 });
+
+  for (const seg of segments2) {
+    const visible = result.slice(seg.startIdx, seg.endIdx + 1).filter(w => !w.isCut);
+    if (visible.length >= 2 && visible.length <= 3) {
+      const normed = visible.map(w => norm(w.text));
+      const allFunctional = normed.every(w => PRONOUNS.has(w) || CONJUNCTIONS.has(w));
+      if (allFunctional) {
+        for (const w of visible) {
+          const idx = result.indexOf(w);
+          if (idx >= 0) {
+            result[idx].isCut = true;
+          }
+        }
+        fixes.push(`Fragment "${visible.map(w => w.text).join(" ")}" entfernt (kein vollständiger Satz)`);
+      }
+    }
+  }
+
+  // --- Check 4: Trailing dangling words at the very end ---
+  // If the last visible segment is just 1-2 weak words, cut them
+  const WEAK = new Set(["und", "oder", "aber", "also", "ja", "ne", "so", "dann",
+    "and", "or", "but", "so", "then", "well", "yeah"]);
+  const finalVisible: TranscriptWord[] = [];
+  for (let i = result.length - 1; i >= 0; i--) {
+    if (!result[i].isCut) finalVisible.unshift(result[i]);
+    else if (finalVisible.length > 0) break;
+  }
+  if (finalVisible.length <= 2 && finalVisible.every(w => WEAK.has(norm(w.text)))) {
+    for (const w of finalVisible) {
+      const idx = result.indexOf(w);
+      if (idx >= 0) {
+        result[idx].isCut = true;
+        fixes.push(`Dangling "${w.text}" am Ende entfernt`);
+      }
+    }
+  }
+
+  if (fixes.length > 0) {
+    console.log(`[Coherence] ${fixes.length} fixes: ${fixes.join("; ")}`);
+  }
+
+  return { words: result, fixes };
+}
+
 function redetectSilences(
   amplitudes: number[],
   chunkDuration: number,
@@ -513,7 +631,12 @@ export function useVideoProjects() {
             console.log(`Transcription: ${validated.words.length} words with native timestamps`);
           }
 
-          transcriptResult = applyCorrections(finalWords);
+          // Final coherence pass — ensure the script reads as natural speech
+          const coherent = validateScriptCoherence(finalWords);
+          if (coherent.fixes.length > 0) {
+            console.log(`Script coherence: ${coherent.fixes.length} fixes applied`);
+          }
+          transcriptResult = applyCorrections(coherent.words);
         } else throw new Error("Empty transcript");
       } catch {
         toast.info(`Demo-Transkript für ${project.file.name}`);
@@ -682,11 +805,19 @@ export function useVideoProjects() {
       return;
     }
 
-    updateProject(id, { isExporting: true, exportProgress: "Vorbereitung..." });
+    updateProject(id, { isExporting: true, exportProgress: "Skript-Prüfung..." });
     try {
+      // Final coherence validation before export — ensure script makes sense
+      const coherenceResult = validateScriptCoherence(proj.transcript);
+      const finalTranscript = coherenceResult.words;
+      if (coherenceResult.fixes.length > 0) {
+        console.log(`[Export] Pre-export coherence: ${coherenceResult.fixes.length} fixes`);
+        updateProject(id, { transcript: finalTranscript });
+      }
+
       // Merge cut-word ranges into silences for export
-      const effectiveSilences = mergeWordCutsWithSilences(proj.transcript, proj.silences);
-      const visibleTranscript = getVisibleTranscript(proj.transcript);
+      const effectiveSilences = mergeWordCutsWithSilences(finalTranscript, proj.silences);
+      const visibleTranscript = getVisibleTranscript(finalTranscript);
 
       const segments = getActiveSegments(effectiveSilences, proj.duration);
       const exportSegments = segments.length > 0
@@ -771,7 +902,8 @@ export function useVideoProjects() {
         const rawSilences = redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc);
 
         // Native timestamps are precise — skip re-alignment
-        const corrected = applyCorrections(validated.words);
+        const coherent = validateScriptCoherence(validated.words);
+        const corrected = applyCorrections(coherent.words);
         const reconciledSilences = reconcileSilencesWithTranscript(rawSilences, corrected);
 
         updateProject(id, {
