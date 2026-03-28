@@ -44,55 +44,124 @@ function cleanTranscript(words: TranscriptWord[]): TranscriptWord[] {
 }
 
 /**
- * Detect and mark stutter/repetition words as isCut.
- * Handles patterns like:
- *   "ich ich ich gehe" → keeps last "ich", cuts previous
- *   "das das Tool" → keeps last "das", cuts previous
- *   "wir wir wir wir müssen" → keeps last "wir", cuts all previous
- *   "also ich al- also ich gehe" → detects partial-word stutters too
+ * Detect and cut stutters, false starts, repeated phrases, and meta-speech.
+ * 
+ * Patterns handled:
+ *   1. Word-level stutter: "ich ich ich gehe" → cut first two "ich"
+ *   2. Partial stutter: "al- also" → cut "al-"
+ *   3. Short phrase repeat (1-6 words): "und dann sprech ich und dann sprech ich" → cut first occurrence
+ *   4. False-start re-takes: speaker starts a sentence, restarts → cut the false start
+ *   5. Meta/warm-up speech: "ok jetzt", "so los", "eins zwei drei" etc. at video start
  */
 function markStutterRepeats(words: TranscriptWord[]): TranscriptWord[] {
   const result = words.map((w) => ({ ...w }));
-  const norm = (t: string) => t.toLowerCase().replace(/[.,!?\-–—]+$/g, "").trim();
+  const norm = (t: string) => t.toLowerCase().replace(/[.,!?:;\-–—"'„"]+$/g, "").replace(/^[.,!?:;\-–—"'„"]+/, "").trim();
 
+  // === Pass 1: Consecutive word-level stutters ===
   for (let i = 0; i < result.length; i++) {
+    if (result[i].isCut) continue;
     const word = norm(result[i].text);
     if (!word || word.length < 2) continue;
 
-    // Look ahead for consecutive repeats of the same word
     let runEnd = i;
     while (runEnd + 1 < result.length) {
       const next = norm(result[runEnd + 1].text);
-      // Exact match or partial stutter (e.g. "al-" matching "also")
       if (next === word || isPartialStutter(next, word) || isPartialStutter(word, next)) {
         runEnd++;
       } else {
         break;
       }
     }
-
-    // If we found a run of 2+, cut all but the last occurrence
     if (runEnd > i) {
-      for (let j = i; j < runEnd; j++) {
-        result[j].isCut = true;
-      }
-      // Keep the last one (runEnd) — it's the "clean" version
-      i = runEnd; // skip ahead
+      for (let j = i; j < runEnd; j++) result[j].isCut = true;
+      i = runEnd;
     }
+  }
 
-    // Also detect "false start" repetition: "ich gehe ich gehe morgen"
-    // where a short phrase (1-3 words) repeats immediately
-    if (i + 3 < result.length) {
-      for (let phraseLen = 1; phraseLen <= 3 && i + phraseLen * 2 <= result.length; phraseLen++) {
-        const phrase1 = result.slice(i, i + phraseLen).map((w) => norm(w.text)).join(" ");
-        const phrase2 = result.slice(i + phraseLen, i + phraseLen * 2).map((w) => norm(w.text)).join(" ");
-        if (phrase1 === phrase2 && phrase1.length >= 2) {
-          // Cut the first occurrence of the repeated phrase
-          for (let j = i; j < i + phraseLen; j++) {
-            result[j].isCut = true;
+  // === Pass 2: Phrase-level repeats (2-8 words) ===
+  // Catches "und dann sprech ich ... und dann sprech ich ..."
+  for (let phraseLen = 2; phraseLen <= 8; phraseLen++) {
+    for (let i = 0; i < result.length - phraseLen; i++) {
+      // Skip if first word of phrase is already cut
+      if (result[i].isCut) continue;
+      
+      const phrase1Words = result.slice(i, i + phraseLen);
+      // Don't match if most of phrase is already cut
+      if (phrase1Words.filter(w => w.isCut).length > phraseLen / 2) continue;
+      
+      const phrase1 = phrase1Words.map(w => norm(w.text)).join(" ");
+      if (phrase1.split(" ").some(w => w.length < 1)) continue;
+
+      // Search for this phrase repeating within a window (up to 4 words gap for hesitation)
+      const searchStart = i + phraseLen;
+      const searchEnd = Math.min(searchStart + phraseLen + 4, result.length - phraseLen + 1);
+      
+      for (let j = searchStart; j < searchEnd; j++) {
+        const phrase2 = result.slice(j, j + phraseLen).map(w => norm(w.text)).join(" ");
+        if (phrase1 === phrase2) {
+          // Cut the first occurrence + any filler words between them
+          for (let k = i; k < j; k++) {
+            result[k].isCut = true;
           }
-          i = i + phraseLen - 1; // continue from the kept phrase
+          i = j - 1; // continue scanning from the kept phrase
           break;
+        }
+      }
+    }
+  }
+
+  // === Pass 3: False-start detection ===
+  // Speaker begins a sentence, then restarts with the same opening word(s)
+  // e.g. "Heute zeig ich euch äh heute zeige ich euch wie"
+  for (let i = 0; i < result.length - 3; i++) {
+    if (result[i].isCut) continue;
+    const startWord = norm(result[i].text);
+    if (!startWord || startWord.length < 3) continue;
+    
+    // Look ahead 2-10 words for the same opening word (false restart)
+    for (let j = i + 2; j < Math.min(i + 10, result.length); j++) {
+      if (result[j].isCut) continue;
+      const candidate = norm(result[j].text);
+      if (candidate === startWord) {
+        // Check if the words after j form a longer continuation than after i
+        // (i.e. the second attempt is the "real" one)
+        const afterFirst = result.slice(i + 1, j).filter(w => !w.isCut);
+        const afterSecond = result.slice(j + 1, j + 1 + afterFirst.length + 3).filter(w => !w.isCut);
+        
+        // Only cut if second attempt has more content (real sentence vs false start)
+        if (afterSecond.length >= afterFirst.length) {
+          // Cut from i to j-1 (the false start)
+          for (let k = i; k < j; k++) {
+            result[k].isCut = true;
+          }
+          i = j - 1;
+          break;
+        }
+      }
+    }
+  }
+
+  // === Pass 4: Meta-speech / warm-up at video start ===
+  // Cut "ok los", "so jetzt", "eins zwei drei", "test test" etc. in first 3 seconds
+  const META_PATTERNS = [
+    /^(ok|okay|so|gut|also|alles klar|los|bereit|ready|go|jetzt|na gut|passt|check|test|testing)/i,
+    /^(eins|zwei|drei|one|two|three|1|2|3)\b/i,
+  ];
+  if (result.length > 0) {
+    const firstContentTime = result.find(w => !w.isCut)?.start ?? 0;
+    for (let i = 0; i < result.length; i++) {
+      if (result[i].isCut) continue;
+      // Only in first 3 seconds relative to first content
+      if (result[i].start > firstContentTime + 3) break;
+      
+      const textFromHere = result.slice(i, i + 4).filter(w => !w.isCut).map(w => norm(w.text)).join(" ");
+      if (META_PATTERNS.some(p => p.test(textFromHere))) {
+        // Cut this word if it's clearly meta-speech (short and before real content)
+        // But only cut isolated meta words, not if they're part of real content
+        const nextReal = result.slice(i + 1, i + 5).find(w => !w.isCut && norm(w.text).length > 3 && !META_PATTERNS.some(p => p.test(norm(w.text))));
+        if (nextReal && nextReal.start - result[i].end < 1.5) {
+          // There's a gap — the meta word is separate from content
+          result[i].isCut = true;
         }
       }
     }
@@ -105,7 +174,6 @@ function markStutterRepeats(words: TranscriptWord[]): TranscriptWord[] {
 function isPartialStutter(partial: string, full: string): boolean {
   if (partial.length >= full.length) return false;
   if (partial.length < 2) return false;
-  // Must match at least 2 chars of the start
   const clean = partial.replace(/[-–—]+$/, "");
   return clean.length >= 2 && full.startsWith(clean);
 }
