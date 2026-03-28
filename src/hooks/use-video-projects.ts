@@ -902,7 +902,8 @@ export function useVideoProjects() {
         const rawSilences = redetectSilences(proj.rawAmplitudes, CHUNK_DURATION, proj.duration, sc);
 
         // Native timestamps are precise — skip re-alignment
-        const corrected = applyCorrections(validated.words);
+        const coherent = validateScriptCoherence(validated.words);
+        const corrected = applyCorrections(coherent.words);
         const reconciledSilences = reconcileSilencesWithTranscript(rawSilences, corrected);
 
         updateProject(id, {
