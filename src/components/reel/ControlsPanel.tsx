@@ -99,6 +99,7 @@ const ControlsPanel = ({
           silenceCount={silenceCount}
           timeSaved={timeSaved}
           duration={duration}
+          calibrationReasoning={calibrationReasoning}
         />
         {/* Speaker Centering */}
         <div className="glass-elevated rounded-2xl p-3.5">
