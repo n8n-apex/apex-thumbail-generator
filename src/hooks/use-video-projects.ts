@@ -57,7 +57,7 @@ function markStutterRepeats(words: TranscriptWord[]): TranscriptWord[] {
   const result = words.map((w) => ({ ...w }));
   const norm = (t: string) => t.toLowerCase().replace(/[.,!?:;\-–—"'„"]+$/g, "").replace(/^[.,!?:;\-–—"'„"]+/, "").trim();
 
-  // === Pass 1: Consecutive word-level stutters ===
+  // === Pass 1: Consecutive word-level stutters (3+ repeats only) ===
   for (let i = 0; i < result.length; i++) {
     if (result[i].isCut) continue;
     const word = norm(result[i].text);
@@ -66,44 +66,45 @@ function markStutterRepeats(words: TranscriptWord[]): TranscriptWord[] {
     let runEnd = i;
     while (runEnd + 1 < result.length) {
       const next = norm(result[runEnd + 1].text);
-      if (next === word || isPartialStutter(next, word) || isPartialStutter(word, next)) {
+      if (next === word || isPartialStutter(next, word)) {
         runEnd++;
       } else {
         break;
       }
     }
-    if (runEnd > i) {
+    // Only cut if 3+ consecutive repeats (2 is normal emphasis like "nein nein")
+    if (runEnd - i >= 2) {
       for (let j = i; j < runEnd; j++) result[j].isCut = true;
       i = runEnd;
     }
   }
 
-  // === Pass 2: Phrase-level repeats (2-12 words) ===
-  // Wide search window to catch restarts like "und dann sprech ich... [pause] ...und dann sprech ich"
-  for (let phraseLen = 2; phraseLen <= 12; phraseLen++) {
+  // === Pass 2: Exact phrase repeats (4-12 words, must match exactly) ===
+  // Only cut when a phrase of 4+ words is repeated verbatim — this catches retakes
+  for (let phraseLen = 4; phraseLen <= 12; phraseLen++) {
     for (let i = 0; i < result.length - phraseLen; i++) {
       if (result[i].isCut) continue;
       
-      const phrase1Words = result.slice(i, i + phraseLen);
-      if (phrase1Words.filter(w => w.isCut).length > phraseLen / 2) continue;
+      const phrase1Words = result.slice(i, i + phraseLen).filter(w => !w.isCut);
+      if (phrase1Words.length < phraseLen) continue;
       
-      const phrase1 = phrase1Words.filter(w => !w.isCut).map(w => norm(w.text)).join(" ");
-      if (phrase1.split(" ").some(w => w.length < 1)) continue;
-      if (phrase1.split(" ").length < 2) continue;
+      const phrase1 = phrase1Words.map(w => norm(w.text)).join(" ");
+      if (phrase1.split(" ").length < 4) continue;
 
       const searchStart = i + phraseLen;
-      // Search much further ahead — repeated sentences can be 20+ words apart
-      const searchEnd = Math.min(searchStart + phraseLen + 20, result.length - phraseLen + 1);
+      const searchEnd = Math.min(searchStart + 25, result.length - phraseLen + 1);
       
       for (let j = searchStart; j < searchEnd; j++) {
         if (result[j].isCut) continue;
-        const phrase2 = result.slice(j, j + phraseLen).filter(w => !w.isCut).map(w => norm(w.text)).join(" ");
-        if (phrase1 === phrase2 && phrase1.split(" ").length >= 2) {
+        const phrase2Words = result.slice(j, j + phraseLen).filter(w => !w.isCut);
+        if (phrase2Words.length < phraseLen) continue;
+        const phrase2 = phrase2Words.map(w => norm(w.text)).join(" ");
+        if (phrase1 === phrase2) {
           // Cut the FIRST occurrence (the false start), keep the second (the correction)
-          for (let k = i; k < j; k++) {
+          for (let k = i; k < i + phraseLen; k++) {
             result[k].isCut = true;
           }
-          console.log(`Cut repeated phrase: "${phrase1}"`);
+          console.log(`[Stutter] Cut repeated phrase: "${phrase1}"`);
           i = j - 1;
           break;
         }
@@ -111,174 +112,41 @@ function markStutterRepeats(words: TranscriptWord[]): TranscriptWord[] {
     }
   }
 
-  // === Pass 3: False-start detection ===
-  for (let i = 0; i < result.length - 3; i++) {
-    if (result[i].isCut) continue;
-    const startWord = norm(result[i].text);
-    if (!startWord || startWord.length < 3) continue;
-    
-    for (let j = i + 2; j < Math.min(i + 10, result.length); j++) {
-      if (result[j].isCut) continue;
-      const candidate = norm(result[j].text);
-      if (candidate === startWord) {
-        const afterFirst = result.slice(i + 1, j).filter(w => !w.isCut);
-        const afterSecond = result.slice(j + 1, j + 1 + afterFirst.length + 3).filter(w => !w.isCut);
-        
-        if (afterSecond.length >= afterFirst.length) {
-          for (let k = i; k < j; k++) {
-            result[k].isCut = true;
-          }
-          i = j - 1;
-          break;
-        }
-      }
-    }
-  }
-
-  // === Pass 4: Meta-speech / warm-up at video start ===
+  // === Pass 3: Meta-speech at video start only (first 2 seconds) ===
   const META_PATTERNS = [
-    /^(ok|okay|so|gut|also|alles klar|los|bereit|ready|go|jetzt|na gut|passt|check|test|testing)/i,
-    /^(eins|zwei|drei|one|two|three|1|2|3)\b/i,
+    /^(eins zwei drei|one two three|1 2 3)\b/i,
+    /^(test test|check check|testing testing)/i,
   ];
   if (result.length > 0) {
-    const firstContentTime = result.find(w => !w.isCut)?.start ?? 0;
+    const firstTime = result[0]?.start ?? 0;
     for (let i = 0; i < result.length; i++) {
       if (result[i].isCut) continue;
-      if (result[i].start > firstContentTime + 3) break;
+      if (result[i].start > firstTime + 2) break;
       
       const textFromHere = result.slice(i, i + 4).filter(w => !w.isCut).map(w => norm(w.text)).join(" ");
       if (META_PATTERNS.some(p => p.test(textFromHere))) {
-        const nextReal = result.slice(i + 1, i + 5).find(w => !w.isCut && norm(w.text).length > 3 && !META_PATTERNS.some(p => p.test(norm(w.text))));
-        if (nextReal && nextReal.start - result[i].end < 1.5) {
-          result[i].isCut = true;
-        }
+        result[i].isCut = true;
       }
     }
   }
 
-  // === Pass 5: Speech exercises / warm-up drills ===
-  // Detect tongue twisters, repeated practice phrases, vocal warm-ups
-  // e.g. "la la la", "bla bla", "pa pa pa", or repeated nonsense syllables
-  const EXERCISE_PATTERNS = [
-    /^(la|bla|ba|pa|ta|da|ma|na|ra)\b/i,
-    /^(blub|brr|pfff|pff|sch+|tss|brrr)/i,
-  ];
+  // === Pass 4: Mumbling — only 5+ consecutive very low confidence words ===
   for (let i = 0; i < result.length; i++) {
     if (result[i].isCut) continue;
-    const w = norm(result[i].text);
-    // Single syllable exercise sounds repeated
-    if (EXERCISE_PATTERNS.some(p => p.test(w))) {
-      // Check if surrounded by similar nonsense (at least 2 in a row)
-      let count = 1;
-      let end = i;
-      for (let j = i + 1; j < Math.min(i + 8, result.length); j++) {
-        if (result[j].isCut) continue;
-        const nj = norm(result[j].text);
-        if (EXERCISE_PATTERNS.some(p => p.test(nj)) || nj === w) {
-          count++;
-          end = j;
-        } else break;
-      }
-      if (count >= 2) {
-        for (let j = i; j <= end; j++) result[j].isCut = true;
-        i = end;
-      }
-    }
-  }
+    if (result[i].confidence >= 0.4) continue;
 
-  // === Pass 6: Mumbling / unintelligible segments ===
-  // Low-confidence consecutive words = mumbling → cut them
-  // Only cut if 3+ consecutive low-confidence words (isolated low-conf words might just be unusual)
-  for (let i = 0; i < result.length; i++) {
-    if (result[i].isCut) continue;
-    if (result[i].confidence >= 0.55) continue;
-
-    // Found a low-confidence word — count the run
     let runEnd = i;
     for (let j = i + 1; j < result.length; j++) {
       if (result[j].isCut) continue;
-      if (result[j].confidence < 0.55) {
+      if (result[j].confidence < 0.4) {
         runEnd = j;
       } else break;
     }
     const runLen = runEnd - i + 1;
-    if (runLen >= 3) {
-      // 3+ consecutive unclear words → mumbling, cut them
+    if (runLen >= 5) {
       for (let j = i; j <= runEnd; j++) result[j].isCut = true;
-      console.log(`Cut mumbling: "${result.slice(i, runEnd + 1).map(w => w.text).join(" ")}" (confidence < 0.55)`);
+      console.log(`[Mumble] Cut: "${result.slice(i, runEnd + 1).map(w => w.text).join(" ")}"`);
       i = runEnd;
-    }
-  }
-
-  // === Pass 7: Syntactic coherence — cut orphaned fragments ===
-  // After all cuts, check that remaining visible segments form coherent phrases.
-  // An "orphan" is 1-2 words isolated between cuts/silences that don't form a sentence.
-  // Common orphans: leftover conjunctions, articles, prepositions alone.
-  const WEAK_WORDS = new Set([
-    "und", "oder", "aber", "denn", "weil", "dass", "wenn", "ob", "als",
-    "der", "die", "das", "ein", "eine", "einer", "einem", "einen",
-    "an", "auf", "in", "mit", "von", "zu", "für", "über", "nach", "bei",
-    "the", "a", "an", "and", "or", "but", "to", "for", "with", "of", "in",
-    "ich", "du", "er", "sie", "es", "wir", "ihr",
-    "i", "he", "she", "we", "they", "it",
-    "ist", "sind", "war", "hat", "haben", "wird",
-    "is", "are", "was", "has", "have", "will",
-    "nicht", "noch", "schon", "auch", "nur", "mal",
-    "not", "just", "also", "still", "yet",
-  ]);
-
-  // Find visible segments (runs of non-cut words)
-  const segments: { start: number; end: number }[] = [];
-  let segStart: number | null = null;
-  for (let i = 0; i < result.length; i++) {
-    if (!result[i].isCut) {
-      if (segStart === null) segStart = i;
-    } else {
-      if (segStart !== null) {
-        segments.push({ start: segStart, end: i - 1 });
-        segStart = null;
-      }
-    }
-  }
-  if (segStart !== null) segments.push({ start: segStart, end: result.length - 1 });
-
-  for (const seg of segments) {
-    const segWords = result.slice(seg.start, seg.end + 1);
-    const visibleWords = segWords.filter(w => !w.isCut);
-    
-    // Very short fragment (1-2 words) that's just weak/function words → cut
-    if (visibleWords.length <= 2) {
-      const allWeak = visibleWords.every(w => WEAK_WORDS.has(norm(w.text)));
-      if (allWeak) {
-        for (let j = seg.start; j <= seg.end; j++) {
-          if (!result[j].isCut) result[j].isCut = true;
-        }
-      }
-    }
-
-    // Fragment starts with a trailing conjunction/preposition but has no preceding context → cut the dangling word
-    if (visibleWords.length >= 2) {
-      const firstVisible = norm(visibleWords[0].text);
-      const isTrailingConnector = ["und", "oder", "aber", "denn", "weil", "dass", "and", "or", "but", "because"].includes(firstVisible);
-      if (isTrailingConnector) {
-        // Check if there's a preceding visible segment that this connects to
-        const segIdx = segments.indexOf(seg);
-        if (segIdx === 0) {
-          // First segment starts with connector — doesn't make sense, cut it
-          const idx = result.indexOf(visibleWords[0]);
-          if (idx >= 0) result[idx].isCut = true;
-        } else {
-          // Check gap to previous segment
-          const prevSeg = segments[segIdx - 1];
-          const prevEnd = result[prevSeg.end];
-          const gap = result[seg.start].start - prevEnd.end;
-          if (gap > 2.0) {
-            // Big gap before connector — it's a fragment restart, cut the connector
-            const idx = result.indexOf(visibleWords[0]);
-            if (idx >= 0) result[idx].isCut = true;
-          }
-        }
-      }
     }
   }
 
