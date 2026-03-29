@@ -78,26 +78,32 @@ function markStutterRepeats(words: TranscriptWord[]): TranscriptWord[] {
     }
   }
 
-  // === Pass 2: Phrase-level repeats (2-8 words) ===
-  for (let phraseLen = 2; phraseLen <= 8; phraseLen++) {
+  // === Pass 2: Phrase-level repeats (2-12 words) ===
+  // Wide search window to catch restarts like "und dann sprech ich... [pause] ...und dann sprech ich"
+  for (let phraseLen = 2; phraseLen <= 12; phraseLen++) {
     for (let i = 0; i < result.length - phraseLen; i++) {
       if (result[i].isCut) continue;
       
       const phrase1Words = result.slice(i, i + phraseLen);
       if (phrase1Words.filter(w => w.isCut).length > phraseLen / 2) continue;
       
-      const phrase1 = phrase1Words.map(w => norm(w.text)).join(" ");
+      const phrase1 = phrase1Words.filter(w => !w.isCut).map(w => norm(w.text)).join(" ");
       if (phrase1.split(" ").some(w => w.length < 1)) continue;
+      if (phrase1.split(" ").length < 2) continue;
 
       const searchStart = i + phraseLen;
-      const searchEnd = Math.min(searchStart + phraseLen + 4, result.length - phraseLen + 1);
+      // Search much further ahead — repeated sentences can be 20+ words apart
+      const searchEnd = Math.min(searchStart + phraseLen + 20, result.length - phraseLen + 1);
       
       for (let j = searchStart; j < searchEnd; j++) {
-        const phrase2 = result.slice(j, j + phraseLen).map(w => norm(w.text)).join(" ");
-        if (phrase1 === phrase2) {
+        if (result[j].isCut) continue;
+        const phrase2 = result.slice(j, j + phraseLen).filter(w => !w.isCut).map(w => norm(w.text)).join(" ");
+        if (phrase1 === phrase2 && phrase1.split(" ").length >= 2) {
+          // Cut the FIRST occurrence (the false start), keep the second (the correction)
           for (let k = i; k < j; k++) {
             result[k].isCut = true;
           }
+          console.log(`Cut repeated phrase: "${phrase1}"`);
           i = j - 1;
           break;
         }
@@ -394,6 +400,60 @@ function validateScriptCoherence(words: TranscriptWord[]): { words: TranscriptWo
       if (idx >= 0) {
         result[idx].isCut = true;
         fixes.push(`Dangling "${w.text}" am Ende entfernt`);
+      }
+    }
+  }
+
+  // --- Check 5: Final deduplication on visible text ---
+  // After all cuts, rebuild the visible transcript and find any remaining repeated sentences
+  const getVisible = () => result.filter(w => !w.isCut);
+  const visible = getVisible();
+  
+  // Sliding window: compare sequences of 3-10 visible words for duplicates
+  for (let winSize = 3; winSize <= Math.min(10, Math.floor(visible.length / 2)); winSize++) {
+    for (let i = 0; i <= visible.length - winSize * 2; i++) {
+      const seq1 = visible.slice(i, i + winSize).map(w => norm(w.text)).join(" ");
+      for (let j = i + winSize; j <= visible.length - winSize; j++) {
+        const seq2 = visible.slice(j, j + winSize).map(w => norm(w.text)).join(" ");
+        if (seq1 === seq2) {
+          // Cut the first occurrence
+          for (let k = i; k < i + winSize; k++) {
+            const idx = result.indexOf(visible[k]);
+            if (idx >= 0) result[idx].isCut = true;
+          }
+          // Also cut any words between the two sequences that are now orphaned
+          const lastOfFirst = result.indexOf(visible[i + winSize - 1]);
+          const firstOfSecond = result.indexOf(visible[j]);
+          if (lastOfFirst >= 0 && firstOfSecond >= 0) {
+            for (let k = lastOfFirst + 1; k < firstOfSecond; k++) {
+              if (!result[k].isCut) {
+                const betweenText = norm(result[k].text);
+                // Only cut weak bridging words between duplicates
+                if (betweenText.length <= 4 || ["und", "also", "dann", "ja", "so", "ähm", "and", "then", "so"].includes(betweenText)) {
+                  result[k].isCut = true;
+                }
+              }
+            }
+          }
+          fixes.push(`Dopplung entfernt: "${seq1}"`);
+          break;
+        }
+      }
+    }
+  }
+
+  // --- Check 6: Remove isolated single words that make no sense alone ---
+  // Re-scan after dedup: any single visible word surrounded by cuts that isn't a meaningful standalone
+  const STANDALONE_OK = new Set(["ja", "nein", "genau", "richtig", "ok", "danke", "yes", "no", "exactly", "right", "thanks"]);
+  for (let i = 0; i < result.length; i++) {
+    if (result[i].isCut) continue;
+    const prev = i > 0 ? result[i - 1].isCut !== false : true;
+    const next = i < result.length - 1 ? result[i + 1].isCut !== false : true;
+    if (prev && next) {
+      const w = norm(result[i].text);
+      if (!STANDALONE_OK.has(w) && w.length < 6) {
+        result[i].isCut = true;
+        fixes.push(`Isoliertes "${result[i].text}" entfernt`);
       }
     }
   }
