@@ -171,114 +171,20 @@ function validateScriptCoherence(words: TranscriptWord[]): { words: TranscriptWo
   const fixes: string[] = [];
   const norm = (t: string) => t.toLowerCase().replace(/[.,!?:;\-–—"'„"]+$/g, "").replace(/^[.,!?:;\-–—"'„"]+/, "").trim();
 
-  // Build visible segments (groups of consecutive non-cut words)
-  const segments: { startIdx: number; endIdx: number }[] = [];
-  let segStart: number | null = null;
+  // Only do minimal cleanup — don't cascade-cut
+  // Check 1: Remove leading punctuation tokens
   for (let i = 0; i < result.length; i++) {
-    if (!result[i].isCut) {
-      if (segStart === null) segStart = i;
-    } else if (segStart !== null) {
-      segments.push({ startIdx: segStart, endIdx: i - 1 });
-      segStart = null;
-    }
-  }
-  if (segStart !== null) segments.push({ startIdx: segStart, endIdx: result.length - 1 });
-
-  // --- Check 1: Dangling sentence-ending fragments ---
-  // A segment that's just 1 word and is a verb/pronoun ending a cut sentence
-  const SENTENCE_ENDERS_ALONE = new Set(["ist", "war", "hat", "wird", "kann", "soll", "muss", "darf",
-    "is", "was", "has", "will", "can", "shall", "must", "does"]);
-  
-  for (const seg of segments) {
-    const visible = result.slice(seg.startIdx, seg.endIdx + 1).filter(w => !w.isCut);
-    if (visible.length === 1) {
-      const w = norm(visible[0].text);
-      if (SENTENCE_ENDERS_ALONE.has(w) || w.length <= 2) {
-        const idx = result.indexOf(visible[0]);
-        if (idx >= 0) {
-          result[idx].isCut = true;
-          fixes.push(`Einzelnes "${visible[0].text}" entfernt (kein Satzkontext)`);
-        }
-      }
-    }
+    if (result[i].isCut) continue;
+    const t = result[i].text.trim();
+    if (/^[.,!?…]+$/.test(t)) {
+      result[i].isCut = true;
+      fixes.push(`Satzzeichen "${t}" entfernt`);
+    } else break; // only at the very start
   }
 
-  // --- Check 2: Sentence starts with impossible grammar ---
-  // e.g. segment starts with a trailing punctuation word or ends mid-phrase
-  const IMPOSSIBLE_STARTERS = new Set([".", ",", "!", "?", "...", "…"]);
-  for (const seg of segments) {
-    const visible = result.slice(seg.startIdx, seg.endIdx + 1).filter(w => !w.isCut);
-    if (visible.length > 0 && IMPOSSIBLE_STARTERS.has(visible[0].text.trim())) {
-      const idx = result.indexOf(visible[0]);
-      if (idx >= 0) {
-        result[idx].isCut = true;
-        fixes.push(`Satzzeichen "${visible[0].text}" am Segmentanfang entfernt`);
-      }
-    }
-  }
-
-  // --- Check 3: Incomplete verb phrases (subject without predicate in short segments) ---
-  // If a segment is 2-3 words and it's just pronouns + conjunction, cut it
-  const PRONOUNS = new Set(["ich", "du", "er", "sie", "es", "wir", "ihr", "i", "you", "he", "she", "we", "they", "it"]);
-  const CONJUNCTIONS = new Set(["und", "oder", "aber", "denn", "weil", "dass", "wenn", "ob", "als",
-    "and", "or", "but", "because", "that", "when", "if"]);
-
-  // Re-build segments after check 1-2 modifications
-  const segments2: { startIdx: number; endIdx: number }[] = [];
-  segStart = null;
-  for (let i = 0; i < result.length; i++) {
-    if (!result[i].isCut) {
-      if (segStart === null) segStart = i;
-    } else if (segStart !== null) {
-      segments2.push({ startIdx: segStart, endIdx: i - 1 });
-      segStart = null;
-    }
-  }
-  if (segStart !== null) segments2.push({ startIdx: segStart, endIdx: result.length - 1 });
-
-  for (const seg of segments2) {
-    const visible = result.slice(seg.startIdx, seg.endIdx + 1).filter(w => !w.isCut);
-    if (visible.length >= 2 && visible.length <= 3) {
-      const normed = visible.map(w => norm(w.text));
-      const allFunctional = normed.every(w => PRONOUNS.has(w) || CONJUNCTIONS.has(w));
-      if (allFunctional) {
-        for (const w of visible) {
-          const idx = result.indexOf(w);
-          if (idx >= 0) {
-            result[idx].isCut = true;
-          }
-        }
-        fixes.push(`Fragment "${visible.map(w => w.text).join(" ")}" entfernt (kein vollständiger Satz)`);
-      }
-    }
-  }
-
-  // --- Check 4: Trailing dangling words at the very end ---
-  // If the last visible segment is just 1-2 weak words, cut them
-  const WEAK = new Set(["und", "oder", "aber", "also", "ja", "ne", "so", "dann",
-    "and", "or", "but", "so", "then", "well", "yeah"]);
-  const finalVisible: TranscriptWord[] = [];
-  for (let i = result.length - 1; i >= 0; i--) {
-    if (!result[i].isCut) finalVisible.unshift(result[i]);
-    else if (finalVisible.length > 0) break;
-  }
-  if (finalVisible.length <= 2 && finalVisible.every(w => WEAK.has(norm(w.text)))) {
-    for (const w of finalVisible) {
-      const idx = result.indexOf(w);
-      if (idx >= 0) {
-        result[idx].isCut = true;
-        fixes.push(`Dangling "${w.text}" am Ende entfernt`);
-      }
-    }
-  }
-
-  // --- Check 5: Final deduplication on visible text ---
-  // After all cuts, rebuild the visible transcript and find any remaining repeated sentences
-  const getVisible = () => result.filter(w => !w.isCut);
-  const visible = getVisible();
-  
-  // Sliding window: compare sequences of 3-10 visible words for duplicates
-  for (let winSize = 3; winSize <= Math.min(10, Math.floor(visible.length / 2)); winSize++) {
+  // Check 2: Final deduplication — only exact 5+ word sequences
+  const visible = result.filter(w => !w.isCut);
+  for (let winSize = 5; winSize <= Math.min(10, Math.floor(visible.length / 2)); winSize++) {
     for (let i = 0; i <= visible.length - winSize * 2; i++) {
       const seq1 = visible.slice(i, i + winSize).map(w => norm(w.text)).join(" ");
       for (let j = i + winSize; j <= visible.length - winSize; j++) {
@@ -289,39 +195,9 @@ function validateScriptCoherence(words: TranscriptWord[]): { words: TranscriptWo
             const idx = result.indexOf(visible[k]);
             if (idx >= 0) result[idx].isCut = true;
           }
-          // Also cut any words between the two sequences that are now orphaned
-          const lastOfFirst = result.indexOf(visible[i + winSize - 1]);
-          const firstOfSecond = result.indexOf(visible[j]);
-          if (lastOfFirst >= 0 && firstOfSecond >= 0) {
-            for (let k = lastOfFirst + 1; k < firstOfSecond; k++) {
-              if (!result[k].isCut) {
-                const betweenText = norm(result[k].text);
-                // Only cut weak bridging words between duplicates
-                if (betweenText.length <= 4 || ["und", "also", "dann", "ja", "so", "ähm", "and", "then", "so"].includes(betweenText)) {
-                  result[k].isCut = true;
-                }
-              }
-            }
-          }
           fixes.push(`Dopplung entfernt: "${seq1}"`);
           break;
         }
-      }
-    }
-  }
-
-  // --- Check 6: Remove isolated single words that make no sense alone ---
-  // Re-scan after dedup: any single visible word surrounded by cuts that isn't a meaningful standalone
-  const STANDALONE_OK = new Set(["ja", "nein", "genau", "richtig", "ok", "danke", "yes", "no", "exactly", "right", "thanks"]);
-  for (let i = 0; i < result.length; i++) {
-    if (result[i].isCut) continue;
-    const prev = i > 0 ? result[i - 1].isCut !== false : true;
-    const next = i < result.length - 1 ? result[i + 1].isCut !== false : true;
-    if (prev && next) {
-      const w = norm(result[i].text);
-      if (!STANDALONE_OK.has(w) && w.length < 6) {
-        result[i].isCut = true;
-        fixes.push(`Isoliertes "${result[i].text}" entfernt`);
       }
     }
   }
