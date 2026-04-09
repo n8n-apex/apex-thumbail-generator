@@ -191,6 +191,12 @@ export function useImageEditor() {
         if (data?.error) throw new Error(data.error);
 
         const isBgRemove = action === "remove-background";
+        let finalImage = data.editedImage;
+
+        // Post-process: actually make white pixels transparent
+        if (isBgRemove && finalImage) {
+          finalImage = await makeWhiteTransparent(finalImage);
+        }
 
         setState((prev) => ({
           ...prev,
@@ -198,7 +204,7 @@ export function useImageEditor() {
             i.id === id
               ? {
                   ...i,
-                  editedUrl: data.editedImage,
+                  editedUrl: finalImage,
                   isProcessing: false,
                   hasBgRemoved: isBgRemove ? true : i.hasBgRemoved,
                 }
