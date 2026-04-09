@@ -1,9 +1,7 @@
 import {
   MousePointer2,
   Crop,
-  Sparkles,
   Wand2,
-  Eraser,
   Upload,
   Download,
   RotateCcw,
