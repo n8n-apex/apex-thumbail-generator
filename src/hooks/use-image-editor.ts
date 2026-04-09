@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { ImageFile, EditorState, CropPreset } from "@/types/image-editor";
+import { ImageFile, EditorState, CropPreset, ImageAdjustments, DEFAULT_ADJUSTMENTS } from "@/types/image-editor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -116,6 +116,7 @@ export function useImageEditor() {
           height,
           hasBgRemoved: false,
           isProcessing: false,
+          adjustments: { ...DEFAULT_ADJUSTMENTS },
         });
       } catch {
         toast.error(`Konnte ${file.name} nicht laden`);
