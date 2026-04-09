@@ -18,92 +18,92 @@ interface ThumbnailTemplate {
 
 const TEMPLATES: ThumbnailTemplate[] = [
   {
-    id: "yt-bold",
-    title: "YouTube Bold",
-    description: "Fetter Text mit Kontrast-Hintergrund",
+    id: "yt-cinematic",
+    title: "YouTube Cinematic",
+    description: "Filmische Ästhetik mit dramatischer Beleuchtung",
     category: "YouTube",
-    style: "Bold text overlay with high contrast gradient background, dramatic lighting, professional YouTube thumbnail style",
+    style: "Cinematic widescreen composition, dramatic rim lighting, shallow depth of field effect, dark moody atmosphere with a single accent color highlight, professional color grading like a movie poster, elegant serif or sans-serif typography, no cluttered elements",
     width: 1280,
     height: 720,
   },
   {
-    id: "yt-reaction",
-    title: "YouTube Reaktion",
-    description: "Shocked Face Style mit großem Text",
+    id: "yt-editorial",
+    title: "YouTube Editorial",
+    description: "Magazin-Cover Layout, editorial Typografie",
     category: "YouTube",
-    style: "Reaction-style thumbnail with large expressive text, bright colors, speech bubbles, arrows, YouTube reaction thumbnail style",
+    style: "High-end editorial magazine cover layout, sophisticated typography with mixed weights, clean grid-based composition, muted earth tones or monochromatic palette with one accent, professional portrait or product photography style, subtle geometric overlays",
     width: 1280,
     height: 720,
   },
   {
-    id: "yt-tutorial",
-    title: "YouTube Tutorial",
-    description: "Clean mit Schritt-Anzeige",
+    id: "yt-minimal",
+    title: "YouTube Minimal",
+    description: "Reduziertes Design mit starker Typografie",
     category: "YouTube",
-    style: "Clean tutorial thumbnail with step numbers, modern gradient background, tech/education style, professional",
+    style: "Ultra-minimal design, generous whitespace, bold modern sans-serif headline, single focal point, monochromatic with subtle gradient, Apple/Google design language, no decorative clutter",
     width: 1280,
     height: 720,
   },
   {
-    id: "ig-lifestyle",
-    title: "Instagram Lifestyle",
-    description: "Ästhetisch mit Warm-Ton Filter",
+    id: "ig-editorial",
+    title: "Instagram Editorial",
+    description: "High-Fashion Magazin-Look",
     category: "Instagram",
-    style: "Aesthetic lifestyle Instagram post, warm tones, soft lighting, minimal elegant text overlay, influencer style",
+    style: "High-fashion editorial post, Vogue/GQ magazine aesthetic, sophisticated muted color palette, elegant serif typography, clean layout with tasteful negative space, premium feel",
     width: 1080,
     height: 1080,
   },
   {
-    id: "ig-promo",
-    title: "Instagram Promo",
-    description: "Produkt-Highlight mit CTA",
+    id: "ig-brand",
+    title: "Instagram Brand",
+    description: "Premium Brand Identity Post",
     category: "Instagram",
-    style: "Product promotion Instagram post, clean background, bold call-to-action text, modern minimalist design",
+    style: "Premium brand identity post, clean geometric layout, sophisticated color blocking, modern sans-serif typography, luxury brand aesthetic like Apple or Tesla marketing, minimal elegant composition",
     width: 1080,
     height: 1080,
   },
   {
-    id: "ig-story-sale",
-    title: "Story Sale",
-    description: "Sale/Angebot Story",
+    id: "ig-story-premium",
+    title: "Story Premium",
+    description: "Elegante Story mit Glassmorphism",
     category: "Instagram",
-    style: "Instagram story sale announcement, bold discount text, vibrant gradient, urgency elements, swipe-up style",
+    style: "Premium Instagram story, glassmorphism card elements, subtle gradient background, refined sans-serif typography, luxury product presentation style, frosted glass overlays, soft shadows",
     width: 1080,
     height: 1920,
   },
   {
-    id: "tt-hook",
-    title: "TikTok Hook",
-    description: "Attention-Grabbing Cover",
+    id: "tt-professional",
+    title: "TikTok Professional",
+    description: "Modernes Cover mit starkem Branding",
     category: "TikTok",
-    style: "TikTok cover image, bold hook text, trending style, eye-catching colors, Gen-Z aesthetic",
+    style: "Professional TikTok cover, modern gradient mesh background, clean bold typography, contemporary design, no childish elements, startup/tech aesthetic, sleek and polished",
     width: 1080,
     height: 1920,
   },
   {
-    id: "li-professional",
-    title: "LinkedIn Professional",
-    description: "Business-Post mit Clean Design",
+    id: "li-thought-leader",
+    title: "LinkedIn Thought Leader",
+    description: "Authoritative Business-Visual",
     category: "LinkedIn",
-    style: "Professional LinkedIn post image, corporate clean design, business blue tones, data visualization elements, thought leadership style",
+    style: "Authoritative LinkedIn thought leadership post, corporate but modern design, data visualization accents, professional navy/charcoal palette with gold or blue accent, clean infographic style, executive presentation quality",
     width: 1200,
     height: 627,
   },
   {
-    id: "fb-engagement",
-    title: "Facebook Engagement",
-    description: "Engagement-Post mit Frage",
+    id: "fb-corporate",
+    title: "Facebook Corporate",
+    description: "Professioneller Unternehmens-Post",
     category: "Facebook",
-    style: "Facebook engagement post, question-style layout, community interaction design, warm welcoming colors",
+    style: "Corporate Facebook post, clean professional layout, brand-consistent design, subtle gradient, modern typography hierarchy, business communication style, polished and credible",
     width: 1200,
     height: 630,
   },
   {
-    id: "podcast-cover",
-    title: "Podcast Cover",
-    description: "Professionelles Podcast-Cover",
+    id: "podcast-premium",
+    title: "Podcast Premium",
+    description: "High-End Podcast-Cover",
     category: "Podcast",
-    style: "Professional podcast cover art, microphone elements, bold podcast name text, dark moody background, audio wave visualization",
+    style: "Premium podcast cover art, sophisticated dark theme, elegant gold or accent color details, professional headshot integration style, luxury magazine typography, subtle audio wave or microphone motif, NPR/Spotify Original quality",
     width: 1400,
     height: 1400,
   },
@@ -139,21 +139,28 @@ serve(async (req) => {
       }
 
       const textInstruction = customText
-        ? `Include this text prominently in the design: "${customText}".`
-        : "Do not include any specific text, use placeholder text areas.";
+        ? `Include this text prominently in the design: "${customText}". Use elegant, professional typography.`
+        : "Do not include any specific text. Use clean placeholder areas or leave space for text.";
 
       const colorInstruction = brandColor
-        ? `Use ${brandColor} as the primary accent color.`
+        ? `Use ${brandColor} as the primary accent color, keeping the overall palette sophisticated.`
         : "";
 
-      let prompt = `Create a professional ${template.category} thumbnail/post image. Style: ${template.style}. ${textInstruction} ${colorInstruction} The image should be ${template.width}x${template.height} pixels, high quality, ready to post. Make it look like it was made by a professional social media designer.`;
+      const prompt = `Create a premium, professional ${template.category} thumbnail/post image. 
+Style: ${template.style}. 
+${textInstruction} 
+${colorInstruction}
+IMPORTANT: This must look like it was designed by a top-tier creative agency. No amateur, clickbait, or "Mr Beast" style elements. 
+No excessive text, no comic fonts, no neon arrows, no shocked face expressions, no emoji overlays, no busy cluttered layouts.
+The design should feel premium, refined, and sophisticated. Think Vogue, Apple, or McKinsey presentation quality.
+Output dimensions: ${template.width}x${template.height} pixels.`;
 
       const messages: any[] = [
         {
           role: "user",
           content: imageBase64
             ? [
-                { type: "text", text: `${prompt} Use this uploaded image as the main visual element and incorporate it into the design.` },
+                { type: "text", text: `${prompt}\n\nUse this uploaded image as the main visual element. Integrate it elegantly into the composition.` },
                 { type: "image_url", image_url: { url: imageBase64 } },
               ]
             : prompt,
@@ -200,10 +207,63 @@ serve(async (req) => {
       }
 
       return new Response(
-        JSON.stringify({
-          image: generatedImage,
-          template,
+        JSON.stringify({ image: generatedImage, template }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (action === "iterate") {
+      const { imageBase64: iterateImage, prompt: iteratePrompt } = await req.json();
+      if (!iterateImage || !iteratePrompt) {
+        return new Response(
+          JSON.stringify({ error: "Image and prompt required for iteration" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: `Edit this thumbnail image: ${iteratePrompt}. Keep the overall professional, premium quality. Make precise targeted changes only.` },
+                { type: "image_url", image_url: { url: iterateImage } },
+              ],
+            },
+          ],
+          modalities: ["image", "text"],
         }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          return new Response(
+            JSON.stringify({ error: "Rate limit erreicht." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (response.status === 402) {
+          return new Response(
+            JSON.stringify({ error: "AI-Credits aufgebraucht." }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        throw new Error(`AI Gateway error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const editedImage = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      if (!editedImage) throw new Error("AI did not return an edited image");
+
+      return new Response(
+        JSON.stringify({ image: editedImage }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
