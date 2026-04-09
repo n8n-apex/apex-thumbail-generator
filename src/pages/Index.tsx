@@ -47,6 +47,7 @@ const Index = () => {
   );
 
   const hasImages = state.images.length > 0;
+  const showProps = state.activeTool !== "select";
 
   const propertiesContent = (
     <PropertiesPanel
@@ -76,7 +77,7 @@ const Index = () => {
       }}
     >
       {/* Header */}
-      <header className="h-12 shrink-0 flex items-center justify-between px-3 sm:px-4 glass-elevated rounded-none border-b border-border/30">
+      <header className="h-12 shrink-0 flex items-center justify-between px-3 sm:px-4 glass-elevated rounded-none border-b border-border/30 z-20">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg glass-button-primary flex items-center justify-center">
             <span className="text-xs font-black text-primary-foreground">A</span>
@@ -121,7 +122,7 @@ const Index = () => {
       {!hasImages ? (
         <UploadZone onFiles={addImages} />
       ) : (
-        <div className="flex-1 flex flex-col sm:flex-row gap-1.5 sm:gap-2 p-1.5 sm:p-2 min-h-0">
+        <div className="flex-1 flex flex-col sm:flex-row gap-1.5 sm:gap-2 p-1.5 sm:p-2 min-h-0 relative">
           {/* Toolbar: horizontal on mobile, vertical on desktop */}
           <div className="sm:hidden">
             <div className="flex items-center gap-1 p-1.5 glass-elevated rounded-xl overflow-x-auto">
@@ -149,12 +150,14 @@ const Index = () => {
             />
           </div>
 
-          {/* Center area */}
-          <div className="flex-1 flex flex-col gap-1.5 sm:gap-2 min-w-0 min-h-0">
+          {/* Center area — full width, properties floats over it */}
+          <div className="flex-1 flex flex-col gap-1.5 sm:gap-2 min-w-0 min-h-0 relative">
             <Canvas
               image={activeImage}
               zoom={state.zoom}
               onZoomChange={setZoom}
+              onDownload={() => activeImage && downloadImage(activeImage.id)}
+              onReset={() => activeImage && resetImage(activeImage.id)}
             />
             <BatchStrip
               images={state.images}
@@ -164,11 +167,13 @@ const Index = () => {
               onToggleSelect={toggleSelect}
               onRemove={removeImage}
             />
-          </div>
 
-          {/* Right properties: hidden on mobile (shown in sheet) */}
-          <div className="hidden sm:block">
-            {propertiesContent}
+            {/* Floating properties panel — overlays on canvas when a tool is active */}
+            {showProps && (
+              <div className="hidden sm:block absolute top-3 right-3 z-10 animate-fade-in">
+                {propertiesContent}
+              </div>
+            )}
           </div>
         </div>
       )}
