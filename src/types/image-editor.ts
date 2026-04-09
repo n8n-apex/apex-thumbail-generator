@@ -3,9 +3,12 @@ export interface ImageFile {
   file: File;
   name: string;
   url: string;
+  originalWidth: number;
+  originalHeight: number;
   width: number;
   height: number;
   editedUrl?: string;
+  hasBgRemoved: boolean;
   isProcessing: boolean;
   error?: string;
 }

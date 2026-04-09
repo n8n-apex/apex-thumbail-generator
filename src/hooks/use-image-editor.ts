@@ -15,15 +15,6 @@ function loadImage(file: File): Promise<{ url: string; width: number; height: nu
   });
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
 function urlToBase64(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -70,8 +61,11 @@ export function useImageEditor() {
           file,
           name: file.name,
           url,
+          originalWidth: width,
+          originalHeight: height,
           width,
           height,
+          hasBgRemoved: false,
           isProcessing: false,
         });
       } catch {
@@ -171,10 +165,19 @@ export function useImageEditor() {
         if (error) throw error;
         if (data?.error) throw new Error(data.error);
 
+        const isBgRemove = action === "remove-background";
+
         setState((prev) => ({
           ...prev,
           images: prev.images.map((i) =>
-            i.id === id ? { ...i, editedUrl: data.editedImage, isProcessing: false } : i
+            i.id === id
+              ? {
+                  ...i,
+                  editedUrl: data.editedImage,
+                  isProcessing: false,
+                  hasBgRemoved: isBgRemove ? true : i.hasBgRemoved,
+                }
+              : i
           ),
         }));
       } catch (err: unknown) {
@@ -192,11 +195,13 @@ export function useImageEditor() {
     toast.success("AI-Bearbeitung abgeschlossen");
   }, [state.selectedIds, state.images, state.customPrompt]);
 
+  // IMPORTANT: Crop always from the ORIGINAL image so switching presets doesn't compound
   const cropImage = useCallback(async (id: string, preset: CropPreset) => {
     const img = state.images.find((i) => i.id === id);
     if (!img) return;
 
-    const sourceUrl = img.editedUrl ?? img.url;
+    // Always crop from original
+    const sourceUrl = img.url;
     const image = new Image();
     image.crossOrigin = "anonymous";
 
@@ -250,8 +255,10 @@ export function useImageEditor() {
     const url = img.editedUrl ?? img.url;
     const a = document.createElement("a");
     a.href = url;
-    const ext = img.name.replace(/\.[^.]+$/, "");
-    a.download = `${ext}_edited.png`;
+    const baseName = img.name.replace(/\.[^.]+$/, "");
+    // Use PNG when background was removed to preserve transparency
+    const ext = img.hasBgRemoved ? "png" : "jpg";
+    a.download = `${baseName}_edited.${ext}`;
     a.click();
   }, [state.images]);
 
@@ -260,8 +267,9 @@ export function useImageEditor() {
       const url = img.editedUrl ?? img.url;
       const a = document.createElement("a");
       a.href = url;
-      const ext = img.name.replace(/\.[^.]+$/, "");
-      a.download = `${ext}_edited.png`;
+      const baseName = img.name.replace(/\.[^.]+$/, "");
+      const ext = img.hasBgRemoved ? "png" : "jpg";
+      a.download = `${baseName}_edited.${ext}`;
       a.click();
     }
   }, [state.images]);
@@ -270,7 +278,16 @@ export function useImageEditor() {
     setState((prev) => ({
       ...prev,
       images: prev.images.map((i) =>
-        i.id === id ? { ...i, editedUrl: undefined, error: undefined } : i
+        i.id === id
+          ? {
+              ...i,
+              editedUrl: undefined,
+              error: undefined,
+              hasBgRemoved: false,
+              width: i.originalWidth,
+              height: i.originalHeight,
+            }
+          : i
       ),
     }));
   }, []);

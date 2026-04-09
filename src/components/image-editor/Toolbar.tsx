@@ -24,11 +24,11 @@ interface ToolbarProps {
 }
 
 const tools = [
-  { id: "select" as const, icon: MousePointer2, label: "Auswählen" },
-  { id: "crop" as const, icon: Crop, label: "Zuschneiden" },
-  { id: "ai-edit" as const, icon: Wand2, label: "AI Bearbeiten" },
-  { id: "enhance" as const, icon: Sparkles, label: "AI Verbessern" },
-  { id: "bg-remove" as const, icon: Eraser, label: "Hintergrund entfernen" },
+  { id: "select" as const, icon: MousePointer2, label: "Auswählen", color: "" },
+  { id: "crop" as const, icon: Crop, label: "Zuschneiden", color: "" },
+  { id: "ai-edit" as const, icon: Wand2, label: "AI Bearbeiten", color: "" },
+  { id: "enhance" as const, icon: Sparkles, label: "AI Verbessern", color: "" },
+  { id: "bg-remove" as const, icon: Eraser, label: "Hintergrund entfernen", color: "" },
 ];
 
 export default function Toolbar({
@@ -46,8 +46,8 @@ export default function Toolbar({
     : "flex flex-col items-center gap-1 py-3 px-1.5 glass-elevated rounded-2xl";
 
   const separatorClass = horizontal
-    ? "w-px h-6 bg-border mx-0.5"
-    : "w-6 h-px bg-border my-1";
+    ? "w-px h-6 bg-border/50 mx-0.5"
+    : "w-6 h-px bg-border/50 my-1";
 
   return (
     <div className={containerClass}>
@@ -56,10 +56,10 @@ export default function Toolbar({
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-xl shrink-0"
+            className="h-10 w-10 rounded-xl shrink-0"
             onClick={onUpload}
           >
-            <Upload className="h-4 w-4" />
+            <Upload className="h-[18px] w-[18px]" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side={horizontal ? "bottom" : "right"}>Bilder hochladen</TooltipContent>
@@ -73,15 +73,15 @@ export default function Toolbar({
             <Button
               variant="ghost"
               size="icon"
-              className={`h-9 w-9 rounded-xl shrink-0 transition-all ${
+              className={`h-10 w-10 rounded-xl shrink-0 transition-all ${
                 activeTool === tool.id
-                  ? "glass-button-primary text-primary-foreground"
+                  ? "glass-button-primary text-primary-foreground shadow-lg"
                   : "hover:bg-accent"
               }`}
               disabled={!hasImages}
               onClick={() => onToolChange(tool.id)}
             >
-              <tool.icon className="h-4 w-4" />
+              <tool.icon className="h-[18px] w-[18px]" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side={horizontal ? "bottom" : "right"}>{tool.label}</TooltipContent>
@@ -95,11 +95,11 @@ export default function Toolbar({
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-xl shrink-0"
+            className="h-10 w-10 rounded-xl shrink-0"
             disabled={!hasActiveImage}
             onClick={onReset}
           >
-            <RotateCcw className="h-4 w-4" />
+            <RotateCcw className="h-[18px] w-[18px]" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side={horizontal ? "bottom" : "right"}>Zurücksetzen</TooltipContent>
@@ -110,11 +110,11 @@ export default function Toolbar({
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-xl shrink-0"
+            className="h-10 w-10 rounded-xl shrink-0"
             disabled={!hasImages}
             onClick={onDownload}
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-[18px] w-[18px]" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side={horizontal ? "bottom" : "right"}>Alle herunterladen</TooltipContent>
