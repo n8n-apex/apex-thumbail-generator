@@ -20,6 +20,7 @@ interface ToolbarProps {
   onReset: () => void;
   hasImages: boolean;
   hasActiveImage: boolean;
+  horizontal?: boolean;
 }
 
 const tools = [
@@ -38,24 +39,33 @@ export default function Toolbar({
   onReset,
   hasImages,
   hasActiveImage,
+  horizontal = false,
 }: ToolbarProps) {
+  const containerClass = horizontal
+    ? "flex items-center gap-1"
+    : "flex flex-col items-center gap-1 py-3 px-1.5 glass-elevated rounded-2xl";
+
+  const separatorClass = horizontal
+    ? "w-px h-6 bg-border mx-0.5"
+    : "w-6 h-px bg-border my-1";
+
   return (
-    <div className="flex flex-col items-center gap-1 py-3 px-1.5 glass-elevated rounded-2xl">
+    <div className={containerClass}>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-xl"
+            className="h-9 w-9 rounded-xl shrink-0"
             onClick={onUpload}
           >
             <Upload className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="right">Bilder hochladen</TooltipContent>
+        <TooltipContent side={horizontal ? "bottom" : "right"}>Bilder hochladen</TooltipContent>
       </Tooltip>
 
-      <div className="w-6 h-px bg-border my-1" />
+      <div className={separatorClass} />
 
       {tools.map((tool) => (
         <Tooltip key={tool.id}>
@@ -63,7 +73,7 @@ export default function Toolbar({
             <Button
               variant="ghost"
               size="icon"
-              className={`h-9 w-9 rounded-xl transition-all ${
+              className={`h-9 w-9 rounded-xl shrink-0 transition-all ${
                 activeTool === tool.id
                   ? "glass-button-primary text-primary-foreground"
                   : "hover:bg-accent"
@@ -74,25 +84,25 @@ export default function Toolbar({
               <tool.icon className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="right">{tool.label}</TooltipContent>
+          <TooltipContent side={horizontal ? "bottom" : "right"}>{tool.label}</TooltipContent>
         </Tooltip>
       ))}
 
-      <div className="w-6 h-px bg-border my-1" />
+      <div className={separatorClass} />
 
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-xl"
+            className="h-9 w-9 rounded-xl shrink-0"
             disabled={!hasActiveImage}
             onClick={onReset}
           >
             <RotateCcw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="right">Zurücksetzen</TooltipContent>
+        <TooltipContent side={horizontal ? "bottom" : "right"}>Zurücksetzen</TooltipContent>
       </Tooltip>
 
       <Tooltip>
@@ -100,14 +110,14 @@ export default function Toolbar({
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-xl"
+            className="h-9 w-9 rounded-xl shrink-0"
             disabled={!hasImages}
             onClick={onDownload}
           >
             <Download className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="right">Alle herunterladen</TooltipContent>
+        <TooltipContent side={horizontal ? "bottom" : "right"}>Alle herunterladen</TooltipContent>
       </Tooltip>
     </div>
   );
