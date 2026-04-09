@@ -215,7 +215,7 @@ Output dimensions: ${template.width}x${template.height} pixels.`;
 
     if (action === "iterate") {
       const iterateImage = imageBase64;
-      const iteratePrompt = customText;
+      const iteratePrompt = prompt || customText;
       if (!iterateImage || !iteratePrompt) {
         return new Response(
           JSON.stringify({ error: "Image and prompt required for iteration" }),
