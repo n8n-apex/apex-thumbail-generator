@@ -195,13 +195,16 @@ export function useImageEditor() {
       ),
     }));
 
-    for (const id of ids) {
+    const isBgRemove = action === "remove-background";
+
+    // Process all images in parallel for speed
+    const processImage = async (id: string) => {
       const img = state.images.find((i) => i.id === id);
-      if (!img) continue;
+      if (!img) return;
 
       try {
         const sourceUrl = img.editedUrl ?? img.url;
-        const base64 = sourceUrl.startsWith("data:") ? sourceUrl : await urlToBase64(sourceUrl);
+        const base64 = sourceUrl.startsWith("data:") ? sourceUrl : await urlToBase64(sourceUrl, isBgRemove);
 
         const { data, error } = await supabase.functions.invoke("ai-image-edit", {
           body: {
@@ -214,10 +217,8 @@ export function useImageEditor() {
         if (error) throw error;
         if (data?.error) throw new Error(data.error);
 
-        const isBgRemove = action === "remove-background";
         let finalImage = data.editedImage;
 
-        // Post-process: actually make white pixels transparent
         if (isBgRemove && finalImage) {
           finalImage = await replaceWhiteWithDark(finalImage);
         }
@@ -245,7 +246,9 @@ export function useImageEditor() {
           ),
         }));
       }
-    }
+    };
+
+    await Promise.all(ids.map(processImage));
 
     toast.success("AI-Bearbeitung abgeschlossen");
   }, [state.selectedIds, state.images, state.customPrompt]);
