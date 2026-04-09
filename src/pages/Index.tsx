@@ -22,6 +22,7 @@ const Index = () => {
     toggleSelect,
     selectAll,
     setTool,
+    setCropPreset,
     setCustomPrompt,
     setZoom,
     aiEdit,
@@ -200,6 +201,13 @@ const Index = () => {
                   onZoomChange={setZoom}
                   onDownload={() => activeImage && downloadImage(activeImage.id)}
                   onReset={() => activeImage && resetImage(activeImage.id)}
+                  cropPreset={state.cropPreset}
+                  onCropConfirm={(ox, oy) => {
+                    if (activeImage && state.cropPreset) {
+                      cropImage(activeImage.id, state.cropPreset, ox, oy);
+                    }
+                  }}
+                  onCropCancel={() => setCropPreset(null)}
                 />
                 <BatchStrip
                   images={state.images}
