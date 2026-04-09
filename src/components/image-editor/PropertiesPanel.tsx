@@ -45,7 +45,7 @@ export default function PropertiesPanel({
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold text-foreground">
           {activeTool === "crop" && "Zuschneiden"}
-          {(activeTool === "ai-edit" || activeTool === "enhance" || activeTool === "bg-remove") && "AI Werkzeuge"}
+          {activeTool === "ai-edit" && "AI Werkzeuge"}
           {activeTool === "select" && "Eigenschaften"}
         </h2>
         {selectedCount > 1 && (
@@ -56,7 +56,7 @@ export default function PropertiesPanel({
       </div>
 
       {/* Batch toggle */}
-      {selectedCount > 0 && (activeTool === "crop" || activeTool === "ai-edit" || activeTool === "enhance" || activeTool === "bg-remove") && (
+      {selectedCount > 0 && (activeTool === "crop" || activeTool === "ai-edit") && (
         <Button
           variant={batchMode ? "default" : "outline"}
           size="sm"
@@ -72,7 +72,7 @@ export default function PropertiesPanel({
       )}
 
       {/* AI Edit Panel */}
-      {(activeTool === "ai-edit" || activeTool === "enhance" || activeTool === "bg-remove") && (
+      {activeTool === "ai-edit" && (
         <div className="space-y-2.5">
           <div className="grid grid-cols-2 gap-2">
             <Button

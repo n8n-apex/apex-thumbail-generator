@@ -43,7 +43,7 @@ export interface EditorState {
   zoom: number;
   panX: number;
   panY: number;
-  activeTool: "select" | "crop" | "ai-edit" | "enhance" | "bg-remove";
+  activeTool: "select" | "crop" | "ai-edit";
   cropPreset: CropPreset | null;
   customPrompt: string;
 }
