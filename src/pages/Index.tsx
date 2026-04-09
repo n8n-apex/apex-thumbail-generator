@@ -1,181 +1,132 @@
-import { useCallback, useRef, useEffect, useState, useMemo } from "react";
-import { toast } from "sonner";
-import UploadScreen from "@/components/reel/UploadScreen";
-import ProcessingScreen from "@/components/reel/ProcessingScreen";
-import ReelPreview from "@/components/reel/ReelPreview";
-import ControlsPanel from "@/components/reel/ControlsPanel";
-import { calculateTimeSaved } from "@/lib/audio-analysis";
-import { useVideoProjects } from "@/hooks/use-video-projects";
-import { mergeWordCutsWithSilences, getVisibleTranscript } from "@/types/editor";
+import { useCallback, useRef } from "react";
+import { useImageEditor } from "@/hooks/use-image-editor";
+import Toolbar from "@/components/image-editor/Toolbar";
+import Canvas from "@/components/image-editor/Canvas";
+import PropertiesPanel from "@/components/image-editor/PropertiesPanel";
+import BatchStrip from "@/components/image-editor/BatchStrip";
+import UploadZone from "@/components/image-editor/UploadZone";
 
 const Index = () => {
   const {
-    projects, activeIndex, setActiveIndex, activeProject,
-    addFiles, removeProject, updateProject, redetectForProject,
-    exportProject, resetAll, hasProjects, regenerateTranscript,
-  } = useVideoProjects();
+    state,
+    activeImage,
+    addImages,
+    removeImage,
+    setActiveImage,
+    toggleSelect,
+    selectAll,
+    setTool,
+    setCustomPrompt,
+    setZoom,
+    aiEdit,
+    cropImage,
+    batchCrop,
+    downloadImage,
+    downloadAll,
+    resetImage,
+  } = useImageEditor();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
 
-  const proj = activeProject;
-
-  // Merge cut-word time ranges into silences for playback skipping & export
-  const effectiveSilences = useMemo(
-    () => proj ? mergeWordCutsWithSilences(proj.transcript, proj.silences) : [],
-    [proj?.transcript, proj?.silences]
-  );
-  const visibleTranscript = useMemo(
-    () => proj ? getVisibleTranscript(proj.transcript) : [],
-    [proj?.transcript]
-  );
-
-  // Re-detect silences when settings change for active project
-  useEffect(() => {
-    if (proj && proj.phase === "ready") {
-      redetectForProject(proj.id);
-    }
-  }, [
-    proj?.silenceCut.threshold,
-    proj?.silenceCut.minDuration,
-    proj?.silenceCut.padding,
-    proj?.silenceCut.enabled,
-    redetectForProject,
-  ]);
-
-  // Listen for subtitle drag position changes
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const { x, y } = (e as CustomEvent).detail;
-      if (proj) {
-        updateProject(proj.id, {
-          subtitleStyle: { ...proj.subtitleStyle, positionX: x, positionY: y },
-        });
-      }
-    };
-    window.addEventListener("subtitle-position", handler);
-    return () => window.removeEventListener("subtitle-position", handler);
-  }, [proj, updateProject]);
-
-  const handleFilesSelect = useCallback((files: File[]) => {
-    addFiles(files);
-  }, [addFiles]);
-
-  const handleAddMore = useCallback(() => {
+  const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
 
-  const handleAddMoreChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files).filter(
-        (f) => f.type.startsWith("video/") || f.name.match(/\.(mp4|mov|webm|avi)$/i)
-      );
-      if (files.length > 0) addFiles(files);
-    }
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [addFiles]);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        addImages(Array.from(e.target.files));
+      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    },
+    [addImages]
+  );
 
-  const handleNavigate = useCallback((dir: -1 | 1) => {
-    setActiveIndex((prev: number) => {
-      const next = prev + dir;
-      if (next < 0 || next >= projects.length) return prev;
-      return next;
-    });
-  }, [projects.length, setActiveIndex]);
-
-  // No projects — show upload screen
-  if (!hasProjects) {
-    return (
-      <div className="app-frame">
-        <UploadScreen onFilesSelect={handleFilesSelect} />
-      </div>
-    );
-  }
-
-  if (!proj) return null;
-
-  // Active project still processing
-  if (proj.phase === "processing") {
-    return (
-      <div className="app-frame">
-        <ProcessingScreen
-          fileName={proj.file.name}
-          progress={proj.progress}
-          currentStep={proj.currentStep}
-          steps={proj.steps}
-        />
-        {projects.length > 1 && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 glass rounded-full px-4 py-2 text-[11px] font-semibold text-muted-foreground">
-            Video {activeIndex + 1} / {projects.length}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  const timeSaved = calculateTimeSaved(effectiveSilences);
+  const hasImages = state.images.length > 0;
 
   return (
-    <div className="app-frame flex-col sm:flex-row mesh-gradient">
+    <div
+      className="h-screen flex flex-col mesh-gradient overflow-hidden"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files).filter((f) =>
+          f.type.startsWith("image/")
+        );
+        if (files.length > 0) addImages(files);
+      }}
+    >
+      {/* Header */}
+      <header className="h-12 flex items-center justify-between px-4 glass-elevated rounded-none border-b border-border/30">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg glass-button-primary flex items-center justify-center">
+            <span className="text-xs font-black text-primary-foreground">A</span>
+          </div>
+          <span className="text-sm font-bold text-foreground tracking-tight">
+            APEX AI Image Intelligence
+          </span>
+        </div>
+        <span className="text-[10px] text-muted-foreground font-medium">
+          Powered by APEX AI Tech
+        </span>
+      </header>
+
       <input
         ref={fileInputRef}
         type="file"
-        accept="video/*,.mp4,.mov,.webm,.avi"
+        accept="image/*"
         multiple
         className="hidden"
-        onChange={handleAddMoreChange}
+        onChange={handleFileChange}
       />
-      <ReelPreview
-        videoUrl={proj.url}
-        transcript={visibleTranscript}
-        subtitleStyle={proj.subtitleStyle}
-        speaker={proj.speaker}
-        currentTime={proj.currentTime}
-        duration={proj.duration}
-        isPlaying={proj.isPlaying}
-        silences={effectiveSilences}
-        colorGrading={proj.colorGrading}
-        onTimeUpdate={(t) => updateProject(proj.id, { currentTime: t })}
-        onPlayPause={() => updateProject(proj.id, { isPlaying: !proj.isPlaying })}
-        onSeek={(t) => updateProject(proj.id, { currentTime: t })}
-        onDurationChange={(d) => updateProject(proj.id, { duration: d })}
-        onRemove={() => {
-          removeProject(proj.id);
-          if (projects.length <= 1) resetAll();
-        }}
-        totalVideos={projects.length}
-        currentIndex={activeIndex}
-        onNavigate={handleNavigate}
-        fileName={proj.file.name}
-        onVideoRef={setVideoEl}
-        onReanalyze={() => regenerateTranscript(proj.id)}
-      />
-      <ControlsPanel
-        style={proj.subtitleStyle}
-        speaker={proj.speaker}
-        silenceCut={proj.silenceCut}
-        colorGrading={proj.colorGrading}
-        onStyleChange={(s) => updateProject(proj.id, { subtitleStyle: s })}
-        onSpeakerChange={(s) => updateProject(proj.id, { speaker: s })}
-        onSilenceCutChange={(s) => {
-          updateProject(proj.id, { silenceCut: s });
-        }}
-        onColorGradingChange={(s) => updateProject(proj.id, { colorGrading: s })}
-        onTranscriptChange={(words) => updateProject(proj.id, { transcript: words })}
-        onExport={() => exportProject(proj.id)}
-        onRegenerate={() => regenerateTranscript(proj.id)}
-        onAddMore={handleAddMore}
-        videoRef={videoEl}
-        transcript={proj.transcript}
-        currentTime={proj.currentTime}
-        isExporting={proj.isExporting}
-        exportProgress={proj.exportProgress}
-        silenceCount={proj.silences.length}
-        timeSaved={timeSaved}
-        duration={proj.duration}
-        sanityCheck={proj.sanityCheck}
-        calibrationReasoning={proj.calibrationReasoning}
-      />
+
+      {!hasImages ? (
+        <UploadZone onFiles={addImages} />
+      ) : (
+        <div className="flex-1 flex gap-2 p-2 min-h-0">
+          {/* Left toolbar */}
+          <Toolbar
+            activeTool={state.activeTool}
+            onToolChange={setTool}
+            onUpload={handleUploadClick}
+            onDownload={downloadAll}
+            onReset={() => activeImage && resetImage(activeImage.id)}
+            hasImages={hasImages}
+            hasActiveImage={!!activeImage}
+          />
+
+          {/* Center area */}
+          <div className="flex-1 flex flex-col gap-2 min-w-0">
+            <Canvas
+              image={activeImage}
+              zoom={state.zoom}
+              onZoomChange={setZoom}
+            />
+            <BatchStrip
+              images={state.images}
+              activeId={state.activeId}
+              selectedIds={state.selectedIds}
+              onSelect={setActiveImage}
+              onToggleSelect={toggleSelect}
+              onRemove={removeImage}
+            />
+          </div>
+
+          {/* Right properties */}
+          <PropertiesPanel
+            activeTool={state.activeTool}
+            activeImage={activeImage}
+            selectedCount={state.selectedIds.length}
+            customPrompt={state.customPrompt}
+            onCustomPromptChange={setCustomPrompt}
+            onAiEdit={(action) => aiEdit(action)}
+            onCrop={(preset) => activeImage && cropImage(activeImage.id, preset)}
+            onBatchCrop={batchCrop}
+            onDownload={() => activeImage && downloadImage(activeImage.id)}
+            onSelectAll={selectAll}
+          />
+        </div>
+      )}
     </div>
   );
 };
