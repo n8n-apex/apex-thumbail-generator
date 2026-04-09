@@ -193,3 +193,44 @@ input[type="range"]::-moz-range-thumb {
   background: hsl(var(--primary));
   box-shadow: 0 2px 6px hsl(195 100% 50% / 0.3), 0 0 0 2px hsl(0 0% 100% / 0.8);
 }
+
+/* AI Processing Animations */
+@property --ai-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes ai-rotate {
+  to { --ai-angle: 360deg; }
+}
+
+@keyframes ai-scan {
+  0%, 100% { top: 10%; }
+  50% { top: 90%; }
+}
+
+@keyframes ai-ring {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes ai-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes ai-wand {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(12deg); }
+  75% { transform: rotate(-12deg); }
+}
+
+@keyframes ai-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ai-dots {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1.2); }
+}
