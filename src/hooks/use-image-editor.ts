@@ -252,29 +252,59 @@ export function useImageEditor() {
     }
   }, [state.selectedIds, cropImage]);
 
-  const downloadImage = useCallback((id: string) => {
+  const downloadImage = useCallback(async (id: string) => {
     const img = state.images.find((i) => i.id === id);
     if (!img) return;
 
     const url = img.editedUrl ?? img.url;
-    const a = document.createElement("a");
-    a.href = url;
     const baseName = img.name.replace(/\.[^.]+$/, "");
-    // Use PNG when background was removed to preserve transparency
     const ext = img.hasBgRemoved ? "png" : "jpg";
-    a.download = `${baseName}_edited.${ext}`;
-    a.click();
-  }, [state.images]);
+    const filename = `${baseName}_edited.${ext}`;
 
-  const downloadAll = useCallback(() => {
-    for (const img of state.images) {
-      const url = img.editedUrl ?? img.url;
+    try {
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      // Fallback
       const a = document.createElement("a");
       a.href = url;
+      a.download = filename;
+      a.click();
+    }
+  }, [state.images]);
+
+  const downloadAll = useCallback(async () => {
+    for (const img of state.images) {
+      const url = img.editedUrl ?? img.url;
       const baseName = img.name.replace(/\.[^.]+$/, "");
       const ext = img.hasBgRemoved ? "png" : "jpg";
-      a.download = `${baseName}_edited.${ext}`;
-      a.click();
+      const filename = `${baseName}_edited.${ext}`;
+
+      try {
+        const resp = await fetch(url);
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      } catch {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+      }
     }
   }, [state.images]);
 
