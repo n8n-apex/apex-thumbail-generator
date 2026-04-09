@@ -1,8 +1,9 @@
 import { useRef, useCallback } from "react";
-import { ImageFile } from "@/types/image-editor";
+import { ImageFile, CropPreset } from "@/types/image-editor";
 import { Loader2, ImageIcon, Download, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import CropOverlay from "./CropOverlay";
 
 interface CanvasProps {
   image: ImageFile | null;
@@ -10,9 +11,12 @@ interface CanvasProps {
   onZoomChange: (zoom: number) => void;
   onDownload?: () => void;
   onReset?: () => void;
+  cropPreset: CropPreset | null;
+  onCropConfirm?: (offsetX: number, offsetY: number) => void;
+  onCropCancel?: () => void;
 }
 
-export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset }: CanvasProps) {
+export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset, cropPreset, onCropConfirm, onCropCancel }: CanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleWheel = useCallback(
@@ -141,6 +145,18 @@ export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset 
           )}
         </div>
       </div>
+
+      {/* Crop overlay */}
+      {cropPreset && onCropConfirm && onCropCancel && (
+        <CropOverlay
+          imageUrl={image.url}
+          originalWidth={image.originalWidth}
+          originalHeight={image.originalHeight}
+          preset={cropPreset}
+          onConfirm={onCropConfirm}
+          onCancel={onCropCancel}
+        />
+      )}
     </div>
   );
 }
