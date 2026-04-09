@@ -339,7 +339,11 @@ export function useImageEditor() {
   }, [state.images]);
 
   const downloadAll = useCallback(async () => {
-    for (const img of state.images) {
+    const targets = state.selectedIds.length > 0
+      ? state.images.filter((i) => state.selectedIds.includes(i.id))
+      : state.images;
+
+    for (const img of targets) {
       const url = img.editedUrl ?? img.url;
       const baseName = img.name.replace(/\.[^.]+$/, "");
       const ext = img.hasBgRemoved ? "png" : "jpg";
@@ -363,7 +367,7 @@ export function useImageEditor() {
         a.click();
       }
     }
-  }, [state.images]);
+  }, [state.images, state.selectedIds]);
 
   const resetImage = useCallback((id: string) => {
     setState((prev) => ({
