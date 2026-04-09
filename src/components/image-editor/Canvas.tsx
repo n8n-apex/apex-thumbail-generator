@@ -1,8 +1,9 @@
 import { useRef, useCallback } from "react";
-import { ImageFile } from "@/types/image-editor";
+import { ImageFile, CropPreset } from "@/types/image-editor";
 import { Loader2, ImageIcon, Download, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import CropOverlay from "./CropOverlay";
 
 interface CanvasProps {
   image: ImageFile | null;
@@ -10,6 +11,9 @@ interface CanvasProps {
   onZoomChange: (zoom: number) => void;
   onDownload?: () => void;
   onReset?: () => void;
+  cropPreset: CropPreset | null;
+  onCropConfirm?: (offsetX: number, offsetY: number) => void;
+  onCropCancel?: () => void;
 }
 
 export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset }: CanvasProps) {

@@ -196,7 +196,7 @@ export function useImageEditor() {
   }, [state.selectedIds, state.images, state.customPrompt]);
 
   // IMPORTANT: Crop always from the ORIGINAL image so switching presets doesn't compound
-  const cropImage = useCallback(async (id: string, preset: CropPreset) => {
+  const cropImage = useCallback(async (id: string, preset: CropPreset, offsetX?: number, offsetY?: number) => {
     const img = state.images.find((i) => i.id === id);
     if (!img) return;
 
@@ -216,18 +216,21 @@ export function useImageEditor() {
     canvas.height = preset.height;
     const ctx = canvas.getContext("2d")!;
 
-    // Cover crop (center)
     const srcRatio = image.naturalWidth / image.naturalHeight;
     const dstRatio = preset.width / preset.height;
-    let sx = 0, sy = 0, sw = image.naturalWidth, sh = image.naturalHeight;
+    let sw: number, sh: number;
 
     if (srcRatio > dstRatio) {
-      sw = image.naturalHeight * dstRatio;
-      sx = (image.naturalWidth - sw) / 2;
+      sh = image.naturalHeight;
+      sw = sh * dstRatio;
     } else {
-      sh = image.naturalWidth / dstRatio;
-      sy = (image.naturalHeight - sh) / 2;
+      sw = image.naturalWidth;
+      sh = sw / dstRatio;
     }
+
+    // Use provided offsets or default to center
+    const sx = offsetX ?? (image.naturalWidth - sw) / 2;
+    const sy = offsetY ?? (image.naturalHeight - sh) / 2;
 
     ctx.drawImage(image, sx, sy, sw, sh, 0, 0, preset.width, preset.height);
     const editedUrl = canvas.toDataURL("image/png");
@@ -237,6 +240,7 @@ export function useImageEditor() {
       images: prev.images.map((i) =>
         i.id === id ? { ...i, editedUrl, width: preset.width, height: preset.height } : i
       ),
+      cropPreset: null,
     }));
 
     toast.success(`Zugeschnitten auf ${preset.label}`);
