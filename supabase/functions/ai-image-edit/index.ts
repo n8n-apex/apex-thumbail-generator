@@ -31,7 +31,7 @@ serve(async (req) => {
 
     switch (action) {
       case "remove-background":
-        userPrompt = "Remove the background from this image completely. Make the background transparent/white. Keep the main subject perfectly intact with clean edges.";
+        userPrompt = "Remove the background from this image completely and make it fully transparent (alpha channel = 0). Output a PNG with a transparent background. Keep the main subject perfectly intact with clean, precise edges. Do NOT replace the background with white or any other color — it must be transparent.";
         break;
       case "enhance":
         userPrompt = "Enhance this image: improve brightness, contrast, sharpness and color balance. Make it look professional and vibrant while keeping it natural. Do not change the composition.";

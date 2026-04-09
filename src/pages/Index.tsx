@@ -5,9 +5,12 @@ import Canvas from "@/components/image-editor/Canvas";
 import PropertiesPanel from "@/components/image-editor/PropertiesPanel";
 import BatchStrip from "@/components/image-editor/BatchStrip";
 import UploadZone from "@/components/image-editor/UploadZone";
+import ThumbnailGenerator from "@/components/image-editor/ThumbnailGenerator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Settings2 } from "lucide-react";
+import { Settings2, Wand2, LayoutGrid } from "lucide-react";
+
+type AppTab = "editor" | "thumbnails";
 
 const Index = () => {
   const {
@@ -31,6 +34,7 @@ const Index = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [propsOpen, setPropsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<AppTab>("editor");
 
   const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -70,6 +74,7 @@ const Index = () => {
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault();
+        if (activeTab !== "editor") return;
         const files = Array.from(e.dataTransfer.files).filter((f) =>
           f.type.startsWith("image/")
         );
@@ -78,17 +83,46 @@ const Index = () => {
     >
       {/* Header */}
       <header className="h-12 shrink-0 flex items-center justify-between px-3 sm:px-4 glass-elevated rounded-none border-b border-border/30 z-20">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg glass-button-primary flex items-center justify-center">
-            <span className="text-xs font-black text-primary-foreground">A</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg glass-button-primary flex items-center justify-center">
+              <span className="text-xs font-black text-primary-foreground">A</span>
+            </div>
+            <span className="text-xs sm:text-sm font-bold text-foreground tracking-tight hidden sm:block">
+              APEX AI Image Intelligence
+            </span>
           </div>
-          <span className="text-xs sm:text-sm font-bold text-foreground tracking-tight">
-            APEX AI Image Intelligence
-          </span>
+
+          {/* Tab switcher */}
+          <div className="flex items-center gap-0.5 p-0.5 rounded-xl bg-muted/50">
+            <button
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                activeTab === "editor"
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setActiveTab("editor")}
+            >
+              <Wand2 className="h-3.5 w-3.5" />
+              Editor
+            </button>
+            <button
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                activeTab === "thumbnails"
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setActiveTab("thumbnails")}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              Thumbnails
+            </button>
+          </div>
         </div>
+
         <div className="flex items-center gap-2">
           {/* Mobile: properties sheet trigger */}
-          {hasImages && (
+          {activeTab === "editor" && hasImages && (
             <Sheet open={propsOpen} onOpenChange={setPropsOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -119,63 +153,71 @@ const Index = () => {
         onChange={handleFileChange}
       />
 
-      {!hasImages ? (
-        <UploadZone onFiles={addImages} />
-      ) : (
-        <div className="flex-1 flex flex-col sm:flex-row gap-1.5 sm:gap-2 p-1.5 sm:p-2 min-h-0 relative">
-          {/* Toolbar: horizontal on mobile, vertical on desktop */}
-          <div className="sm:hidden">
-            <div className="flex items-center gap-1 p-1.5 glass-elevated rounded-xl overflow-x-auto">
-              <Toolbar
-                activeTool={state.activeTool}
-                onToolChange={setTool}
-                onUpload={handleUploadClick}
-                onDownload={downloadAll}
-                onReset={() => activeImage && resetImage(activeImage.id)}
-                hasImages={hasImages}
-                hasActiveImage={!!activeImage}
-                horizontal
-              />
-            </div>
-          </div>
-          <div className="hidden sm:block">
-            <Toolbar
-              activeTool={state.activeTool}
-              onToolChange={setTool}
-              onUpload={handleUploadClick}
-              onDownload={downloadAll}
-              onReset={() => activeImage && resetImage(activeImage.id)}
-              hasImages={hasImages}
-              hasActiveImage={!!activeImage}
-            />
-          </div>
+      {/* Thumbnail Generator Tab */}
+      {activeTab === "thumbnails" && <ThumbnailGenerator />}
 
-          {/* Center area — full width, properties floats over it */}
-          <div className="flex-1 flex flex-col gap-1.5 sm:gap-2 min-w-0 min-h-0 relative">
-            <Canvas
-              image={activeImage}
-              zoom={state.zoom}
-              onZoomChange={setZoom}
-              onDownload={() => activeImage && downloadImage(activeImage.id)}
-              onReset={() => activeImage && resetImage(activeImage.id)}
-            />
-            <BatchStrip
-              images={state.images}
-              activeId={state.activeId}
-              selectedIds={state.selectedIds}
-              onSelect={setActiveImage}
-              onToggleSelect={toggleSelect}
-              onRemove={removeImage}
-            />
-
-            {/* Floating properties panel — overlays on canvas when a tool is active */}
-            {showProps && (
-              <div className="hidden sm:block absolute top-3 right-3 z-10 animate-fade-in">
-                {propertiesContent}
+      {/* Editor Tab */}
+      {activeTab === "editor" && (
+        <>
+          {!hasImages ? (
+            <UploadZone onFiles={addImages} />
+          ) : (
+            <div className="flex-1 flex flex-col sm:flex-row gap-1.5 sm:gap-2 p-1.5 sm:p-2 min-h-0 relative">
+              {/* Toolbar: horizontal on mobile, vertical on desktop */}
+              <div className="sm:hidden">
+                <div className="flex items-center gap-1 p-1.5 glass-elevated rounded-xl overflow-x-auto">
+                  <Toolbar
+                    activeTool={state.activeTool}
+                    onToolChange={setTool}
+                    onUpload={handleUploadClick}
+                    onDownload={downloadAll}
+                    onReset={() => activeImage && resetImage(activeImage.id)}
+                    hasImages={hasImages}
+                    hasActiveImage={!!activeImage}
+                    horizontal
+                  />
+                </div>
               </div>
-            )}
-          </div>
-        </div>
+              <div className="hidden sm:block">
+                <Toolbar
+                  activeTool={state.activeTool}
+                  onToolChange={setTool}
+                  onUpload={handleUploadClick}
+                  onDownload={downloadAll}
+                  onReset={() => activeImage && resetImage(activeImage.id)}
+                  hasImages={hasImages}
+                  hasActiveImage={!!activeImage}
+                />
+              </div>
+
+              {/* Center area */}
+              <div className="flex-1 flex flex-col gap-1.5 sm:gap-2 min-w-0 min-h-0 relative">
+                <Canvas
+                  image={activeImage}
+                  zoom={state.zoom}
+                  onZoomChange={setZoom}
+                  onDownload={() => activeImage && downloadImage(activeImage.id)}
+                  onReset={() => activeImage && resetImage(activeImage.id)}
+                />
+                <BatchStrip
+                  images={state.images}
+                  activeId={state.activeId}
+                  selectedIds={state.selectedIds}
+                  onSelect={setActiveImage}
+                  onToggleSelect={toggleSelect}
+                  onRemove={removeImage}
+                />
+
+                {/* Floating properties panel */}
+                {showProps && (
+                  <div className="hidden sm:block absolute top-3 right-3 z-10 animate-fade-in">
+                    {propertiesContent}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
