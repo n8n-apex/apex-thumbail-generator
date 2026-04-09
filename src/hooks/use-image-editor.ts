@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { ImageFile, EditorState, CropPreset } from "@/types/image-editor";
+import { ImageFile, EditorState, CropPreset, ImageAdjustments, DEFAULT_ADJUSTMENTS } from "@/types/image-editor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -116,6 +116,7 @@ export function useImageEditor() {
           height,
           hasBgRemoved: false,
           isProcessing: false,
+          adjustments: { ...DEFAULT_ADJUSTMENTS },
         });
       } catch {
         toast.error(`Konnte ${file.name} nicht laden`);
@@ -376,11 +377,82 @@ export function useImageEditor() {
               hasBgRemoved: false,
               width: i.originalWidth,
               height: i.originalHeight,
+              adjustments: { ...DEFAULT_ADJUSTMENTS },
             }
           : i
       ),
     }));
   }, []);
+
+  const setAdjustment = useCallback((id: string, key: keyof ImageAdjustments, value: number) => {
+    setState((prev) => ({
+      ...prev,
+      images: prev.images.map((i) =>
+        i.id === id ? { ...i, adjustments: { ...i.adjustments, [key]: value } } : i
+      ),
+    }));
+  }, []);
+
+  const resetAdjustments = useCallback((id: string) => {
+    setState((prev) => ({
+      ...prev,
+      images: prev.images.map((i) =>
+        i.id === id ? { ...i, adjustments: { ...DEFAULT_ADJUSTMENTS } } : i
+      ),
+    }));
+  }, []);
+
+  /** Bake adjustments into the image pixels and produce a downloadable result */
+  const applyAdjustments = useCallback(async (id: string) => {
+    const img = state.images.find((i) => i.id === id);
+    if (!img) return;
+
+    const sourceUrl = img.editedUrl ?? img.url;
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = reject;
+      image.src = sourceUrl;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const ctx = canvas.getContext("2d")!;
+
+    // Apply CSS-like filters via canvas
+    const adj = img.adjustments;
+    const filters: string[] = [];
+    if (adj.brightness !== 100) filters.push(`brightness(${adj.brightness / 100})`);
+    if (adj.contrast !== 100) filters.push(`contrast(${adj.contrast / 100})`);
+    if (adj.saturation !== 100) filters.push(`saturate(${adj.saturation / 100})`);
+    if (adj.exposure !== 0) filters.push(`brightness(${1 + adj.exposure / 200})`);
+    if (adj.temperature > 0) {
+      filters.push(`sepia(${adj.temperature / 200})`);
+      filters.push(`hue-rotate(-10deg)`);
+    } else if (adj.temperature < 0) {
+      filters.push(`sepia(${Math.abs(adj.temperature) / 200})`);
+      filters.push(`hue-rotate(190deg)`);
+    }
+    ctx.filter = filters.length > 0 ? filters.join(" ") : "none";
+    ctx.drawImage(image, 0, 0);
+
+    const editedUrl = img.hasBgRemoved
+      ? canvas.toDataURL("image/png")
+      : canvas.toDataURL("image/jpeg", 0.92);
+
+    setState((prev) => ({
+      ...prev,
+      images: prev.images.map((i) =>
+        i.id === id
+          ? { ...i, editedUrl, adjustments: { ...DEFAULT_ADJUSTMENTS } }
+          : i
+      ),
+    }));
+
+    toast.success("Anpassungen angewendet");
+  }, [state.images]);
 
   const activeImage = state.images.find((i) => i.id === state.activeId) ?? null;
 
@@ -402,5 +474,8 @@ export function useImageEditor() {
     downloadImage,
     downloadAll,
     resetImage,
+    setAdjustment,
+    resetAdjustments,
+    applyAdjustments,
   };
 }

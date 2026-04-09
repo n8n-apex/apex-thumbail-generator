@@ -1,5 +1,5 @@
 import { useRef, useCallback } from "react";
-import { ImageFile, CropPreset } from "@/types/image-editor";
+import { ImageFile, CropPreset, adjustmentsToCssFilter } from "@/types/image-editor";
 import { Loader2, ImageIcon, Download, RotateCcw, ZoomIn, ZoomOut, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -63,7 +63,10 @@ export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset,
         src={displayUrl}
         alt={image.name}
         className="relative max-w-full max-h-full object-contain transition-transform duration-100"
-        style={{ transform: `scale(${zoom})` }}
+        style={{
+          transform: `scale(${zoom})`,
+          filter: adjustmentsToCssFilter(image.adjustments),
+        }}
         draggable={false}
       />
 
