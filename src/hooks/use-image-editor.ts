@@ -208,7 +208,7 @@ export function useImageEditor() {
 
         // Post-process: actually make white pixels transparent
         if (isBgRemove && finalImage) {
-          finalImage = await makeWhiteTransparent(finalImage);
+          finalImage = await replaceWhiteWithDark(finalImage);
         }
 
         setState((prev) => ({
