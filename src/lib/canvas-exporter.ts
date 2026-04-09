@@ -176,7 +176,10 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   onProgress("Video wird vorbereitet...");
   // Start loading shared FFmpeg in parallel while recording runs.
-  const ffPromise = getProcessor((msg) => console.log("[Export FFmpeg]", msg));
+  const ffPromise = getProcessor((msg) => {
+    console.log("[Export FFmpeg]", msg);
+    onProgress(msg);
+  });
 
   const video = document.createElement("video");
   video.src = videoUrl;
