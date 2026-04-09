@@ -32,6 +32,31 @@ function urlToBase64(url: string): Promise<string> {
   });
 }
 
+/** Post-process: convert white/near-white pixels to transparent */
+function makeWhiteTransparent(dataUrl: string, threshold = 240): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imageData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i] >= threshold && d[i + 1] >= threshold && d[i + 2] >= threshold) {
+          d[i + 3] = 0; // set alpha to 0
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+
 export function useImageEditor() {
   const [state, setState] = useState<EditorState>({
     images: [],
@@ -166,6 +191,12 @@ export function useImageEditor() {
         if (data?.error) throw new Error(data.error);
 
         const isBgRemove = action === "remove-background";
+        let finalImage = data.editedImage;
+
+        // Post-process: actually make white pixels transparent
+        if (isBgRemove && finalImage) {
+          finalImage = await makeWhiteTransparent(finalImage);
+        }
 
         setState((prev) => ({
           ...prev,
@@ -173,7 +204,7 @@ export function useImageEditor() {
             i.id === id
               ? {
                   ...i,
-                  editedUrl: data.editedImage,
+                  editedUrl: finalImage,
                   isProcessing: false,
                   hasBgRemoved: isBgRemove ? true : i.hasBgRemoved,
                 }
