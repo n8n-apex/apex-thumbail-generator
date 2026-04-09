@@ -15,17 +15,28 @@ function loadImage(file: File): Promise<{ url: string; width: number; height: nu
   });
 }
 
-function urlToBase64(url: string): Promise<string> {
+const MAX_AI_DIMENSION = 1536;
+
+function urlToBase64(url: string, forBgRemove = false): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
+      let w = img.naturalWidth;
+      let h = img.naturalHeight;
+      // Downscale large images to speed up AI processing
+      if (w > MAX_AI_DIMENSION || h > MAX_AI_DIMENSION) {
+        const scale = MAX_AI_DIMENSION / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
       const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      canvas.width = w;
+      canvas.height = h;
       const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
+      ctx.drawImage(img, 0, 0, w, h);
+      // Use JPEG for smaller payload (except bg-remove which needs alpha)
+      resolve(forBgRemove ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", 0.85));
     };
     img.onerror = reject;
     img.src = url;
