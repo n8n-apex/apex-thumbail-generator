@@ -639,11 +639,8 @@ export function useVideoProjects() {
         onProgress: (msg) => updateProject(id, { exportProgress: msg }),
       });
 
-      if (!blob.type.includes("mp4")) {
-        throw new Error("Export ist nicht als MP4 angekommen");
-      }
-
-      const ext = "mp4";
+      const isMp4 = blob.type.includes("mp4");
+      const ext = isMp4 ? "mp4" : "webm";
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
