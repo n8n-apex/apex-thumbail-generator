@@ -237,10 +237,18 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   for (let i = 0; i < segments.length; i++) {
     const seg = segments[i];
 
-    video.currentTime = seg.start;
-    await new Promise<void>((r) => {
-      video.onseeked = () => r();
-    });
+    // Avoid race condition: attach listener BEFORE setting currentTime.
+    // If already at the target time, skip seeking entirely.
+    if (Math.abs(video.currentTime - seg.start) > 0.01) {
+      await new Promise<void>((resolve) => {
+        const onSeeked = () => {
+          video.removeEventListener("seeked", onSeeked);
+          resolve();
+        };
+        video.addEventListener("seeked", onSeeked);
+        video.currentTime = seg.start;
+      });
+    }
 
     await video.play();
 
