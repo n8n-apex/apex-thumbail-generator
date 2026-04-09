@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Sparkles, Image as ImageIcon, Check } from "lucide-react";
+import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil } from "lucide-react";
 import { ImageFile } from "@/types/image-editor";
+import { ThumbnailProject } from "@/types/thumbnail-editor";
 
 interface ThumbnailTemplate {
   id: string;
@@ -17,16 +18,16 @@ interface ThumbnailTemplate {
 }
 
 const TEMPLATES: ThumbnailTemplate[] = [
-  { id: "yt-bold", title: "YouTube Bold", description: "Fetter Text mit Kontrast-Hintergrund", category: "YouTube", style: "", width: 1280, height: 720 },
-  { id: "yt-reaction", title: "YouTube Reaktion", description: "Shocked Face Style mit großem Text", category: "YouTube", style: "", width: 1280, height: 720 },
-  { id: "yt-tutorial", title: "YouTube Tutorial", description: "Clean mit Schritt-Anzeige", category: "YouTube", style: "", width: 1280, height: 720 },
-  { id: "ig-lifestyle", title: "Instagram Lifestyle", description: "Ästhetisch mit Warm-Ton Filter", category: "Instagram", style: "", width: 1080, height: 1080 },
-  { id: "ig-promo", title: "Instagram Promo", description: "Produkt-Highlight mit CTA", category: "Instagram", style: "", width: 1080, height: 1080 },
-  { id: "ig-story-sale", title: "Story Sale", description: "Sale/Angebot Story", category: "Instagram", style: "", width: 1080, height: 1920 },
-  { id: "tt-hook", title: "TikTok Hook", description: "Attention-Grabbing Cover", category: "TikTok", style: "", width: 1080, height: 1920 },
-  { id: "li-professional", title: "LinkedIn Professional", description: "Business-Post mit Clean Design", category: "LinkedIn", style: "", width: 1200, height: 627 },
-  { id: "fb-engagement", title: "Facebook Engagement", description: "Engagement-Post mit Frage", category: "Facebook", style: "", width: 1200, height: 630 },
-  { id: "podcast-cover", title: "Podcast Cover", description: "Professionelles Podcast-Cover", category: "Podcast", style: "", width: 1400, height: 1400 },
+  { id: "yt-cinematic", title: "YouTube Cinematic", description: "Filmische Ästhetik, dramatische Beleuchtung", category: "YouTube", style: "", width: 1280, height: 720 },
+  { id: "yt-editorial", title: "YouTube Editorial", description: "Magazin-Cover Layout, editorial Typografie", category: "YouTube", style: "", width: 1280, height: 720 },
+  { id: "yt-minimal", title: "YouTube Minimal", description: "Reduziertes Design, starke Typografie", category: "YouTube", style: "", width: 1280, height: 720 },
+  { id: "ig-editorial", title: "Instagram Editorial", description: "High-Fashion Magazin-Look", category: "Instagram", style: "", width: 1080, height: 1080 },
+  { id: "ig-brand", title: "Instagram Brand", description: "Premium Brand Identity Post", category: "Instagram", style: "", width: 1080, height: 1080 },
+  { id: "ig-story-premium", title: "Story Premium", description: "Elegante Story mit Glassmorphism", category: "Instagram", style: "", width: 1080, height: 1920 },
+  { id: "tt-professional", title: "TikTok Professional", description: "Modernes Cover, starkes Branding", category: "TikTok", style: "", width: 1080, height: 1920 },
+  { id: "li-thought-leader", title: "LinkedIn Thought Leader", description: "Authoritative Business-Visual", category: "LinkedIn", style: "", width: 1200, height: 627 },
+  { id: "fb-corporate", title: "Facebook Corporate", description: "Professioneller Unternehmens-Post", category: "Facebook", style: "", width: 1200, height: 630 },
+  { id: "podcast-premium", title: "Podcast Premium", description: "High-End Podcast-Cover", category: "Podcast", style: "", width: 1400, height: 1400 },
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -55,6 +56,7 @@ interface GeneratedThumbnail {
 
 interface ThumbnailGeneratorProps {
   batchImages?: ImageFile[];
+  onEditThumbnail: (project: ThumbnailProject) => void;
 }
 
 function urlToBase64(url: string): Promise<string> {
@@ -74,7 +76,7 @@ function urlToBase64(url: string): Promise<string> {
   });
 }
 
-export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGeneratorProps) {
+export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }: ThumbnailGeneratorProps) {
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
@@ -91,7 +93,6 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
   const handleGenerate = useCallback(async (template: ThumbnailTemplate) => {
     setIsGenerating(template.id);
     try {
-      // Determine image source: batch image or uploaded file
       let imageBase64: string | undefined;
       if (selectedBatchImageId) {
         const batchImg = batchImages.find((i) => i.id === selectedBatchImageId);
@@ -136,6 +137,19 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
     a.click();
   }, []);
 
+  const handleEdit = useCallback((thumbnail: GeneratedThumbnail) => {
+    const project: ThumbnailProject = {
+      id: Math.random().toString(36).slice(2, 10),
+      name: thumbnail.template.title,
+      width: thumbnail.template.width,
+      height: thumbnail.template.height,
+      backgroundImage: thumbnail.imageUrl,
+      layers: [],
+      selectedLayerId: null,
+    };
+    onEditThumbnail(project);
+  }, [onEditThumbnail]);
+
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -159,6 +173,7 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
           <h2 className="text-sm font-bold text-foreground">Thumbnail Generator</h2>
+          <span className="text-[10px] text-muted-foreground ml-1">Premium Professional</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -167,7 +182,7 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
               Text auf dem Thumbnail
             </label>
             <Input
-              placeholder="z.B. '5 Tipps für mehr Reichweite'"
+              placeholder="z.B. '5 Strategien für nachhaltiges Wachstum'"
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
               className="text-xs rounded-xl h-9"
@@ -215,11 +230,7 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
                     }`}
                     onClick={() => selectBatchImage(img.id)}
                   >
-                    <img
-                      src={displayUrl}
-                      alt={img.name}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={displayUrl} alt={img.name} className="w-full h-full object-cover" />
                     {isSelected && (
                       <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                         <Check className="h-5 w-5 text-primary-foreground drop-shadow-lg" />
@@ -228,8 +239,6 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
                   </button>
                 );
               })}
-
-              {/* Upload additional button */}
               <label className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/50 hover:border-primary/40 flex items-center justify-center cursor-pointer transition-colors">
                 <ImageIcon className="h-5 w-5 text-muted-foreground" />
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
@@ -245,12 +254,7 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </label>
               {uploadedImage && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-9 rounded-xl"
-                  onClick={() => setUploadedImage(null)}
-                >
+                <Button variant="ghost" size="sm" className="text-xs h-9 rounded-xl" onClick={() => setUploadedImage(null)}>
                   ✕
                 </Button>
               )}
@@ -298,29 +302,19 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
           const catColor = CATEGORY_COLORS[template.category] || "bg-muted text-foreground";
 
           return (
-            <div
-              key={template.id}
-              className="glass-elevated rounded-2xl overflow-hidden group transition-all hover:shadow-lg"
-            >
+            <div key={template.id} className="glass-elevated rounded-2xl overflow-hidden group transition-all hover:shadow-lg">
               <div
                 className="relative bg-muted/30 flex items-center justify-center overflow-hidden"
                 style={{ aspectRatio: `${template.width}/${template.height}`, maxHeight: 220 }}
               >
                 {existingResult ? (
-                  <img
-                    src={existingResult.imageUrl}
-                    alt={template.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={existingResult.imageUrl} alt={template.title} className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-muted-foreground/40">
                     <ImageIcon className="h-8 w-8" />
-                    <span className="text-[10px] font-medium tabular-nums">
-                      {template.width}×{template.height}
-                    </span>
+                    <span className="text-[10px] font-medium tabular-nums">{template.width}×{template.height}</span>
                   </div>
                 )}
-
                 {isLoading && (
                   <div className="absolute inset-0 bg-background/70 backdrop-blur-sm flex items-center justify-center">
                     <div className="flex flex-col items-center gap-2">
@@ -359,14 +353,25 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
                     )}
                   </Button>
                   {existingResult && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-[11px] h-8 rounded-xl px-2.5"
-                      onClick={() => handleDownload(existingResult)}
-                    >
-                      <Download className="h-3 w-3" />
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-[11px] h-8 rounded-xl px-2.5"
+                        onClick={() => handleEdit(existingResult)}
+                        title="Im Editor bearbeiten"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-[11px] h-8 rounded-xl px-2.5"
+                        onClick={() => handleDownload(existingResult)}
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -389,14 +394,22 @@ export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGenera
                     className="w-full object-cover"
                     style={{ aspectRatio: `${thumb.template.width}/${thumb.template.height}` }}
                   />
-                  <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors flex items-center justify-center">
+                  <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors flex items-center justify-center gap-2">
                     <Button
                       size="sm"
                       className="opacity-0 group-hover:opacity-100 transition-opacity text-[11px] h-8 rounded-xl glass-button-primary text-primary-foreground"
+                      onClick={() => handleEdit(thumb)}
+                    >
+                      <Pencil className="h-3 w-3 mr-1" />
+                      Bearbeiten
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-[11px] h-8 rounded-xl"
                       onClick={() => handleDownload(thumb)}
                     >
-                      <Download className="h-3 w-3 mr-1" />
-                      Download
+                      <Download className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
