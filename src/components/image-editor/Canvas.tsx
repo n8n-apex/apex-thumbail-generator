@@ -1,6 +1,6 @@
 import { useRef, useCallback } from "react";
 import { ImageFile, CropPreset } from "@/types/image-editor";
-import { Loader2, ImageIcon, Download, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
+import { Loader2, ImageIcon, Download, RotateCcw, ZoomIn, ZoomOut, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import CropOverlay from "./CropOverlay";
@@ -68,17 +68,58 @@ export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset,
       />
 
       {image.isProcessing && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm rounded-2xl">
-          <div className="flex flex-col items-center gap-3">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md rounded-2xl overflow-hidden">
+          {/* Animated gradient background */}
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              background: "conic-gradient(from var(--ai-angle, 0deg), hsl(var(--primary)), hsl(var(--primary) / 0.2), hsl(195 100% 70%), hsl(var(--primary) / 0.2), hsl(var(--primary)))",
+              animation: "ai-rotate 3s linear infinite",
+            }}
+          />
+          {/* Scanning line */}
+          <div
+            className="absolute left-0 right-0 h-px opacity-60"
+            style={{
+              background: "linear-gradient(90deg, transparent, hsl(var(--primary)), transparent)",
+              animation: "ai-scan 2s ease-in-out infinite",
+            }}
+          />
+          {/* Pulsing rings */}
+          <div className="absolute w-40 h-40 rounded-full border border-primary/20" style={{ animation: "ai-ring 2s ease-out infinite" }} />
+          <div className="absolute w-40 h-40 rounded-full border border-primary/20" style={{ animation: "ai-ring 2s ease-out infinite 0.6s" }} />
+          <div className="absolute w-40 h-40 rounded-full border border-primary/20" style={{ animation: "ai-ring 2s ease-out infinite 1.2s" }} />
+
+          {/* Center content */}
+          <div className="relative flex flex-col items-center gap-4 z-10">
             <div className="relative">
-              <div className="w-16 h-16 rounded-2xl glass-button-primary flex items-center justify-center animate-pulse">
-                <span className="text-2xl font-black text-primary-foreground">A</span>
+              <div
+                className="w-20 h-20 rounded-2xl glass-button-primary flex items-center justify-center shadow-2xl"
+                style={{
+                  boxShadow: "0 0 40px hsl(var(--primary) / 0.4), 0 0 80px hsl(var(--primary) / 0.2)",
+                  animation: "ai-breathe 2s ease-in-out infinite",
+                }}
+              >
+                <Wand2 className="h-8 w-8 text-primary-foreground" style={{ animation: "ai-wand 3s ease-in-out infinite" }} />
+              </div>
+              {/* Orbiting dots */}
+              <div className="absolute inset-[-16px]" style={{ animation: "ai-orbit 4s linear infinite" }}>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary shadow-lg shadow-primary/50" />
+              </div>
+              <div className="absolute inset-[-16px]" style={{ animation: "ai-orbit 4s linear infinite reverse", animationDelay: "1s" }}>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary/60" />
               </div>
             </div>
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span className="text-sm font-semibold text-foreground">
-              APEX AI verarbeitet...
-            </span>
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-sm font-bold text-foreground tracking-wide">
+                APEX AI verarbeitet
+              </span>
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" style={{ animation: "ai-dots 1.4s ease-in-out infinite" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" style={{ animation: "ai-dots 1.4s ease-in-out infinite 0.2s" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" style={{ animation: "ai-dots 1.4s ease-in-out infinite 0.4s" }} />
+              </div>
+            </div>
           </div>
         </div>
       )}
