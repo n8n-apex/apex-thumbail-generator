@@ -32,8 +32,8 @@ function urlToBase64(url: string): Promise<string> {
   });
 }
 
-/** Post-process: convert white/near-white pixels to transparent */
-function makeWhiteTransparent(dataUrl: string, threshold = 240): Promise<string> {
+/** Post-process: replace white/near-white background with dark transparent look */
+function replaceWhiteWithDark(dataUrl: string, threshold = 235): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -45,8 +45,21 @@ function makeWhiteTransparent(dataUrl: string, threshold = 240): Promise<string>
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const d = imageData.data;
       for (let i = 0; i < d.length; i += 4) {
-        if (d[i] >= threshold && d[i + 1] >= threshold && d[i + 2] >= threshold) {
-          d[i + 3] = 0; // set alpha to 0
+        const r = d[i], g = d[i + 1], b = d[i + 2];
+        if (r >= threshold && g >= threshold && b >= threshold) {
+          // Fully transparent
+          d[i] = 0;
+          d[i + 1] = 0;
+          d[i + 2] = 0;
+          d[i + 3] = 0;
+        } else if (r >= threshold - 30 && g >= threshold - 30 && b >= threshold - 30) {
+          // Edge pixels: semi-transparent for smooth anti-aliasing
+          const avg = (r + g + b) / 3;
+          const alpha = Math.round(255 * (1 - (avg - (threshold - 30)) / 30));
+          d[i] = Math.round(d[i] * 0.3);
+          d[i + 1] = Math.round(d[i + 1] * 0.3);
+          d[i + 2] = Math.round(d[i + 2] * 0.3);
+          d[i + 3] = Math.max(0, Math.min(255, alpha));
         }
       }
       ctx.putImageData(imageData, 0, 0);
