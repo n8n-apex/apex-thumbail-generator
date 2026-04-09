@@ -145,6 +145,18 @@ export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset,
           )}
         </div>
       </div>
+
+      {/* Crop overlay */}
+      {cropPreset && onCropConfirm && onCropCancel && (
+        <CropOverlay
+          imageUrl={image.url}
+          originalWidth={image.originalWidth}
+          originalHeight={image.originalHeight}
+          preset={cropPreset}
+          onConfirm={onCropConfirm}
+          onCancel={onCropCancel}
+        />
+      )}
     </div>
   );
 }

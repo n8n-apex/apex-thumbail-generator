@@ -61,7 +61,9 @@ const Index = () => {
       customPrompt={state.customPrompt}
       onCustomPromptChange={setCustomPrompt}
       onAiEdit={(action) => aiEdit(action)}
-      onCrop={(preset) => activeImage && cropImage(activeImage.id, preset)}
+      onCrop={(preset) => {
+        if (activeImage) setCropPreset(preset);
+      }}
       onBatchCrop={batchCrop}
       onDownload={() => activeImage && downloadImage(activeImage.id)}
       onSelectAll={selectAll}
