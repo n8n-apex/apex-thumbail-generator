@@ -305,9 +305,7 @@ export function useImageEditor() {
   }, [state.images]);
 
   const batchCrop = useCallback(async (preset: CropPreset) => {
-    for (const id of state.selectedIds) {
-      await cropImage(id, preset);
-    }
+    await Promise.all(state.selectedIds.map((id) => cropImage(id, preset)));
   }, [state.selectedIds, cropImage]);
 
   const downloadImage = useCallback(async (id: string) => {
