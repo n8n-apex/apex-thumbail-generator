@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Sparkles, Image as ImageIcon, Palette } from "lucide-react";
+import { Loader2, Download, Sparkles, Image as ImageIcon, Check } from "lucide-react";
+import { ImageFile } from "@/types/image-editor";
 
 interface ThumbnailTemplate {
   id: string;
@@ -52,12 +53,34 @@ interface GeneratedThumbnail {
   template: ThumbnailTemplate;
 }
 
-export default function ThumbnailGenerator() {
+interface ThumbnailGeneratorProps {
+  batchImages?: ImageFile[];
+}
+
+function urlToBase64(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+export default function ThumbnailGenerator({ batchImages = [] }: ThumbnailGeneratorProps) {
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const [generated, setGenerated] = useState<GeneratedThumbnail[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
   const categories = [...new Set(TEMPLATES.map((t) => t.category))];
@@ -68,13 +91,25 @@ export default function ThumbnailGenerator() {
   const handleGenerate = useCallback(async (template: ThumbnailTemplate) => {
     setIsGenerating(template.id);
     try {
+      // Determine image source: batch image or uploaded file
+      let imageBase64: string | undefined;
+      if (selectedBatchImageId) {
+        const batchImg = batchImages.find((i) => i.id === selectedBatchImageId);
+        if (batchImg) {
+          const src = batchImg.editedUrl ?? batchImg.url;
+          imageBase64 = src.startsWith("data:") ? src : await urlToBase64(src);
+        }
+      } else if (uploadedImage) {
+        imageBase64 = uploadedImage;
+      }
+
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
           templateId: template.id,
           customText: customText || undefined,
           brandColor,
-          imageBase64: uploadedImage || undefined,
+          imageBase64: imageBase64 || undefined,
         },
       });
 
@@ -92,7 +127,7 @@ export default function ThumbnailGenerator() {
     } finally {
       setIsGenerating(null);
     }
-  }, [customText, brandColor, uploadedImage]);
+  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage]);
 
   const handleDownload = useCallback((thumbnail: GeneratedThumbnail) => {
     const a = document.createElement("a");
@@ -105,8 +140,16 @@ export default function ThumbnailGenerator() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => setUploadedImage(reader.result as string);
+    reader.onload = () => {
+      setUploadedImage(reader.result as string);
+      setSelectedBatchImageId(null);
+    };
     reader.readAsDataURL(file);
+  }, []);
+
+  const selectBatchImage = useCallback((id: string) => {
+    setSelectedBatchImageId((prev) => (prev === id ? null : id));
+    setUploadedImage(null);
   }, []);
 
   return (
@@ -118,7 +161,7 @@ export default function ThumbnailGenerator() {
           <h2 className="text-sm font-bold text-foreground">Thumbnail Generator</h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Text auf dem Thumbnail
@@ -149,16 +192,55 @@ export default function ThumbnailGenerator() {
               />
             </div>
           </div>
+        </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Eigenes Bild (optional)
-            </label>
+        {/* Batch image picker */}
+        <div className="space-y-2">
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            Bild auswählen
+          </label>
+
+          {batchImages.length > 0 ? (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {batchImages.map((img) => {
+                const isSelected = selectedBatchImageId === img.id;
+                const displayUrl = img.editedUrl ?? img.url;
+                return (
+                  <button
+                    key={img.id}
+                    className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                      isSelected
+                        ? "border-primary shadow-lg shadow-primary/30 ring-2 ring-primary/20"
+                        : "border-border/50 hover:border-primary/40"
+                    }`}
+                    onClick={() => selectBatchImage(img.id)}
+                  >
+                    <img
+                      src={displayUrl}
+                      alt={img.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {isSelected && (
+                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                        <Check className="h-5 w-5 text-primary-foreground drop-shadow-lg" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+
+              {/* Upload additional button */}
+              <label className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/50 hover:border-primary/40 flex items-center justify-center cursor-pointer transition-colors">
+                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              </label>
+            </div>
+          ) : (
             <div className="flex gap-2 items-center">
               <label className="flex-1">
                 <div className="flex items-center gap-2 px-3 h-9 rounded-xl border border-border text-xs text-muted-foreground cursor-pointer hover:bg-accent/50 transition-colors">
                   <ImageIcon className="h-3.5 w-3.5" />
-                  {uploadedImage ? "Bild gewählt ✓" : "Bild wählen"}
+                  {uploadedImage ? "Bild gewählt ✓" : "Bild hochladen"}
                 </div>
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </label>
@@ -173,7 +255,13 @@ export default function ThumbnailGenerator() {
                 </Button>
               )}
             </div>
-          </div>
+          )}
+
+          {(selectedBatchImageId || uploadedImage) && (
+            <p className="text-[10px] text-primary font-medium">
+              ✓ Bild wird als Basis für die Thumbnail-Generierung verwendet
+            </p>
+          )}
         </div>
       </div>
 
@@ -214,7 +302,6 @@ export default function ThumbnailGenerator() {
               key={template.id}
               className="glass-elevated rounded-2xl overflow-hidden group transition-all hover:shadow-lg"
             >
-              {/* Preview area */}
               <div
                 className="relative bg-muted/30 flex items-center justify-center overflow-hidden"
                 style={{ aspectRatio: `${template.width}/${template.height}`, maxHeight: 220 }}
@@ -244,7 +331,6 @@ export default function ThumbnailGenerator() {
                 )}
               </div>
 
-              {/* Info & actions */}
               <div className="p-3 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div>
