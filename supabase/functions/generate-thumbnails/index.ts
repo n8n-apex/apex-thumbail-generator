@@ -150,7 +150,8 @@ serve(async (req) => {
 Style: ${template.style}. 
 ${textInstruction} 
 ${colorInstruction}
-IMPORTANT: This must look like it was designed by a top-tier creative agency. No amateur, clickbait, or "Mr Beast" style elements. 
+IMPORTANT: ALL text in the image MUST be in German (Deutsch). No English text whatsoever. Use German words, phrases, and typography.
+This must look like it was designed by a top-tier creative agency. No amateur, clickbait, or "Mr Beast" style elements. 
 No excessive text, no comic fonts, no neon arrows, no shocked face expressions, no emoji overlays, no busy cluttered layouts.
 The design should feel premium, refined, and sophisticated. Think Vogue, Apple, or McKinsey presentation quality.
 Output dimensions: ${template.width}x${template.height} pixels.`;
