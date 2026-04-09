@@ -120,7 +120,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { action, templateId, customText, brandColor, imageBase64 } = await req.json();
+    const { action, templateId, customText, brandColor, imageBase64, prompt } = await req.json();
 
     if (action === "list-templates") {
       return new Response(
