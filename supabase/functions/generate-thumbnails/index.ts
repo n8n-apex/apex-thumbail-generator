@@ -22,7 +22,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "YouTube Cinematic",
     description: "Filmische Ästhetik mit dramatischer Beleuchtung",
     category: "YouTube",
-    style: "Cinematic widescreen composition, dramatic rim lighting, shallow depth of field effect, dark moody atmosphere with a single accent color highlight, professional color grading like a movie poster, elegant serif or sans-serif typography, no cluttered elements",
+    style: `HYPER-REALISTIC cinematic YouTube thumbnail. Professional photo-composite style like top YouTubers (MKBHD, Ali Abdaal, Peter McKinnon).
+Key elements:
+- LARGE BOLD HEADLINE text placed BEHIND the subject's head/body (text-behind-subject technique) — the text should appear to be layered behind the person
+- Dramatic three-point lighting with strong rim light separating subject from background
+- Shallow depth of field with cinematic bokeh
+- Rich, color-graded look (teal-orange or moody dark tones)
+- Clean composition with subject on one side, headline on the other
+- Professional drop shadows and subtle glow effects on text
+- NO clipart, NO cartoon elements, NO amateur look`,
     width: 1280,
     height: 720,
   },
@@ -31,7 +39,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "YouTube Editorial",
     description: "Magazin-Cover Layout, editorial Typografie",
     category: "YouTube",
-    style: "High-end editorial magazine cover layout, sophisticated typography with mixed weights, clean grid-based composition, muted earth tones or monochromatic palette with one accent, professional portrait or product photography style, subtle geometric overlays",
+    style: `HIGH-END editorial magazine cover style YouTube thumbnail. Think Vogue, GQ, or TIME magazine cover.
+Key elements:
+- BOLD SERIF or modern sans-serif headline text BEHIND or OVERLAPPING the subject (text-behind-subject layering)
+- Mixed typography weights: massive headline + smaller subtext
+- Clean grid-based layout with intentional whitespace
+- Sophisticated muted color palette (earth tones, navy, cream) with ONE bold accent
+- Subject photographed in studio-quality lighting
+- Subtle texture overlays (grain, halftone dots)
+- Editorial crop — subject may be partially cut off for dramatic effect`,
     width: 1280,
     height: 720,
   },
@@ -40,7 +56,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "YouTube Minimal",
     description: "Reduziertes Design mit starker Typografie",
     category: "YouTube",
-    style: "Ultra-minimal design, generous whitespace, bold modern sans-serif headline, single focal point, monochromatic with subtle gradient, Apple/Google design language, no decorative clutter",
+    style: `ULTRA-PREMIUM minimalist YouTube thumbnail. Apple keynote / Google I/O quality.
+Key elements:
+- ONE massive bold keyword as focal point, placed with intention (can be behind subject)
+- Generous negative space — at least 40% of frame is breathing room
+- Monochromatic or duotone palette with subtle gradient
+- Single clean focal element (person, product, or icon)
+- Typography: modern geometric sans-serif (like Helvetica Neue, SF Pro, or Montserrat)
+- Subtle shadows and depth through layering
+- NO busy backgrounds, NO multiple text elements`,
     width: 1280,
     height: 720,
   },
@@ -49,7 +73,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "Instagram Editorial",
     description: "High-Fashion Magazin-Look",
     category: "Instagram",
-    style: "High-fashion editorial post, Vogue/GQ magazine aesthetic, sophisticated muted color palette, elegant serif typography, clean layout with tasteful negative space, premium feel",
+    style: `HIGH-FASHION editorial Instagram post. Vogue/Harper's Bazaar aesthetic.
+Key elements:
+- Fashion-forward composition with bold typography overlay
+- Text elegantly integrated with the subject (behind, overlapping, or framing)
+- Sophisticated muted palette: cream, charcoal, blush, sage
+- Elegant serif headlines (Playfair Display, Bodoni style)
+- Studio-quality lighting with soft shadows
+- Luxury brand visual language
+- Clean, aspirational, gallery-worthy`,
     width: 1080,
     height: 1080,
   },
@@ -58,7 +90,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "Instagram Brand",
     description: "Premium Brand Identity Post",
     category: "Instagram",
-    style: "Premium brand identity post, clean geometric layout, sophisticated color blocking, modern sans-serif typography, luxury brand aesthetic like Apple or Tesla marketing, minimal elegant composition",
+    style: `PREMIUM brand identity Instagram post. Apple, Tesla, or Aesop marketing quality.
+Key elements:
+- Clean geometric layout with sophisticated color blocking
+- Bold modern sans-serif typography, perfectly kerned
+- Product/subject as hero element with dramatic lighting
+- Monochromatic base + ONE accent color for maximum impact
+- Minimalist composition with intentional negative space
+- Premium materials feel: glass, metal, concrete textures
+- Text can be layered behind or around the subject`,
     width: 1080,
     height: 1080,
   },
@@ -67,7 +107,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "Story Premium",
     description: "Elegante Story mit Glassmorphism",
     category: "Instagram",
-    style: "Premium Instagram story, glassmorphism card elements, subtle gradient background, refined sans-serif typography, luxury product presentation style, frosted glass overlays, soft shadows",
+    style: `PREMIUM Instagram story with glassmorphism design language.
+Key elements:
+- Frosted glass card overlays with subtle transparency
+- Vibrant gradient mesh background (but refined, not garish)
+- Clean sans-serif typography with perfect hierarchy
+- Subject/product centered with glass panels framing it
+- Soft shadows and light refraction effects
+- Modern UI-inspired layout (like iOS or macOS design)
+- Headline text integrated with glass layers`,
     width: 1080,
     height: 1920,
   },
@@ -76,7 +124,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "TikTok Professional",
     description: "Modernes Cover mit starkem Branding",
     category: "TikTok",
-    style: "Professional TikTok cover, modern gradient mesh background, clean bold typography, contemporary design, no childish elements, startup/tech aesthetic, sleek and polished",
+    style: `PROFESSIONAL TikTok cover with modern tech/startup aesthetic.
+Key elements:
+- Bold gradient mesh or abstract 3D background
+- Large impactful headline text (can be behind subject)
+- Clean, contemporary design — NO childish or trendy TikTok clichés
+- Strong brand presence with accent color
+- Professional portrait or product shot
+- Sleek, polished, Silicon Valley quality
+- Typography: bold geometric sans-serif`,
     width: 1080,
     height: 1920,
   },
@@ -85,7 +141,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "LinkedIn Thought Leader",
     description: "Authoritative Business-Visual",
     category: "LinkedIn",
-    style: "Authoritative LinkedIn thought leadership post, corporate but modern design, data visualization accents, professional navy/charcoal palette with gold or blue accent, clean infographic style, executive presentation quality",
+    style: `AUTHORITATIVE LinkedIn thought leadership visual. McKinsey, BCG presentation quality.
+Key elements:
+- Professional navy/charcoal base with gold or electric blue accent
+- Clean data visualization elements (charts, graphs as design accents)
+- Bold headline with executive-level typography
+- Corporate but MODERN — not dated or generic
+- Subject/portrait with professional lighting
+- Infographic-inspired layout with clean hierarchy
+- Text layered with sophisticated depth effects`,
     width: 1200,
     height: 627,
   },
@@ -94,7 +158,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "Facebook Corporate",
     description: "Professioneller Unternehmens-Post",
     category: "Facebook",
-    style: "Corporate Facebook post, clean professional layout, brand-consistent design, subtle gradient, modern typography hierarchy, business communication style, polished and credible",
+    style: `PROFESSIONAL corporate Facebook post. Fortune 500 marketing quality.
+Key elements:
+- Clean, credible, brand-consistent design
+- Modern gradient or solid color background
+- Professional typography hierarchy (headline + subtext)
+- Subject/product integrated cleanly
+- Subtle geometric patterns or abstract shapes
+- Business communication style with polish
+- Text and imagery layered with depth`,
     width: 1200,
     height: 630,
   },
@@ -103,7 +175,15 @@ const TEMPLATES: ThumbnailTemplate[] = [
     title: "Podcast Premium",
     description: "High-End Podcast-Cover",
     category: "Podcast",
-    style: "Premium podcast cover art, sophisticated dark theme, elegant gold or accent color details, professional headshot integration style, luxury magazine typography, subtle audio wave or microphone motif, NPR/Spotify Original quality",
+    style: `PREMIUM podcast cover art. NPR, Spotify Original, or NYT podcast quality.
+Key elements:
+- Sophisticated dark theme with rich accent details (gold, electric blue, or warm amber)
+- Professional headshot integration with dramatic lighting
+- Luxury magazine-quality typography (mix of serif headline + sans-serif details)
+- Subtle audio motifs (waveform, microphone silhouette) as design accents — NOT literal
+- Moody, atmospheric, cinematic feel
+- Title text as main design element, can be behind or overlapping the portrait
+- Square format optimized for podcast players`,
     width: 1400,
     height: 1400,
   },
@@ -139,32 +219,61 @@ serve(async (req) => {
       }
 
       const textInstruction = customText
-        ? `Include this text prominently in the design: "${customText}". Use elegant, professional typography.`
-        : "Do not include any specific text. Use clean placeholder areas or leave space for text.";
+        ? `CRITICAL: Include this exact text as the MAIN HEADLINE in the design: "${customText}". 
+           Make it the dominant visual element. Use the text-behind-subject technique where the headline text appears BEHIND the person/subject.
+           The text should be LARGE, BOLD, and perfectly readable. Professional typography with proper kerning and weight.`
+        : "Create a visually striking composition without specific text. Use abstract shapes or subtle placeholder elements instead.";
 
       const colorInstruction = brandColor
-        ? `Use ${brandColor} as the primary accent color, keeping the overall palette sophisticated.`
+        ? `Use ${brandColor} as the PRIMARY ACCENT COLOR. Apply it strategically: headline text color, rim lights, subtle glows, or accent elements. Keep the overall palette cohesive and sophisticated.`
         : "";
 
-      const prompt = `Create a premium, professional ${template.category} thumbnail/post image. 
-Style: ${template.style}. 
-${textInstruction} 
+      const imageInstruction = imageBase64
+        ? `IMPORTANT: Use this uploaded image as the MAIN SUBJECT. Place it prominently in the composition.
+           Apply the text-behind-subject technique: layer the headline text BEHIND the subject so text appears to go behind the person/object.
+           Color-grade the subject to match the overall thumbnail aesthetic.
+           Add dramatic lighting effects (rim light, ambient glow) to integrate the subject naturally.`
+        : "Create a compelling visual composition with abstract elements, shapes, or symbolic imagery as the focal point.";
+
+      const masterPrompt = `You are a world-class thumbnail designer. Create an EXCEPTIONAL, PROFESSIONAL thumbnail image.
+
+STYLE DIRECTION:
+${template.style}
+
+${textInstruction}
+
 ${colorInstruction}
-IMPORTANT: ALL text in the image MUST be in German (Deutsch). No English text whatsoever. Use German words, phrases, and typography.
-This must look like it was designed by a top-tier creative agency. No amateur, clickbait, or "Mr Beast" style elements. 
-No excessive text, no comic fonts, no neon arrows, no shocked face expressions, no emoji overlays, no busy cluttered layouts.
-The design should feel premium, refined, and sophisticated. Think Vogue, Apple, or McKinsey presentation quality.
-Output dimensions: ${template.width}x${template.height} pixels.`;
+
+${imageInstruction}
+
+ABSOLUTE REQUIREMENTS:
+- ALL text MUST be in German (Deutsch). No English text whatsoever.
+- This must look like it was made by a TOP-TIER creative agency (Pentagram, Collins, or IDEO level)
+- PHOTO-REALISTIC quality — no illustrations, no cartoons, no clipart
+- Professional color grading with cinematic feel
+- Clean, intentional composition with clear visual hierarchy
+- The text-behind-subject layering technique is KEY for premium look
+- Output: ${template.width}×${template.height}px
+
+NEVER DO:
+- No "Mr Beast" clickbait style
+- No comic/bubble fonts
+- No neon arrows or circles
+- No shocked face expressions
+- No emoji overlays
+- No cluttered busy layouts
+- No amateur stock photo look
+- No generic corporate clip art`;
 
       const messages: any[] = [
         {
           role: "user",
           content: imageBase64
             ? [
-                { type: "text", text: `${prompt}\n\nUse this uploaded image as the main visual element. Integrate it elegantly into the composition.` },
+                { type: "text", text: masterPrompt },
                 { type: "image_url", image_url: { url: imageBase64 } },
               ]
-            : prompt,
+            : masterPrompt,
         },
       ];
 
@@ -175,7 +284,7 @@ Output dimensions: ${template.width}x${template.height} pixels.`;
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image",
+          model: "google/gemini-3-pro-image-preview",
           messages,
           modalities: ["image", "text"],
         }),
@@ -230,12 +339,17 @@ Output dimensions: ${template.width}x${template.height} pixels.`;
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image",
+          model: "google/gemini-3-pro-image-preview",
           messages: [
             {
               role: "user",
               content: [
-                { type: "text", text: `Edit this thumbnail image: ${iteratePrompt}. Keep the overall professional, premium quality. Make precise targeted changes only.` },
+                { type: "text", text: `You are a world-class thumbnail designer. Edit this thumbnail: ${iteratePrompt}. 
+                
+Maintain the PREMIUM, PROFESSIONAL quality. Make precise, targeted changes only. 
+Keep the text-behind-subject layering if present. 
+Ensure photo-realistic quality and cinematic color grading.
+ALL text must remain in German.` },
                 { type: "image_url", image_url: { url: iterateImage } },
               ],
             },
@@ -257,6 +371,8 @@ Output dimensions: ${template.width}x${template.height} pixels.`;
             { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
+        const errorText = await response.text();
+        console.error("AI iterate error:", response.status, errorText);
         throw new Error(`AI Gateway error: ${response.status}`);
       }
 
