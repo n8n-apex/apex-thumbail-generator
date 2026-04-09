@@ -16,7 +16,7 @@ interface CanvasProps {
   onCropCancel?: () => void;
 }
 
-export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset }: CanvasProps) {
+export default function Canvas({ image, zoom, onZoomChange, onDownload, onReset, cropPreset, onCropConfirm, onCropCancel }: CanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleWheel = useCallback(
