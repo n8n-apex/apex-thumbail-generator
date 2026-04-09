@@ -318,24 +318,26 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   video.src = "";
   const webmBlob = new Blob(chunks, { type: mimeType });
 
-  // Strict MP4 export
+  // Try MP4 conversion, fall back to WebM download if FFmpeg unavailable
   onProgress("Konvertiere zu MP4...");
   let ff: Awaited<typeof ffPromise> | null = null;
   try {
     ff = await ffPromise;
   } catch (e) {
-    console.warn("[Export] FFmpeg engine unavailable:", e);
-    throw new Error("MP4-Engine konnte nicht geladen werden");
+    console.warn("[Export] FFmpeg engine unavailable, falling back to WebM:", e);
+    onProgress("MP4-Engine nicht verfügbar — WebM wird verwendet");
+    return webmBlob;
   }
 
   if (!ff) {
-    throw new Error("MP4-Engine nicht verfügbar");
+    console.warn("[Export] FFmpeg null, falling back to WebM");
+    onProgress("Fertig! (WebM)");
+    return webmBlob;
   }
 
   try {
     onProgress("MP4-Konvertierung wird vorbereitet...");
 
-    // Wire progress events so the user sees conversion %
     const onFfProgress = ({ progress }: { progress: number }) => {
       if (progress > 0 && progress <= 1) {
         onProgress(`MP4-Konvertierung: ${Math.round(progress * 100)}%`);
@@ -373,12 +375,15 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
       return new Blob([new Uint8Array(mp4Data)], { type: "video/mp4" });
     }
 
-    throw new Error("MP4-Datei ungültig");
+    console.warn("[Export] MP4 invalid, falling back to WebM");
+    onProgress("Fertig! (WebM)");
+    return webmBlob;
   } catch (e) {
-    console.warn("[Export] MP4 remux failed:", e);
+    console.warn("[Export] MP4 remux failed, falling back to WebM:", e);
     try { await ff.deleteFile("input.webm"); } catch {}
     try { await ff.deleteFile("output.mp4"); } catch {}
-    throw new Error("MP4-Konvertierung fehlgeschlagen");
+    onProgress("Fertig! (WebM)");
+    return webmBlob;
   }
 }
 
