@@ -34,6 +34,9 @@ const Index = () => {
     downloadImage,
     downloadAll,
     resetImage,
+    setAdjustment,
+    resetAdjustments,
+    applyAdjustments,
   } = useImageEditor();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -252,7 +255,16 @@ const Index = () => {
 
                 {showProps && (
                   <div className="hidden sm:block absolute top-3 right-3 z-10 animate-fade-in">
-                    {propertiesContent}
+                    {state.activeTool === "adjust" ? (
+                      <AdjustPanel
+                        activeImage={activeImage}
+                        onAdjust={(key, value) => activeImage && setAdjustment(activeImage.id, key, value)}
+                        onReset={() => activeImage && resetAdjustments(activeImage.id)}
+                        onApply={() => activeImage && applyAdjustments(activeImage.id)}
+                      />
+                    ) : (
+                      propertiesContent
+                    )}
                   </div>
                 )}
               </div>
