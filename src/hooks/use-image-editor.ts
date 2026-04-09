@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { ImageFile, EditorState, CropPreset, ImageAdjustments, DEFAULT_ADJUSTMENTS } from "@/types/image-editor";
+import { ImageFile, EditorState, CropPreset, ImageAdjustments, DEFAULT_ADJUSTMENTS, adjustmentsToCssFilter } from "@/types/image-editor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
