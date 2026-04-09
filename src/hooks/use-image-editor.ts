@@ -446,7 +446,7 @@ export function useImageEditor() {
       ...prev,
       images: prev.images.map((i) =>
         i.id === id
-          ? { ...i, editedUrl }
+          ? { ...i, editedUrl, adjustments: { ...DEFAULT_ADJUSTMENTS } }
           : i
       ),
     }));
