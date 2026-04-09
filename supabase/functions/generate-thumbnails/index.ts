@@ -120,7 +120,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { action, templateId, customText, brandColor, imageBase64 } = await req.json();
+    const { action, templateId, customText, brandColor, imageBase64, prompt } = await req.json();
 
     if (action === "list-templates") {
       return new Response(
@@ -214,7 +214,8 @@ Output dimensions: ${template.width}x${template.height} pixels.`;
     }
 
     if (action === "iterate") {
-      const { imageBase64: iterateImage, prompt: iteratePrompt } = await req.json();
+      const iterateImage = imageBase64;
+      const iteratePrompt = prompt || customText;
       if (!iterateImage || !iteratePrompt) {
         return new Response(
           JSON.stringify({ error: "Image and prompt required for iteration" }),
