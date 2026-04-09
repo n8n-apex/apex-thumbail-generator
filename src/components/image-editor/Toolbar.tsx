@@ -26,9 +26,7 @@ interface ToolbarProps {
 const tools = [
   { id: "select" as const, icon: MousePointer2, label: "Auswählen", color: "" },
   { id: "crop" as const, icon: Crop, label: "Zuschneiden", color: "" },
-  { id: "ai-edit" as const, icon: Wand2, label: "AI Bearbeiten", color: "" },
-  { id: "enhance" as const, icon: Sparkles, label: "AI Verbessern", color: "" },
-  { id: "bg-remove" as const, icon: Eraser, label: "Hintergrund entfernen", color: "" },
+  { id: "ai-edit" as const, icon: Wand2, label: "AI Werkzeuge", color: "" },
 ];
 
 export default function Toolbar({
