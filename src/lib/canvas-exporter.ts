@@ -333,7 +333,16 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   }
 
   try {
-    onProgress("MP4-Konvertierung läuft...");
+    onProgress("MP4-Konvertierung wird vorbereitet...");
+
+    // Wire progress events so the user sees conversion %
+    const onFfProgress = ({ progress }: { progress: number }) => {
+      if (progress > 0 && progress <= 1) {
+        onProgress(`MP4-Konvertierung: ${Math.round(progress * 100)}%`);
+      }
+    };
+    ff.on("progress", onFfProgress);
+
     const webmData = await fetchFile(webmBlob);
     await ff.writeFile("input.webm", webmData);
 
