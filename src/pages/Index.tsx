@@ -6,11 +6,13 @@ import PropertiesPanel from "@/components/image-editor/PropertiesPanel";
 import BatchStrip from "@/components/image-editor/BatchStrip";
 import UploadZone from "@/components/image-editor/UploadZone";
 import ThumbnailGenerator from "@/components/image-editor/ThumbnailGenerator";
+import ThumbnailEditor from "@/components/image-editor/ThumbnailEditor";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Settings2, Wand2, LayoutGrid } from "lucide-react";
+import { Settings2, Wand2, LayoutGrid, Pencil } from "lucide-react";
+import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type AppTab = "editor" | "thumbnails";
+type AppTab = "editor" | "thumbnails" | "thumb-editor";
 
 const Index = () => {
   const {
@@ -36,6 +38,7 @@ const Index = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [propsOpen, setPropsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>("editor");
+  const [thumbProject, setThumbProject] = useState<ThumbnailProject | null>(null);
 
   const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -50,6 +53,11 @@ const Index = () => {
     },
     [addImages]
   );
+
+  const handleEditThumbnail = useCallback((project: ThumbnailProject) => {
+    setThumbProject(project);
+    setActiveTab("thumb-editor");
+  }, []);
 
   const hasImages = state.images.length > 0;
   const showProps = state.activeTool !== "select";
@@ -120,11 +128,23 @@ const Index = () => {
               <LayoutGrid className="h-3.5 w-3.5" />
               Thumbnails
             </button>
+            {thumbProject && (
+              <button
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                  activeTab === "thumb-editor"
+                    ? "bg-background shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                onClick={() => setActiveTab("thumb-editor")}
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Bearbeiten
+              </button>
+            )}
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Mobile: properties sheet trigger */}
           {activeTab === "editor" && hasImages && (
             <Sheet open={propsOpen} onOpenChange={setPropsOpen}>
               <SheetTrigger asChild>
@@ -156,8 +176,21 @@ const Index = () => {
         onChange={handleFileChange}
       />
 
+      {/* Thumbnail Editor Tab */}
+      {activeTab === "thumb-editor" && thumbProject && (
+        <ThumbnailEditor
+          project={thumbProject}
+          onBack={() => setActiveTab("thumbnails")}
+        />
+      )}
+
       {/* Thumbnail Generator Tab */}
-      {activeTab === "thumbnails" && <ThumbnailGenerator batchImages={state.images} />}
+      {activeTab === "thumbnails" && (
+        <ThumbnailGenerator
+          batchImages={state.images}
+          onEditThumbnail={handleEditThumbnail}
+        />
+      )}
 
       {/* Editor Tab */}
       {activeTab === "editor" && (
@@ -166,7 +199,6 @@ const Index = () => {
             <UploadZone onFiles={addImages} />
           ) : (
             <div className="flex-1 flex flex-col sm:flex-row gap-1.5 sm:gap-2 p-1.5 sm:p-2 min-h-0 relative">
-              {/* Toolbar: horizontal on mobile, vertical on desktop */}
               <div className="sm:hidden">
                 <div className="flex items-center gap-1 p-1.5 glass-elevated rounded-xl overflow-x-auto">
                   <Toolbar
@@ -193,7 +225,6 @@ const Index = () => {
                 />
               </div>
 
-              {/* Center area */}
               <div className="flex-1 flex flex-col gap-1.5 sm:gap-2 min-w-0 min-h-0 relative">
                 <Canvas
                   image={activeImage}
@@ -218,7 +249,6 @@ const Index = () => {
                   onRemove={removeImage}
                 />
 
-                {/* Floating properties panel */}
                 {showProps && (
                   <div className="hidden sm:block absolute top-3 right-3 z-10 animate-fade-in">
                     {propertiesContent}
