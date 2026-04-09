@@ -157,7 +157,7 @@ const Index = () => {
       />
 
       {/* Thumbnail Generator Tab */}
-      {activeTab === "thumbnails" && <ThumbnailGenerator />}
+      {activeTab === "thumbnails" && <ThumbnailGenerator batchImages={state.images} />}
 
       {/* Editor Tab */}
       {activeTab === "editor" && (
