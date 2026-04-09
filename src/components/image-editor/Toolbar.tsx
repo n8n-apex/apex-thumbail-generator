@@ -43,7 +43,7 @@ export default function Toolbar({
 }: ToolbarProps) {
   const containerClass = horizontal
     ? "flex items-center gap-1"
-    : "flex flex-col items-center gap-1 py-3 px-1.5 glass-elevated rounded-2xl";
+    : "flex flex-col items-center gap-1 py-3 px-1.5 glass-elevated rounded-2xl relative z-20";
 
   const separatorClass = horizontal
     ? "w-px h-6 bg-border/50 mx-0.5"
