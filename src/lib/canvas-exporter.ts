@@ -176,7 +176,10 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
 
   onProgress("Video wird vorbereitet...");
   // Start loading shared FFmpeg in parallel while recording runs.
-  const ffPromise = getProcessor((msg) => console.log("[Export FFmpeg]", msg));
+  const ffPromise = getProcessor((msg) => {
+    console.log("[Export FFmpeg]", msg);
+    onProgress(msg);
+  });
 
   const video = document.createElement("video");
   video.src = videoUrl;
@@ -330,7 +333,16 @@ export async function exportWithSubtitles(opts: ExportOptions): Promise<Blob> {
   }
 
   try {
-    onProgress("MP4-Konvertierung läuft...");
+    onProgress("MP4-Konvertierung wird vorbereitet...");
+
+    // Wire progress events so the user sees conversion %
+    const onFfProgress = ({ progress }: { progress: number }) => {
+      if (progress > 0 && progress <= 1) {
+        onProgress(`MP4-Konvertierung: ${Math.round(progress * 100)}%`);
+      }
+    };
+    ff.on("progress", onFfProgress);
+
     const webmData = await fetchFile(webmBlob);
     await ff.writeFile("input.webm", webmData);
 
