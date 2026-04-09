@@ -5,6 +5,7 @@ import Canvas from "@/components/image-editor/Canvas";
 import PropertiesPanel from "@/components/image-editor/PropertiesPanel";
 import BatchStrip from "@/components/image-editor/BatchStrip";
 import UploadZone from "@/components/image-editor/UploadZone";
+import AdjustPanel from "@/components/image-editor/AdjustPanel";
 import ThumbnailGenerator from "@/components/image-editor/ThumbnailGenerator";
 import ThumbnailEditor from "@/components/image-editor/ThumbnailEditor";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
