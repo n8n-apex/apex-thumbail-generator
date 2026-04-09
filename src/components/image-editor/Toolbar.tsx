@@ -5,6 +5,7 @@ import {
   Upload,
   Download,
   RotateCcw,
+  SlidersHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,6 +26,7 @@ const tools = [
   { id: "select" as const, icon: MousePointer2, label: "Auswählen", color: "" },
   { id: "crop" as const, icon: Crop, label: "Zuschneiden", color: "" },
   { id: "ai-edit" as const, icon: Wand2, label: "AI Werkzeuge", color: "" },
+  { id: "adjust" as const, icon: SlidersHorizontal, label: "Anpassen", color: "" },
 ];
 
 export default function Toolbar({
