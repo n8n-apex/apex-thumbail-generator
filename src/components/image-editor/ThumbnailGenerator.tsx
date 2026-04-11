@@ -114,7 +114,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
       if (progressInterval.current) clearInterval(progressInterval.current);
     };
   }, []);
-  const [generated, setGenerated] = useState<GeneratedThumbnail[]>([]);
+  
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
