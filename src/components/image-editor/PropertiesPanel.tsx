@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { SOCIAL_PRESETS, CropPreset, ImageFile } from "@/types/image-editor";
 import { EditorState } from "@/types/image-editor";
 import {
@@ -10,7 +16,23 @@ import {
   CheckSquare,
   Send,
   Info,
+  ChevronDown,
+  Image,
 } from "lucide-react";
+
+interface ExportResolution {
+  label: string;
+  width: number;
+  height: number;
+}
+
+const EXPORT_RESOLUTIONS: ExportResolution[] = [
+  { label: "Original", width: 0, height: 0 },
+  { label: "720p HD", width: 1280, height: 720 },
+  { label: "1080p Full HD", width: 1920, height: 1080 },
+  { label: "2K QHD", width: 2560, height: 1440 },
+  { label: "4K UHD", width: 3840, height: 2160 },
+];
 
 interface PropertiesPanelProps {
   activeTool: EditorState["activeTool"];
@@ -21,7 +43,7 @@ interface PropertiesPanelProps {
   onAiEdit: (action: string) => void;
   onCrop: (preset: CropPreset) => void;
   onBatchCrop: (preset: CropPreset) => void;
-  onDownload: () => void;
+  onDownload: (resolution?: ExportResolution) => void;
   onSelectAll: () => void;
 }
 
@@ -38,6 +60,7 @@ export default function PropertiesPanel({
   onSelectAll,
 }: PropertiesPanelProps) {
   const [batchMode, setBatchMode] = useState(false);
+  const [selectedResolution, setSelectedResolution] = useState<ExportResolution>(EXPORT_RESOLUTIONS[0]);
 
   return (
     <div className="w-72 flex flex-col gap-3 p-4 glass-elevated rounded-2xl overflow-y-auto max-h-[calc(100vh-140px)] shadow-xl">
@@ -181,14 +204,48 @@ export default function PropertiesPanel({
               </div>
             )}
           </div>
-          <Button
-            variant="outline"
-            className="w-full gap-2 rounded-xl text-xs h-9"
-            onClick={onDownload}
-          >
-            <Download className="h-3.5 w-3.5" />
-            Herunterladen
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full gap-2 rounded-xl text-xs h-9 justify-between"
+                disabled={!activeImage}
+              >
+                <div className="flex items-center gap-2">
+                  <Download className="h-3.5 w-3.5" />
+                  <span>
+                    {selectedResolution.label === "Original" 
+                      ? "Herunterladen" 
+                      : `Export: ${selectedResolution.label}`}
+                  </span>
+                </div>
+                <ChevronDown className="h-3.5 w-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {EXPORT_RESOLUTIONS.map((res) => (
+                <DropdownMenuItem
+                  key={res.label}
+                  onClick={() => {
+                    setSelectedResolution(res);
+                    onDownload(res.width > 0 ? res : undefined);
+                  }}
+                  className="text-xs"
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className={res.label === selectedResolution.label ? "font-medium" : ""}>
+                      {res.label}
+                    </span>
+                    {res.width > 0 && (
+                      <span className="text-muted-foreground tabular-nums">
+                        {res.width}×{res.height}
+                      </span>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
 
