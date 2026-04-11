@@ -159,9 +159,10 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
       const message = err instanceof Error ? err.message : "Fehler bei der Generierung";
       toast.error(message);
     } finally {
+      stopProgress();
       setIsGenerating(null);
     }
-  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage]);
+  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, startProgress, stopProgress]);
 
   const handleDownload = useCallback((thumbnail: GeneratedThumbnail) => {
     const a = document.createElement("a");
