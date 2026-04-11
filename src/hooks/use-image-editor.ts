@@ -3,6 +3,12 @@ import { ImageFile, EditorState, CropPreset, ImageAdjustments, DEFAULT_ADJUSTMEN
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+interface ExportResolution {
+  label: string;
+  width: number;
+  height: number;
+}
+
 const generateId = () => Math.random().toString(36).slice(2, 10);
 
 function loadImage(file: File): Promise<{ url: string; width: number; height: number }> {
@@ -309,64 +315,70 @@ export function useImageEditor() {
     await Promise.all(state.selectedIds.map((id) => cropImage(id, preset)));
   }, [state.selectedIds, cropImage]);
 
-  const downloadImage = useCallback(async (id: string) => {
+  const downloadImage = useCallback(async (id: string, resolution?: ExportResolution) => {
     const img = state.images.find((i) => i.id === id);
     if (!img) return;
 
     const sourceUrl = img.editedUrl ?? img.url;
     const baseName = img.name.replace(/\.[^.]+$/, "");
     const ext = img.hasBgRemoved ? "png" : "jpg";
-    const filename = `${baseName}_edited.${ext}`;
+    const resLabel = resolution ? `_${resolution.label.replace(/\s+/g, '_').toLowerCase()}` : "";
+    const filename = `${baseName}_edited${resLabel}.${ext}`;
 
-    // Bake current adjustments into the download without changing state
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = reject;
+      image.src = sourceUrl;
+    });
+
+    // Determine target dimensions
+    let targetW = image.naturalWidth;
+    let targetH = image.naturalHeight;
+    if (resolution && resolution.width > 0) {
+      // Scale to fit within target resolution while maintaining aspect ratio
+      const srcRatio = image.naturalWidth / image.naturalHeight;
+      const dstRatio = resolution.width / resolution.height;
+      if (srcRatio > dstRatio) {
+        targetW = resolution.width;
+        targetH = Math.round(resolution.width / srcRatio);
+      } else {
+        targetH = resolution.height;
+        targetW = Math.round(resolution.height * srcRatio);
+      }
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext("2d")!;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    // Apply adjustments filter if any
     const adj = img.adjustments;
     const hasAdj = adj.brightness !== 100 || adj.contrast !== 100 || adj.saturation !== 100 ||
       adj.exposure !== 0 || adj.temperature !== 0 || adj.sharpness !== 100;
-
+    
     if (hasAdj) {
-      const image = new Image();
-      image.crossOrigin = "anonymous";
-      await new Promise<void>((resolve, reject) => {
-        image.onload = () => resolve();
-        image.onerror = reject;
-        image.src = sourceUrl;
-      });
-      const canvas = document.createElement("canvas");
-      canvas.width = image.naturalWidth;
-      canvas.height = image.naturalHeight;
-      const ctx = canvas.getContext("2d")!;
       ctx.filter = adjustmentsToCssFilter(adj);
-      ctx.drawImage(image, 0, 0);
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
-      }, img.hasBgRemoved ? "image/png" : "image/jpeg", 0.92);
-    } else {
-      try {
-        const resp = await fetch(sourceUrl);
-        const blob = await resp.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
-      } catch {
-        const a = document.createElement("a");
-        a.href = sourceUrl;
-        a.download = filename;
-        a.click();
-      }
     }
+
+    ctx.drawImage(image, 0, 0, targetW, targetH);
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      toast.success(`Exportiert: ${filename}`);
+    }, img.hasBgRemoved ? "image/png" : "image/jpeg", 0.92);
   }, [state.images]);
 
   const downloadAll = useCallback(async () => {
