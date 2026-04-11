@@ -195,6 +195,8 @@ const Index = () => {
         <ThumbnailGenerator
           batchImages={state.images}
           onEditThumbnail={handleEditThumbnail}
+          generated={generatedThumbnails}
+          onGeneratedChange={setGeneratedThumbnails}
         />
       )}
 
