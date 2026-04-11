@@ -152,7 +152,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setGenerated((prev) => [
+      onGeneratedChange((prev) => [
         { templateId: template.id, imageUrl: data.image, template: data.template },
         ...prev,
       ]);

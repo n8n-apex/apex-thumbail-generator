@@ -44,6 +44,7 @@ const Index = () => {
   const [propsOpen, setPropsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>("editor");
   const [thumbProject, setThumbProject] = useState<ThumbnailProject | null>(null);
+  const [generatedThumbnails, setGeneratedThumbnails] = useState<GeneratedThumbnail[]>([]);
 
   const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
