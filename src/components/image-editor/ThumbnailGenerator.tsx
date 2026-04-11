@@ -488,14 +488,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
                       >
                         <Pencil className="h-3 w-3" />
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-[11px] h-8 rounded-xl px-2.5"
-                        onClick={() => handleDownload(existingResult)}
-                      >
-                        <Download className="h-3 w-3" />
-                      </Button>
+                      <DownloadDropdown thumbnail={existingResult} compact />
                     </>
                   )}
                 </div>
