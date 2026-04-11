@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Settings2, Wand2, LayoutGrid, Pencil } from "lucide-react";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
+import type { GeneratedThumbnail } from "@/components/image-editor/ThumbnailGenerator";
 
 type AppTab = "editor" | "thumbnails" | "thumb-editor";
 
