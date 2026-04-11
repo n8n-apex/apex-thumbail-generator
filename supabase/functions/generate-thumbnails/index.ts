@@ -277,20 +277,26 @@ NEVER DO:
         },
       ];
 
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-pro-image-preview",
-          messages,
-          modalities: ["image", "text"],
-        }),
-      });
+      const models = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
+      let response: Response | null = null;
+      let lastError = "";
 
-      if (!response.ok) {
+      for (const model of models) {
+        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model,
+            messages,
+            modalities: ["image", "text"],
+          }),
+        });
+
+        if (response.ok) break;
+
         if (response.status === 429) {
           return new Response(
             JSON.stringify({ error: "Rate limit erreicht. Bitte versuche es in ein paar Sekunden erneut." }),
@@ -303,9 +309,14 @@ NEVER DO:
             { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        const errorText = await response.text();
-        console.error("AI Gateway error:", response.status, errorText);
-        throw new Error(`AI Gateway error: ${response.status}`);
+
+        lastError = await response.text();
+        console.error(`Model ${model} failed:`, response.status, lastError);
+        // Try next model
+      }
+
+      if (!response || !response.ok) {
+        throw new Error(`All AI models failed. Last error: ${lastError}`);
       }
 
       const data = await response.json();
@@ -332,51 +343,61 @@ NEVER DO:
         );
       }
 
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-pro-image-preview",
-          messages: [
-            {
-              role: "user",
-              content: [
-                { type: "text", text: `You are a world-class thumbnail designer. Edit this thumbnail: ${iteratePrompt}. 
-                
+      const iterateModels = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
+      let iterateResp: Response | null = null;
+      let iterateLastErr = "";
+
+      for (const model of iterateModels) {
+        iterateResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              {
+                role: "user",
+                content: [
+                  { type: "text", text: `You are a world-class thumbnail designer. Edit this thumbnail: ${iteratePrompt}. 
+                  
 Maintain the PREMIUM, PROFESSIONAL quality. Make precise, targeted changes only. 
 Keep the text-behind-subject layering if present. 
 Ensure photo-realistic quality and cinematic color grading.
 ALL text must remain in German.` },
-                { type: "image_url", image_url: { url: iterateImage } },
-              ],
-            },
-          ],
-          modalities: ["image", "text"],
-        }),
-      });
+                  { type: "image_url", image_url: { url: iterateImage } },
+                ],
+              },
+            ],
+            modalities: ["image", "text"],
+          }),
+        });
 
-      if (!response.ok) {
-        if (response.status === 429) {
+        if (iterateResp.ok) break;
+
+        if (iterateResp.status === 429) {
           return new Response(
             JSON.stringify({ error: "Rate limit erreicht." }),
             { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        if (response.status === 402) {
+        if (iterateResp.status === 402) {
           return new Response(
             JSON.stringify({ error: "AI-Credits aufgebraucht." }),
             { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        const errorText = await response.text();
-        console.error("AI iterate error:", response.status, errorText);
-        throw new Error(`AI Gateway error: ${response.status}`);
+
+        iterateLastErr = await iterateResp.text();
+        console.error(`Iterate model ${model} failed:`, iterateResp.status, iterateLastErr);
       }
 
-      const data = await response.json();
+      if (!iterateResp || !iterateResp.ok) {
+        throw new Error(`All AI models failed for iteration. Last: ${iterateLastErr}`);
+      }
+
+      const data = await iterateResp.json();
       const editedImage = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
       if (!editedImage) throw new Error("AI did not return an edited image");
 
