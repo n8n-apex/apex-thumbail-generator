@@ -380,9 +380,13 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
             </div>
           )}
 
-          {(selectedBatchImageId || uploadedImage) && (
+          {(selectedBatchImageId || uploadedImage) ? (
             <p className="text-[10px] text-primary font-medium">
               ✓ Bild wird als Basis für die Thumbnail-Generierung verwendet
+            </p>
+          ) : (
+            <p className="text-[10px] text-destructive font-medium">
+              ⚠ Bitte wähle ein Bild aus, bevor du ein Thumbnail generierst
             </p>
           )}
         </div>
@@ -465,8 +469,9 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
                   <Button
                     size="sm"
                     className="flex-1 text-[11px] h-8 rounded-xl glass-button-primary text-primary-foreground"
-                    disabled={isLoading}
+                    disabled={isLoading || (!selectedBatchImageId && !uploadedImage)}
                     onClick={() => handleGenerate(template)}
+                    title={!selectedBatchImageId && !uploadedImage ? "Bitte zuerst ein Bild auswählen" : undefined}
                   >
                     {isLoading ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
