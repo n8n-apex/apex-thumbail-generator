@@ -79,7 +79,7 @@ function urlToBase64(url: string): Promise<string> {
   });
 }
 
-export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }: ThumbnailGeneratorProps) {
+export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, generated, onGeneratedChange }: ThumbnailGeneratorProps) {
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
