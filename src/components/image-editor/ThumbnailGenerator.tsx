@@ -49,7 +49,7 @@ const ASPECT_LABELS: Record<string, string> = {
   "1400x1400": "1:1",
 };
 
-interface GeneratedThumbnail {
+export interface GeneratedThumbnail {
   templateId: string;
   imageUrl: string;
   template: ThumbnailTemplate;
@@ -58,6 +58,8 @@ interface GeneratedThumbnail {
 interface ThumbnailGeneratorProps {
   batchImages?: ImageFile[];
   onEditThumbnail: (project: ThumbnailProject) => void;
+  generated: GeneratedThumbnail[];
+  onGeneratedChange: (updater: (prev: GeneratedThumbnail[]) => GeneratedThumbnail[]) => void;
 }
 
 function urlToBase64(url: string): Promise<string> {
