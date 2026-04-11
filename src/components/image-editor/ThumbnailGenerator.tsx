@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil } from "lucide-react";
+import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil, Clock } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
@@ -80,6 +81,37 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [generationElapsed, setGenerationElapsed] = useState(0);
+  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startProgress = useCallback(() => {
+    setGenerationProgress(0);
+    setGenerationElapsed(0);
+    const start = Date.now();
+    progressInterval.current = setInterval(() => {
+      const elapsed = (Date.now() - start) / 1000;
+      setGenerationElapsed(Math.floor(elapsed));
+      // Asymptotic progress: approaches 95% over ~30s
+      const progress = Math.min(95, (1 - Math.exp(-elapsed / 12)) * 100);
+      setGenerationProgress(Math.round(progress));
+    }, 200);
+  }, []);
+
+  const stopProgress = useCallback(() => {
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
+    }
+    setGenerationProgress(100);
+    setTimeout(() => setGenerationProgress(0), 600);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (progressInterval.current) clearInterval(progressInterval.current);
+    };
+  }, []);
   const [generated, setGenerated] = useState<GeneratedThumbnail[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
@@ -92,6 +124,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
 
   const handleGenerate = useCallback(async (template: ThumbnailTemplate) => {
     setIsGenerating(template.id);
+    startProgress();
     try {
       let imageBase64: string | undefined;
       if (selectedBatchImageId) {
@@ -126,9 +159,10 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
       const message = err instanceof Error ? err.message : "Fehler bei der Generierung";
       toast.error(message);
     } finally {
+      stopProgress();
       setIsGenerating(null);
     }
-  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage]);
+  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, startProgress, stopProgress]);
 
   const handleDownload = useCallback((thumbnail: GeneratedThumbnail) => {
     const a = document.createElement("a");
@@ -316,10 +350,16 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
                   </div>
                 )}
                 {isLoading && (
-                  <div className="absolute inset-0 bg-background/70 backdrop-blur-sm flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                      <span className="text-[11px] font-medium text-foreground">Generiert...</span>
+                  <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-3 w-3/4 max-w-[200px]">
+                      <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                      <Progress value={generationProgress} className="h-2 w-full" />
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-[11px] font-medium text-foreground tabular-nums">
+                          {generationElapsed}s — {generationProgress < 50 ? "AI generiert..." : generationProgress < 80 ? "Feinschliff..." : "Fast fertig..."}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
