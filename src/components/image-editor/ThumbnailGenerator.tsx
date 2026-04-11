@@ -350,10 +350,16 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
                   </div>
                 )}
                 {isLoading && (
-                  <div className="absolute inset-0 bg-background/70 backdrop-blur-sm flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                      <span className="text-[11px] font-medium text-foreground">Generiert...</span>
+                  <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-3 w-3/4 max-w-[200px]">
+                      <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+                      <Progress value={generationProgress} className="h-2 w-full" />
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-[11px] font-medium text-foreground tabular-nums">
+                          {generationElapsed}s — {generationProgress < 50 ? "AI generiert..." : generationProgress < 80 ? "Feinschliff..." : "Fast fertig..."}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
