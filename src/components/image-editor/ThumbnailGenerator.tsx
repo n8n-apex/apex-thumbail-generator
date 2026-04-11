@@ -129,8 +129,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
     : TEMPLATES;
 
   const handleGenerate = useCallback(async (template: ThumbnailTemplate) => {
-    setIsGenerating(template.id);
-    startProgress();
+    startProgress(template.id);
     try {
       let imageBase64: string | undefined;
       if (selectedBatchImageId) {
@@ -165,8 +164,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
       const message = err instanceof Error ? err.message : "Fehler bei der Generierung";
       toast.error(message);
     } finally {
-      stopProgress();
-      setIsGenerating(null);
+      stopProgress(template.id);
     }
   }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, startProgress, stopProgress]);
 
@@ -417,7 +415,10 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {filteredTemplates.map((template) => {
           const existingResult = generated.find((g) => g.templateId === template.id);
-          const isLoading = isGenerating === template.id;
+          const genState = generatingMap[template.id];
+          const isLoading = !!genState;
+          const progress = genState?.progress ?? 0;
+          const elapsed = genState?.elapsed ?? 0;
           const aspectKey = `${template.width}x${template.height}`;
           const aspectLabel = ASPECT_LABELS[aspectKey] || "";
           const catColor = CATEGORY_COLORS[template.category] || "bg-muted text-foreground";
@@ -440,11 +441,11 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
                   <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
                     <div className="flex flex-col items-center gap-3 w-3/4 max-w-[200px]">
                       <Sparkles className="h-6 w-6 text-primary animate-pulse" />
-                      <Progress value={generationProgress} className="h-2 w-full" />
+                      <Progress value={progress} className="h-2 w-full" />
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <span className="text-[11px] font-medium text-foreground tabular-nums">
-                          {generationElapsed}s — {generationProgress < 50 ? "AI generiert..." : generationProgress < 80 ? "Feinschliff..." : "Fast fertig..."}
+                          {elapsed}s — {progress < 50 ? "AI generiert..." : progress < 80 ? "Feinschliff..." : "Fast fertig..."}
                         </span>
                       </div>
                     </div>
