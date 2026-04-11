@@ -80,7 +80,7 @@ const Index = () => {
         if (activeImage) setCropPreset(preset);
       }}
       onBatchCrop={batchCrop}
-      onDownload={() => activeImage && downloadImage(activeImage.id)}
+      onDownload={(resolution) => activeImage && downloadImage(activeImage.id, resolution)}
       onSelectAll={selectAll}
     />
   );
