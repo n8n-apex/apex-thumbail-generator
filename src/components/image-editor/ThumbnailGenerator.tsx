@@ -88,36 +88,34 @@ function urlToBase64(url: string): Promise<string> {
 export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, generated, onGeneratedChange }: ThumbnailGeneratorProps) {
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
-  const [isGenerating, setIsGenerating] = useState<string | null>(null);
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [generationElapsed, setGenerationElapsed] = useState(0);
-  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [generatingMap, setGeneratingMap] = useState<Record<string, { progress: number; elapsed: number }>>({});
+  const progressIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
-  const startProgress = useCallback(() => {
-    setGenerationProgress(0);
-    setGenerationElapsed(0);
+  const startProgress = useCallback((templateId: string) => {
+    setGeneratingMap((prev) => ({ ...prev, [templateId]: { progress: 0, elapsed: 0 } }));
     const start = Date.now();
-    progressInterval.current = setInterval(() => {
+    progressIntervals.current[templateId] = setInterval(() => {
       const elapsed = (Date.now() - start) / 1000;
-      setGenerationElapsed(Math.floor(elapsed));
-      // Asymptotic progress: approaches 95% over ~30s
       const progress = Math.min(95, (1 - Math.exp(-elapsed / 12)) * 100);
-      setGenerationProgress(Math.round(progress));
-    }, 200);
+      setGeneratingMap((prev) => prev[templateId] ? { ...prev, [templateId]: { progress: Math.round(progress), elapsed: Math.floor(elapsed) } } : prev);
+    }, 500);
   }, []);
 
-  const stopProgress = useCallback(() => {
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
+  const stopProgress = useCallback((templateId: string) => {
+    if (progressIntervals.current[templateId]) {
+      clearInterval(progressIntervals.current[templateId]);
+      delete progressIntervals.current[templateId];
     }
-    setGenerationProgress(100);
-    setTimeout(() => setGenerationProgress(0), 600);
+    setGeneratingMap((prev) => {
+      const next = { ...prev, [templateId]: { progress: 100, elapsed: prev[templateId]?.elapsed ?? 0 } };
+      setTimeout(() => setGeneratingMap((p) => { const { [templateId]: _, ...rest } = p; return rest; }), 600);
+      return next;
+    });
   }, []);
 
   useEffect(() => {
     return () => {
-      if (progressInterval.current) clearInterval(progressInterval.current);
+      Object.values(progressIntervals.current).forEach(clearInterval);
     };
   }, []);
   
