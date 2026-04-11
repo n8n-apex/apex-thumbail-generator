@@ -124,6 +124,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
 
   const handleGenerate = useCallback(async (template: ThumbnailTemplate) => {
     setIsGenerating(template.id);
+    startProgress();
     try {
       let imageBase64: string | undefined;
       if (selectedBatchImageId) {
