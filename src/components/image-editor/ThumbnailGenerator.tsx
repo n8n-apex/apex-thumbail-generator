@@ -88,36 +88,34 @@ function urlToBase64(url: string): Promise<string> {
 export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, generated, onGeneratedChange }: ThumbnailGeneratorProps) {
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
-  const [isGenerating, setIsGenerating] = useState<string | null>(null);
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [generationElapsed, setGenerationElapsed] = useState(0);
-  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [generatingMap, setGeneratingMap] = useState<Record<string, { progress: number; elapsed: number }>>({});
+  const progressIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
-  const startProgress = useCallback(() => {
-    setGenerationProgress(0);
-    setGenerationElapsed(0);
+  const startProgress = useCallback((templateId: string) => {
+    setGeneratingMap((prev) => ({ ...prev, [templateId]: { progress: 0, elapsed: 0 } }));
     const start = Date.now();
-    progressInterval.current = setInterval(() => {
+    progressIntervals.current[templateId] = setInterval(() => {
       const elapsed = (Date.now() - start) / 1000;
-      setGenerationElapsed(Math.floor(elapsed));
-      // Asymptotic progress: approaches 95% over ~30s
       const progress = Math.min(95, (1 - Math.exp(-elapsed / 12)) * 100);
-      setGenerationProgress(Math.round(progress));
-    }, 200);
+      setGeneratingMap((prev) => prev[templateId] ? { ...prev, [templateId]: { progress: Math.round(progress), elapsed: Math.floor(elapsed) } } : prev);
+    }, 500);
   }, []);
 
-  const stopProgress = useCallback(() => {
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
+  const stopProgress = useCallback((templateId: string) => {
+    if (progressIntervals.current[templateId]) {
+      clearInterval(progressIntervals.current[templateId]);
+      delete progressIntervals.current[templateId];
     }
-    setGenerationProgress(100);
-    setTimeout(() => setGenerationProgress(0), 600);
+    setGeneratingMap((prev) => {
+      const next = { ...prev, [templateId]: { progress: 100, elapsed: prev[templateId]?.elapsed ?? 0 } };
+      setTimeout(() => setGeneratingMap((p) => { const { [templateId]: _, ...rest } = p; return rest; }), 600);
+      return next;
+    });
   }, []);
 
   useEffect(() => {
     return () => {
-      if (progressInterval.current) clearInterval(progressInterval.current);
+      Object.values(progressIntervals.current).forEach(clearInterval);
     };
   }, []);
   
@@ -131,8 +129,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
     : TEMPLATES;
 
   const handleGenerate = useCallback(async (template: ThumbnailTemplate) => {
-    setIsGenerating(template.id);
-    startProgress();
+    startProgress(template.id);
     try {
       let imageBase64: string | undefined;
       if (selectedBatchImageId) {
@@ -167,8 +164,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
       const message = err instanceof Error ? err.message : "Fehler bei der Generierung";
       toast.error(message);
     } finally {
-      stopProgress();
-      setIsGenerating(null);
+      stopProgress(template.id);
     }
   }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, startProgress, stopProgress]);
 
@@ -419,7 +415,10 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {filteredTemplates.map((template) => {
           const existingResult = generated.find((g) => g.templateId === template.id);
-          const isLoading = isGenerating === template.id;
+          const genState = generatingMap[template.id];
+          const isLoading = !!genState;
+          const progress = genState?.progress ?? 0;
+          const elapsed = genState?.elapsed ?? 0;
           const aspectKey = `${template.width}x${template.height}`;
           const aspectLabel = ASPECT_LABELS[aspectKey] || "";
           const catColor = CATEGORY_COLORS[template.category] || "bg-muted text-foreground";
@@ -442,11 +441,11 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
                   <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
                     <div className="flex flex-col items-center gap-3 w-3/4 max-w-[200px]">
                       <Sparkles className="h-6 w-6 text-primary animate-pulse" />
-                      <Progress value={generationProgress} className="h-2 w-full" />
+                      <Progress value={progress} className="h-2 w-full" />
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <span className="text-[11px] font-medium text-foreground tabular-nums">
-                          {generationElapsed}s — {generationProgress < 50 ? "AI generiert..." : generationProgress < 80 ? "Feinschliff..." : "Fast fertig..."}
+                          {elapsed}s — {progress < 50 ? "AI generiert..." : progress < 80 ? "Feinschliff..." : "Fast fertig..."}
                         </span>
                       </div>
                     </div>
