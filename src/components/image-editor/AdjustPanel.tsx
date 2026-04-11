@@ -30,7 +30,7 @@ const SLIDERS: {
 export default function AdjustPanel({ activeImage, onAdjust, onReset, onApply }: AdjustPanelProps) {
   if (!activeImage) {
     return (
-      <div className="w-72 flex flex-col gap-3 p-4 glass-elevated rounded-2xl shadow-xl">
+    <div className="w-72 flex flex-col gap-3 p-4 rounded-2xl shadow-xl bg-background/95 backdrop-blur-xl border border-border/50">
         <h2 className="text-sm font-bold text-foreground">Anpassen</h2>
         <p className="text-xs text-muted-foreground text-center py-6">Wähle ein Bild aus</p>
       </div>
@@ -41,7 +41,7 @@ export default function AdjustPanel({ activeImage, onAdjust, onReset, onApply }:
   const hasChanges = SLIDERS.some((s) => adj[s.key] !== s.default);
 
   return (
-    <div className="w-72 flex flex-col gap-3 p-4 glass-elevated rounded-2xl overflow-y-auto max-h-[calc(100vh-140px)] shadow-xl">
+    <div className="w-72 flex flex-col gap-3 p-4 rounded-2xl overflow-y-auto max-h-[calc(100vh-140px)] shadow-xl bg-background/95 backdrop-blur-xl border border-border/50">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold text-foreground">Anpassen</h2>
         {hasChanges && (
