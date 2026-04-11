@@ -277,20 +277,26 @@ NEVER DO:
         },
       ];
 
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-pro-image-preview",
-          messages,
-          modalities: ["image", "text"],
-        }),
-      });
+      const models = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
+      let response: Response | null = null;
+      let lastError = "";
 
-      if (!response.ok) {
+      for (const model of models) {
+        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model,
+            messages,
+            modalities: ["image", "text"],
+          }),
+        });
+
+        if (response.ok) break;
+
         if (response.status === 429) {
           return new Response(
             JSON.stringify({ error: "Rate limit erreicht. Bitte versuche es in ein paar Sekunden erneut." }),
@@ -303,9 +309,14 @@ NEVER DO:
             { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        const errorText = await response.text();
-        console.error("AI Gateway error:", response.status, errorText);
-        throw new Error(`AI Gateway error: ${response.status}`);
+
+        lastError = await response.text();
+        console.error(`Model ${model} failed:`, response.status, lastError);
+        // Try next model
+      }
+
+      if (!response || !response.ok) {
+        throw new Error(`All AI models failed. Last error: ${lastError}`);
       }
 
       const data = await response.json();
