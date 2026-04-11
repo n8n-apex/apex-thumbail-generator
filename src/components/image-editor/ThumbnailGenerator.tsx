@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil } from "lucide-react";
+import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil, Clock } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
@@ -80,6 +81,37 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [generationElapsed, setGenerationElapsed] = useState(0);
+  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startProgress = useCallback(() => {
+    setGenerationProgress(0);
+    setGenerationElapsed(0);
+    const start = Date.now();
+    progressInterval.current = setInterval(() => {
+      const elapsed = (Date.now() - start) / 1000;
+      setGenerationElapsed(Math.floor(elapsed));
+      // Asymptotic progress: approaches 95% over ~30s
+      const progress = Math.min(95, (1 - Math.exp(-elapsed / 12)) * 100);
+      setGenerationProgress(Math.round(progress));
+    }, 200);
+  }, []);
+
+  const stopProgress = useCallback(() => {
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+      progressInterval.current = null;
+    }
+    setGenerationProgress(100);
+    setTimeout(() => setGenerationProgress(0), 600);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (progressInterval.current) clearInterval(progressInterval.current);
+    };
+  }, []);
   const [generated, setGenerated] = useState<GeneratedThumbnail[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
