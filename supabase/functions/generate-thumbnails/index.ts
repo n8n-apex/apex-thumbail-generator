@@ -397,7 +397,7 @@ ALL text must remain in German.` },
         throw new Error(`All AI models failed for iteration. Last: ${iterateLastErr}`);
       }
 
-      const data = await response.json();
+      const data = await iterateResp.json();
       const editedImage = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
       if (!editedImage) throw new Error("AI did not return an edited image");
 
