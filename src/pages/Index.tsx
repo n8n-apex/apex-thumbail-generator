@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Settings2, Wand2, LayoutGrid, Pencil } from "lucide-react";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
+import type { GeneratedThumbnail } from "@/components/image-editor/ThumbnailGenerator";
 
 type AppTab = "editor" | "thumbnails" | "thumb-editor";
 
@@ -43,6 +44,7 @@ const Index = () => {
   const [propsOpen, setPropsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>("editor");
   const [thumbProject, setThumbProject] = useState<ThumbnailProject | null>(null);
+  const [generatedThumbnails, setGeneratedThumbnails] = useState<GeneratedThumbnail[]>([]);
 
   const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -193,6 +195,8 @@ const Index = () => {
         <ThumbnailGenerator
           batchImages={state.images}
           onEditThumbnail={handleEditThumbnail}
+          generated={generatedThumbnails}
+          onGeneratedChange={setGeneratedThumbnails}
         />
       )}
 

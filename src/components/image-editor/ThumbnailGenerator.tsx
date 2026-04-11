@@ -49,7 +49,7 @@ const ASPECT_LABELS: Record<string, string> = {
   "1400x1400": "1:1",
 };
 
-interface GeneratedThumbnail {
+export interface GeneratedThumbnail {
   templateId: string;
   imageUrl: string;
   template: ThumbnailTemplate;
@@ -58,6 +58,8 @@ interface GeneratedThumbnail {
 interface ThumbnailGeneratorProps {
   batchImages?: ImageFile[];
   onEditThumbnail: (project: ThumbnailProject) => void;
+  generated: GeneratedThumbnail[];
+  onGeneratedChange: (updater: (prev: GeneratedThumbnail[]) => GeneratedThumbnail[]) => void;
 }
 
 function urlToBase64(url: string): Promise<string> {
@@ -77,7 +79,7 @@ function urlToBase64(url: string): Promise<string> {
   });
 }
 
-export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }: ThumbnailGeneratorProps) {
+export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, generated, onGeneratedChange }: ThumbnailGeneratorProps) {
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
       if (progressInterval.current) clearInterval(progressInterval.current);
     };
   }, []);
-  const [generated, setGenerated] = useState<GeneratedThumbnail[]>([]);
+  
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -150,7 +152,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail }
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setGenerated((prev) => [
+      onGeneratedChange((prev) => [
         { templateId: template.id, imageUrl: data.image, template: data.template },
         ...prev,
       ]);
