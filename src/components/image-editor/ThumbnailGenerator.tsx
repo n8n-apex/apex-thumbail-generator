@@ -3,7 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil, Clock } from "lucide-react";
+import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil, Clock, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
@@ -166,12 +172,89 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
     }
   }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, startProgress, stopProgress]);
 
-  const handleDownload = useCallback((thumbnail: GeneratedThumbnail) => {
-    const a = document.createElement("a");
-    a.href = thumbnail.imageUrl;
-    a.download = `${thumbnail.template.title.replace(/\s+/g, "_")}_${thumbnail.template.width}x${thumbnail.template.height}.png`;
-    a.click();
+  const EXPORT_RESOLUTIONS = [
+    { label: "720p", width: 1280, height: 720 },
+    { label: "1080p", width: 1920, height: 1080 },
+    { label: "2K", width: 2560, height: 1440 },
+    { label: "4K", width: 3840, height: 2160 },
+  ];
+
+  const handleDownload = useCallback((thumbnail: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
+    const tw = targetWidth ?? thumbnail.template.width;
+    const th = targetHeight ?? thumbnail.template.height;
+
+    // If same as source, direct download
+    if (!targetWidth) {
+      const a = document.createElement("a");
+      a.href = thumbnail.imageUrl;
+      a.download = `${thumbnail.template.title.replace(/\s+/g, "_")}_${tw}x${th}.png`;
+      a.click();
+      return;
+    }
+
+    // Scale to target resolution keeping aspect ratio
+    const srcAspect = thumbnail.template.width / thumbnail.template.height;
+    let finalW = tw;
+    let finalH = Math.round(tw / srcAspect);
+    if (finalH > th) {
+      finalH = th;
+      finalW = Math.round(th * srcAspect);
+    }
+
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = finalW;
+      canvas.height = finalH;
+      const ctx = canvas.getContext("2d")!;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, finalW, finalH);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${thumbnail.template.title.replace(/\s+/g, "_")}_${finalW}x${finalH}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, "image/png");
+    };
+    img.src = thumbnail.imageUrl;
   }, []);
+
+  const DownloadDropdown = ({ thumbnail, compact }: { thumbnail: GeneratedThumbnail; compact?: boolean }) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          size="sm"
+          variant="outline"
+          className={compact
+            ? "text-[11px] h-8 rounded-xl px-2.5"
+            : "opacity-0 group-hover:opacity-100 transition-opacity text-[11px] h-8 rounded-xl"
+          }
+        >
+          <Download className="h-3 w-3" />
+          <ChevronDown className="h-2.5 w-2.5 ml-0.5" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-[140px]">
+        <DropdownMenuItem onClick={() => handleDownload(thumbnail)} className="text-xs">
+          Original ({thumbnail.template.width}×{thumbnail.template.height})
+        </DropdownMenuItem>
+        {EXPORT_RESOLUTIONS.map((res) => (
+          <DropdownMenuItem
+            key={res.label}
+            onClick={() => handleDownload(thumbnail, res.width, res.height)}
+            className="text-xs"
+          >
+            {res.label} ({res.width}×{res.height})
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 
   const handleEdit = useCallback((thumbnail: GeneratedThumbnail) => {
     const project: ThumbnailProject = {
@@ -405,14 +488,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
                       >
                         <Pencil className="h-3 w-3" />
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-[11px] h-8 rounded-xl px-2.5"
-                        onClick={() => handleDownload(existingResult)}
-                      >
-                        <Download className="h-3 w-3" />
-                      </Button>
+                      <DownloadDropdown thumbnail={existingResult} compact />
                     </>
                   )}
                 </div>
@@ -445,14 +521,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
                       <Pencil className="h-3 w-3 mr-1" />
                       Bearbeiten
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-[11px] h-8 rounded-xl"
-                      onClick={() => handleDownload(thumb)}
-                    >
-                      <Download className="h-3 w-3" />
-                    </Button>
+                    <DownloadDropdown thumbnail={thumb} />
                   </div>
                 </div>
                 <div className="p-2">
