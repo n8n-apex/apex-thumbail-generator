@@ -521,14 +521,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
                       <Pencil className="h-3 w-3 mr-1" />
                       Bearbeiten
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-[11px] h-8 rounded-xl"
-                      onClick={() => handleDownload(thumb)}
-                    >
-                      <Download className="h-3 w-3" />
-                    </Button>
+                    <DownloadDropdown thumbnail={thumb} />
                   </div>
                 </div>
                 <div className="p-2">
