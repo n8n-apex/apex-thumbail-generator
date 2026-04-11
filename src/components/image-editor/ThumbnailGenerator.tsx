@@ -3,7 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil, Clock } from "lucide-react";
+import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil, Clock, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
