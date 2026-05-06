@@ -366,6 +366,20 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
               className="text-xs rounded-xl h-9"
             />
           </div>
+          <div className="sm:col-span-2 space-y-1.5">
+            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Testimonial-Text / Kontext
+            </label>
+            <Textarea
+              placeholder="Paste hier den Original-Testimonial-Text oder beschreibe Kontext, Branche, Tonalität... Die KI nutzt das, um Headline-Quote, Sub-Quote und Visuals stimmig dazu zu generieren."
+              value={testimonialContext}
+              onChange={(e) => setTestimonialContext(e.target.value)}
+              maxLength={2000}
+              rows={4}
+              className="text-xs rounded-xl resize-none"
+            />
+            <p className="text-[10px] text-muted-foreground">{testimonialContext.length}/2000 Zeichen</p>
+          </div>
         </div>
 
         {/* Batch image picker */}
