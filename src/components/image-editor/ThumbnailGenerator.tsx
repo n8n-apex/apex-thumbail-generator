@@ -98,6 +98,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [testimonialName, setTestimonialName] = useState("");
   const [testimonialRole, setTestimonialRole] = useState("");
+  const [testimonialContext, setTestimonialContext] = useState("");
   const [generatingMap, setGeneratingMap] = useState<Record<string, { progress: number; elapsed: number }>>({});
   const progressIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
