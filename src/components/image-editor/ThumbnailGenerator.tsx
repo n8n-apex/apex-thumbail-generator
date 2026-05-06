@@ -337,6 +337,34 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
           </div>
         </div>
 
+        {/* Testimonial inputs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+          <div className="sm:col-span-2 flex items-center gap-2">
+            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Testimonial Details</span>
+            <span className="text-[10px] text-muted-foreground">Nur für Testimonial-Templates</span>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Name</label>
+            <Input
+              placeholder="z.B. Max Mustermann"
+              value={testimonialName}
+              onChange={(e) => setTestimonialName(e.target.value)}
+              maxLength={80}
+              className="text-xs rounded-xl h-9"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Position / Firma</label>
+            <Input
+              placeholder="z.B. CEO, ACME GmbH"
+              value={testimonialRole}
+              onChange={(e) => setTestimonialRole(e.target.value)}
+              maxLength={120}
+              className="text-xs rounded-xl h-9"
+            />
+          </div>
+        </div>
+
         {/* Batch image picker */}
         <div className="space-y-2">
           <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
