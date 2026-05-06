@@ -152,6 +152,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
         imageBase64 = uploadedImage;
       }
 
+      const isTestimonial = template.category === "Testimonial";
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -159,6 +160,8 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
           customText: customText || undefined,
           brandColor,
           imageBase64: imageBase64 || undefined,
+          testimonialName: isTestimonial ? testimonialName.trim().slice(0, 80) || undefined : undefined,
+          testimonialRole: isTestimonial ? testimonialRole.trim().slice(0, 120) || undefined : undefined,
         },
       });
 
