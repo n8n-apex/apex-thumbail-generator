@@ -96,6 +96,8 @@ function urlToBase64(url: string): Promise<string> {
 export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, generated, onGeneratedChange }: ThumbnailGeneratorProps) {
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
+  const [testimonialName, setTestimonialName] = useState("");
+  const [testimonialRole, setTestimonialRole] = useState("");
   const [generatingMap, setGeneratingMap] = useState<Record<string, { progress: number; elapsed: number }>>({});
   const progressIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
