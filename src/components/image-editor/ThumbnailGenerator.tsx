@@ -35,6 +35,9 @@ const TEMPLATES: ThumbnailTemplate[] = [
   { id: "li-thought-leader", title: "LinkedIn Thought Leader", description: "Authoritative Business-Visual", category: "LinkedIn", style: "", width: 1200, height: 627 },
   { id: "fb-corporate", title: "Facebook Corporate", description: "Professioneller Unternehmens-Post", category: "Facebook", style: "", width: 1200, height: 630 },
   { id: "podcast-premium", title: "Podcast Premium", description: "High-End Podcast-Cover", category: "Podcast", style: "", width: 1400, height: 1400 },
+  { id: "testimonial-quote", title: "Testimonial Quote", description: "Premium Kunden-Zitat mit Portrait", category: "Testimonial", style: "", width: 1080, height: 1080 },
+  { id: "testimonial-story", title: "Testimonial Story", description: "Story-Format Kunden-Stimme 9:16", category: "Testimonial", style: "", width: 1080, height: 1920 },
+  { id: "testimonial-landscape", title: "Testimonial Landscape", description: "Landscape Testimonial für Web/LinkedIn", category: "Testimonial", style: "", width: 1200, height: 627 },
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -44,6 +47,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   LinkedIn: "bg-blue-500/10 text-blue-600 border-blue-500/20",
   Facebook: "bg-blue-600/10 text-blue-700 border-blue-600/20",
   Podcast: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+  Testimonial: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
 };
 
 const ASPECT_LABELS: Record<string, string> = {

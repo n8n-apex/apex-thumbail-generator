@@ -187,6 +187,60 @@ Key elements:
     width: 1400,
     height: 1400,
   },
+  {
+    id: "testimonial-quote",
+    title: "Testimonial Quote",
+    description: "Premium Kunden-Zitat mit Portrait",
+    category: "Testimonial",
+    style: `PREMIUM testimonial graphic with customer quote. Apple/Notion case-study quality.
+Key elements:
+- Large elegant quote marks (") as a refined design accent in brand color
+- Customer portrait integrated as hero element with soft studio lighting
+- The customer quote text rendered in elegant, highly readable typography (mix of serif headline + clean sans-serif attribution)
+- Sophisticated layout: portrait on one side, quote on the other, OR quote layered behind the subject
+- Subtle glassmorphism or soft gradient background — never busy
+- Small attribution line: name + role/company in muted secondary color
+- Trust-building, premium, magazine-feature aesthetic
+- Cinematic color grading, soft shadows, gallery-worthy polish`,
+    width: 1080,
+    height: 1080,
+  },
+  {
+    id: "testimonial-story",
+    title: "Testimonial Story",
+    description: "Story-Format Kunden-Stimme 9:16",
+    category: "Testimonial",
+    style: `PREMIUM vertical testimonial story (Instagram/TikTok story format) with customer quote.
+Key elements:
+- Customer portrait as full-bleed hero with cinematic rim lighting
+- LARGE quote text overlaid with elegant text-behind-subject technique
+- Refined quote marks as design element in brand accent color
+- Frosted-glass card containing the quote with subtle blur and depth
+- Small but distinct attribution: name, role, company logo placement
+- Sophisticated gradient or moody background, never childish
+- Premium typography hierarchy (serif headline quote + clean sans-serif details)
+- High-end editorial story design, social-proof focused`,
+    width: 1080,
+    height: 1920,
+  },
+  {
+    id: "testimonial-landscape",
+    title: "Testimonial Landscape",
+    description: "Landscape Kunden-Testimonial für Web/LinkedIn",
+    category: "Testimonial",
+    style: `EXECUTIVE testimonial landscape graphic for website hero or LinkedIn post.
+Key elements:
+- Split composition: customer portrait on one side, quote and attribution on the other
+- Bold elegant quote marks as a hero design element in brand accent color
+- Large readable customer quote in premium serif or modern sans-serif
+- Attribution block: full name, job title, company name (and space for logo)
+- Sophisticated muted palette with ONE bold accent color
+- Studio-quality portrait with professional lighting and soft shadow
+- Optional 5-star rating element rendered in clean, minimalist style
+- Fortune 500 / SaaS landing-page testimonial quality — credible, polished, modern`,
+    width: 1200,
+    height: 627,
+  },
 ];
 
 serve(async (req) => {
