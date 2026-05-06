@@ -337,11 +337,12 @@ ${safeContext ? `TESTIMONIAL SOURCE TEXT / CONTEXT (use to derive headline + sub
 ${safeContext}
 """
 INSTRUCTIONS FOR USING THIS CONTEXT:
-- Distill the MOST POWERFUL short phrase (3-7 German words, ALL CAPS) from this text and use it as the LARGE HEADLINE QUOTE behind the subject. It must capture the emotional core of the testimonial.
-- Distill ONE additional short complete sentence (max ~12 German words) from the text and use it as the SECONDARY QUOTE inside the frosted glass card.
-- Both must feel natural, authentic, and grammatically perfect German — paraphrase if needed for impact, but stay TRUE to the meaning, tone, and industry of the source text.
+- Distill ONE short, punchy German phrase (MAX 3-5 words, ALL CAPS) from this text and use it as the SINGLE HEADLINE QUOTE behind the subject. It must capture the emotional core in as few words as possible.
+- Distill ONE very short complete sentence (MAX 8 German words) from the text and use it as the SECONDARY QUOTE inside the frosted glass card.
+- LESS IS MORE — keep total visible text minimal so the cinematic portrait stays the hero. Do NOT add taglines, paragraphs, or extra copy.
+- Both must feel natural, authentic, perfectly spelled German — paraphrase if needed for brevity and impact, but stay TRUE to the meaning, tone, and industry.
 - Match background mood, color grade, and subtle background elements (e.g. dashboards, office, studio) to the industry/context implied by the text.
-- ${customText ? `If the user explicitly provided headline text ("${customText}"), use that EXACTLY as the headline and only derive the secondary quote from the context above.` : "Do NOT use generic placeholder quotes — the headline and sub-quote MUST come from the source text above."}` : (customText ? "" : "- No source text provided. Generate a generic but premium-sounding German testimonial quote that matches the industry implied by the portrait.")}`
+- ${customText ? `If the user explicitly provided headline text ("${customText}"), use that EXACTLY as the headline (still keep it short) and only derive the secondary quote from the context above.` : "Do NOT use generic placeholder quotes — headline and sub-quote MUST come from the source text above."}` : (customText ? "" : "- No source text provided. Generate ONE short premium German testimonial phrase (max 3-5 words headline + max 8 words sub-quote). Keep text minimal so the cinematic look dominates.")}`
         : "";
 
       const expandedStyle = template.style.replace("[TESTIMONIAL_STYLE_BLOCK]", isTestimonial ? TESTIMONIAL_STYLE_BLOCK : "");
