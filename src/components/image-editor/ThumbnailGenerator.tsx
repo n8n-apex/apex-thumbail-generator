@@ -179,7 +179,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
     } finally {
       stopProgress(template.id);
     }
-  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, startProgress, stopProgress]);
+  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, testimonialName, testimonialRole, startProgress, stopProgress]);
 
   const EXPORT_RESOLUTIONS = [
     { label: "720p", width: 1280, height: 720 },
