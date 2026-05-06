@@ -365,6 +365,8 @@ ${colorInstruction}
 
 ${imageInstruction}
 
+${testimonialInstruction}
+
 ABSOLUTE REQUIREMENTS:
 - ALL text MUST be in German (Deutsch). No English text whatsoever.
 - This must look like it was made by a TOP-TIER creative agency (Pentagram, Collins, or IDEO level)
