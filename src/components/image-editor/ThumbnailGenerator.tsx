@@ -56,6 +56,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 const ASPECT_LABELS: Record<string, string> = {
   "1280x720": "16:9",
   "1080x1080": "1:1",
+  "1080x1350": "4:5",
   "1080x1920": "9:16",
   "1200x627": "1.91:1",
   "1200x630": "1.91:1",
