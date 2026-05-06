@@ -190,37 +190,18 @@ Key elements:
   {
     id: "testimonial-youtube",
     title: "Testimonial YouTube",
-    description: "Cinematic 16:9 YouTube Testimonial",
+    description: "Cinematic 16:9 Testimonial mit Text-behind-Subject",
     category: "Testimonial",
-    style: `HYPER-REALISTIC cinematic 16:9 YouTube TESTIMONIAL thumbnail. Same premium quality as top YouTubers (MKBHD, Ali Abdaal, Peter McKinnon).
-Key elements:
-- Customer portrait as the hero subject with dramatic three-point lighting and strong rim light separating subject from background
-- LARGE BOLD customer QUOTE rendered with text-behind-subject technique — quote text appears layered BEHIND the person
-- Elegant oversized quote marks (") as a refined accent in brand color
-- Shallow depth of field with cinematic bokeh background
-- Rich color-graded look (teal-orange or moody dark tones)
-- Small attribution line: name + role/company in clean smaller typography
-- Professional drop shadows and subtle glow on text
-- NO clipart, NO cartoon, NO amateur look — feels like a film still`,
+    style: `${"HYPER-REALISTIC cinematic 16:9 YouTube TESTIMONIAL thumbnail in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 16:9 cinematic crop, subject framed mid-chest upward, headline quote spanning the FULL width behind the head and shoulders\n- Small attribution line below the bottom-left quote card`,
     width: 1280,
     height: 720,
   },
   {
     id: "testimonial-instagram-portrait",
     title: "Testimonial Instagram 4:5",
-    description: "Cinematic 4:5 Instagram Portrait Testimonial",
+    description: "Cinematic 4:5 Portrait Testimonial",
     category: "Testimonial",
-    style: `HYPER-REALISTIC cinematic 4:5 Instagram PORTRAIT testimonial post. Film-still quality.
-Key elements:
-- Customer portrait as hero subject with dramatic three-point lighting and strong rim light
-- LARGE BOLD customer QUOTE using text-behind-subject technique — quote layered BEHIND the person
-- Elegant oversized quote marks (") as refined accent in brand color
-- Shallow depth of field, cinematic bokeh background
-- Rich color-graded look (teal-orange or moody dark tones)
-- Attribution: name, role, company in clean small typography
-- Professional drop shadows, subtle glow on text
-- Optimized for 4:5 portrait Instagram feed crop — composition uses vertical real estate
-- NO clipart, NO cartoon, NO amateur look — feels like a film still`,
+    style: `${"HYPER-REALISTIC cinematic 4:5 Instagram PORTRAIT testimonial in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 4:5 portrait crop, vertical real estate used for stacked headline quote behind the subject\n- Bottom 30% reserved for the small frosted-glass quote card + attribution + brand logo`,
     width: 1080,
     height: 1350,
   },
@@ -229,16 +210,7 @@ Key elements:
     title: "Testimonial Instagram Post",
     description: "Cinematic 1:1 Instagram Testimonial",
     category: "Testimonial",
-    style: `HYPER-REALISTIC cinematic 1:1 Instagram TESTIMONIAL post. Film-still quality.
-Key elements:
-- Customer portrait as hero subject with dramatic three-point lighting and strong rim light
-- LARGE BOLD customer QUOTE using text-behind-subject technique — quote layered BEHIND the person
-- Elegant oversized quote marks (") as a refined accent in brand color
-- Shallow depth of field with cinematic bokeh
-- Rich color-graded palette (teal-orange or moody dark tones)
-- Attribution: name, role, company in clean small typography
-- Professional drop shadows, subtle glow on text
-- NO clipart, NO cartoon — premium, film-still feel`,
+    style: `${"HYPER-REALISTIC cinematic 1:1 Instagram TESTIMONIAL post in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 1:1 square crop, headline quote behind the head fills upper 55%\n- Small frosted-glass quote card sits in lower-left third with attribution underneath`,
     width: 1080,
     height: 1080,
   },
@@ -247,33 +219,16 @@ Key elements:
     title: "Testimonial Quote",
     description: "Cinematic Premium Kunden-Zitat",
     category: "Testimonial",
-    style: `HYPER-REALISTIC cinematic 1:1 testimonial graphic — film-still aesthetic.
-Key elements:
-- Customer portrait as hero subject with dramatic three-point lighting, strong rim light, cinematic bokeh
-- LARGE BOLD customer QUOTE rendered with text-behind-subject technique — quote layered BEHIND the person
-- Elegant oversized quote marks (") as refined accent in brand color
-- Rich color-graded look (teal-orange or moody dark tones)
-- Small attribution line: name + role/company
-- Professional drop shadows and subtle glow effects on text
-- NO clipart, NO cartoon, NO amateur look`,
+    style: `${"HYPER-REALISTIC cinematic 1:1 testimonial in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- Square format, balanced composition, portrait centered with quote wrapping behind shoulders`,
     width: 1080,
     height: 1080,
   },
   {
     id: "testimonial-story",
     title: "Testimonial Story",
-    description: "Cinematic 9:16 Testimonial Story",
+    description: "Cinematic 9:16 Story Testimonial",
     category: "Testimonial",
-    style: `HYPER-REALISTIC cinematic 9:16 vertical TESTIMONIAL story (Instagram/TikTok). Film-still quality.
-Key elements:
-- Customer portrait as full-bleed hero with dramatic three-point lighting and strong rim light
-- LARGE BOLD customer QUOTE using text-behind-subject technique — quote layered BEHIND the person
-- Elegant oversized quote marks (") as refined accent in brand color
-- Shallow depth of field, cinematic bokeh
-- Rich color-graded look (teal-orange or moody dark tones)
-- Attribution: name, role, company in clean small typography
-- Professional drop shadows, subtle glow on text
-- NO clipart, NO cartoon, NO amateur look — feels like a film still`,
+    style: `${"HYPER-REALISTIC cinematic 9:16 vertical TESTIMONIAL story (Instagram/TikTok) in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 9:16 vertical, headline quote stacked over 3-4 lines BEHIND the head/shoulders, filling the upper 55%\n- Lower 35% holds: oversized opening quote mark in brand color, frosted-glass card with secondary short quote, attribution line with bullet separator (NAME • ROLE, COMPANY), small brand logo centered at the very bottom\n- Reference layout to emulate: bold condensed serif headline quote in soft brand-blue tone glowing through behind a sharply lit portrait, sleek frosted glass quote card below`,
     width: 1080,
     height: 1920,
   },
@@ -282,20 +237,43 @@ Key elements:
     title: "Testimonial Landscape",
     description: "Cinematic Landscape Testimonial Web/LinkedIn",
     category: "Testimonial",
-    style: `HYPER-REALISTIC cinematic landscape TESTIMONIAL graphic for website hero or LinkedIn. Film-still quality.
-Key elements:
-- Customer portrait as hero subject with dramatic three-point lighting and strong rim light
-- LARGE BOLD customer QUOTE using text-behind-subject technique — quote layered BEHIND the person
-- Elegant oversized quote marks (") as refined accent in brand color
-- Shallow depth of field, cinematic bokeh background
-- Rich color-graded look (teal-orange or moody dark tones)
-- Attribution block: name, role, company in clean small typography
-- Professional drop shadows, subtle glow on text
-- NO clipart, NO cartoon, NO amateur look`,
+    style: `${"HYPER-REALISTIC cinematic landscape TESTIMONIAL for website/LinkedIn in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 1.91:1 landscape, portrait on the right third, headline quote sweeping behind subject from left\n- Small frosted-glass quote card and attribution stack on the left third`,
     width: 1200,
     height: 627,
   },
 ];
+
+const TESTIMONIAL_STYLE_BLOCK = `
+TYPOGRAPHY (CRITICAL — match exactly):
+- Headline customer quote: BOLD CONDENSED DISPLAY SERIF (think Playfair Display Bold, Recoleta Bold, or Canela Black), ALL CAPS, tight leading, perfectly kerned
+- Headline color: tinted in the BRAND ACCENT COLOR with a soft inner glow and subtle outer halo, slightly desaturated so it integrates as ambient light, NOT a flat overlay
+- Headline rendered in real, perfectly spelled letters (no garbled text), opening German low quote „ and closing high quote " around the quote
+- Secondary quote (inside the frosted card): smaller, modern clean SANS-SERIF in white, sentence case, italicized softly, with a smaller pair of curly quotes
+- Attribution line: ALL CAPS, light-weight modern sans-serif, light gray, format: "NAME • ROLE, COMPANY" with a brand-color bullet
+- Optional centered brand wordmark/logo placeholder at the very bottom in white, minimalist sans
+
+TEXT-BEHIND-SUBJECT TECHNIQUE (CRITICAL):
+- The HEADLINE QUOTE must visibly pass BEHIND the subject's head, hair and shoulders (text occluded by the person), as if the text lives in the background plane
+- Subject is sharply lit and in front, headline text is slightly blurred at the edges where it meets the subject for natural depth
+- Use rim light on the subject in the brand accent color so the person separates cleanly from the glowing text
+- Headline must NEVER cover the subject's face
+
+COMPOSITION:
+- Customer portrait is the hero — premium studio/interview lighting, three-point setup, strong cool rim light, shallow depth of field
+- Background: dark moody interior or out-of-focus office with subtle data-visualization / dashboard ghosting in the deep background, color graded with brand accent tone
+- Frosted-glass (glassmorphism) rounded card containing the secondary short quote, with a large opening quote mark " in brand accent color anchoring its top-left
+- Subtle soft glows where the headline letters peek out from behind the subject
+
+BRAND APPLICATION:
+- Use the provided brand color as the dominant accent for: headline quote tint, rim light, opening quote marks, attribution bullet
+- Keep the rest of the palette deep navy/charcoal with whites and soft cyan-blues for premium tech aesthetic
+
+ABSOLUTE QUALITY BAR:
+- Photo-realistic film-still quality — no illustration, no cartoon, no clip-art, no AI-art look
+- Editorial magazine polish (Vogue / WIRED / Apple keynote level)
+- Razor-sharp portrait, perfect skin, professional retouch
+- Perfect German spelling for ALL text — never invent words, never garble letters
+- Reference look: bold condensed serif headline glowing in brand color BEHIND a sharply lit professional portrait, frosted glass quote card below, minimalist attribution + logo`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -354,10 +332,12 @@ ${safeRole ? `- Render the role/company "${safeRole}" directly under or beside t
 - Do NOT invent or hallucinate any other names, roles, brands, or logos.`
         : "";
 
+      const expandedStyle = template.style.replace("[TESTIMONIAL_STYLE_BLOCK]", isTestimonial ? TESTIMONIAL_STYLE_BLOCK : "");
+
       const masterPrompt = `You are a world-class thumbnail designer. Create an EXCEPTIONAL, PROFESSIONAL thumbnail image.
 
 STYLE DIRECTION:
-${template.style}
+${expandedStyle}
 
 ${textInstruction}
 
