@@ -343,6 +343,17 @@ serve(async (req) => {
            Add dramatic lighting effects (rim light, ambient glow) to integrate the subject naturally.`
         : "Create a compelling visual composition with abstract elements, shapes, or symbolic imagery as the focal point.";
 
+      const isTestimonial = template.category === "Testimonial";
+      const safeName = typeof testimonialName === "string" ? testimonialName.trim().slice(0, 80) : "";
+      const safeRole = typeof testimonialRole === "string" ? testimonialRole.trim().slice(0, 120) : "";
+      const testimonialInstruction = isTestimonial
+        ? `CRITICAL TESTIMONIAL ATTRIBUTION:
+${safeName ? `- Render the name "${safeName}" as the primary attribution, in clean, perfectly legible typography (smaller than the quote, but prominent).` : "- No name provided — leave attribution name area subtle/empty."}
+${safeRole ? `- Render the role/company "${safeRole}" directly under or beside the name, in muted secondary typography.` : "- No role/company provided."}
+- The attribution must be CLEARLY READABLE, properly spelled exactly as given, and visually separated from the main quote.
+- Do NOT invent or hallucinate any other names, roles, brands, or logos.`
+        : "";
+
       const masterPrompt = `You are a world-class thumbnail designer. Create an EXCEPTIONAL, PROFESSIONAL thumbnail image.
 
 STYLE DIRECTION:
