@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Download, Sparkles, Image as ImageIcon, Check, Pencil, Clock, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -98,6 +99,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [testimonialName, setTestimonialName] = useState("");
   const [testimonialRole, setTestimonialRole] = useState("");
+  const [testimonialContext, setTestimonialContext] = useState("");
   const [generatingMap, setGeneratingMap] = useState<Record<string, { progress: number; elapsed: number }>>({});
   const progressIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
@@ -162,6 +164,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
           imageBase64: imageBase64 || undefined,
           testimonialName: isTestimonial ? testimonialName.trim().slice(0, 80) || undefined : undefined,
           testimonialRole: isTestimonial ? testimonialRole.trim().slice(0, 120) || undefined : undefined,
+          testimonialContext: isTestimonial ? testimonialContext.trim().slice(0, 2000) || undefined : undefined,
         },
       });
 
@@ -179,7 +182,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
     } finally {
       stopProgress(template.id);
     }
-  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, testimonialName, testimonialRole, startProgress, stopProgress]);
+  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, testimonialName, testimonialRole, testimonialContext, startProgress, stopProgress]);
 
   const EXPORT_RESOLUTIONS = [
     { label: "720p", width: 1280, height: 720 },
@@ -362,6 +365,20 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
               maxLength={120}
               className="text-xs rounded-xl h-9"
             />
+          </div>
+          <div className="sm:col-span-2 space-y-1.5">
+            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Testimonial-Text / Kontext
+            </label>
+            <Textarea
+              placeholder="Paste hier den Original-Testimonial-Text oder beschreibe Kontext, Branche, Tonalität... Die KI nutzt das, um Headline-Quote, Sub-Quote und Visuals stimmig dazu zu generieren."
+              value={testimonialContext}
+              onChange={(e) => setTestimonialContext(e.target.value)}
+              maxLength={2000}
+              rows={4}
+              className="text-xs rounded-xl resize-none"
+            />
+            <p className="text-[10px] text-muted-foreground">{testimonialContext.length}/2000 Zeichen</p>
           </div>
         </div>
 
