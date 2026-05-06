@@ -163,6 +163,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
           imageBase64: imageBase64 || undefined,
           testimonialName: isTestimonial ? testimonialName.trim().slice(0, 80) || undefined : undefined,
           testimonialRole: isTestimonial ? testimonialRole.trim().slice(0, 120) || undefined : undefined,
+          testimonialContext: isTestimonial ? testimonialContext.trim().slice(0, 2000) || undefined : undefined,
         },
       });
 
