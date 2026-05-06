@@ -324,12 +324,24 @@ serve(async (req) => {
       const isTestimonial = template.category === "Testimonial";
       const safeName = typeof testimonialName === "string" ? testimonialName.trim().slice(0, 80) : "";
       const safeRole = typeof testimonialRole === "string" ? testimonialRole.trim().slice(0, 120) : "";
+      const safeContext = typeof testimonialContext === "string" ? testimonialContext.trim().slice(0, 2000) : "";
       const testimonialInstruction = isTestimonial
         ? `CRITICAL TESTIMONIAL ATTRIBUTION:
 ${safeName ? `- Render the name "${safeName}" as the primary attribution, in clean, perfectly legible typography (smaller than the quote, but prominent).` : "- No name provided — leave attribution name area subtle/empty."}
 ${safeRole ? `- Render the role/company "${safeRole}" directly under or beside the name, in muted secondary typography.` : "- No role/company provided."}
 - The attribution must be CLEARLY READABLE, properly spelled exactly as given, and visually separated from the main quote.
-- Do NOT invent or hallucinate any other names, roles, brands, or logos.`
+- Do NOT invent or hallucinate any other names, roles, brands, or logos.
+
+${safeContext ? `TESTIMONIAL SOURCE TEXT / CONTEXT (use to derive headline + sub-quote):
+"""
+${safeContext}
+"""
+INSTRUCTIONS FOR USING THIS CONTEXT:
+- Distill the MOST POWERFUL short phrase (3-7 German words, ALL CAPS) from this text and use it as the LARGE HEADLINE QUOTE behind the subject. It must capture the emotional core of the testimonial.
+- Distill ONE additional short complete sentence (max ~12 German words) from the text and use it as the SECONDARY QUOTE inside the frosted glass card.
+- Both must feel natural, authentic, and grammatically perfect German — paraphrase if needed for impact, but stay TRUE to the meaning, tone, and industry of the source text.
+- Match background mood, color grade, and subtle background elements (e.g. dashboards, office, studio) to the industry/context implied by the text.
+- ${customText ? `If the user explicitly provided headline text ("${customText}"), use that EXACTLY as the headline and only derive the secondary quote from the context above.` : "Do NOT use generic placeholder quotes — the headline and sub-quote MUST come from the source text above."}` : (customText ? "" : "- No source text provided. Generate a generic but premium-sounding German testimonial quote that matches the industry implied by the portrait.")}`
         : "";
 
       const expandedStyle = template.style.replace("[TESTIMONIAL_STYLE_BLOCK]", isTestimonial ? TESTIMONIAL_STYLE_BLOCK : "");
