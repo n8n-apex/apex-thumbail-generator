@@ -36,6 +36,7 @@ const TEMPLATES: ThumbnailTemplate[] = [
   { id: "fb-corporate", title: "Facebook Corporate", description: "Professioneller Unternehmens-Post", category: "Facebook", style: "", width: 1200, height: 630 },
   { id: "podcast-premium", title: "Podcast Premium", description: "High-End Podcast-Cover", category: "Podcast", style: "", width: 1400, height: 1400 },
   { id: "testimonial-youtube", title: "Testimonial YouTube", description: "16:9 YouTube Testimonial Cover", category: "Testimonial", style: "", width: 1280, height: 720 },
+  { id: "testimonial-instagram-portrait", title: "Testimonial Instagram 4:5", description: "4:5 Instagram Portrait Testimonial", category: "Testimonial", style: "", width: 1080, height: 1350 },
   { id: "testimonial-instagram", title: "Testimonial Instagram Post", description: "1:1 Instagram Testimonial Post", category: "Testimonial", style: "", width: 1080, height: 1080 },
   { id: "testimonial-quote", title: "Testimonial Quote", description: "Premium Kunden-Zitat mit Portrait", category: "Testimonial", style: "", width: 1080, height: 1080 },
   { id: "testimonial-story", title: "Testimonial Story", description: "Story-Format Kunden-Stimme 9:16", category: "Testimonial", style: "", width: 1080, height: 1920 },
@@ -55,6 +56,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 const ASPECT_LABELS: Record<string, string> = {
   "1280x720": "16:9",
   "1080x1080": "1:1",
+  "1080x1350": "4:5",
   "1080x1920": "9:16",
   "1200x627": "1.91:1",
   "1200x630": "1.91:1",

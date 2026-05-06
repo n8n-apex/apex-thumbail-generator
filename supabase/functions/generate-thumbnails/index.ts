@@ -206,6 +206,25 @@ Key elements:
     height: 720,
   },
   {
+    id: "testimonial-instagram-portrait",
+    title: "Testimonial Instagram 4:5",
+    description: "Cinematic 4:5 Instagram Portrait Testimonial",
+    category: "Testimonial",
+    style: `HYPER-REALISTIC cinematic 4:5 Instagram PORTRAIT testimonial post. Film-still quality.
+Key elements:
+- Customer portrait as hero subject with dramatic three-point lighting and strong rim light
+- LARGE BOLD customer QUOTE using text-behind-subject technique — quote layered BEHIND the person
+- Elegant oversized quote marks (") as refined accent in brand color
+- Shallow depth of field, cinematic bokeh background
+- Rich color-graded look (teal-orange or moody dark tones)
+- Attribution: name, role, company in clean small typography
+- Professional drop shadows, subtle glow on text
+- Optimized for 4:5 portrait Instagram feed crop — composition uses vertical real estate
+- NO clipart, NO cartoon, NO amateur look — feels like a film still`,
+    width: 1080,
+    height: 1350,
+  },
+  {
     id: "testimonial-instagram",
     title: "Testimonial Instagram Post",
     description: "Cinematic 1:1 Instagram Testimonial",
