@@ -190,90 +190,89 @@ Key elements:
   {
     id: "testimonial-youtube",
     title: "Testimonial YouTube",
-    description: "16:9 YouTube Testimonial Thumbnail mit Kunden-Quote",
+    description: "Cinematic 16:9 YouTube Testimonial",
     category: "Testimonial",
-    style: `PREMIUM 16:9 YouTube testimonial thumbnail with customer quote — case-study cover quality.
+    style: `HYPER-REALISTIC cinematic 16:9 YouTube TESTIMONIAL thumbnail. Same premium quality as top YouTubers (MKBHD, Ali Abdaal, Peter McKinnon).
 Key elements:
-- Customer portrait as hero subject with cinematic three-point lighting and rim light
-- Large, bold customer quote rendered with text-behind-subject technique (text appears behind the person)
-- Elegant oversized quote marks (") as a refined design accent in brand accent color
-- Attribution line: name + role/company in clean smaller typography
-- Sophisticated cinematic color grading (teal-orange or moody premium tones)
-- Optional subtle 5-star rating element, minimalist style
-- Trust-building, conversion-focused, MKBHD/Ali Abdaal level polish
-- Clean composition with clear hierarchy — portrait + quote + attribution`,
+- Customer portrait as the hero subject with dramatic three-point lighting and strong rim light separating subject from background
+- LARGE BOLD customer QUOTE rendered with text-behind-subject technique — quote text appears layered BEHIND the person
+- Elegant oversized quote marks (") as a refined accent in brand color
+- Shallow depth of field with cinematic bokeh background
+- Rich color-graded look (teal-orange or moody dark tones)
+- Small attribution line: name + role/company in clean smaller typography
+- Professional drop shadows and subtle glow on text
+- NO clipart, NO cartoon, NO amateur look — feels like a film still`,
     width: 1280,
     height: 720,
   },
   {
     id: "testimonial-instagram",
     title: "Testimonial Instagram Post",
-    description: "1:1 Instagram Testimonial Post mit Kunden-Quote",
+    description: "Cinematic 1:1 Instagram Testimonial",
     category: "Testimonial",
-    style: `PREMIUM 1:1 Instagram testimonial post with customer quote — high-end SaaS/brand quality.
+    style: `HYPER-REALISTIC cinematic 1:1 Instagram TESTIMONIAL post. Film-still quality.
 Key elements:
-- Customer portrait integrated as hero with soft studio lighting and gentle rim light
-- Large readable customer quote in elegant typography (serif headline OR clean modern sans-serif)
-- Refined oversized quote marks (") in brand accent color as a hero design accent
-- Attribution: name, role, company name in muted secondary typography
-- Sophisticated layout with intentional negative space — feed-stopping but premium
-- Subtle glassmorphism or refined gradient background, never busy or childish
-- Optional minimalist 5-star rating element
-- Trust-focused, magazine-feature, Apple/Notion case-study aesthetic`,
+- Customer portrait as hero subject with dramatic three-point lighting and strong rim light
+- LARGE BOLD customer QUOTE using text-behind-subject technique — quote layered BEHIND the person
+- Elegant oversized quote marks (") as a refined accent in brand color
+- Shallow depth of field with cinematic bokeh
+- Rich color-graded palette (teal-orange or moody dark tones)
+- Attribution: name, role, company in clean small typography
+- Professional drop shadows, subtle glow on text
+- NO clipart, NO cartoon — premium, film-still feel`,
     width: 1080,
     height: 1080,
   },
   {
     id: "testimonial-quote",
     title: "Testimonial Quote",
-    description: "Premium Kunden-Zitat mit Portrait",
+    description: "Cinematic Premium Kunden-Zitat",
     category: "Testimonial",
-    style: `PREMIUM testimonial graphic with customer quote. Apple/Notion case-study quality.
+    style: `HYPER-REALISTIC cinematic 1:1 testimonial graphic — film-still aesthetic.
 Key elements:
-- Large elegant quote marks (") as a refined design accent in brand color
-- Customer portrait integrated as hero element with soft studio lighting
-- The customer quote text rendered in elegant, highly readable typography (mix of serif headline + clean sans-serif attribution)
-- Sophisticated layout: portrait on one side, quote on the other, OR quote layered behind the subject
-- Subtle glassmorphism or soft gradient background — never busy
-- Small attribution line: name + role/company in muted secondary color
-- Trust-building, premium, magazine-feature aesthetic
-- Cinematic color grading, soft shadows, gallery-worthy polish`,
+- Customer portrait as hero subject with dramatic three-point lighting, strong rim light, cinematic bokeh
+- LARGE BOLD customer QUOTE rendered with text-behind-subject technique — quote layered BEHIND the person
+- Elegant oversized quote marks (") as refined accent in brand color
+- Rich color-graded look (teal-orange or moody dark tones)
+- Small attribution line: name + role/company
+- Professional drop shadows and subtle glow effects on text
+- NO clipart, NO cartoon, NO amateur look`,
     width: 1080,
     height: 1080,
   },
   {
     id: "testimonial-story",
     title: "Testimonial Story",
-    description: "Story-Format Kunden-Stimme 9:16",
+    description: "Cinematic 9:16 Testimonial Story",
     category: "Testimonial",
-    style: `PREMIUM vertical testimonial story (Instagram/TikTok story format) with customer quote.
+    style: `HYPER-REALISTIC cinematic 9:16 vertical TESTIMONIAL story (Instagram/TikTok). Film-still quality.
 Key elements:
-- Customer portrait as full-bleed hero with cinematic rim lighting
-- LARGE quote text overlaid with elegant text-behind-subject technique
-- Refined quote marks as design element in brand accent color
-- Frosted-glass card containing the quote with subtle blur and depth
-- Small but distinct attribution: name, role, company logo placement
-- Sophisticated gradient or moody background, never childish
-- Premium typography hierarchy (serif headline quote + clean sans-serif details)
-- High-end editorial story design, social-proof focused`,
+- Customer portrait as full-bleed hero with dramatic three-point lighting and strong rim light
+- LARGE BOLD customer QUOTE using text-behind-subject technique — quote layered BEHIND the person
+- Elegant oversized quote marks (") as refined accent in brand color
+- Shallow depth of field, cinematic bokeh
+- Rich color-graded look (teal-orange or moody dark tones)
+- Attribution: name, role, company in clean small typography
+- Professional drop shadows, subtle glow on text
+- NO clipart, NO cartoon, NO amateur look — feels like a film still`,
     width: 1080,
     height: 1920,
   },
   {
     id: "testimonial-landscape",
     title: "Testimonial Landscape",
-    description: "Landscape Kunden-Testimonial für Web/LinkedIn",
+    description: "Cinematic Landscape Testimonial Web/LinkedIn",
     category: "Testimonial",
-    style: `EXECUTIVE testimonial landscape graphic for website hero or LinkedIn post.
+    style: `HYPER-REALISTIC cinematic landscape TESTIMONIAL graphic for website hero or LinkedIn. Film-still quality.
 Key elements:
-- Split composition: customer portrait on one side, quote and attribution on the other
-- Bold elegant quote marks as a hero design element in brand accent color
-- Large readable customer quote in premium serif or modern sans-serif
-- Attribution block: full name, job title, company name (and space for logo)
-- Sophisticated muted palette with ONE bold accent color
-- Studio-quality portrait with professional lighting and soft shadow
-- Optional 5-star rating element rendered in clean, minimalist style
-- Fortune 500 / SaaS landing-page testimonial quality — credible, polished, modern`,
+- Customer portrait as hero subject with dramatic three-point lighting and strong rim light
+- LARGE BOLD customer QUOTE using text-behind-subject technique — quote layered BEHIND the person
+- Elegant oversized quote marks (") as refined accent in brand color
+- Shallow depth of field, cinematic bokeh background
+- Rich color-graded look (teal-orange or moody dark tones)
+- Attribution block: name, role, company in clean small typography
+- Professional drop shadows, subtle glow on text
+- NO clipart, NO cartoon, NO amateur look`,
     width: 1200,
     height: 627,
   },
