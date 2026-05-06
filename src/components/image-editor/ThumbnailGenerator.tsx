@@ -96,6 +96,8 @@ function urlToBase64(url: string): Promise<string> {
 export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, generated, onGeneratedChange }: ThumbnailGeneratorProps) {
   const [customText, setCustomText] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
+  const [testimonialName, setTestimonialName] = useState("");
+  const [testimonialRole, setTestimonialRole] = useState("");
   const [generatingMap, setGeneratingMap] = useState<Record<string, { progress: number; elapsed: number }>>({});
   const progressIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
@@ -150,6 +152,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
         imageBase64 = uploadedImage;
       }
 
+      const isTestimonial = template.category === "Testimonial";
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -157,6 +160,8 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
           customText: customText || undefined,
           brandColor,
           imageBase64: imageBase64 || undefined,
+          testimonialName: isTestimonial ? testimonialName.trim().slice(0, 80) || undefined : undefined,
+          testimonialRole: isTestimonial ? testimonialRole.trim().slice(0, 120) || undefined : undefined,
         },
       });
 
@@ -174,7 +179,7 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
     } finally {
       stopProgress(template.id);
     }
-  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, startProgress, stopProgress]);
+  }, [customText, brandColor, selectedBatchImageId, batchImages, uploadedImage, testimonialName, testimonialRole, startProgress, stopProgress]);
 
   const EXPORT_RESOLUTIONS = [
     { label: "720p", width: 1280, height: 720 },
@@ -329,6 +334,34 @@ export default function ThumbnailGenerator({ batchImages = [], onEditThumbnail, 
                 className="text-xs rounded-xl h-9 font-mono flex-1"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Testimonial inputs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+          <div className="sm:col-span-2 flex items-center gap-2">
+            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Testimonial Details</span>
+            <span className="text-[10px] text-muted-foreground">Nur für Testimonial-Templates</span>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Name</label>
+            <Input
+              placeholder="z.B. Max Mustermann"
+              value={testimonialName}
+              onChange={(e) => setTestimonialName(e.target.value)}
+              maxLength={80}
+              className="text-xs rounded-xl h-9"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Position / Firma</label>
+            <Input
+              placeholder="z.B. CEO, ACME GmbH"
+              value={testimonialRole}
+              onChange={(e) => setTestimonialRole(e.target.value)}
+              maxLength={120}
+              className="text-xs rounded-xl h-9"
+            />
           </div>
         </div>
 
