@@ -332,10 +332,12 @@ ${safeRole ? `- Render the role/company "${safeRole}" directly under or beside t
 - Do NOT invent or hallucinate any other names, roles, brands, or logos.`
         : "";
 
+      const expandedStyle = template.style.replace("[TESTIMONIAL_STYLE_BLOCK]", isTestimonial ? TESTIMONIAL_STYLE_BLOCK : "");
+
       const masterPrompt = `You are a world-class thumbnail designer. Create an EXCEPTIONAL, PROFESSIONAL thumbnail image.
 
 STYLE DIRECTION:
-${template.style}
+${expandedStyle}
 
 ${textInstruction}
 
