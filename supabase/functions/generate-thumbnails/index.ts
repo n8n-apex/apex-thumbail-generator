@@ -188,6 +188,42 @@ Key elements:
     height: 1400,
   },
   {
+    id: "testimonial-youtube",
+    title: "Testimonial YouTube",
+    description: "16:9 YouTube Testimonial Thumbnail mit Kunden-Quote",
+    category: "Testimonial",
+    style: `PREMIUM 16:9 YouTube testimonial thumbnail with customer quote — case-study cover quality.
+Key elements:
+- Customer portrait as hero subject with cinematic three-point lighting and rim light
+- Large, bold customer quote rendered with text-behind-subject technique (text appears behind the person)
+- Elegant oversized quote marks (") as a refined design accent in brand accent color
+- Attribution line: name + role/company in clean smaller typography
+- Sophisticated cinematic color grading (teal-orange or moody premium tones)
+- Optional subtle 5-star rating element, minimalist style
+- Trust-building, conversion-focused, MKBHD/Ali Abdaal level polish
+- Clean composition with clear hierarchy — portrait + quote + attribution`,
+    width: 1280,
+    height: 720,
+  },
+  {
+    id: "testimonial-instagram",
+    title: "Testimonial Instagram Post",
+    description: "1:1 Instagram Testimonial Post mit Kunden-Quote",
+    category: "Testimonial",
+    style: `PREMIUM 1:1 Instagram testimonial post with customer quote — high-end SaaS/brand quality.
+Key elements:
+- Customer portrait integrated as hero with soft studio lighting and gentle rim light
+- Large readable customer quote in elegant typography (serif headline OR clean modern sans-serif)
+- Refined oversized quote marks (") in brand accent color as a hero design accent
+- Attribution: name, role, company name in muted secondary typography
+- Sophisticated layout with intentional negative space — feed-stopping but premium
+- Subtle glassmorphism or refined gradient background, never busy or childish
+- Optional minimalist 5-star rating element
+- Trust-focused, magazine-feature, Apple/Notion case-study aesthetic`,
+    width: 1080,
+    height: 1080,
+  },
+  {
     id: "testimonial-quote",
     title: "Testimonial Quote",
     description: "Premium Kunden-Zitat mit Portrait",
