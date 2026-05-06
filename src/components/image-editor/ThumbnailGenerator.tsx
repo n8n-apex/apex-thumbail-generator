@@ -35,6 +35,8 @@ const TEMPLATES: ThumbnailTemplate[] = [
   { id: "li-thought-leader", title: "LinkedIn Thought Leader", description: "Authoritative Business-Visual", category: "LinkedIn", style: "", width: 1200, height: 627 },
   { id: "fb-corporate", title: "Facebook Corporate", description: "Professioneller Unternehmens-Post", category: "Facebook", style: "", width: 1200, height: 630 },
   { id: "podcast-premium", title: "Podcast Premium", description: "High-End Podcast-Cover", category: "Podcast", style: "", width: 1400, height: 1400 },
+  { id: "testimonial-youtube", title: "Testimonial YouTube", description: "16:9 YouTube Testimonial Cover", category: "Testimonial", style: "", width: 1280, height: 720 },
+  { id: "testimonial-instagram", title: "Testimonial Instagram Post", description: "1:1 Instagram Testimonial Post", category: "Testimonial", style: "", width: 1080, height: 1080 },
   { id: "testimonial-quote", title: "Testimonial Quote", description: "Premium Kunden-Zitat mit Portrait", category: "Testimonial", style: "", width: 1080, height: 1080 },
   { id: "testimonial-story", title: "Testimonial Story", description: "Story-Format Kunden-Stimme 9:16", category: "Testimonial", style: "", width: 1080, height: 1920 },
   { id: "testimonial-landscape", title: "Testimonial Landscape", description: "Landscape Testimonial für Web/LinkedIn", category: "Testimonial", style: "", width: 1200, height: 627 },
