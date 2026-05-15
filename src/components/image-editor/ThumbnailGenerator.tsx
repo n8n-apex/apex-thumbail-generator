@@ -43,9 +43,8 @@ const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Co
 ];
 
 const TEXT_OPTIONS: { id: TextStyle; label: string; sub: string; icon: typeof Type }[] = [
-  { id: "bold", label: "Bold Sans", sub: "MrBeast click-worthy", icon: Type },
-  { id: "serif", label: "Cinematic Serif", sub: "Magazine-cover elegant", icon: Feather },
-  { id: "modern", label: "Modern Clean", sub: "Apple-keynote sleek", icon: Sparkles },
+  { id: "serif", label: "Cinematic Serif", sub: "Magazine-cover · filmic", icon: Feather },
+  { id: "modern", label: "Modern Clean", sub: "Apple-keynote · sleek", icon: Sparkles },
   { id: "none", label: "Kein Text", sub: "Pure cinematic frame", icon: Minus },
 ];
 
