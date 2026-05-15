@@ -100,7 +100,7 @@ export default function ThumbnailGenerator({
   onGeneratedChange,
 }: ThumbnailGeneratorProps) {
   const [vlogStyle, setVlogStyle] = useState<VlogStyle>("lifestyle");
-  const [textStyle, setTextStyle] = useState<TextStyle>("bold");
+  const [textStyle, setTextStyle] = useState<TextStyle>("serif");
   const [title, setTitle] = useState("");
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
