@@ -9,7 +9,7 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "travel" | "tech" | "fitness";
+type VlogStyle = "lifestyle" | "travel" | "tech";
 type TextStyle = "bold" | "serif" | "modern" | "none";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
@@ -39,15 +39,6 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 - Color palette: deep charcoal/navy base, electric cyan/blue accent, crisp whites
 - Sharp, polished, high-contrast — Apple keynote / MKBHD studio quality
 - Subject confident, direct, professional — slight serious expression`,
-  },
-  fitness: {
-    label: "Fitness / Energy",
-    prompt: `FITNESS / HIGH-ENERGY vlog — bold, dynamic, athletic.
-- Dramatic gym, outdoor training, or studio environment with hard directional light
-- Strong rim light, defined shadows, slight motion blur or dust/sweat particles
-- Color palette: high-contrast black/white base with one bold neon accent (orange, lime, electric blue)
-- Subject mid-action or powerful pose, intense expression, defined features
-- Reference look: Nike commercial / Chris Bumstead vlog / David Goggins doc`,
   },
 };
 
@@ -123,14 +114,19 @@ ${body.sceneDescription ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
 COMPOSITION VARIANT: ${variantSeed}
 
-ABSOLUTE QUALITY BAR:
-- PHOTO-REALISTIC FILM-STILL quality — no illustration, no cartoon, no AI-art look, no clip-art
-- Razor-sharp 4K detail, cinematic color grade, professional lighting
-- Clean intentional composition with clear focal hierarchy
+ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
+- HYPER-PHOTOREALISTIC, indistinguishable from a real DSLR/cinema-camera frame (ARRI Alexa, RED Komodo, Sony FX6 look)
+- Shot on 35mm full-frame sensor, 35-85mm prime lens, f/1.8–f/2.8 shallow depth of field with creamy natural bokeh
+- Real skin micro-detail: visible pores, fine peach fuzz, natural skin texture, subsurface scattering, realistic specular highlights — NEVER plastic, NEVER waxy, NEVER airbrushed
+- Real-world physically-based lighting: motivated key light, soft fill, rim/hair light, accurate shadow falloff, natural ambient occlusion
+- Cinematic color science: filmic contrast curve, slight teal-orange or warm grade depending on style, subtle film grain, no oversaturation, no HDR halos
+- Razor-sharp focus on the eyes, micro-catchlights visible, individual eyelashes resolvable
+- Clean intentional composition with clear focal hierarchy and rule-of-thirds anchoring
 - Headline (if present) perfectly spelled — never garble letters
 - Text-behind-subject technique creates premium magazine-cover depth
 - STRICT 16:9 LANDSCAPE aspect ratio — exactly 1280×720 pixels (or higher 16:9 like 1920×1080). NEVER square, NEVER vertical, NEVER 4:3. Frame the composition wide.
 - Must read clearly at 320×180 small preview size
+- VLOG-ONLY context: every output must look like a frame from a real personal vlog (lifestyle, travel or tech) — NOT a movie poster, NOT a stock photo, NOT a fashion editorial, NOT an ad
 - CONSISTENCY ACROSS THIS BATCH: every variant must share the SAME color grade, SAME lighting mood, SAME wardrobe family, SAME subject identity. Only composition and angle change.
 
 NEVER DO:
