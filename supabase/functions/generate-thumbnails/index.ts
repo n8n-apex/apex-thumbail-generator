@@ -93,12 +93,14 @@ BRAND ACCENT COLOR: ${brand}
 - Do NOT flood the image with this color
 
 ${body.imageBase64
-    ? `SUBJECT REFERENCE: Use the provided image as the main subject of the thumbnail.
-- Keep the person's identity, face, hairstyle, skin tone EXACTLY as in the reference (this is critical — do not invent a different face)
-- Re-light, color-grade, and recompose them into the cinematic vlog scene above
-- Apply the text-behind-subject layering with the headline going BEHIND their head/shoulders
-- Skin must look photo-real, premium retouch, sharp eyes, natural micro-expressions`
-    : `SUBJECT: Generate a photorealistic relatable vlogger as the main subject (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated.`}
+    ? `SUBJECT REFERENCE — IDENTITY LOCK (HIGHEST PRIORITY):
+- The provided reference image IS the subject. You MUST preserve their identity 1:1 across ALL variants.
+- Keep face geometry, facial proportions, eye color & shape, eyebrow shape, nose, mouth, jawline, cheekbones, skin tone, freckles/marks, hairstyle, hair color, hair length, beard/stubble, age, body type EXACTLY as in the reference.
+- Do NOT idealize, slim, age-shift, beautify, or "improve" the face. Do NOT swap ethnicity. Do NOT change gender presentation.
+- You MAY change: lighting, color grade, expression (subtle), pose, outfit (only if it fits the vlog style), background/scene.
+- Treat this like a professional photo-shoot of THE SAME PERSON in different scenes — every variant must be instantly recognizable as the same individual.
+- Skin must look photo-real with premium retouch, sharp eyes, natural micro-expressions.`
+    : `SUBJECT: Generate a photorealistic relatable vlogger as the main subject (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. IMPORTANT: Across all variants in this batch, keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.`}
 
 ${body.sceneDescription ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
