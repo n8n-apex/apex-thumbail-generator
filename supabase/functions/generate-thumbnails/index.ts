@@ -15,30 +15,30 @@ type TextStyle = "serif" | "modern" | "none";
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
   lifestyle: {
     label: "Lifestyle / Daily Vlog",
-    prompt: `LIFESTYLE / DAILY VLOG aesthetic — warm, personal, cinematic real-life moment.
-- Golden-hour or warm soft natural light, creamy skin tones, gentle film grain
-- Cozy authentic setting (apartment, cafe, city street, kitchen) with shallow depth-of-field bokeh
-- Color palette: warm cream, soft beige, sun-kissed amber with a single saturated accent
-- Subject feels candid, emotionally relatable — slight smile or contemplative
-- Reference look: Casey Neistat meets Emma Chamberlain meets Apple lifestyle ad`,
+    prompt: `LIFESTYLE / DAILY VLOG im AUDI RS6 — warm, persönlich, cinematic.
+- HERO CAR: Audi RS6 Avant (C8) — muss als Szene/Setting deutlich erkennbar sein. Korrekte RS6-Details: quattro-Schriftzug, Single-Frame-Grill, RS-Logo, Quad-Oval-Auspuff, breite Kotflügel, OLED-Heckleuchten.
+- Setting: Subjekt im/am RS6 (Fahrersitz mit Lenkrad sichtbar, lehnend an der Karosserie, Tür offen, Tankstelle bei Nacht, Underground-Parkhaus, City-Street bei Sonnenuntergang).
+- Warmes Golden-Hour- oder gemütliches Innenraum-Licht (Dashboard-Glow, Ambient Light der RS6-Kabine), creamy Hauttöne, feines Filmkorn.
+- Color Grade: warmes Cream/Amber gemischt mit dem tiefen Lack des RS6 (Daytona Grey / Nardo / Mythos Black) — ein einzelner gesättigter Akzent.
+- Stimmung: candid, lifestyle, "ein Tag mit dem RS6".`,
   },
   travel: {
     label: "Travel / Adventure",
-    prompt: `TRAVEL / ADVENTURE cinematic vlog — epic, vast, awe-inspiring.
-- Sweeping landscape (mountains, ocean, desert, city skyline) with dramatic atmospheric light
-- Subject smaller in frame OR mid-shot with epic backdrop, suggesting scale and adventure
-- Color palette: deep teal-orange cinematic grade, rich shadows, glowing highlights
-- Sense of motion, weather, atmosphere (mist, dust, sunrays, snow)
-- Reference look: Peter McKinnon / Sam Kolder / Devin Graham aerial-cinematic`,
+    prompt: `TRAVEL / ADVENTURE cinematic vlog im AUDI RS6 — episch, weit, awe-inspiring.
+- HERO CAR: Audi RS6 Avant (C8) muss prominent in der Szene sein — korrekte Proportionen, Single-Frame-Grill, Quad-Auspuff, RS-Felgen, breite Hüften.
+- Setting: RS6 auf Bergpass-Serpentine, Wüstenstraße, Küstenhighway, verschneitem Alpenpass, leerer Autobahn bei Sonnenaufgang. Subjekt steht am Auto, lehnt an der Motorhaube, oder sitzt mit offener Tür.
+- Dramatisches atmosphärisches Licht, Mist/Staub/Sonnenstrahlen, weite Landschaft die Maßstab erzeugt.
+- Color Grade: deep teal-orange cinematic, satte Schatten, glühende Highlights — RS6-Lack reflektiert die Umgebung.
+- Reference: Peter McKinnon / Sam Kolder Auto-Roadtrip-Cinematic.`,
   },
   tech: {
     label: "Tech / Business",
-    prompt: `TECH / BUSINESS vlog — clean, modern, futuristic, premium.
-- Studio or modern office setting with controlled three-point lighting and rim light
-- Tech objects subtly visible (laptop, screen glow, minimal desk setup) but never cluttered
-- Color palette: deep charcoal/navy base, electric cyan/blue accent, crisp whites
-- Sharp, polished, high-contrast — Apple keynote / MKBHD studio quality
-- Subject confident, direct, professional — slight serious expression`,
+    prompt: `TECH / BUSINESS vlog im AUDI RS6 — clean, modern, premium, futuristic.
+- HERO CAR: Audi RS6 Avant (C8) als Statement-Objekt — perfekte Reflexionen, Studio-saubere Karosserie, RS-Details (Single-Frame, Quad-Auspuff, RS-Felgen, OLED-Lichter) korrekt.
+- Setting: RS6 in moderner Tiefgarage mit LED-Strips, Glas-Showroom, nächtliche Skyline-Rooftop, oder minimal Studio mit kontrolliertem Light. Subjekt confident am/im Auto.
+- Dashboard-Glow, MMI-Display sichtbar, Innenraum-Ambient-Light in Cyan/Blau, kontrollierte Three-Point-Beleuchtung mit Rim Light.
+- Color Palette: tiefes Charcoal/Navy, electric Cyan/Blau Akzent, crisp Whites — RS6-Lack glänzt.
+- Look: Apple Keynote / MKBHD Studio trifft Top-Gear-Hochglanz.`,
   },
 };
 
@@ -126,6 +126,7 @@ ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - STRICT 16:9 LANDSCAPE aspect ratio — exactly 1280×720 pixels (or higher 16:9 like 1920×1080). NEVER square, NEVER vertical, NEVER 4:3. Frame the composition wide.
 - Must read clearly at 320×180 small preview size
 - VLOG-ONLY context: every output must look like a frame from a real personal vlog (lifestyle, travel or tech) — NOT a movie poster, NOT a stock photo, NOT a fashion editorial, NOT an ad
+- MANDATORY HERO CAR: Audi RS6 Avant (C8) MUST be present and clearly recognizable in EVERY thumbnail (interior driver shot, exterior leaning, parked, driving). Correct RS6 details only — NEVER an A6, S6, generic wagon or other brand. Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, "quattro"-Schriftzug.
 - CONSISTENCY ACROSS THIS BATCH: every variant must share the SAME color grade, SAME lighting mood, SAME wardrobe family, SAME subject identity. Only composition and angle change.
 
 NEVER DO:
