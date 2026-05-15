@@ -6,531 +6,283 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-interface ThumbnailTemplate {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  style: string;
-  width: number;
-  height: number;
+const WIDTH = 1280;
+const HEIGHT = 720;
+
+type VlogStyle = "lifestyle" | "travel" | "tech" | "fitness";
+type TextStyle = "bold" | "serif" | "modern" | "none";
+
+const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
+  lifestyle: {
+    label: "Lifestyle / Daily Vlog",
+    prompt: `LIFESTYLE / DAILY VLOG aesthetic — warm, personal, cinematic real-life moment.
+- Golden-hour or warm soft natural light, creamy skin tones, gentle film grain
+- Cozy authentic setting (apartment, cafe, city street, kitchen) with shallow depth-of-field bokeh
+- Color palette: warm cream, soft beige, sun-kissed amber with a single saturated accent
+- Subject feels candid, emotionally relatable — slight smile or contemplative
+- Reference look: Casey Neistat meets Emma Chamberlain meets Apple lifestyle ad`,
+  },
+  travel: {
+    label: "Travel / Adventure",
+    prompt: `TRAVEL / ADVENTURE cinematic vlog — epic, vast, awe-inspiring.
+- Sweeping landscape (mountains, ocean, desert, city skyline) with dramatic atmospheric light
+- Subject smaller in frame OR mid-shot with epic backdrop, suggesting scale and adventure
+- Color palette: deep teal-orange cinematic grade, rich shadows, glowing highlights
+- Sense of motion, weather, atmosphere (mist, dust, sunrays, snow)
+- Reference look: Peter McKinnon / Sam Kolder / Devin Graham aerial-cinematic`,
+  },
+  tech: {
+    label: "Tech / Business",
+    prompt: `TECH / BUSINESS vlog — clean, modern, futuristic, premium.
+- Studio or modern office setting with controlled three-point lighting and rim light
+- Tech objects subtly visible (laptop, screen glow, minimal desk setup) but never cluttered
+- Color palette: deep charcoal/navy base, electric cyan/blue accent, crisp whites
+- Sharp, polished, high-contrast — Apple keynote / MKBHD studio quality
+- Subject confident, direct, professional — slight serious expression`,
+  },
+  fitness: {
+    label: "Fitness / Energy",
+    prompt: `FITNESS / HIGH-ENERGY vlog — bold, dynamic, athletic.
+- Dramatic gym, outdoor training, or studio environment with hard directional light
+- Strong rim light, defined shadows, slight motion blur or dust/sweat particles
+- Color palette: high-contrast black/white base with one bold neon accent (orange, lime, electric blue)
+- Subject mid-action or powerful pose, intense expression, defined features
+- Reference look: Nike commercial / Chris Bumstead vlog / David Goggins doc`,
+  },
+};
+
+const TEXT_STYLES: Record<TextStyle, string> = {
+  bold: `Massive BOLD CONDENSED SANS-SERIF (Druk Wide, Anton, or Impact style), ALL CAPS, perfectly kerned. Bright white or yellow with thick black outline / drop shadow for maximum readability. MrBeast / Mark Rober level click-worthy but tasteful, NOT amateur. Text placed BEHIND the subject's head/shoulders (text-behind-subject technique).`,
+  serif: `Elegant cinematic DISPLAY SERIF (Playfair Display Black, Recoleta, Canela). Title-case or smart capitalization. Soft glow / subtle drop shadow. Color tinted slightly toward the brand accent. Magazine-cover quality (Vogue, WIRED). Text layered BEHIND the subject for cinematic depth.`,
+  modern: `Clean modern GEOMETRIC SANS-SERIF (SF Pro Display, Inter, Söhne). Crisp white, perfect tracking, mixed weight hierarchy. Apple keynote premium feel. Text positioned with intention, layered behind or beside the subject with soft shadow.`,
+  none: `NO text overlay — pure cinematic image only. Composition leaves clear space where the YouTube duration badge sits (bottom-right) and where future title overlay can go.`,
+};
+
+interface GenerateBody {
+  action: "generate";
+  vlogStyle: VlogStyle;
+  textStyle: TextStyle;
+  title?: string;
+  brandColor?: string;
+  imageBase64?: string;
+  variants?: number;
+  sceneDescription?: string;
 }
 
-const TEMPLATES: ThumbnailTemplate[] = [
-  {
-    id: "yt-cinematic",
-    title: "YouTube Cinematic",
-    description: "Filmische Ästhetik mit dramatischer Beleuchtung",
-    category: "YouTube",
-    style: `HYPER-REALISTIC cinematic YouTube thumbnail. Professional photo-composite style like top YouTubers (MKBHD, Ali Abdaal, Peter McKinnon).
-Key elements:
-- LARGE BOLD HEADLINE text placed BEHIND the subject's head/body (text-behind-subject technique) — the text should appear to be layered behind the person
-- Dramatic three-point lighting with strong rim light separating subject from background
-- Shallow depth of field with cinematic bokeh
-- Rich, color-graded look (teal-orange or moody dark tones)
-- Clean composition with subject on one side, headline on the other
-- Professional drop shadows and subtle glow effects on text
-- NO clipart, NO cartoon elements, NO amateur look`,
-    width: 1280,
-    height: 720,
-  },
-  {
-    id: "yt-editorial",
-    title: "YouTube Editorial",
-    description: "Magazin-Cover Layout, editorial Typografie",
-    category: "YouTube",
-    style: `HIGH-END editorial magazine cover style YouTube thumbnail. Think Vogue, GQ, or TIME magazine cover.
-Key elements:
-- BOLD SERIF or modern sans-serif headline text BEHIND or OVERLAPPING the subject (text-behind-subject layering)
-- Mixed typography weights: massive headline + smaller subtext
-- Clean grid-based layout with intentional whitespace
-- Sophisticated muted color palette (earth tones, navy, cream) with ONE bold accent
-- Subject photographed in studio-quality lighting
-- Subtle texture overlays (grain, halftone dots)
-- Editorial crop — subject may be partially cut off for dramatic effect`,
-    width: 1280,
-    height: 720,
-  },
-  {
-    id: "yt-minimal",
-    title: "YouTube Minimal",
-    description: "Reduziertes Design mit starker Typografie",
-    category: "YouTube",
-    style: `ULTRA-PREMIUM minimalist YouTube thumbnail. Apple keynote / Google I/O quality.
-Key elements:
-- ONE massive bold keyword as focal point, placed with intention (can be behind subject)
-- Generous negative space — at least 40% of frame is breathing room
-- Monochromatic or duotone palette with subtle gradient
-- Single clean focal element (person, product, or icon)
-- Typography: modern geometric sans-serif (like Helvetica Neue, SF Pro, or Montserrat)
-- Subtle shadows and depth through layering
-- NO busy backgrounds, NO multiple text elements`,
-    width: 1280,
-    height: 720,
-  },
-  {
-    id: "ig-editorial",
-    title: "Instagram Editorial",
-    description: "High-Fashion Magazin-Look",
-    category: "Instagram",
-    style: `HIGH-FASHION editorial Instagram post. Vogue/Harper's Bazaar aesthetic.
-Key elements:
-- Fashion-forward composition with bold typography overlay
-- Text elegantly integrated with the subject (behind, overlapping, or framing)
-- Sophisticated muted palette: cream, charcoal, blush, sage
-- Elegant serif headlines (Playfair Display, Bodoni style)
-- Studio-quality lighting with soft shadows
-- Luxury brand visual language
-- Clean, aspirational, gallery-worthy`,
-    width: 1080,
-    height: 1080,
-  },
-  {
-    id: "ig-brand",
-    title: "Instagram Brand",
-    description: "Premium Brand Identity Post",
-    category: "Instagram",
-    style: `PREMIUM brand identity Instagram post. Apple, Tesla, or Aesop marketing quality.
-Key elements:
-- Clean geometric layout with sophisticated color blocking
-- Bold modern sans-serif typography, perfectly kerned
-- Product/subject as hero element with dramatic lighting
-- Monochromatic base + ONE accent color for maximum impact
-- Minimalist composition with intentional negative space
-- Premium materials feel: glass, metal, concrete textures
-- Text can be layered behind or around the subject`,
-    width: 1080,
-    height: 1080,
-  },
-  {
-    id: "ig-story-premium",
-    title: "Story Premium",
-    description: "Elegante Story mit Glassmorphism",
-    category: "Instagram",
-    style: `PREMIUM Instagram story with glassmorphism design language.
-Key elements:
-- Frosted glass card overlays with subtle transparency
-- Vibrant gradient mesh background (but refined, not garish)
-- Clean sans-serif typography with perfect hierarchy
-- Subject/product centered with glass panels framing it
-- Soft shadows and light refraction effects
-- Modern UI-inspired layout (like iOS or macOS design)
-- Headline text integrated with glass layers`,
-    width: 1080,
-    height: 1920,
-  },
-  {
-    id: "tt-professional",
-    title: "TikTok Professional",
-    description: "Modernes Cover mit starkem Branding",
-    category: "TikTok",
-    style: `PROFESSIONAL TikTok cover with modern tech/startup aesthetic.
-Key elements:
-- Bold gradient mesh or abstract 3D background
-- Large impactful headline text (can be behind subject)
-- Clean, contemporary design — NO childish or trendy TikTok clichés
-- Strong brand presence with accent color
-- Professional portrait or product shot
-- Sleek, polished, Silicon Valley quality
-- Typography: bold geometric sans-serif`,
-    width: 1080,
-    height: 1920,
-  },
-  {
-    id: "li-thought-leader",
-    title: "LinkedIn Thought Leader",
-    description: "Authoritative Business-Visual",
-    category: "LinkedIn",
-    style: `AUTHORITATIVE LinkedIn thought leadership visual. McKinsey, BCG presentation quality.
-Key elements:
-- Professional navy/charcoal base with gold or electric blue accent
-- Clean data visualization elements (charts, graphs as design accents)
-- Bold headline with executive-level typography
-- Corporate but MODERN — not dated or generic
-- Subject/portrait with professional lighting
-- Infographic-inspired layout with clean hierarchy
-- Text layered with sophisticated depth effects`,
-    width: 1200,
-    height: 627,
-  },
-  {
-    id: "fb-corporate",
-    title: "Facebook Corporate",
-    description: "Professioneller Unternehmens-Post",
-    category: "Facebook",
-    style: `PROFESSIONAL corporate Facebook post. Fortune 500 marketing quality.
-Key elements:
-- Clean, credible, brand-consistent design
-- Modern gradient or solid color background
-- Professional typography hierarchy (headline + subtext)
-- Subject/product integrated cleanly
-- Subtle geometric patterns or abstract shapes
-- Business communication style with polish
-- Text and imagery layered with depth`,
-    width: 1200,
-    height: 630,
-  },
-  {
-    id: "podcast-premium",
-    title: "Podcast Premium",
-    description: "High-End Podcast-Cover",
-    category: "Podcast",
-    style: `PREMIUM podcast cover art. NPR, Spotify Original, or NYT podcast quality.
-Key elements:
-- Sophisticated dark theme with rich accent details (gold, electric blue, or warm amber)
-- Professional headshot integration with dramatic lighting
-- Luxury magazine-quality typography (mix of serif headline + sans-serif details)
-- Subtle audio motifs (waveform, microphone silhouette) as design accents — NOT literal
-- Moody, atmospheric, cinematic feel
-- Title text as main design element, can be behind or overlapping the portrait
-- Square format optimized for podcast players`,
-    width: 1400,
-    height: 1400,
-  },
-  {
-    id: "testimonial-youtube",
-    title: "Testimonial YouTube",
-    description: "Cinematic 16:9 Testimonial mit Text-behind-Subject",
-    category: "Testimonial",
-    style: `${"HYPER-REALISTIC cinematic 16:9 YouTube TESTIMONIAL thumbnail in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 16:9 cinematic crop, subject framed mid-chest upward, headline quote spanning the FULL width behind the head and shoulders\n- Small attribution line below the bottom-left quote card`,
-    width: 1280,
-    height: 720,
-  },
-  {
-    id: "testimonial-instagram-portrait",
-    title: "Testimonial Instagram 4:5",
-    description: "Cinematic 4:5 Portrait Testimonial",
-    category: "Testimonial",
-    style: `${"HYPER-REALISTIC cinematic 4:5 Instagram PORTRAIT testimonial in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 4:5 portrait crop, vertical real estate used for stacked headline quote behind the subject\n- Bottom 30% reserved for the small frosted-glass quote card + attribution + brand logo`,
-    width: 1080,
-    height: 1350,
-  },
-  {
-    id: "testimonial-instagram",
-    title: "Testimonial Instagram Post",
-    description: "Cinematic 1:1 Instagram Testimonial",
-    category: "Testimonial",
-    style: `${"HYPER-REALISTIC cinematic 1:1 Instagram TESTIMONIAL post in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 1:1 square crop, headline quote behind the head fills upper 55%\n- Small frosted-glass quote card sits in lower-left third with attribution underneath`,
-    width: 1080,
-    height: 1080,
-  },
-  {
-    id: "testimonial-quote",
-    title: "Testimonial Quote",
-    description: "Cinematic Premium Kunden-Zitat",
-    category: "Testimonial",
-    style: `${"HYPER-REALISTIC cinematic 1:1 testimonial in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- Square format, balanced composition, portrait centered with quote wrapping behind shoulders`,
-    width: 1080,
-    height: 1080,
-  },
-  {
-    id: "testimonial-story",
-    title: "Testimonial Story",
-    description: "Cinematic 9:16 Story Testimonial",
-    category: "Testimonial",
-    style: `${"HYPER-REALISTIC cinematic 9:16 vertical TESTIMONIAL story (Instagram/TikTok) in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 9:16 vertical, headline quote stacked over 3-4 lines BEHIND the head/shoulders, filling the upper 55%\n- Lower 35% holds: oversized opening quote mark in brand color, frosted-glass card with secondary short quote, attribution line with bullet separator (NAME • ROLE, COMPANY), small brand logo centered at the very bottom\n- Reference layout to emulate: bold condensed serif headline quote in soft brand-blue tone glowing through behind a sharply lit portrait, sleek frosted glass quote card below`,
-    width: 1080,
-    height: 1920,
-  },
-  {
-    id: "testimonial-landscape",
-    title: "Testimonial Landscape",
-    description: "Cinematic Landscape Testimonial Web/LinkedIn",
-    category: "Testimonial",
-    style: `${"HYPER-REALISTIC cinematic landscape TESTIMONIAL for website/LinkedIn in the EXACT premium 'text-behind-subject' editorial style described below."}\n[TESTIMONIAL_STYLE_BLOCK]\nFormat-specific:\n- 1.91:1 landscape, portrait on the right third, headline quote sweeping behind subject from left\n- Small frosted-glass quote card and attribution stack on the left third`,
-    width: 1200,
-    height: 627,
-  },
-];
+function buildPrompt(body: GenerateBody, variantSeed: string) {
+  const vlog = VLOG_STYLES[body.vlogStyle];
+  const textBlock = TEXT_STYLES[body.textStyle];
+  const titleText = body.title?.trim();
+  const brand = body.brandColor || "#00BCFF";
 
-const TESTIMONIAL_STYLE_BLOCK = `
-TYPOGRAPHY (CRITICAL — match exactly):
-- Headline customer quote: BOLD CONDENSED DISPLAY SERIF (think Playfair Display Bold, Recoleta Bold, or Canela Black), ALL CAPS, tight leading, perfectly kerned
-- Headline color: tinted in the BRAND ACCENT COLOR with a soft inner glow and subtle outer halo, slightly desaturated so it integrates as ambient light, NOT a flat overlay
-- Headline rendered in real, perfectly spelled letters (no garbled text), opening German low quote „ and closing high quote " around the quote
-- Secondary quote (inside the frosted card): smaller, modern clean SANS-SERIF in white, sentence case, italicized softly, with a smaller pair of curly quotes
-- Attribution line: ALL CAPS, light-weight modern sans-serif, light gray, format: "NAME • ROLE, COMPANY" with a brand-color bullet
-- Optional centered brand wordmark/logo placeholder at the very bottom in white, minimalist sans
+  return `You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (1280×720) for a personal VLOG.
 
-TEXT-BEHIND-SUBJECT TECHNIQUE (CRITICAL):
-- The HEADLINE QUOTE must visibly pass BEHIND the subject's head, hair and shoulders (text occluded by the person), as if the text lives in the background plane
-- Subject is sharply lit and in front, headline text is slightly blurred at the edges where it meets the subject for natural depth
-- Use rim light on the subject in the brand accent color so the person separates cleanly from the glowing text
-- Headline must NEVER cover the subject's face
+VLOG STYLE DIRECTION:
+${vlog.prompt}
 
-COMPOSITION:
-- Customer portrait is the hero — premium studio/interview lighting, three-point setup, strong cool rim light, shallow depth of field
-- Background: dark moody interior or out-of-focus office with subtle data-visualization / dashboard ghosting in the deep background, color graded with brand accent tone
-- Frosted-glass (glassmorphism) rounded card containing the secondary short quote, with a large opening quote mark " in brand accent color anchoring its top-left
-- Subtle soft glows where the headline letters peek out from behind the subject
+TYPOGRAPHY DIRECTION:
+${textBlock}
 
-BRAND APPLICATION:
-- Use the provided brand color as the dominant accent for: headline quote tint, rim light, opening quote marks, attribution bullet
-- Keep the rest of the palette deep navy/charcoal with whites and soft cyan-blues for premium tech aesthetic
+${titleText ? `HEADLINE TEXT (use EXACTLY, perfectly spelled): "${titleText}"
+- Render in the typography style above as the dominant visual element
+- ALL caps if Bold style, smart-case if Serif/Modern
+- Max 2-3 lines, large, punchy, instantly readable at 320×180 thumbnail size` : `NO headline — purely visual cinematic frame.`}
+
+BRAND ACCENT COLOR: ${brand}
+- Use sparingly as accent: rim light tint, headline color hint, small logo / underline accent
+- Do NOT flood the image with this color
+
+${body.imageBase64
+    ? `SUBJECT REFERENCE: Use the provided image as the main subject of the thumbnail.
+- Keep the person's identity, face, hairstyle, skin tone EXACTLY as in the reference (this is critical — do not invent a different face)
+- Re-light, color-grade, and recompose them into the cinematic vlog scene above
+- Apply the text-behind-subject layering with the headline going BEHIND their head/shoulders
+- Skin must look photo-real, premium retouch, sharp eyes, natural micro-expressions`
+    : `SUBJECT: Generate a photorealistic relatable vlogger as the main subject (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated.`}
+
+${body.sceneDescription ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
+
+COMPOSITION VARIANT: ${variantSeed}
 
 ABSOLUTE QUALITY BAR:
-- Photo-realistic film-still quality — no illustration, no cartoon, no clip-art, no AI-art look
-- Editorial magazine polish (Vogue / WIRED / Apple keynote level)
-- Razor-sharp portrait, perfect skin, professional retouch
-- Perfect German spelling for ALL text — never invent words, never garble letters
-- Reference look: bold condensed serif headline glowing in brand color BEHIND a sharply lit professional portrait, frosted glass quote card below, minimalist attribution + logo`;
+- PHOTO-REALISTIC FILM-STILL quality — no illustration, no cartoon, no AI-art look, no clip-art
+- Razor-sharp 4K detail, cinematic color grade, professional lighting
+- Clean intentional composition with clear focal hierarchy
+- Headline (if present) perfectly spelled — never garble letters
+- Text-behind-subject technique creates premium magazine-cover depth
+- Output: 1280×720 pixels, 16:9 YouTube thumbnail aspect ratio
+- Must read clearly at 320×180 small preview size
+
+NEVER DO:
+- No childish cartoon faces, no exaggerated shocked expressions (unless Bold/MrBeast style explicitly chosen — then keep it tasteful)
+- No emoji overlays, no neon arrows, no red circles
+- No comic / bubble / amateur fonts
+- No watermarks, no fake logos
+- No garbled or misspelled text
+- No cluttered busy collage layouts`;
+}
+
+const VARIANT_SEEDS = [
+  "Subject on the LEFT third, headline anchored RIGHT, looking slightly off-camera. Wide environmental establishing shot.",
+  "Subject CENTERED close-up portrait, headline behind shoulders wrapping left and right. Tight intimate framing.",
+  "Subject on the RIGHT third, dramatic profile or 3/4 angle. Headline sweeps across left two-thirds of frame.",
+  "Subject MID-SHOT slightly off-center, dynamic asymmetric layout. Headline stacked vertically along one edge.",
+  "OVER-THE-SHOULDER perspective with subject foreground-left, scene depth right. Headline integrated into the negative space.",
+  "LOW-ANGLE hero shot of subject, dramatic upward perspective. Headline arching above their head behind them.",
+];
+
+async function callGemini(prompt: string, imageBase64: string | undefined, apiKey: string): Promise<string> {
+  const messages = [
+    {
+      role: "user",
+      content: imageBase64
+        ? [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: imageBase64 } },
+          ]
+        : prompt,
+    },
+  ];
+
+  const models = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
+  let lastError = "";
+  for (const model of models) {
+    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ model, messages, modalities: ["image", "text"] }),
+    });
+
+    if (resp.status === 429) throw new Error("__RATE_LIMIT__");
+    if (resp.status === 402) throw new Error("__CREDITS__");
+
+    if (!resp.ok) {
+      lastError = await resp.text();
+      console.error(`Model ${model} failed:`, resp.status, lastError);
+      continue;
+    }
+
+    const data = await resp.json();
+    const img = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    if (img) return img;
+    lastError = "No image returned";
+  }
+  throw new Error(`All models failed: ${lastError}`);
+}
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { action, templateId, customText, brandColor, imageBase64, prompt, testimonialName, testimonialRole, testimonialContext } = await req.json();
+    const body = await req.json();
 
-    if (action === "list-templates") {
-      return new Response(
-        JSON.stringify({ templates: TEMPLATES }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    if (body.action === "generate") {
+      const variants = Math.min(6, Math.max(1, body.variants ?? 4));
+      const seeds = VARIANT_SEEDS.slice(0, variants);
+
+      const settled = await Promise.allSettled(
+        seeds.map((seed) => callGemini(buildPrompt(body, seed), body.imageBase64, LOVABLE_API_KEY))
       );
-    }
 
-    if (action === "generate") {
-      const template = TEMPLATES.find((t) => t.id === templateId);
-      if (!template) {
-        return new Response(
-          JSON.stringify({ error: "Template not found" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      // Surface critical errors
+      for (const s of settled) {
+        if (s.status === "rejected") {
+          const msg = (s.reason as Error)?.message || "";
+          if (msg === "__RATE_LIMIT__") {
+            return new Response(
+              JSON.stringify({ error: "Rate limit erreicht. Bitte versuche es in ein paar Sekunden erneut." }),
+              { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+          if (msg === "__CREDITS__") {
+            return new Response(
+              JSON.stringify({ error: "AI-Credits aufgebraucht. Bitte lade dein Guthaben auf." }),
+              { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        }
       }
 
-      const textInstruction = customText
-        ? `CRITICAL: Include this exact text as the MAIN HEADLINE in the design: "${customText}". 
-           Make it the dominant visual element. Use the text-behind-subject technique where the headline text appears BEHIND the person/subject.
-           The text should be LARGE, BOLD, and perfectly readable. Professional typography with proper kerning and weight.`
-        : "Create a visually striking composition without specific text. Use abstract shapes or subtle placeholder elements instead.";
+      const images = settled
+        .map((s) => (s.status === "fulfilled" ? s.value : null))
+        .filter((x): x is string => !!x);
 
-      const colorInstruction = brandColor
-        ? `Use ${brandColor} as the PRIMARY ACCENT COLOR. Apply it strategically: headline text color, rim lights, subtle glows, or accent elements. Keep the overall palette cohesive and sophisticated.`
-        : "";
+      if (images.length === 0) {
+        const firstErr = settled.find((s) => s.status === "rejected") as PromiseRejectedResult | undefined;
+        throw new Error(firstErr?.reason?.message || "Keine Varianten generiert");
+      }
 
-      const imageInstruction = imageBase64
-        ? `IMPORTANT: Use this uploaded image as the MAIN SUBJECT. Place it prominently in the composition.
-           Apply the text-behind-subject technique: layer the headline text BEHIND the subject so text appears to go behind the person/object.
-           Color-grade the subject to match the overall thumbnail aesthetic.
-           Add dramatic lighting effects (rim light, ambient glow) to integrate the subject naturally.`
-        : "Create a compelling visual composition with abstract elements, shapes, or symbolic imagery as the focal point.";
-
-      const isTestimonial = template.category === "Testimonial";
-      const safeName = typeof testimonialName === "string" ? testimonialName.trim().slice(0, 80) : "";
-      const safeRole = typeof testimonialRole === "string" ? testimonialRole.trim().slice(0, 120) : "";
-      const safeContext = typeof testimonialContext === "string" ? testimonialContext.trim().slice(0, 2000) : "";
-      const testimonialInstruction = isTestimonial
-        ? `CRITICAL TESTIMONIAL ATTRIBUTION:
-${safeName ? `- Render the name "${safeName}" as the primary attribution, in clean, perfectly legible typography (smaller than the quote, but prominent).` : "- No name provided — leave attribution name area subtle/empty."}
-${safeRole ? `- Render the role/company "${safeRole}" directly under or beside the name, in muted secondary typography.` : "- No role/company provided."}
-- The attribution must be CLEARLY READABLE, properly spelled exactly as given, and visually separated from the main quote.
-- Do NOT invent or hallucinate any other names, roles, brands, or logos.
-
-${safeContext ? `TESTIMONIAL SOURCE TEXT / CONTEXT (use to derive headline + sub-quote):
-"""
-${safeContext}
-"""
-INSTRUCTIONS FOR USING THIS CONTEXT:
-- Distill ONE short, punchy German phrase (MAX 3-5 words, ALL CAPS) from this text and use it as the SINGLE HEADLINE QUOTE behind the subject. It must capture the emotional core in as few words as possible.
-- Distill ONE very short complete sentence (MAX 8 German words) from the text and use it as the SECONDARY QUOTE inside the frosted glass card.
-- LESS IS MORE — keep total visible text minimal so the cinematic portrait stays the hero. Do NOT add taglines, paragraphs, or extra copy.
-- Both must feel natural, authentic, perfectly spelled German — paraphrase if needed for brevity and impact, but stay TRUE to the meaning, tone, and industry.
-- Match background mood, color grade, and subtle background elements (e.g. dashboards, office, studio) to the industry/context implied by the text.
-- ${customText ? `If the user explicitly provided headline text ("${customText}"), use that EXACTLY as the headline (still keep it short) and only derive the secondary quote from the context above.` : "Do NOT use generic placeholder quotes — headline and sub-quote MUST come from the source text above."}` : (customText ? "" : "- No source text provided. Generate ONE short premium German testimonial phrase (max 3-5 words headline + max 8 words sub-quote). Keep text minimal so the cinematic look dominates.")}`
-        : "";
-
-      const expandedStyle = template.style.replace("[TESTIMONIAL_STYLE_BLOCK]", isTestimonial ? TESTIMONIAL_STYLE_BLOCK : "");
-
-      const masterPrompt = `You are a world-class thumbnail designer. Create an EXCEPTIONAL, PROFESSIONAL thumbnail image.
-
-STYLE DIRECTION:
-${expandedStyle}
-
-${textInstruction}
-
-${colorInstruction}
-
-${imageInstruction}
-
-${testimonialInstruction}
-
-ABSOLUTE REQUIREMENTS:
-- ALL text MUST be in German (Deutsch). No English text whatsoever.
-- This must look like it was made by a TOP-TIER creative agency (Pentagram, Collins, or IDEO level)
-- PHOTO-REALISTIC quality — no illustrations, no cartoons, no clipart
-- Professional color grading with cinematic feel
-- Clean, intentional composition with clear visual hierarchy
-- The text-behind-subject layering technique is KEY for premium look
-- Output: ${template.width}×${template.height}px
-
-NEVER DO:
-- No "Mr Beast" clickbait style
-- No comic/bubble fonts
-- No neon arrows or circles
-- No shocked face expressions
-- No emoji overlays
-- No cluttered busy layouts
-- No amateur stock photo look
-- No generic corporate clip art`;
-
-      const messages: any[] = [
-        {
-          role: "user",
-          content: imageBase64
-            ? [
-                { type: "text", text: masterPrompt },
-                { type: "image_url", image_url: { url: imageBase64 } },
-              ]
-            : masterPrompt,
-        },
-      ];
-
-      const models = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
-      let response: Response | null = null;
-      let lastError = "";
-
-      for (const model of models) {
-        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
+      return new Response(
+        JSON.stringify({
+          images,
+          template: {
+            id: `vlog-${body.vlogStyle}`,
+            title: VLOG_STYLES[body.vlogStyle as VlogStyle]?.label || "Vlog Thumbnail",
+            description: "Cinematic YouTube Vlog Thumbnail",
+            category: "YouTube",
+            style: "",
+            width: WIDTH,
+            height: HEIGHT,
           },
-          body: JSON.stringify({
-            model,
-            messages,
-            modalities: ["image", "text"],
-          }),
-        });
-
-        if (response.ok) break;
-
-        if (response.status === 429) {
-          return new Response(
-            JSON.stringify({ error: "Rate limit erreicht. Bitte versuche es in ein paar Sekunden erneut." }),
-            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-        if (response.status === 402) {
-          return new Response(
-            JSON.stringify({ error: "AI-Credits aufgebraucht. Bitte lade dein Guthaben auf." }),
-            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        lastError = await response.text();
-        console.error(`Model ${model} failed:`, response.status, lastError);
-        // Try next model
-      }
-
-      if (!response || !response.ok) {
-        throw new Error(`All AI models failed. Last error: ${lastError}`);
-      }
-
-      const data = await response.json();
-      const generatedImage = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-      if (!generatedImage) {
-        console.error("No image in AI response:", JSON.stringify(data).slice(0, 500));
-        throw new Error("AI did not return an image");
-      }
-
-      return new Response(
-        JSON.stringify({ image: generatedImage, template }),
+        }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (action === "iterate") {
-      const iterateImage = imageBase64;
-      const iteratePrompt = prompt || customText;
-      if (!iterateImage || !iteratePrompt) {
+    if (body.action === "iterate") {
+      const { imageBase64, prompt } = body;
+      if (!imageBase64 || !prompt) {
         return new Response(
           JSON.stringify({ error: "Image and prompt required for iteration" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+      try {
+        const img = await callGemini(
+          `You are a world-class YouTube thumbnail designer. Edit this thumbnail with this precise change: ${prompt}.
 
-      const iterateModels = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
-      let iterateResp: Response | null = null;
-      let iterateLastErr = "";
-
-      for (const model of iterateModels) {
-        iterateResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              {
-                role: "user",
-                content: [
-                  { type: "text", text: `You are a world-class thumbnail designer. Edit this thumbnail: ${iteratePrompt}. 
-                  
-Maintain the PREMIUM, PROFESSIONAL quality. Make precise, targeted changes only. 
-Keep the text-behind-subject layering if present. 
-Ensure photo-realistic quality and cinematic color grading.
-ALL text must remain in German.` },
-                  { type: "image_url", image_url: { url: iterateImage } },
-                ],
-              },
-            ],
-            modalities: ["image", "text"],
-          }),
+Maintain the PREMIUM CINEMATIC quality. Make targeted changes only — keep the overall composition, subject identity, and color grade intact unless the request explicitly asks otherwise. Photo-realistic. Perfect spelling on any text. Output 1280×720 16:9.`,
+          imageBase64,
+          LOVABLE_API_KEY
+        );
+        return new Response(JSON.stringify({ image: img }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-
-        if (iterateResp.ok) break;
-
-        if (iterateResp.status === 429) {
-          return new Response(
-            JSON.stringify({ error: "Rate limit erreicht." }),
-            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+      } catch (e) {
+        const msg = (e as Error).message;
+        if (msg === "__RATE_LIMIT__") {
+          return new Response(JSON.stringify({ error: "Rate limit erreicht." }), {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
         }
-        if (iterateResp.status === 402) {
-          return new Response(
-            JSON.stringify({ error: "AI-Credits aufgebraucht." }),
-            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        if (msg === "__CREDITS__") {
+          return new Response(JSON.stringify({ error: "AI-Credits aufgebraucht." }), {
+            status: 402,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
         }
-
-        iterateLastErr = await iterateResp.text();
-        console.error(`Iterate model ${model} failed:`, iterateResp.status, iterateLastErr);
+        throw e;
       }
-
-      if (!iterateResp || !iterateResp.ok) {
-        throw new Error(`All AI models failed for iteration. Last: ${iterateLastErr}`);
-      }
-
-      const data = await iterateResp.json();
-      const editedImage = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-      if (!editedImage) throw new Error("AI did not return an edited image");
-
-      return new Response(
-        JSON.stringify({ image: editedImage }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
     }
 
-    return new Response(
-      JSON.stringify({ error: "Unknown action" }),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: "Unknown action" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error: unknown) {
     console.error("Thumbnail generator error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
