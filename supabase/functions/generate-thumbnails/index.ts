@@ -93,12 +93,14 @@ BRAND ACCENT COLOR: ${brand}
 - Do NOT flood the image with this color
 
 ${body.imageBase64
-    ? `SUBJECT REFERENCE: Use the provided image as the main subject of the thumbnail.
-- Keep the person's identity, face, hairstyle, skin tone EXACTLY as in the reference (this is critical — do not invent a different face)
-- Re-light, color-grade, and recompose them into the cinematic vlog scene above
-- Apply the text-behind-subject layering with the headline going BEHIND their head/shoulders
-- Skin must look photo-real, premium retouch, sharp eyes, natural micro-expressions`
-    : `SUBJECT: Generate a photorealistic relatable vlogger as the main subject (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated.`}
+    ? `SUBJECT REFERENCE — IDENTITY LOCK (HIGHEST PRIORITY):
+- The provided reference image IS the subject. You MUST preserve their identity 1:1 across ALL variants.
+- Keep face geometry, facial proportions, eye color & shape, eyebrow shape, nose, mouth, jawline, cheekbones, skin tone, freckles/marks, hairstyle, hair color, hair length, beard/stubble, age, body type EXACTLY as in the reference.
+- Do NOT idealize, slim, age-shift, beautify, or "improve" the face. Do NOT swap ethnicity. Do NOT change gender presentation.
+- You MAY change: lighting, color grade, expression (subtle), pose, outfit (only if it fits the vlog style), background/scene.
+- Treat this like a professional photo-shoot of THE SAME PERSON in different scenes — every variant must be instantly recognizable as the same individual.
+- Skin must look photo-real with premium retouch, sharp eyes, natural micro-expressions.`
+    : `SUBJECT: Generate a photorealistic relatable vlogger as the main subject (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. IMPORTANT: Across all variants in this batch, keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.`}
 
 ${body.sceneDescription ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
@@ -110,8 +112,9 @@ ABSOLUTE QUALITY BAR:
 - Clean intentional composition with clear focal hierarchy
 - Headline (if present) perfectly spelled — never garble letters
 - Text-behind-subject technique creates premium magazine-cover depth
-- Output: 1280×720 pixels, 16:9 YouTube thumbnail aspect ratio
+- STRICT 16:9 LANDSCAPE aspect ratio — exactly 1280×720 pixels (or higher 16:9 like 1920×1080). NEVER square, NEVER vertical, NEVER 4:3. Frame the composition wide.
 - Must read clearly at 320×180 small preview size
+- CONSISTENCY ACROSS THIS BATCH: every variant must share the SAME color grade, SAME lighting mood, SAME wardrobe family, SAME subject identity. Only composition and angle change.
 
 NEVER DO:
 - No childish cartoon faces, no exaggerated shocked expressions (unless Bold/MrBeast style explicitly chosen — then keep it tasteful)
@@ -119,7 +122,9 @@ NEVER DO:
 - No comic / bubble / amateur fonts
 - No watermarks, no fake logos
 - No garbled or misspelled text
-- No cluttered busy collage layouts`;
+- No cluttered busy collage layouts
+- No square / portrait / vertical framing — 16:9 landscape ONLY
+- Do NOT change the subject's identity between variants`;
 }
 
 const VARIANT_SEEDS = [
@@ -153,7 +158,12 @@ async function callGemini(prompt: string, imageBase64: string | undefined, apiKe
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ model, messages, modalities: ["image", "text"] }),
+      body: JSON.stringify({
+        model,
+        messages,
+        modalities: ["image", "text"],
+        image_config: { aspect_ratio: "16:9" },
+      }),
     });
 
     if (resp.status === 429) throw new Error("__RATE_LIMIT__");
