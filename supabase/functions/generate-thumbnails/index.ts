@@ -9,7 +9,7 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "travel" | "tech" | "fitness";
+type VlogStyle = "lifestyle" | "travel" | "tech";
 type TextStyle = "bold" | "serif" | "modern" | "none";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
