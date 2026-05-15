@@ -75,8 +75,34 @@ function buildPrompt(body: GenerateBody, variantSeed: string) {
   const titleText = body.title?.trim();
   const brand = body.brandColor || "#00BCFF";
 
-  return `You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (1280×720) for a personal VLOG.
+  return `${body.imageBase64 ? `TASK: This is a PHOTO COMPOSITE / EDIT task. The attached image shows a real person — your job is to take THIS EXACT person (every facial feature unchanged) and place them into a brand-new cinematic YouTube vlog thumbnail scene. Treat the input as a STRICT face & identity reference, not as inspiration.
 
+` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a personal VLOG. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. It must BALLERN — instant scroll-stop visual impact at maximum production value.
+
+${body.imageBase64 ? `═══ IDENTITY LOCK — ABSOLUTE TOP PRIORITY (overrides everything else) ═══
+The person in the reference image MUST appear in the output as the SAME human being — instantly recognizable to their friends and family.
+
+PRESERVE 1:1 (do NOT alter any of these):
+• Face shape and overall geometry (forehead, cheek width, chin shape, jawline angle)
+• Eye color, eye shape, eye spacing, eyelid shape
+• Eyebrow shape, thickness, color, arch
+• Nose shape, length, width, nostril shape, bridge
+• Mouth shape, lip thickness, lip color, smile lines
+• Skin tone, undertone, freckles, moles, scars, birthmarks, tattoos
+• Hairstyle: exact cut, length, parting, texture, color, hairline
+• Beard / stubble / facial hair: exact pattern and density
+• Apparent age, ethnicity, gender presentation
+• Body type and proportions
+• Any glasses, jewelry, distinctive accessories visible in the reference
+
+YOU MAY CHANGE: lighting, color grade, background/scene, outfit (only if needed for the vlog style), pose, head angle (keep face mostly toward camera), subtle expression.
+
+FORBIDDEN: do NOT beautify, slim, smooth, de-age, age-up, idealize, "model-ify", swap ethnicity, change gender, alter face geometry, change eye color, change hair color, or generate a generic "AI face." If you cannot keep the identity at full body, output a tighter crop that still uses the exact reference face 1:1.
+
+A stranger comparing the reference and the output must immediately say "yes, that's the same person."
+═══════════════════════════════════════════════
+` : `SUBJECT: Generate a photorealistic relatable vlogger (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. Across all variants in this batch keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.
+`}
 VLOG STYLE DIRECTION:
 ${vlog.prompt}
 
@@ -84,23 +110,14 @@ TYPOGRAPHY DIRECTION:
 ${textBlock}
 
 ${titleText ? `HEADLINE TEXT (use EXACTLY, perfectly spelled): "${titleText}"
-- Render in the typography style above as the dominant visual element
+- Render in the typography style above as a dominant visual element
 - ALL caps if Bold style, smart-case if Serif/Modern
-- Max 2-3 lines, large, punchy, instantly readable at 320×180 thumbnail size` : `NO headline — purely visual cinematic frame.`}
+- Max 2-3 lines, large, punchy, instantly readable at 320×180 thumbnail size
+- IMPORTANT: text must NEVER cover the subject's face — place behind shoulders or in negative space` : `NO headline — purely visual cinematic frame.`}
 
 BRAND ACCENT COLOR: ${brand}
 - Use sparingly as accent: rim light tint, headline color hint, small logo / underline accent
 - Do NOT flood the image with this color
-
-${body.imageBase64
-    ? `SUBJECT REFERENCE — IDENTITY LOCK (HIGHEST PRIORITY):
-- The provided reference image IS the subject. You MUST preserve their identity 1:1 across ALL variants.
-- Keep face geometry, facial proportions, eye color & shape, eyebrow shape, nose, mouth, jawline, cheekbones, skin tone, freckles/marks, hairstyle, hair color, hair length, beard/stubble, age, body type EXACTLY as in the reference.
-- Do NOT idealize, slim, age-shift, beautify, or "improve" the face. Do NOT swap ethnicity. Do NOT change gender presentation.
-- You MAY change: lighting, color grade, expression (subtle), pose, outfit (only if it fits the vlog style), background/scene.
-- Treat this like a professional photo-shoot of THE SAME PERSON in different scenes — every variant must be instantly recognizable as the same individual.
-- Skin must look photo-real with premium retouch, sharp eyes, natural micro-expressions.`
-    : `SUBJECT: Generate a photorealistic relatable vlogger as the main subject (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. IMPORTANT: Across all variants in this batch, keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.`}
 
 ${body.sceneDescription ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
