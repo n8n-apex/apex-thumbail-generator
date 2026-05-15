@@ -158,7 +158,12 @@ async function callGemini(prompt: string, imageBase64: string | undefined, apiKe
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ model, messages, modalities: ["image", "text"] }),
+      body: JSON.stringify({
+        model,
+        messages,
+        modalities: ["image", "text"],
+        image_config: { aspect_ratio: "16:9" },
+      }),
     });
 
     if (resp.status === 429) throw new Error("__RATE_LIMIT__");
