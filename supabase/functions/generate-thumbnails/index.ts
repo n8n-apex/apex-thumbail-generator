@@ -40,15 +40,6 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 - Sharp, polished, high-contrast — Apple keynote / MKBHD studio quality
 - Subject confident, direct, professional — slight serious expression`,
   },
-  fitness: {
-    label: "Fitness / Energy",
-    prompt: `FITNESS / HIGH-ENERGY vlog — bold, dynamic, athletic.
-- Dramatic gym, outdoor training, or studio environment with hard directional light
-- Strong rim light, defined shadows, slight motion blur or dust/sweat particles
-- Color palette: high-contrast black/white base with one bold neon accent (orange, lime, electric blue)
-- Subject mid-action or powerful pose, intense expression, defined features
-- Reference look: Nike commercial / Chris Bumstead vlog / David Goggins doc`,
-  },
 };
 
 const TEXT_STYLES: Record<TextStyle, string> = {
