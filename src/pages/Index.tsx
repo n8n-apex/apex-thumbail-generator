@@ -42,7 +42,7 @@ const Index = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [propsOpen, setPropsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<AppTab>("editor");
+  const [activeTab, setActiveTab] = useState<AppTab>("thumbnails");
   const [thumbProject, setThumbProject] = useState<ThumbnailProject | null>(null);
   const [generatedThumbnails, setGeneratedThumbnails] = useState<GeneratedThumbnail[]>([]);
 
