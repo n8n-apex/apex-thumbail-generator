@@ -129,14 +129,15 @@ ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - CONSISTENCY ACROSS THIS BATCH: every variant must share the SAME color grade, SAME lighting mood, SAME wardrobe family, SAME subject identity. Only composition and angle change.
 
 NEVER DO:
-- No childish cartoon faces, no exaggerated shocked expressions (unless Bold/MrBeast style explicitly chosen — then keep it tasteful)
-- No emoji overlays, no neon arrows, no red circles
-- No comic / bubble / amateur fonts
-- No watermarks, no fake logos
-- No garbled or misspelled text
-- No cluttered busy collage layouts
+- No childish cartoon faces, no exaggerated shocked / open-mouth / pointing expressions
+- No MrBeast-style loud bold-condensed type, no neon arrows, no red circles, no emoji overlays
+- No comic / bubble / amateur fonts, no rainbow gradients, no glow-text spam
+- No watermarks, no fake logos, no garbled or misspelled text
+- No cluttered busy collage layouts, no stock-photo / fashion-editorial / movie-poster vibe
 - No square / portrait / vertical framing — 16:9 landscape ONLY
-- Do NOT change the subject's identity between variants`;
+- No plastic / waxy / airbrushed / over-smoothed skin, no AI-generic faces
+- Do NOT change the subject's identity between variants
+- ONLY cinematic, hyperrealistic, premium vlog aesthetic — nothing else`;
 }
 
 const VARIANT_SEEDS = [
