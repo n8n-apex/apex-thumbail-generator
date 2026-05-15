@@ -34,7 +34,7 @@ import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
 type VlogStyle = "lifestyle" | "travel" | "tech";
-type TextStyle = "bold" | "serif" | "modern" | "none";
+type TextStyle = "serif" | "modern" | "none";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
