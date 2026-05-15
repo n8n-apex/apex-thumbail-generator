@@ -43,9 +43,8 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 };
 
 const TEXT_STYLES: Record<TextStyle, string> = {
-  bold: `Massive BOLD CONDENSED SANS-SERIF (Druk Wide, Anton, or Impact style), ALL CAPS, perfectly kerned. Bright white or yellow with thick black outline / drop shadow for maximum readability. MrBeast / Mark Rober level click-worthy but tasteful, NOT amateur. Text placed BEHIND the subject's head/shoulders (text-behind-subject technique).`,
-  serif: `Elegant cinematic DISPLAY SERIF (Playfair Display Black, Recoleta, Canela). Title-case or smart capitalization. Soft glow / subtle drop shadow. Color tinted slightly toward the brand accent. Magazine-cover quality (Vogue, WIRED). Text layered BEHIND the subject for cinematic depth.`,
-  modern: `Clean modern GEOMETRIC SANS-SERIF (SF Pro Display, Inter, Söhne). Crisp white, perfect tracking, mixed weight hierarchy. Apple keynote premium feel. Text positioned with intention, layered behind or beside the subject with soft shadow.`,
+  serif: `Elegant cinematic DISPLAY SERIF (Playfair Display Black, Recoleta, Canela, GT Sectra). Title-case smart capitalization, tight tracking. Soft glow / subtle filmic drop shadow. Color tinted slightly toward the brand accent or warm cream. Vogue / WIRED / Netflix poster cover quality. Text layered BEHIND the subject for cinematic depth. Absolutely no bubble, comic, condensed-bold or MrBeast-style fonts.`,
+  modern: `Clean modern GEOMETRIC SANS-SERIF (SF Pro Display, Inter, Söhne, Neue Haas Grotesk). Crisp white, perfect tracking, mixed weight hierarchy, generous negative space. Apple keynote / A24 minimal title card feel. Text positioned with intention, layered behind or beside the subject with soft cinematic shadow.`,
   none: `NO text overlay — pure cinematic image only. Composition leaves clear space where the YouTube duration badge sits (bottom-right) and where future title overlay can go.`,
 };
 
