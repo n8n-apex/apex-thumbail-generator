@@ -112,8 +112,9 @@ ABSOLUTE QUALITY BAR:
 - Clean intentional composition with clear focal hierarchy
 - Headline (if present) perfectly spelled — never garble letters
 - Text-behind-subject technique creates premium magazine-cover depth
-- Output: 1280×720 pixels, 16:9 YouTube thumbnail aspect ratio
+- STRICT 16:9 LANDSCAPE aspect ratio — exactly 1280×720 pixels (or higher 16:9 like 1920×1080). NEVER square, NEVER vertical, NEVER 4:3. Frame the composition wide.
 - Must read clearly at 320×180 small preview size
+- CONSISTENCY ACROSS THIS BATCH: every variant must share the SAME color grade, SAME lighting mood, SAME wardrobe family, SAME subject identity. Only composition and angle change.
 
 NEVER DO:
 - No childish cartoon faces, no exaggerated shocked expressions (unless Bold/MrBeast style explicitly chosen — then keep it tasteful)
@@ -121,7 +122,9 @@ NEVER DO:
 - No comic / bubble / amateur fonts
 - No watermarks, no fake logos
 - No garbled or misspelled text
-- No cluttered busy collage layouts`;
+- No cluttered busy collage layouts
+- No square / portrait / vertical framing — 16:9 landscape ONLY
+- Do NOT change the subject's identity between variants`;
 }
 
 const VARIANT_SEEDS = [
