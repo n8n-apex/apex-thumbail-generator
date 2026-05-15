@@ -34,7 +34,7 @@ import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
 type VlogStyle = "lifestyle" | "travel" | "tech";
-type TextStyle = "bold" | "serif" | "modern" | "none";
+type TextStyle = "serif" | "modern" | "none";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
@@ -43,9 +43,8 @@ const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Co
 ];
 
 const TEXT_OPTIONS: { id: TextStyle; label: string; sub: string; icon: typeof Type }[] = [
-  { id: "bold", label: "Bold Sans", sub: "MrBeast click-worthy", icon: Type },
-  { id: "serif", label: "Cinematic Serif", sub: "Magazine-cover elegant", icon: Feather },
-  { id: "modern", label: "Modern Clean", sub: "Apple-keynote sleek", icon: Sparkles },
+  { id: "serif", label: "Cinematic Serif", sub: "Magazine-cover · filmic", icon: Feather },
+  { id: "modern", label: "Modern Clean", sub: "Apple-keynote · sleek", icon: Sparkles },
   { id: "none", label: "Kein Text", sub: "Pure cinematic frame", icon: Minus },
 ];
 
@@ -101,7 +100,7 @@ export default function ThumbnailGenerator({
   onGeneratedChange,
 }: ThumbnailGeneratorProps) {
   const [vlogStyle, setVlogStyle] = useState<VlogStyle>("lifestyle");
-  const [textStyle, setTextStyle] = useState<TextStyle>("bold");
+  const [textStyle, setTextStyle] = useState<TextStyle>("serif");
   const [title, setTitle] = useState("");
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
@@ -305,7 +304,7 @@ export default function ThumbnailGenerator({
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Titel-Style
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {TEXT_OPTIONS.map((opt) => {
               const Icon = opt.icon;
               const active = textStyle === opt.id;
