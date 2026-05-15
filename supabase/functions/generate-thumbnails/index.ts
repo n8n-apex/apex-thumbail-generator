@@ -128,12 +128,12 @@ NEVER DO:
 }
 
 const VARIANT_SEEDS = [
-  "Subject on the LEFT third, headline anchored RIGHT, looking slightly off-camera. Wide environmental establishing shot.",
-  "Subject CENTERED close-up portrait, headline behind shoulders wrapping left and right. Tight intimate framing.",
-  "Subject on the RIGHT third, dramatic profile or 3/4 angle. Headline sweeps across left two-thirds of frame.",
-  "Subject MID-SHOT slightly off-center, dynamic asymmetric layout. Headline stacked vertically along one edge.",
-  "OVER-THE-SHOULDER perspective with subject foreground-left, scene depth right. Headline integrated into the negative space.",
-  "LOW-ANGLE hero shot of subject, dramatic upward perspective. Headline arching above their head behind them.",
+  "Frontal hero portrait, subject centered slightly off to one third, head and shoulders fully visible, direct or near-direct eye contact with camera. Wide cinematic environment behind.",
+  "Medium close-up, subject 3/4 body, slight angle but face still 80% toward camera. Strong rim light, headline wrapping behind shoulders.",
+  "Mid-shot environmental, subject standing/sitting in the scene, face clearly visible toward camera, scene depth on the opposite side.",
+  "Tight cinematic close-up of face and upper shoulders, dramatic lighting, eyes razor sharp, expression engaged, headline integrated into background.",
+  "Wide establishing shot, subject prominent in lower-third or one-third, face turned toward camera and clearly readable, epic backdrop dominating.",
+  "Action / motion frame, subject mid-gesture but face oriented toward camera, dynamic light streaks or atmosphere, headline in negative space.",
 ];
 
 async function callGemini(prompt: string, imageBase64: string | undefined, apiKey: string): Promise<string> {
@@ -142,13 +142,13 @@ async function callGemini(prompt: string, imageBase64: string | undefined, apiKe
       role: "user",
       content: imageBase64
         ? [
-            { type: "text", text: prompt },
+            // Image FIRST so the model treats it as the primary reference subject to composite/edit.
             { type: "image_url", image_url: { url: imageBase64 } },
+            { type: "text", text: prompt },
           ]
         : prompt,
     },
   ];
-
   const models = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
   let lastError = "";
   for (const model of models) {
