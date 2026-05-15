@@ -126,6 +126,7 @@ ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - STRICT 16:9 LANDSCAPE aspect ratio — exactly 1280×720 pixels (or higher 16:9 like 1920×1080). NEVER square, NEVER vertical, NEVER 4:3. Frame the composition wide.
 - Must read clearly at 320×180 small preview size
 - VLOG-ONLY context: every output must look like a frame from a real personal vlog (lifestyle, travel or tech) — NOT a movie poster, NOT a stock photo, NOT a fashion editorial, NOT an ad
+- MANDATORY HERO CAR: Audi RS6 Avant (C8) MUST be present and clearly recognizable in EVERY thumbnail (interior driver shot, exterior leaning, parked, driving). Correct RS6 details only — NEVER an A6, S6, generic wagon or other brand. Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, "quattro"-Schriftzug.
 - CONSISTENCY ACROSS THIS BATCH: every variant must share the SAME color grade, SAME lighting mood, SAME wardrobe family, SAME subject identity. Only composition and angle change.
 
 NEVER DO:
