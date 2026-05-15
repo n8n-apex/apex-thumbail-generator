@@ -106,12 +106,23 @@ const Index = () => {
               <span className="text-xs font-black text-primary-foreground">A</span>
             </div>
             <span className="text-xs sm:text-sm font-bold text-foreground tracking-tight hidden sm:block">
-              APEX AI Image Intelligence
+              APEX Vlog Thumbnail Studio
             </span>
           </div>
 
           {/* Tab switcher */}
           <div className="flex items-center gap-0.5 p-0.5 rounded-xl bg-muted/50">
+            <button
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                activeTab === "thumbnails"
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setActiveTab("thumbnails")}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              Vlog Studio
+            </button>
             <button
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                 activeTab === "editor"
@@ -123,17 +134,6 @@ const Index = () => {
               <Wand2 className="h-3.5 w-3.5" />
               Editor
             </button>
-            <button
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
-                activeTab === "thumbnails"
-                  ? "bg-background shadow-sm text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              onClick={() => setActiveTab("thumbnails")}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              Thumbnails
-            </button>
             {thumbProject && (
               <button
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
@@ -144,7 +144,7 @@ const Index = () => {
                 onClick={() => setActiveTab("thumb-editor")}
               >
                 <Pencil className="h-3.5 w-3.5" />
-                Bearbeiten
+                Feinschliff
               </button>
             )}
           </div>
