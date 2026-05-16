@@ -178,11 +178,14 @@ async function callGemini(prompt: string, imageBase64: string | undefined, apiKe
         : prompt,
     },
   ];
-  const models = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
+  const models = ["google/gemini-3.1-flash-image-preview", "google/gemini-3-pro-image-preview"];
   let lastError = "";
   for (const model of models) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), imageBase64 ? 70000 : 55000);
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
+      signal: controller.signal,
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -193,7 +196,7 @@ async function callGemini(prompt: string, imageBase64: string | undefined, apiKe
         modalities: ["image", "text"],
         image_config: { aspect_ratio: "16:9" },
       }),
-    });
+    }).finally(() => clearTimeout(timeout));
 
     if (resp.status === 429) throw new Error("__RATE_LIMIT__");
     if (resp.status === 402) throw new Error("__CREDITS__");
