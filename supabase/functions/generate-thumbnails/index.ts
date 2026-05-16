@@ -104,16 +104,24 @@ A stranger comparing reference and output must instantly say "yes, that's the sa
 ` : `SUBJECT: Generate a photorealistic relatable vlogger (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. Across all variants in this batch keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.
 `}
 ${body.imageBase64 ? "" : `VLOG STYLE DIRECTION:\n${vlog.prompt}\n`}
-${titleText ? `═══ TEXT RULES — STRICT ═══
-There is EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words anywhere in the frame.
+${titleText ? `═══ TEXT RULES — STRICT, ELEGANT, APPLE-STYLE ═══
+EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words.
 
-HEADLINE (render EXACTLY this text, perfectly spelled, NO additions, NO variations, NO translations): "${titleText}"
+HEADLINE (render EXACTLY this text, perfectly spelled, NO additions, NO variations, NO translations, NO duplication): "${titleText}"
 
 Typography direction: ${textBlock}
-- Max 2-3 lines, large, punchy, instantly readable at 320×180 thumbnail size
-- Place behind shoulders or in clean negative space — NEVER over the face
-- ${body.imageBase64 ? "Overlay the headline as a typographic layer ON TOP of the preserved photo — do NOT re-render or alter the underlying photo to fit the text." : ""}
-═══════════════════════════════════════════════` : `NO TEXT AT ALL on the thumbnail. Zero words, zero letters, zero numbers, zero logos, zero captions, zero watermarks, zero signage. Pure cinematic image only.`}
+
+LAYOUT TREATMENT FOR THIS VARIANT: ${textLayout}
+
+SIZE & PLACEMENT (hard rules):
+- The headline occupies AT MOST ~25–35% of the frame width — refined, NOT a giant block screaming across the image.
+- Single line preferred. Two lines only if the title is long. NEVER more than 2 lines.
+- ALWAYS fully inside the safe frame — never clipped, never bleeding off the edges, never cut by the canvas border.
+- NEVER over the subject's face. Place in clean negative space (top-left corner, lower-third, or beside shoulder).
+- NEVER duplicated, NEVER mirrored, NEVER overlapping itself.
+- Render only ONCE in the entire image.
+- ${body.imageBase64 ? "Overlay the headline as a clean typographic layer ON TOP of the preserved photo — do NOT re-render or alter the underlying photo to fit the text." : ""}
+═══════════════════════════════════════════════` : `NO TEXT AT ALL. Zero words, letters, numbers, logos, captions, watermarks, signage. Pure cinematic image only.`}
 
 BRAND ACCENT COLOR: ${brand}
 - Use sparingly: rim light tint or headline color hint only. Do NOT flood the image.
