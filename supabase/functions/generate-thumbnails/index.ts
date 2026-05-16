@@ -257,14 +257,14 @@ serve(async (req) => {
           const msg = (s.reason as Error)?.message || "";
           if (msg === "__RATE_LIMIT__") {
             return new Response(
-              JSON.stringify({ error: "Rate limit erreicht. Bitte versuche es in ein paar Sekunden erneut." }),
-              { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              JSON.stringify({ error: "Rate limit erreicht. Bitte versuche es in ein paar Sekunden erneut.", type: "RATE_LIMIT" }),
+              { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
           }
           if (msg === "__CREDITS__") {
             return new Response(
-              JSON.stringify({ error: "AI-Credits aufgebraucht. Bitte lade dein Guthaben auf." }),
-              { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              JSON.stringify({ error: "AI-Credits aufgebraucht. Bitte lade dein Lovable-AI-Guthaben auf, um weiter zu generieren.", type: "BILLING_REQUIRED" }),
+              { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
           }
         }
