@@ -95,7 +95,12 @@ PRESERVE 1:1 (do NOT alter any of these):
 • Body type and proportions
 • Any glasses, jewelry, distinctive accessories visible in the reference
 
-YOU MAY CHANGE: lighting, color grade, background/scene, outfit (only if needed for the vlog style), pose, head angle (keep face mostly toward camera), subtle expression.
+YOU MAY CHANGE: lighting quality, color grade, atmospheric details in the background, minor wardrobe color/finish, subtle expression nuance.
+
+═══ PERSPECTIVE LOCK — equally critical ═══
+KEEP the EXACT camera perspective, framing, focal length, distance, lens angle, head tilt, shoulder line, body pose, hand positions, and overall composition of the uploaded reference photo. Do NOT re-pose the subject, do NOT change the camera angle, do NOT zoom in or out, do NOT mirror, do NOT rotate. The output must register as the SAME photo, just upgraded — like a colorist + retoucher + environment-enhancement pass on the original frame.
+The variant seed below describes ONLY background mood / atmospheric variation — it must NEVER override the original perspective.
+═══════════════════════════════════════════
 
 FORBIDDEN: do NOT beautify, slim, smooth, de-age, age-up, idealize, "model-ify", swap ethnicity, change gender, alter face geometry, change eye color, change hair color, or generate a generic "AI face." If you cannot keep the identity at full body, output a tighter crop that still uses the exact reference face 1:1.
 
@@ -121,7 +126,7 @@ BRAND ACCENT COLOR: ${brand}
 
 ${body.sceneDescription ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
-COMPOSITION VARIANT: ${variantSeed}
+COMPOSITION VARIANT: ${body.imageBase64 ? `KEEP original perspective/pose/framing from the reference photo unchanged. Vary ONLY background atmosphere & lighting nuance: ${variantSeed}` : variantSeed}
 
 ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - HYPER-PHOTOREALISTIC, indistinguishable from a real DSLR/cinema-camera frame (ARRI Alexa, RED Komodo, Sony FX6 look)
@@ -152,12 +157,12 @@ NEVER DO:
 }
 
 const VARIANT_SEEDS = [
-  "Frontal hero portrait, subject centered slightly off to one third, head and shoulders fully visible, direct or near-direct eye contact with camera. Wide cinematic environment behind.",
-  "Medium close-up, subject 3/4 body, slight angle but face still 80% toward camera. Strong rim light, headline wrapping behind shoulders.",
-  "Mid-shot environmental, subject standing/sitting in the scene, face clearly visible toward camera, scene depth on the opposite side.",
-  "Tight cinematic close-up of face and upper shoulders, dramatic lighting, eyes razor sharp, expression engaged, headline integrated into background.",
-  "Wide establishing shot, subject prominent in lower-third or one-third, face turned toward camera and clearly readable, epic backdrop dominating.",
-  "Action / motion frame, subject mid-gesture but face oriented toward camera, dynamic light streaks or atmosphere, headline in negative space.",
+  "Soft golden-hour key light from the left, warm cream highlights, gentle haze in background, deep filmic shadows.",
+  "Cooler twilight ambience, subtle teal-orange split tone, faint window/streetlight bokeh behind, polished contrast.",
+  "Moody low-key lighting, single motivated rim light, rich blacks, dramatic atmosphere, cinematic vignette.",
+  "Bright clean daylight grade, crisp whites, airy background separation, premium editorial feel.",
+  "Dusk neon-tinted ambience, soft cyan/magenta accents in the background bokeh, glossy highlights on the RS6.",
+  "Overcast diffused soft light, neutral filmic grade, muted background, refined understated mood.",
 ];
 
 async function callGemini(prompt: string, imageBase64: string | undefined, apiKey: string): Promise<string> {
