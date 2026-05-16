@@ -53,9 +53,9 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 };
 
 const TEXT_STYLES: Record<TextStyle, string> = {
-  serif: `Elegant cinematic DISPLAY SERIF (Playfair Display Black, Recoleta, Canela, GT Sectra). Title-case smart capitalization, tight tracking. Soft glow / subtle filmic drop shadow. Color tinted slightly toward the brand accent or warm cream. Vogue / WIRED / Netflix poster cover quality. Text layered BEHIND the subject for cinematic depth. Absolutely no bubble, comic, condensed-bold or MrBeast-style fonts.`,
-  modern: `Clean modern GEOMETRIC SANS-SERIF (SF Pro Display, Inter, Söhne, Neue Haas Grotesk). Crisp white, perfect tracking, mixed weight hierarchy, generous negative space. Apple keynote / A24 minimal title card feel. Text positioned with intention, layered behind or beside the subject with soft cinematic shadow.`,
-  none: `NO text overlay — pure cinematic image only. Composition leaves clear space where the YouTube duration badge sits (bottom-right) and where future title overlay can go.`,
+  serif: `Elegant cinematic DISPLAY SERIF (Canela, GT Sectra, Recoleta, Playfair Display). Refined, restrained, magazine-cover quality — Vogue / WIRED / A24 / Apple TV+ aesthetic. Smart title-case, generous letter-spacing, hairline-thin to medium weight (NEVER ultra-black, NEVER bombastic). Subtle filmic tint, no glow spam, no thick drop shadow. Premium, quiet confidence.`,
+  modern: `Apple keynote aesthetic. Clean GEOMETRIC SANS-SERIF (SF Pro Display, Inter, Söhne, Neue Haas Grotesk Display) in light to medium weight. Crisp white or warm off-white. Perfect optical tracking, mixed weight hierarchy, generous negative space. Minimal, intentional, A24 title-card calm. No bold-condensed, no oversized blocks.`,
+  none: `NO text overlay — pure cinematic image only.`,
 };
 
 interface GenerateBody {
