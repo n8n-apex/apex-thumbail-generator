@@ -125,14 +125,14 @@ Typography direction: ${textBlock}
 
 LAYOUT TREATMENT FOR THIS VARIANT: ${textLayout}
 
-SIZE & PLACEMENT (hard rules):
-- The headline occupies AT MOST ~25–35% of the frame width — refined, NOT a giant block screaming across the image.
-- Single line preferred. Two lines only if the title is long. NEVER more than 2 lines.
+SIZE & PLACEMENT (hard rules — follow the LAYOUT TREATMENT above):
+- If layout is "IMMERSION / TEXT-BEHIND-SUBJECT" or "BIG BACKGROUND TYPE": headline may span 50–75% of the frame width, sitting in the background plane BEHIND the subject so the body partially occludes the letters. Visible portions stay clearly readable. Apply atmospheric perspective (slight haze, subtle desaturation, gentle defocus on far edges, color graded to blend with the scene).
+- For all other layouts: headline occupies AT MOST ~25–35% of the frame width — refined, restrained, Apple-style.
+- Single line preferred. Two lines only for long titles. NEVER more than 2 lines.
 - ALWAYS fully inside the safe frame — never clipped, never bleeding off the edges, never cut by the canvas border.
-- NEVER over the subject's face. Place in clean negative space (top-left corner, lower-third, or beside shoulder).
-- NEVER duplicated, NEVER mirrored, NEVER overlapping itself.
-- Render only ONCE in the entire image.
-- ${body.imageBase64 ? "Overlay the headline as a clean typographic layer ON TOP of the preserved photo — do NOT re-render or alter the underlying photo to fit the text." : ""}
+- NEVER cover the subject's face. Partial occlusion of letters by head/shoulders is REQUIRED for behind-subject layouts and creates the immersion depth.
+- NEVER duplicated, NEVER mirrored, NEVER overlapping itself. Render only ONCE.
+- ${body.imageBase64 ? "Composite the headline as a typographic layer that lives in the depth plane behind the subject — the person from the uploaded photo must remain in front, fully intact, naturally occluding parts of the letters." : ""}
 ═══════════════════════════════════════════════` : `NO TEXT AT ALL. Zero words, letters, numbers, logos, captions, watermarks, signage. Pure cinematic image only.`}
 
 BRAND ACCENT COLOR: ${brand}
