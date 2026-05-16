@@ -126,7 +126,7 @@ BRAND ACCENT COLOR: ${brand}
 
 ${body.sceneDescription ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
-COMPOSITION VARIANT: ${variantSeed}
+COMPOSITION VARIANT: ${body.imageBase64 ? `KEEP original perspective/pose/framing from the reference photo unchanged. Vary ONLY background atmosphere & lighting nuance: ${variantSeed}` : variantSeed}
 
 ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - HYPER-PHOTOREALISTIC, indistinguishable from a real DSLR/cinema-camera frame (ARRI Alexa, RED Komodo, Sony FX6 look)
