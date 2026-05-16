@@ -465,24 +465,24 @@ export default function ThumbnailGenerator({
             <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
               Varianten pro Generierung
             </label>
-              <span className="text-xs font-bold text-primary tabular-nums">{hasSubject ? 1 : variants}</span>
+            <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
           </div>
           <Slider
             value={[variants]}
             min={1}
-            max={3}
+            max={4}
             step={1}
             onValueChange={(v) => setVariants(v[0])}
-            disabled={isGenerating || hasSubject}
+            disabled={isGenerating}
           />
           <p className="text-[10px] text-muted-foreground">
-            {hasSubject
-              ? "Mit Foto wird 1 Variante pro Durchlauf erzeugt — stabiler, schneller und ohne Worker-Abbruch"
-              : variants === 1
-                ? "Schnell"
-                : variants <= 3
-                  ? "Balance"
-                  : "Maximale Auswahl (länger)"}
+            {variants === 1
+              ? "Schnell — 1 cinematic Shot"
+              : variants === 2
+                ? "Balance — 2 Varianten parallel"
+                : variants === 3
+                  ? "3 Varianten parallel"
+                  : "Maximale Auswahl — 4 ultrarealistische Shots parallel"}
           </p>
         </div>
 
@@ -497,12 +497,12 @@ export default function ThumbnailGenerator({
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {hasSubject ? 1 : variants} Cinematic Thumbnails generieren...
+                {variants} Cinematic Thumbnails generieren...
               </>
             ) : (
               <>
                 <Sparkles className="h-4 w-4" />
-                {hasSubject ? 1 : variants} Cinematic Thumbnails generieren
+                {variants} Cinematic Thumbnails generieren
               </>
             )}
           </Button>
