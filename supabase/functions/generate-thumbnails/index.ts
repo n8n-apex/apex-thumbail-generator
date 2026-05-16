@@ -70,11 +70,13 @@ interface GenerateBody {
 }
 
 const TEXT_LAYOUTS = [
-  "Small refined headline in the TOP-LEFT corner, generous margin, hairline weight, off-white with subtle warm tint. Apple-trailer minimalism.",
-  "Headline in the LOWER-THIRD, centered, medium weight, soft filmic shadow for legibility, A24 poster calm.",
-  "Headline beside the subject's shoulder in clean negative space, light weight, wide tracking, premium magazine feel.",
-  "Headline TOP-RIGHT corner, compact, restrained, with a thin underline accent in the brand color (1px hairline only).",
-  "Headline in the BOTTOM-LEFT, single line, italic display serif, warm cream color, subtle film grain on the glyphs.",
+  "IMMERSION / TEXT-BEHIND-SUBJECT: Large display headline rendered BIG in the background BEHIND the subject (magazine-cover depth trick). The subject's head and shoulders occlude part of the letters, while the visible portions remain clearly readable. Letters extend wide across the frame (up to ~70% width) but sit in the background plane with subtle atmospheric haze, slight motion blur on the far edges, and color-graded to blend with the scene. Premium Vogue / Apple TV+ feel — never flat sticker text.",
+  "BIG BACKGROUND TYPE — partial occlusion: Oversized elegant serif headline anchored in the upper background, partially hidden by the subject's silhouette and the car interior. Color slightly desaturated to recede behind the person, with cinematic film grain on the glyphs. Strong immersion, still legible on visible parts.",
+  "Small refined headline in the TOP-LEFT corner, hairline weight, off-white with subtle warm tint — Apple-trailer minimalism.",
+  "Headline in the LOWER-THIRD, centered, medium weight, soft filmic shadow for legibility — A24 poster calm.",
+  "Headline beside the subject's shoulder in clean negative space, light weight, wide tracking — premium magazine feel.",
+  "Headline TOP-RIGHT corner, compact, restrained, with a thin 1px underline accent in the brand color.",
+  "Headline BOTTOM-LEFT, single line, italic display serif, warm cream, subtle film grain on glyphs.",
   "Headline TOP-CENTER, small caps, wide letter-spacing, semi-transparent white — elegant Netflix title-card look.",
 ];
 
@@ -123,14 +125,14 @@ Typography direction: ${textBlock}
 
 LAYOUT TREATMENT FOR THIS VARIANT: ${textLayout}
 
-SIZE & PLACEMENT (hard rules):
-- The headline occupies AT MOST ~25–35% of the frame width — refined, NOT a giant block screaming across the image.
-- Single line preferred. Two lines only if the title is long. NEVER more than 2 lines.
+SIZE & PLACEMENT (hard rules — follow the LAYOUT TREATMENT above):
+- If layout is "IMMERSION / TEXT-BEHIND-SUBJECT" or "BIG BACKGROUND TYPE": headline may span 50–75% of the frame width, sitting in the background plane BEHIND the subject so the body partially occludes the letters. Visible portions stay clearly readable. Apply atmospheric perspective (slight haze, subtle desaturation, gentle defocus on far edges, color graded to blend with the scene).
+- For all other layouts: headline occupies AT MOST ~25–35% of the frame width — refined, restrained, Apple-style.
+- Single line preferred. Two lines only for long titles. NEVER more than 2 lines.
 - ALWAYS fully inside the safe frame — never clipped, never bleeding off the edges, never cut by the canvas border.
-- NEVER over the subject's face. Place in clean negative space (top-left corner, lower-third, or beside shoulder).
-- NEVER duplicated, NEVER mirrored, NEVER overlapping itself.
-- Render only ONCE in the entire image.
-- ${body.imageBase64 ? "Overlay the headline as a clean typographic layer ON TOP of the preserved photo — do NOT re-render or alter the underlying photo to fit the text." : ""}
+- NEVER cover the subject's face. Partial occlusion of letters by head/shoulders is REQUIRED for behind-subject layouts and creates the immersion depth.
+- NEVER duplicated, NEVER mirrored, NEVER overlapping itself. Render only ONCE.
+- ${body.imageBase64 ? "Composite the headline as a typographic layer that lives in the depth plane behind the subject — the person from the uploaded photo must remain in front, fully intact, naturally occluding parts of the letters." : ""}
 ═══════════════════════════════════════════════` : `NO TEXT AT ALL. Zero words, letters, numbers, logos, captions, watermarks, signage. Pure cinematic image only.`}
 
 BRAND ACCENT COLOR: ${brand}
