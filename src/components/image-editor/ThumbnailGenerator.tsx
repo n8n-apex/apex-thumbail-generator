@@ -206,7 +206,7 @@ export default function ThumbnailGenerator({
     startProgress();
     try {
       const imageBase64 = await activeImageBase64();
-      const requestedVariants = imageBase64 ? Math.min(variants, 2) : variants;
+      const requestedVariants = imageBase64 ? 1 : Math.min(variants, 3);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -470,19 +470,19 @@ export default function ThumbnailGenerator({
             <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
               Varianten pro Generierung
             </label>
-              <span className="text-xs font-bold text-primary tabular-nums">{hasSubject ? Math.min(variants, 2) : variants}</span>
+              <span className="text-xs font-bold text-primary tabular-nums">{hasSubject ? 1 : variants}</span>
           </div>
           <Slider
             value={[variants]}
             min={1}
-            max={hasSubject ? 2 : 4}
+            max={hasSubject ? 1 : 3}
             step={1}
             onValueChange={(v) => setVariants(v[0])}
             disabled={isGenerating}
           />
           <p className="text-[10px] text-muted-foreground">
             {hasSubject
-              ? "Mit Foto maximal 2 Varianten pro Durchlauf — deutlich stabiler und schneller"
+              ? "Mit Foto wird 1 Variante pro Durchlauf erzeugt — stabiler, schneller und ohne Worker-Abbruch"
               : variants === 1
                 ? "Schnell"
                 : variants <= 3
@@ -502,12 +502,12 @@ export default function ThumbnailGenerator({
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {hasSubject ? Math.min(variants, 2) : variants} Cinematic Thumbnails generieren...
+                {hasSubject ? 1 : variants} Cinematic Thumbnails generieren...
               </>
             ) : (
               <>
                 <Sparkles className="h-4 w-4" />
-                {hasSubject ? Math.min(variants, 2) : variants} Cinematic Thumbnails generieren
+                {hasSubject ? 1 : variants} Cinematic Thumbnails generieren
               </>
             )}
           </Button>
