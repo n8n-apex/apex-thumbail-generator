@@ -75,84 +75,72 @@ function buildPrompt(body: GenerateBody, variantSeed: string) {
   const titleText = body.title?.trim();
   const brand = body.brandColor || "#00BCFF";
 
-  return `${body.imageBase64 ? `TASK: This is a PHOTO COMPOSITE / EDIT task. The attached image shows a real person — your job is to take THIS EXACT person (every facial feature unchanged) and place them into a brand-new cinematic YouTube vlog thumbnail scene. Treat the input as a STRICT face & identity reference, not as inspiration.
+  return `${body.imageBase64 ? `TASK: This is a PHOTO RETOUCH / RE-GRADE task. The attached image IS the output base. Your job is to keep the EXACT same photo — same person, same face, same pose, same framing, same background composition — and only upgrade the lighting, color grade and atmosphere into a cinematic YouTube vlog thumbnail. Do NOT generate a new scene, do NOT re-pose, do NOT swap the background.
 
-` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a personal VLOG. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. It must BALLERN — instant scroll-stop visual impact at maximum production value.
+` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a personal VLOG. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
 
-${body.imageBase64 ? `═══ IDENTITY LOCK — ABSOLUTE TOP PRIORITY (overrides everything else) ═══
-The person in the reference image MUST appear in the output as the SAME human being — instantly recognizable to their friends and family.
+${body.imageBase64 ? `═══ IMAGE LOCK — ABSOLUTE TOP PRIORITY (overrides everything else) ═══
+The uploaded photo IS the output. Treat it like a RAW file going through color grading + retouch — never like a reference to redraw.
 
-PRESERVE 1:1 (do NOT alter any of these):
-• Face shape and overall geometry (forehead, cheek width, chin shape, jawline angle)
-• Eye color, eye shape, eye spacing, eyelid shape
-• Eyebrow shape, thickness, color, arch
-• Nose shape, length, width, nostril shape, bridge
-• Mouth shape, lip thickness, lip color, smile lines
-• Skin tone, undertone, freckles, moles, scars, birthmarks, tattoos
-• Hairstyle: exact cut, length, parting, texture, color, hairline
-• Beard / stubble / facial hair: exact pattern and density
-• Apparent age, ethnicity, gender presentation
-• Body type and proportions
-• Any glasses, jewelry, distinctive accessories visible in the reference
+PRESERVE 1:1 from the uploaded photo (do NOT alter ANY of these):
+• ENTIRE FACE: face shape, geometry, proportions, every facial feature
+• Eyes (color, shape, spacing, lids), eyebrows (shape, thickness, arch), nose, mouth, lips, smile lines, ears, jawline, chin
+• Skin tone, undertone, freckles, moles, scars, birthmarks, tattoos, pores, micro-texture
+• Hairstyle exactly: cut, length, parting, texture, color, hairline, every flyaway
+• Beard / stubble / facial hair: exact pattern, density, color
+• Apparent age, ethnicity, gender presentation, body type and proportions
+• Glasses, jewelry, piercings, accessories — exactly as in the reference
+• Clothing: same garment, same cut, same colors (color grade may shift slightly, garment must not change)
+• POSE: exact head tilt, gaze direction, shoulder line, body orientation, hand positions
+• CAMERA: exact perspective, framing, distance, lens angle, focal length, crop. No zoom, no mirror, no rotate, no re-crop.
+• BACKGROUND COMPOSITION: same setting, same objects in same positions. Only lighting/atmosphere may be enhanced.
 
-YOU MAY CHANGE: lighting quality, color grade, atmospheric details in the background, minor wardrobe color/finish, subtle expression nuance.
+YOU MAY ONLY CHANGE: light quality, color grade, subtle atmospheric haze/grain, gentle background bokeh polish, optional cinematic vignette. Nothing else.
 
-═══ PERSPECTIVE LOCK — equally critical ═══
-KEEP the EXACT camera perspective, framing, focal length, distance, lens angle, head tilt, shoulder line, body pose, hand positions, and overall composition of the uploaded reference photo. Do NOT re-pose the subject, do NOT change the camera angle, do NOT zoom in or out, do NOT mirror, do NOT rotate. The output must register as the SAME photo, just upgraded — like a colorist + retoucher + environment-enhancement pass on the original frame.
-The variant seed below describes ONLY background mood / atmospheric variation — it must NEVER override the original perspective.
-═══════════════════════════════════════════
+FORBIDDEN: do NOT beautify, slim, smooth, de-age, age-up, idealize, "model-ify", swap ethnicity, change gender, alter face geometry, change eye color, change hair color, change clothing, change pose, change camera angle, change background, or generate a generic "AI face." NO face replacement. NO new scene.
 
-FORBIDDEN: do NOT beautify, slim, smooth, de-age, age-up, idealize, "model-ify", swap ethnicity, change gender, alter face geometry, change eye color, change hair color, or generate a generic "AI face." If you cannot keep the identity at full body, output a tighter crop that still uses the exact reference face 1:1.
-
-A stranger comparing the reference and the output must immediately say "yes, that's the same person."
+A stranger comparing reference and output must instantly say "yes, that's the same photo, just color-graded."
 ═══════════════════════════════════════════════
 ` : `SUBJECT: Generate a photorealistic relatable vlogger (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. Across all variants in this batch keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.
 `}
-VLOG STYLE DIRECTION:
-${vlog.prompt}
+${body.imageBase64 ? "" : `VLOG STYLE DIRECTION:\n${vlog.prompt}\n`}
+${titleText ? `═══ TEXT RULES — STRICT ═══
+There is EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words anywhere in the frame.
 
-TYPOGRAPHY DIRECTION:
-${textBlock}
+HEADLINE (render EXACTLY this text, perfectly spelled, NO additions, NO variations, NO translations): "${titleText}"
 
-${titleText ? `HEADLINE TEXT (use EXACTLY, perfectly spelled): "${titleText}"
-- Render in the typography style above as a dominant visual element
-- ALL caps if Bold style, smart-case if Serif/Modern
+Typography direction: ${textBlock}
 - Max 2-3 lines, large, punchy, instantly readable at 320×180 thumbnail size
-- IMPORTANT: text must NEVER cover the subject's face — place behind shoulders or in negative space` : `NO headline — purely visual cinematic frame.`}
+- Place behind shoulders or in clean negative space — NEVER over the face
+- ${body.imageBase64 ? "Overlay the headline as a typographic layer ON TOP of the preserved photo — do NOT re-render or alter the underlying photo to fit the text." : ""}
+═══════════════════════════════════════════════` : `NO TEXT AT ALL on the thumbnail. Zero words, zero letters, zero numbers, zero logos, zero captions, zero watermarks, zero signage. Pure cinematic image only.`}
 
 BRAND ACCENT COLOR: ${brand}
-- Use sparingly as accent: rim light tint, headline color hint, small logo / underline accent
-- Do NOT flood the image with this color
+- Use sparingly: rim light tint or headline color hint only. Do NOT flood the image.
 
-${body.sceneDescription ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
+${body.sceneDescription && !body.imageBase64 ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
-COMPOSITION VARIANT: ${body.imageBase64 ? `KEEP original perspective/pose/framing from the reference photo unchanged. Vary ONLY background atmosphere & lighting nuance: ${variantSeed}` : variantSeed}
+${body.imageBase64 ? `GRADE VARIANT (lighting/atmosphere only — perspective and content stay 100% locked to the uploaded photo): ${variantSeed}` : `COMPOSITION VARIANT: ${variantSeed}`}
 
 ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - HYPER-PHOTOREALISTIC, indistinguishable from a real DSLR/cinema-camera frame (ARRI Alexa, RED Komodo, Sony FX6 look)
-- Shot on 35mm full-frame sensor, 35-85mm prime lens, f/1.8–f/2.8 shallow depth of field with creamy natural bokeh
-- Real skin micro-detail: visible pores, fine peach fuzz, natural skin texture, subsurface scattering, realistic specular highlights — NEVER plastic, NEVER waxy, NEVER airbrushed
-- Real-world physically-based lighting: motivated key light, soft fill, rim/hair light, accurate shadow falloff, natural ambient occlusion
-- Cinematic color science: filmic contrast curve, slight teal-orange or warm grade depending on style, subtle film grain, no oversaturation, no HDR halos
-- Razor-sharp focus on the eyes, micro-catchlights visible, individual eyelashes resolvable
-- Clean intentional composition with clear focal hierarchy and rule-of-thirds anchoring
-- Headline (if present) perfectly spelled — never garble letters
-- Text-behind-subject technique creates premium magazine-cover depth
-- STRICT 16:9 LANDSCAPE aspect ratio — exactly 1280×720 pixels (or higher 16:9 like 1920×1080). NEVER square, NEVER vertical, NEVER 4:3. Frame the composition wide.
+- Shot-on 35mm full-frame sensor feel, creamy natural bokeh, real skin micro-detail (pores, peach fuzz, subsurface scattering) — NEVER plastic / waxy / airbrushed
+- Real-world physically-based lighting, motivated key, soft fill, rim light, accurate shadows
+- Cinematic color science: filmic contrast, subtle teal-orange or warm grade, fine grain, no oversaturation, no HDR halos
+- Razor-sharp focus on the eyes, micro-catchlights, individual eyelashes resolvable
+- STRICT 16:9 LANDSCAPE aspect ratio (1280×720 or higher 16:9). NEVER square, vertical or 4:3.
 - Must read clearly at 320×180 small preview size
-- VLOG-ONLY context: every output must look like a frame from a real personal vlog (lifestyle, travel or tech) — NOT a movie poster, NOT a stock photo, NOT a fashion editorial, NOT an ad
-- MANDATORY HERO CAR: Audi RS6 Avant (C8) MUST be present and clearly recognizable in EVERY thumbnail (interior driver shot, exterior leaning, parked, driving). Correct RS6 details only — NEVER an A6, S6, generic wagon or other brand. Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, "quattro"-Schriftzug.
-- CONSISTENCY ACROSS THIS BATCH: every variant must share the SAME color grade, SAME lighting mood, SAME wardrobe family, SAME subject identity. Only composition and angle change.
+- ${body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug)."}
+- CONSISTENCY ACROSS BATCH: same color grade, same lighting mood, same subject identity across all variants.
 
 NEVER DO:
-- No childish cartoon faces, no exaggerated shocked / open-mouth / pointing expressions
+- ${titleText ? `NEVER add ANY text other than the single headline "${titleText}" — no extra words, no duplicate text, no subtitle, no signage, no captions, no logo text.` : "NEVER add any text, letters, numbers, captions, logos, watermarks or signage of any kind."}
 - No MrBeast-style loud bold-condensed type, no neon arrows, no red circles, no emoji overlays
 - No comic / bubble / amateur fonts, no rainbow gradients, no glow-text spam
-- No watermarks, no fake logos, no garbled or misspelled text
-- No cluttered busy collage layouts, no stock-photo / fashion-editorial / movie-poster vibe
+- No garbled or misspelled text
 - No square / portrait / vertical framing — 16:9 landscape ONLY
 - No plastic / waxy / airbrushed / over-smoothed skin, no AI-generic faces
-- Do NOT change the subject's identity between variants
+- ${body.imageBase64 ? "NEVER change the person, pose, clothing, background or camera angle from the uploaded photo." : "Do NOT change the subject's identity between variants."}
 - ONLY cinematic, hyperrealistic, premium vlog aesthetic — nothing else`;
 }
 
