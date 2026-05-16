@@ -225,9 +225,16 @@ serve(async (req) => {
       const variants = Math.min(6, Math.max(1, body.variants ?? 4));
       const seeds = VARIANT_SEEDS.slice(0, variants);
 
-      const settled = await Promise.allSettled(
-        seeds.map((seed) => callGemini(buildPrompt(body, seed), body.imageBase64, LOVABLE_API_KEY))
-      );
+      // Process with limited concurrency to avoid memory limit (large base64 images)
+      const CONCURRENCY = body.imageBase64 ? 1 : 2;
+      const settled: PromiseSettledResult<string>[] = [];
+      for (let i = 0; i < seeds.length; i += CONCURRENCY) {
+        const chunk = seeds.slice(i, i + CONCURRENCY);
+        const chunkResults = await Promise.allSettled(
+          chunk.map((seed) => callGemini(buildPrompt(body, seed), body.imageBase64, LOVABLE_API_KEY))
+        );
+        settled.push(...chunkResults);
+      }
 
       // Surface critical errors
       for (const s of settled) {
