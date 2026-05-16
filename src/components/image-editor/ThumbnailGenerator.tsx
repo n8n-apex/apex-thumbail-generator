@@ -175,15 +175,15 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    if ((uploadedImage || selectedBatchImageId) && variants > 2) {
-      setVariants(2);
+    if ((uploadedImage || selectedBatchImageId) && variants > 1) {
+      setVariants(1);
     }
   }, [uploadedImage, selectedBatchImageId, variants]);
 
   const selectBatchImage = useCallback((id: string) => {
     setSelectedBatchImageId((prev) => {
       const next = prev === id ? null : id;
-      if (next) setVariants((current) => Math.min(current, 2));
+      if (next) setVariants(1);
       return next;
     });
     setUploadedImage(null);
