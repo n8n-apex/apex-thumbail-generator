@@ -53,9 +53,9 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 };
 
 const TEXT_STYLES: Record<TextStyle, string> = {
-  serif: `Elegant cinematic DISPLAY SERIF (Playfair Display Black, Recoleta, Canela, GT Sectra). Title-case smart capitalization, tight tracking. Soft glow / subtle filmic drop shadow. Color tinted slightly toward the brand accent or warm cream. Vogue / WIRED / Netflix poster cover quality. Text layered BEHIND the subject for cinematic depth. Absolutely no bubble, comic, condensed-bold or MrBeast-style fonts.`,
-  modern: `Clean modern GEOMETRIC SANS-SERIF (SF Pro Display, Inter, Söhne, Neue Haas Grotesk). Crisp white, perfect tracking, mixed weight hierarchy, generous negative space. Apple keynote / A24 minimal title card feel. Text positioned with intention, layered behind or beside the subject with soft cinematic shadow.`,
-  none: `NO text overlay — pure cinematic image only. Composition leaves clear space where the YouTube duration badge sits (bottom-right) and where future title overlay can go.`,
+  serif: `Elegant cinematic DISPLAY SERIF (Canela, GT Sectra, Recoleta, Playfair Display). Refined, restrained, magazine-cover quality — Vogue / WIRED / A24 / Apple TV+ aesthetic. Smart title-case, generous letter-spacing, hairline-thin to medium weight (NEVER ultra-black, NEVER bombastic). Subtle filmic tint, no glow spam, no thick drop shadow. Premium, quiet confidence.`,
+  modern: `Apple keynote aesthetic. Clean GEOMETRIC SANS-SERIF (SF Pro Display, Inter, Söhne, Neue Haas Grotesk Display) in light to medium weight. Crisp white or warm off-white. Perfect optical tracking, mixed weight hierarchy, generous negative space. Minimal, intentional, A24 title-card calm. No bold-condensed, no oversized blocks.`,
+  none: `NO text overlay — pure cinematic image only.`,
 };
 
 interface GenerateBody {
@@ -69,9 +69,19 @@ interface GenerateBody {
   sceneDescription?: string;
 }
 
-function buildPrompt(body: GenerateBody, variantSeed: string) {
+const TEXT_LAYOUTS = [
+  "Small refined headline in the TOP-LEFT corner, generous margin, hairline weight, off-white with subtle warm tint. Apple-trailer minimalism.",
+  "Headline in the LOWER-THIRD, centered, medium weight, soft filmic shadow for legibility, A24 poster calm.",
+  "Headline beside the subject's shoulder in clean negative space, light weight, wide tracking, premium magazine feel.",
+  "Headline TOP-RIGHT corner, compact, restrained, with a thin underline accent in the brand color (1px hairline only).",
+  "Headline in the BOTTOM-LEFT, single line, italic display serif, warm cream color, subtle film grain on the glyphs.",
+  "Headline TOP-CENTER, small caps, wide letter-spacing, semi-transparent white — elegant Netflix title-card look.",
+];
+
+function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: number) {
   const vlog = VLOG_STYLES[body.vlogStyle];
   const textBlock = TEXT_STYLES[body.textStyle];
+  const textLayout = TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
   const titleText = body.title?.trim();
   const brand = body.brandColor || "#00BCFF";
 
@@ -104,16 +114,24 @@ A stranger comparing reference and output must instantly say "yes, that's the sa
 ` : `SUBJECT: Generate a photorealistic relatable vlogger (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. Across all variants in this batch keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.
 `}
 ${body.imageBase64 ? "" : `VLOG STYLE DIRECTION:\n${vlog.prompt}\n`}
-${titleText ? `═══ TEXT RULES — STRICT ═══
-There is EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words anywhere in the frame.
+${titleText ? `═══ TEXT RULES — STRICT, ELEGANT, APPLE-STYLE ═══
+EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words.
 
-HEADLINE (render EXACTLY this text, perfectly spelled, NO additions, NO variations, NO translations): "${titleText}"
+HEADLINE (render EXACTLY this text, perfectly spelled, NO additions, NO variations, NO translations, NO duplication): "${titleText}"
 
 Typography direction: ${textBlock}
-- Max 2-3 lines, large, punchy, instantly readable at 320×180 thumbnail size
-- Place behind shoulders or in clean negative space — NEVER over the face
-- ${body.imageBase64 ? "Overlay the headline as a typographic layer ON TOP of the preserved photo — do NOT re-render or alter the underlying photo to fit the text." : ""}
-═══════════════════════════════════════════════` : `NO TEXT AT ALL on the thumbnail. Zero words, zero letters, zero numbers, zero logos, zero captions, zero watermarks, zero signage. Pure cinematic image only.`}
+
+LAYOUT TREATMENT FOR THIS VARIANT: ${textLayout}
+
+SIZE & PLACEMENT (hard rules):
+- The headline occupies AT MOST ~25–35% of the frame width — refined, NOT a giant block screaming across the image.
+- Single line preferred. Two lines only if the title is long. NEVER more than 2 lines.
+- ALWAYS fully inside the safe frame — never clipped, never bleeding off the edges, never cut by the canvas border.
+- NEVER over the subject's face. Place in clean negative space (top-left corner, lower-third, or beside shoulder).
+- NEVER duplicated, NEVER mirrored, NEVER overlapping itself.
+- Render only ONCE in the entire image.
+- ${body.imageBase64 ? "Overlay the headline as a clean typographic layer ON TOP of the preserved photo — do NOT re-render or alter the underlying photo to fit the text." : ""}
+═══════════════════════════════════════════════` : `NO TEXT AT ALL. Zero words, letters, numbers, logos, captions, watermarks, signage. Pure cinematic image only.`}
 
 BRAND ACCENT COLOR: ${brand}
 - Use sparingly: rim light tint or headline color hint only. Do NOT flood the image.
@@ -234,7 +252,7 @@ serve(async (req) => {
       for (let i = 0; i < seeds.length; i += CONCURRENCY) {
         const chunk = seeds.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map((seed) => callGemini(buildPrompt(body, seed), body.imageBase64, LOVABLE_API_KEY))
+          chunk.map((seed, j) => callGemini(buildPrompt(body, seed, i + j), body.imageBase64, LOVABLE_API_KEY))
         );
         settled.push(...chunkResults);
       }
