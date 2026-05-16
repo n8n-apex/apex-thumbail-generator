@@ -213,7 +213,7 @@ export default function ThumbnailGenerator({
         template: data.template,
       }));
       onGeneratedChange((prev) => [...newThumbs, ...prev]);
-      toast.success(`${newThumbs.length} cinematic Thumbnails generiert!`);
+        toast.success(`${newThumbs.length} cinematic Thumbnails generiert!`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Fehler bei der Generierung");
     } finally {
@@ -444,7 +444,7 @@ export default function ThumbnailGenerator({
           </div>
           <p className="text-[10px] text-muted-foreground">
             {hasSubject
-              ? "✓ Dein Gesicht wird in die cinematic Szene integriert"
+              ? "✓ Foto wird komprimiert, Perspektive bleibt erhalten"
               : "→ Ohne Foto generiert die AI eine komplett neue Vlogger-Szene"}
           </p>
         </div>
@@ -455,18 +455,24 @@ export default function ThumbnailGenerator({
             <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
               Varianten pro Generierung
             </label>
-            <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
+              <span className="text-xs font-bold text-primary tabular-nums">{hasSubject ? Math.min(variants, 2) : variants}</span>
           </div>
           <Slider
             value={[variants]}
             min={1}
-            max={6}
+            max={hasSubject ? 2 : 4}
             step={1}
             onValueChange={(v) => setVariants(v[0])}
             disabled={isGenerating}
           />
           <p className="text-[10px] text-muted-foreground">
-            {variants === 1 ? "Schnell" : variants <= 3 ? "Balance" : "Maximale Auswahl (länger)"}
+            {hasSubject
+              ? "Mit Foto maximal 2 Varianten pro Durchlauf — deutlich stabiler und schneller"
+              : variants === 1
+                ? "Schnell"
+                : variants <= 3
+                  ? "Balance"
+                  : "Maximale Auswahl (länger)"}
           </p>
         </div>
 
@@ -481,12 +487,12 @@ export default function ThumbnailGenerator({
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {variants} Cinematic Thumbnails generieren...
+                {hasSubject ? Math.min(variants, 2) : variants} Cinematic Thumbnails generieren...
               </>
             ) : (
               <>
                 <Sparkles className="h-4 w-4" />
-                {variants} Cinematic Thumbnails generieren
+                {hasSubject ? Math.min(variants, 2) : variants} Cinematic Thumbnails generieren
               </>
             )}
           </Button>
