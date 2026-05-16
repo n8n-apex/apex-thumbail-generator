@@ -175,17 +175,12 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    if ((uploadedImage || selectedBatchImageId) && variants > 1) {
-      setVariants(1);
-    }
-  }, [uploadedImage, selectedBatchImageId, variants]);
+    if (variants > 4) setVariants(4);
+    if (variants < 1) setVariants(1);
+  }, [variants]);
 
   const selectBatchImage = useCallback((id: string) => {
-    setSelectedBatchImageId((prev) => {
-      const next = prev === id ? null : id;
-      if (next) setVariants(1);
-      return next;
-    });
+    setSelectedBatchImageId((prev) => (prev === id ? null : id));
     setUploadedImage(null);
   }, []);
 
@@ -206,7 +201,7 @@ export default function ThumbnailGenerator({
     startProgress();
     try {
       const imageBase64 = await activeImageBase64();
-      const requestedVariants = imageBase64 ? 1 : Math.min(variants, 3);
+      const requestedVariants = Math.min(Math.max(variants, 1), 4);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -470,24 +465,24 @@ export default function ThumbnailGenerator({
             <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
               Varianten pro Generierung
             </label>
-              <span className="text-xs font-bold text-primary tabular-nums">{hasSubject ? 1 : variants}</span>
+            <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
           </div>
           <Slider
             value={[variants]}
             min={1}
-            max={3}
+            max={4}
             step={1}
             onValueChange={(v) => setVariants(v[0])}
-            disabled={isGenerating || hasSubject}
+            disabled={isGenerating}
           />
           <p className="text-[10px] text-muted-foreground">
-            {hasSubject
-              ? "Mit Foto wird 1 Variante pro Durchlauf erzeugt — stabiler, schneller und ohne Worker-Abbruch"
-              : variants === 1
-                ? "Schnell"
-                : variants <= 3
-                  ? "Balance"
-                  : "Maximale Auswahl (länger)"}
+            {variants === 1
+              ? "Schnell — 1 cinematic Shot"
+              : variants === 2
+                ? "Balance — 2 Varianten parallel"
+                : variants === 3
+                  ? "3 Varianten parallel"
+                  : "Maximale Auswahl — 4 ultrarealistische Shots parallel"}
           </p>
         </div>
 
@@ -502,12 +497,12 @@ export default function ThumbnailGenerator({
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {hasSubject ? 1 : variants} Cinematic Thumbnails generieren...
+                {variants} Cinematic Thumbnails generieren...
               </>
             ) : (
               <>
                 <Sparkles className="h-4 w-4" />
-                {hasSubject ? 1 : variants} Cinematic Thumbnails generieren
+                {variants} Cinematic Thumbnails generieren
               </>
             )}
           </Button>
