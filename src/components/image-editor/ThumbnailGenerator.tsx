@@ -71,17 +71,32 @@ interface ThumbnailGeneratorProps {
   onGeneratedChange: (updater: (prev: GeneratedThumbnail[]) => GeneratedThumbnail[]) => void;
 }
 
-function urlToBase64(url: string): Promise<string> {
+function imageSourceToOptimizedBase64(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
+      const maxLongEdge = 1400;
+      const scale = Math.min(1, maxLongEdge / Math.max(img.naturalWidth, img.naturalHeight));
       const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
       const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error("Foto konnte nicht vorbereitet werden"));
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(reader.error ?? new Error("Foto konnte nicht gelesen werden"));
+          reader.readAsDataURL(blob);
+        },
+        "image/jpeg",
+        0.82
+      );
     };
     img.onerror = reject;
     img.src = url;
