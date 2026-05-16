@@ -121,7 +121,7 @@ export default function ThumbnailGenerator({
   const [title, setTitle] = useState("");
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
-  const [variants, setVariants] = useState(4);
+  const [variants, setVariants] = useState(2);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -180,7 +180,7 @@ export default function ThumbnailGenerator({
       const img = batchImages.find((i) => i.id === selectedBatchImageId);
       if (img) {
         const src = img.editedUrl ?? img.url;
-        return src.startsWith("data:") ? src : await urlToBase64(src);
+        return imageSourceToOptimizedBase64(src);
       }
     }
     return undefined;
@@ -191,6 +191,7 @@ export default function ThumbnailGenerator({
     startProgress();
     try {
       const imageBase64 = await activeImageBase64();
+      const requestedVariants = imageBase64 ? Math.min(variants, 2) : variants;
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -200,7 +201,7 @@ export default function ThumbnailGenerator({
           sceneDescription: sceneDescription.trim().slice(0, 500) || undefined,
           brandColor,
           imageBase64,
-          variants,
+          variants: requestedVariants,
         },
       });
       if (error) throw error;
