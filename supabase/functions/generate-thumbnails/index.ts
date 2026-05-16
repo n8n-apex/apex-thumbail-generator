@@ -95,7 +95,12 @@ PRESERVE 1:1 (do NOT alter any of these):
 • Body type and proportions
 • Any glasses, jewelry, distinctive accessories visible in the reference
 
-YOU MAY CHANGE: lighting, color grade, background/scene, outfit (only if needed for the vlog style), pose, head angle (keep face mostly toward camera), subtle expression.
+YOU MAY CHANGE: lighting quality, color grade, atmospheric details in the background, minor wardrobe color/finish, subtle expression nuance.
+
+═══ PERSPECTIVE LOCK — equally critical ═══
+KEEP the EXACT camera perspective, framing, focal length, distance, lens angle, head tilt, shoulder line, body pose, hand positions, and overall composition of the uploaded reference photo. Do NOT re-pose the subject, do NOT change the camera angle, do NOT zoom in or out, do NOT mirror, do NOT rotate. The output must register as the SAME photo, just upgraded — like a colorist + retoucher + environment-enhancement pass on the original frame.
+The variant seed below describes ONLY background mood / atmospheric variation — it must NEVER override the original perspective.
+═══════════════════════════════════════════
 
 FORBIDDEN: do NOT beautify, slim, smooth, de-age, age-up, idealize, "model-ify", swap ethnicity, change gender, alter face geometry, change eye color, change hair color, or generate a generic "AI face." If you cannot keep the identity at full body, output a tighter crop that still uses the exact reference face 1:1.
 
