@@ -69,9 +69,19 @@ interface GenerateBody {
   sceneDescription?: string;
 }
 
-function buildPrompt(body: GenerateBody, variantSeed: string) {
+const TEXT_LAYOUTS = [
+  "Small refined headline in the TOP-LEFT corner, generous margin, hairline weight, off-white with subtle warm tint. Apple-trailer minimalism.",
+  "Headline in the LOWER-THIRD, centered, medium weight, soft filmic shadow for legibility, A24 poster calm.",
+  "Headline beside the subject's shoulder in clean negative space, light weight, wide tracking, premium magazine feel.",
+  "Headline TOP-RIGHT corner, compact, restrained, with a thin underline accent in the brand color (1px hairline only).",
+  "Headline in the BOTTOM-LEFT, single line, italic display serif, warm cream color, subtle film grain on the glyphs.",
+  "Headline TOP-CENTER, small caps, wide letter-spacing, semi-transparent white — elegant Netflix title-card look.",
+];
+
+function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: number) {
   const vlog = VLOG_STYLES[body.vlogStyle];
   const textBlock = TEXT_STYLES[body.textStyle];
+  const textLayout = TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
   const titleText = body.title?.trim();
   const brand = body.brandColor || "#00BCFF";
 
