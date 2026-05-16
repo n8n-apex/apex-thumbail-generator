@@ -237,11 +237,11 @@ serve(async (req) => {
     const body = await req.json();
 
     if (body.action === "generate") {
-      const variants = Math.min(6, Math.max(1, body.variants ?? 4));
+      const variants = Math.min(4, Math.max(1, body.variants ?? 2));
       const seeds = VARIANT_SEEDS.slice(0, variants);
 
-      // Process with limited concurrency to avoid memory limit (large base64 images)
-      const CONCURRENCY = body.imageBase64 ? 1 : 2;
+      // Process with limited concurrency to balance speed and memory
+      const CONCURRENCY = 2;
       const settled: PromiseSettledResult<string>[] = [];
       for (let i = 0; i < seeds.length; i += CONCURRENCY) {
         const chunk = seeds.slice(i, i + CONCURRENCY);

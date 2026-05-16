@@ -175,17 +175,12 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    if ((uploadedImage || selectedBatchImageId) && variants > 1) {
-      setVariants(1);
-    }
-  }, [uploadedImage, selectedBatchImageId, variants]);
+    if (variants > 4) setVariants(4);
+    if (variants < 1) setVariants(1);
+  }, [variants]);
 
   const selectBatchImage = useCallback((id: string) => {
-    setSelectedBatchImageId((prev) => {
-      const next = prev === id ? null : id;
-      if (next) setVariants(1);
-      return next;
-    });
+    setSelectedBatchImageId((prev) => (prev === id ? null : id));
     setUploadedImage(null);
   }, []);
 
@@ -206,7 +201,7 @@ export default function ThumbnailGenerator({
     startProgress();
     try {
       const imageBase64 = await activeImageBase64();
-      const requestedVariants = imageBase64 ? 1 : Math.min(variants, 3);
+      const requestedVariants = Math.min(Math.max(variants, 1), 4);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
