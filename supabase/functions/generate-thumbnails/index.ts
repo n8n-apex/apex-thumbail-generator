@@ -70,11 +70,13 @@ interface GenerateBody {
 }
 
 const TEXT_LAYOUTS = [
-  "Small refined headline in the TOP-LEFT corner, generous margin, hairline weight, off-white with subtle warm tint. Apple-trailer minimalism.",
-  "Headline in the LOWER-THIRD, centered, medium weight, soft filmic shadow for legibility, A24 poster calm.",
-  "Headline beside the subject's shoulder in clean negative space, light weight, wide tracking, premium magazine feel.",
-  "Headline TOP-RIGHT corner, compact, restrained, with a thin underline accent in the brand color (1px hairline only).",
-  "Headline in the BOTTOM-LEFT, single line, italic display serif, warm cream color, subtle film grain on the glyphs.",
+  "IMMERSION / TEXT-BEHIND-SUBJECT: Large display headline rendered BIG in the background BEHIND the subject (magazine-cover depth trick). The subject's head and shoulders occlude part of the letters, while the visible portions remain clearly readable. Letters extend wide across the frame (up to ~70% width) but sit in the background plane with subtle atmospheric haze, slight motion blur on the far edges, and color-graded to blend with the scene. Premium Vogue / Apple TV+ feel — never flat sticker text.",
+  "BIG BACKGROUND TYPE — partial occlusion: Oversized elegant serif headline anchored in the upper background, partially hidden by the subject's silhouette and the car interior. Color slightly desaturated to recede behind the person, with cinematic film grain on the glyphs. Strong immersion, still legible on visible parts.",
+  "Small refined headline in the TOP-LEFT corner, hairline weight, off-white with subtle warm tint — Apple-trailer minimalism.",
+  "Headline in the LOWER-THIRD, centered, medium weight, soft filmic shadow for legibility — A24 poster calm.",
+  "Headline beside the subject's shoulder in clean negative space, light weight, wide tracking — premium magazine feel.",
+  "Headline TOP-RIGHT corner, compact, restrained, with a thin 1px underline accent in the brand color.",
+  "Headline BOTTOM-LEFT, single line, italic display serif, warm cream, subtle film grain on glyphs.",
   "Headline TOP-CENTER, small caps, wide letter-spacing, semi-transparent white — elegant Netflix title-card look.",
 ];
 
