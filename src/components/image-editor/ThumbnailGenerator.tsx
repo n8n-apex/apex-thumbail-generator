@@ -475,10 +475,10 @@ export default function ThumbnailGenerator({
           <Slider
             value={[variants]}
             min={1}
-            max={hasSubject ? 1 : 3}
+            max={3}
             step={1}
             onValueChange={(v) => setVariants(v[0])}
-            disabled={isGenerating}
+            disabled={isGenerating || hasSubject}
           />
           <p className="text-[10px] text-muted-foreground">
             {hasSubject
