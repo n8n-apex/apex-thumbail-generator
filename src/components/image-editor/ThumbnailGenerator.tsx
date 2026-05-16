@@ -71,17 +71,32 @@ interface ThumbnailGeneratorProps {
   onGeneratedChange: (updater: (prev: GeneratedThumbnail[]) => GeneratedThumbnail[]) => void;
 }
 
-function urlToBase64(url: string): Promise<string> {
+function imageSourceToOptimizedBase64(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
+      const maxLongEdge = 1400;
+      const scale = Math.min(1, maxLongEdge / Math.max(img.naturalWidth, img.naturalHeight));
       const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
       const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error("Foto konnte nicht vorbereitet werden"));
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(reader.error ?? new Error("Foto konnte nicht gelesen werden"));
+          reader.readAsDataURL(blob);
+        },
+        "image/jpeg",
+        0.82
+      );
     };
     img.onerror = reject;
     img.src = url;
@@ -106,7 +121,7 @@ export default function ThumbnailGenerator({
   const [title, setTitle] = useState("");
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
-  const [variants, setVariants] = useState(4);
+  const [variants, setVariants] = useState(2);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -146,16 +161,31 @@ export default function ThumbnailGenerator({
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setUploadedImage(reader.result as string);
-      setSelectedBatchImageId(null);
-    };
-    reader.readAsDataURL(file);
+    const objectUrl = URL.createObjectURL(file);
+    imageSourceToOptimizedBase64(objectUrl)
+      .then((optimized) => {
+        setUploadedImage(optimized);
+        setSelectedBatchImageId(null);
+      })
+      .catch(() => toast.error("Foto konnte nicht vorbereitet werden"))
+      .finally(() => {
+        URL.revokeObjectURL(objectUrl);
+        e.target.value = "";
+      });
   }, []);
 
+  useEffect(() => {
+    if ((uploadedImage || selectedBatchImageId) && variants > 1) {
+      setVariants(1);
+    }
+  }, [uploadedImage, selectedBatchImageId, variants]);
+
   const selectBatchImage = useCallback((id: string) => {
-    setSelectedBatchImageId((prev) => (prev === id ? null : id));
+    setSelectedBatchImageId((prev) => {
+      const next = prev === id ? null : id;
+      if (next) setVariants(1);
+      return next;
+    });
     setUploadedImage(null);
   }, []);
 
@@ -165,7 +195,7 @@ export default function ThumbnailGenerator({
       const img = batchImages.find((i) => i.id === selectedBatchImageId);
       if (img) {
         const src = img.editedUrl ?? img.url;
-        return src.startsWith("data:") ? src : await urlToBase64(src);
+        return imageSourceToOptimizedBase64(src);
       }
     }
     return undefined;
@@ -176,6 +206,7 @@ export default function ThumbnailGenerator({
     startProgress();
     try {
       const imageBase64 = await activeImageBase64();
+      const requestedVariants = imageBase64 ? 1 : Math.min(variants, 3);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -185,7 +216,7 @@ export default function ThumbnailGenerator({
           sceneDescription: sceneDescription.trim().slice(0, 500) || undefined,
           brandColor,
           imageBase64,
-          variants,
+          variants: requestedVariants,
         },
       });
       if (error) throw error;
@@ -197,7 +228,7 @@ export default function ThumbnailGenerator({
         template: data.template,
       }));
       onGeneratedChange((prev) => [...newThumbs, ...prev]);
-      toast.success(`${newThumbs.length} cinematic Thumbnails generiert!`);
+        toast.success(`${newThumbs.length} cinematic Thumbnails generiert!`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Fehler bei der Generierung");
     } finally {
@@ -428,7 +459,7 @@ export default function ThumbnailGenerator({
           </div>
           <p className="text-[10px] text-muted-foreground">
             {hasSubject
-              ? "✓ Dein Gesicht wird in die cinematic Szene integriert"
+              ? "✓ Foto wird komprimiert, Perspektive bleibt erhalten"
               : "→ Ohne Foto generiert die AI eine komplett neue Vlogger-Szene"}
           </p>
         </div>
@@ -439,18 +470,24 @@ export default function ThumbnailGenerator({
             <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
               Varianten pro Generierung
             </label>
-            <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
+              <span className="text-xs font-bold text-primary tabular-nums">{hasSubject ? 1 : variants}</span>
           </div>
           <Slider
             value={[variants]}
             min={1}
-            max={6}
+            max={3}
             step={1}
             onValueChange={(v) => setVariants(v[0])}
-            disabled={isGenerating}
+            disabled={isGenerating || hasSubject}
           />
           <p className="text-[10px] text-muted-foreground">
-            {variants === 1 ? "Schnell" : variants <= 3 ? "Balance" : "Maximale Auswahl (länger)"}
+            {hasSubject
+              ? "Mit Foto wird 1 Variante pro Durchlauf erzeugt — stabiler, schneller und ohne Worker-Abbruch"
+              : variants === 1
+                ? "Schnell"
+                : variants <= 3
+                  ? "Balance"
+                  : "Maximale Auswahl (länger)"}
           </p>
         </div>
 
@@ -465,12 +502,12 @@ export default function ThumbnailGenerator({
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {variants} Cinematic Thumbnails generieren...
+                {hasSubject ? 1 : variants} Cinematic Thumbnails generieren...
               </>
             ) : (
               <>
                 <Sparkles className="h-4 w-4" />
-                {variants} Cinematic Thumbnails generieren
+                {hasSubject ? 1 : variants} Cinematic Thumbnails generieren
               </>
             )}
           </Button>

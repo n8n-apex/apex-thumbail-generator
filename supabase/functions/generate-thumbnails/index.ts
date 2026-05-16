@@ -178,22 +178,36 @@ async function callGemini(prompt: string, imageBase64: string | undefined, apiKe
         : prompt,
     },
   ];
-  const models = ["google/gemini-3-pro-image-preview", "google/gemini-3.1-flash-image-preview"];
+  const models = imageBase64
+    ? ["google/gemini-3.1-flash-image-preview"]
+    : ["google/gemini-3.1-flash-image-preview", "google/gemini-3-pro-image-preview"];
   let lastError = "";
   for (const model of models) {
-    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        modalities: ["image", "text"],
-        image_config: { aspect_ratio: "16:9" },
-      }),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), imageBase64 ? 70000 : 55000);
+    let resp: Response;
+    try {
+      resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          modalities: ["image", "text"],
+          image_config: { aspect_ratio: "16:9" },
+        }),
+      });
+    } catch (error) {
+      lastError = error instanceof DOMException && error.name === "AbortError" ? "__TIMEOUT__" : String(error);
+      console.error(`Model ${model} request failed:`, lastError);
+      continue;
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (resp.status === 429) throw new Error("__RATE_LIMIT__");
     if (resp.status === 402) throw new Error("__CREDITS__");
@@ -209,6 +223,7 @@ async function callGemini(prompt: string, imageBase64: string | undefined, apiKe
     if (img) return img;
     lastError = "No image returned";
   }
+  if (lastError === "__TIMEOUT__") throw new Error("__TIMEOUT__");
   throw new Error(`All models failed: ${lastError}`);
 }
 
