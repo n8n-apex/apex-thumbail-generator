@@ -252,7 +252,7 @@ serve(async (req) => {
       for (let i = 0; i < seeds.length; i += CONCURRENCY) {
         const chunk = seeds.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map((seed) => callGemini(buildPrompt(body, seed), body.imageBase64, LOVABLE_API_KEY))
+          chunk.map((seed, j) => callGemini(buildPrompt(body, seed, i + j), body.imageBase64, LOVABLE_API_KEY))
         );
         settled.push(...chunkResults);
       }
