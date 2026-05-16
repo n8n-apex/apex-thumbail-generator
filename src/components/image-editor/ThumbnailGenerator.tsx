@@ -161,16 +161,31 @@ export default function ThumbnailGenerator({
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setUploadedImage(reader.result as string);
-      setSelectedBatchImageId(null);
-    };
-    reader.readAsDataURL(file);
+    const objectUrl = URL.createObjectURL(file);
+    imageSourceToOptimizedBase64(objectUrl)
+      .then((optimized) => {
+        setUploadedImage(optimized);
+        setSelectedBatchImageId(null);
+      })
+      .catch(() => toast.error("Foto konnte nicht vorbereitet werden"))
+      .finally(() => {
+        URL.revokeObjectURL(objectUrl);
+        e.target.value = "";
+      });
   }, []);
 
+  useEffect(() => {
+    if ((uploadedImage || selectedBatchImageId) && variants > 2) {
+      setVariants(2);
+    }
+  }, [uploadedImage, selectedBatchImageId, variants]);
+
   const selectBatchImage = useCallback((id: string) => {
-    setSelectedBatchImageId((prev) => (prev === id ? null : id));
+    setSelectedBatchImageId((prev) => {
+      const next = prev === id ? null : id;
+      if (next) setVariants((current) => Math.min(current, 2));
+      return next;
+    });
     setUploadedImage(null);
   }, []);
 
