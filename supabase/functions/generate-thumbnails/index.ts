@@ -157,12 +157,12 @@ NEVER DO:
 }
 
 const VARIANT_SEEDS = [
-  "Frontal hero portrait, subject centered slightly off to one third, head and shoulders fully visible, direct or near-direct eye contact with camera. Wide cinematic environment behind.",
-  "Medium close-up, subject 3/4 body, slight angle but face still 80% toward camera. Strong rim light, headline wrapping behind shoulders.",
-  "Mid-shot environmental, subject standing/sitting in the scene, face clearly visible toward camera, scene depth on the opposite side.",
-  "Tight cinematic close-up of face and upper shoulders, dramatic lighting, eyes razor sharp, expression engaged, headline integrated into background.",
-  "Wide establishing shot, subject prominent in lower-third or one-third, face turned toward camera and clearly readable, epic backdrop dominating.",
-  "Action / motion frame, subject mid-gesture but face oriented toward camera, dynamic light streaks or atmosphere, headline in negative space.",
+  "Soft golden-hour key light from the left, warm cream highlights, gentle haze in background, deep filmic shadows.",
+  "Cooler twilight ambience, subtle teal-orange split tone, faint window/streetlight bokeh behind, polished contrast.",
+  "Moody low-key lighting, single motivated rim light, rich blacks, dramatic atmosphere, cinematic vignette.",
+  "Bright clean daylight grade, crisp whites, airy background separation, premium editorial feel.",
+  "Dusk neon-tinted ambience, soft cyan/magenta accents in the background bokeh, glossy highlights on the RS6.",
+  "Overcast diffused soft light, neutral filmic grade, muted background, refined understated mood.",
 ];
 
 async function callGemini(prompt: string, imageBase64: string | undefined, apiKey: string): Promise<string> {
