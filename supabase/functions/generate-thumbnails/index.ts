@@ -9,7 +9,7 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "travel" | "tech" | "driving";
+type VlogStyle = "lifestyle" | "travel" | "tech";
 type TextStyle = "serif" | "modern" | "none";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
@@ -39,16 +39,6 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 - Dashboard-Glow, MMI-Display sichtbar, Innenraum-Ambient-Light in Cyan/Blau, kontrollierte Three-Point-Beleuchtung mit Rim Light.
 - Color Palette: tiefes Charcoal/Navy, electric Cyan/Blau Akzent, crisp Whites — RS6-Lack glänzt.
 - Look: Apple Keynote / MKBHD Studio trifft Top-Gear-Hochglanz.`,
-  },
-  driving: {
-    label: "In-Car POV / Driving Vlog",
-    prompt: `IN-CAR DRIVING VLOG aus dem AUDI RS6 Avant (C8) — cinematic Selfie-POV aus dem Cockpit, exakt wie ein echtes Vlog-Standbild aus dem Auto.
-- KAMERA-PERSPEKTIVE: Front-Selfie aus dem Fahrersitz, Handy/Kamera in ausgestreckter Hand (Arm leicht im Frame sichtbar wie auf einem echten Vlog-Selfie), Subjekt schaut Richtung Kamera. Leichte Weitwinkel-Optik (24-28mm look) wie iPhone-Frontkamera, aber mit cinematic Grading.
-- COCKPIT-DETAILS sichtbar und korrekt: Audi RS6 Lenkrad mit RS-Logo und flachem unteren Bereich, Sicherheitsgurt diagonal über Brust, schwarze Lederausstattung mit Rautenmuster (Valcona Leder), Kopfstützen mit RS-Prägung im Hintergrund (Rückbank teilweise sichtbar), schwarzer Dachhimmel, Alcantara/Leder-Säulen, MMI-Display dezent angedeutet. Beifahrersitz leer und sichtbar.
-- AUSSENWELT durch die Fenster: cinematic Autobahn / Landstraße / City bei Tag oder goldener Abendsonne — Bewegungs-Andeutung, Bäume/Leitplanken/Skyline ziehen vorbei, weiches Bokeh durch Windschutzscheibe & Seitenfenster.
-- LIGHT: weiches Tageslicht von links durch Fahrerfenster, sanfte Schatten, natürlicher Hauttyp, leichter Lift in den Schatten, filmischer Kontrast.
-- COLOR GRADE: leicht kühles Tageslicht außen, warmer Hautton innen, gedämpftes Schwarz im Interieur, dezenter Akzent in der Markenfarbe.
-- STIMMUNG: ruhig, fokussiert, "auf dem Weg" — wie ein hochwertiger Daily-Driving-Vlog (Theo Baier / David Dobrik Auto-Selfie-Look in cinematic).`,
   },
 };
 
