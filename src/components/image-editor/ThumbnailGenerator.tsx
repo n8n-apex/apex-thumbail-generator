@@ -17,7 +17,6 @@ import {
   Coffee,
   Mountain,
   Cpu,
-  Car,
   Flame,
   Type,
   Feather,
@@ -34,14 +33,13 @@ import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type VlogStyle = "lifestyle" | "travel" | "tech" | "driving";
+type VlogStyle = "lifestyle" | "travel" | "tech";
 type TextStyle = "serif" | "modern" | "none";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
   { id: "travel", label: "Travel", sub: "Adventure · cinematic · epic", icon: Mountain },
   { id: "tech", label: "Tech / Business", sub: "Modern · clean · premium", icon: Cpu },
-  { id: "driving", label: "In-Car POV", sub: "RS6 Cockpit · selfie · road", icon: Car },
 ];
 
 const TEXT_OPTIONS: { id: TextStyle; label: string; sub: string; icon: typeof Type }[] = [
