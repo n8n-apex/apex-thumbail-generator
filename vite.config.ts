@@ -11,6 +11,19 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    headers: {
+      // iframe-Embedding (LearnWorlds, Notion, etc.) erlauben
+      "Content-Security-Policy": "frame-ancestors *",
+      "X-Frame-Options": "ALLOWALL",
+    },
+  },
+  preview: {
+    host: "::",
+    port: 8080,
+    headers: {
+      "Content-Security-Policy": "frame-ancestors *",
+      "X-Frame-Options": "ALLOWALL",
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
