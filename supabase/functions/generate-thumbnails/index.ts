@@ -92,6 +92,15 @@ const PODCAST_STYLES: Record<PodcastStyle, { label: string; prompt: string }> = 
 - Headline: two-line bold display SANS-SERIF on the RIGHT/BOTTOM. First line in crisp white. Second line in italicized condensed display sans in vivid brand-orange or brand-color, slight slant, tight tracking.
 - Mood: premium podcast brand, instantly recognizable, editorial.`,
   },
+  "cinematic-portrait": {
+    label: "Cinematic Editorial Portrait",
+    prompt: `CINEMATIC EDITORIAL PORTRAIT PODCAST THUMBNAIL — reference: Vanity Fair / GQ / A24 cover aesthetic.
+- Background: deep moody darkness, almost black, with one single soft warm side-light source (Rembrandt lighting), heavy chiaroscuro shadows, fine cinematic film grain.
+- Subject: dramatic tight close-up on the RIGHT half of the frame (eyes-to-shoulder), intense direct eye contact into the camera, half-face lit / half-face in shadow, glossy filmic skin texture, sharp focus on the eyes, shallow depth-of-field.
+- Typography: elegant tall DISPLAY SERIF wordmark (Canela, GT Sectra, Domaine Display) overlapping the subject — large title ACROSS THE TOP in semi-transparent off-white that the face partially eclipses (magazine-cover masthead effect), and the same/related title repeated SOLID white at the BOTTOM in slightly smaller scale. Restrained letter-spacing, all caps or small caps.
+- No badges, no glows, no extra UI. Pure editorial restraint.
+- Mood: prestige, cinematic, awards-season magazine cover.`,
+  },
 };
 
 const TEXT_STYLES: Record<TextStyle, string> = {
