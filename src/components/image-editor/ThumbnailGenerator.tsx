@@ -361,6 +361,52 @@ export default function ThumbnailGenerator({
           </div>
         </div>
 
+        {/* Podcast sub-styles (multiselect 1-6) */}
+        {vlogStyle === "podcast" && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Podcast-Stile · Wähle 1–6 (inspiriert von Top-Creators)
+              </label>
+              <span className="text-[10px] font-bold text-primary tabular-nums">
+                {podcastStyles.length} ausgewählt
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {PODCAST_OPTIONS.map((opt) => {
+                const Icon = opt.icon;
+                const active = podcastStyles.includes(opt.id);
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => togglePodcastStyle(opt.id)}
+                    className={`relative text-left p-3 rounded-2xl border transition-all ${
+                      active
+                        ? "border-primary bg-primary/10 shadow-md shadow-primary/20"
+                        : "border-border/50 hover:border-primary/40 bg-background/40"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <Icon className={`h-4 w-4 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                      {active && (
+                        <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center shrink-0">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs font-bold text-foreground">{opt.label}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{opt.sub}</div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Pro ausgewähltem Stil wird genau 1 Thumbnail in diesem exakten Look generiert.
+            </p>
+          </div>
+        )}
+
+
         {/* Text Style */}
         <div className="space-y-2">
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
