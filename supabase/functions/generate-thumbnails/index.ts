@@ -123,6 +123,7 @@ interface GenerateBody {
   referenceStyleBase64?: string;
   autoTitle?: boolean;
   titleKeywords?: string;
+  enforceApexCI?: boolean;
 }
 
 
