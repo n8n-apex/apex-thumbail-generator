@@ -121,6 +121,8 @@ interface GenerateBody {
   podcastStyles?: PodcastStyle[];
   podcastStyle?: PodcastStyle;
   referenceStyleBase64?: string;
+  autoTitle?: boolean;
+  titleKeywords?: string;
 }
 
 
