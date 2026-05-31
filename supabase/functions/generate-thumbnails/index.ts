@@ -259,20 +259,25 @@ const VARIANT_SEEDS = [
   "Overcast diffused soft light, neutral filmic grade, muted background, refined understated mood.",
 ];
 
-async function callGemini(prompt: string, imageBase64: string | undefined, apiKey: string): Promise<string> {
+async function callGemini(
+  prompt: string,
+  imageBase64: string | undefined,
+  apiKey: string,
+  referenceStyleBase64?: string,
+): Promise<string> {
+  const contentParts: Array<Record<string, unknown>> = [];
+  if (imageBase64) contentParts.push({ type: "image_url", image_url: { url: imageBase64 } });
+  if (referenceStyleBase64) contentParts.push({ type: "image_url", image_url: { url: referenceStyleBase64 } });
+  contentParts.push({ type: "text", text: prompt });
+
   const messages = [
     {
       role: "user",
-      content: imageBase64
-        ? [
-            // Image FIRST so the model treats it as the primary reference subject to composite/edit.
-            { type: "image_url", image_url: { url: imageBase64 } },
-            { type: "text", text: prompt },
-          ]
-        : prompt,
+      content: contentParts.length === 1 ? prompt : contentParts,
     },
   ];
-  const models = imageBase64
+  const hasAnyImage = !!imageBase64 || !!referenceStyleBase64;
+  const models = hasAnyImage
     ? ["google/gemini-3.1-flash-image-preview"]
     : ["google/gemini-3.1-flash-image-preview", "google/gemini-3-pro-image-preview"];
   let lastError = "";
