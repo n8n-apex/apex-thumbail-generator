@@ -539,32 +539,34 @@ export default function ThumbnailGenerator({
           </p>
         </div>
 
-        {/* Variants slider */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Varianten pro Generierung
-            </label>
-            <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
+        {/* Variants slider (hidden in podcast mode — count = selected styles) */}
+        {vlogStyle !== "podcast" && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Varianten pro Generierung
+              </label>
+              <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
+            </div>
+            <Slider
+              value={[variants]}
+              min={1}
+              max={4}
+              step={1}
+              onValueChange={(v) => setVariants(v[0])}
+              disabled={isGenerating}
+            />
+            <p className="text-[10px] text-muted-foreground">
+              {variants === 1
+                ? "Schnell — 1 cinematic Shot"
+                : variants === 2
+                  ? "Balance — 2 Varianten parallel"
+                  : variants === 3
+                    ? "3 Varianten parallel"
+                    : "Maximale Auswahl — 4 ultrarealistische Shots parallel"}
+            </p>
           </div>
-          <Slider
-            value={[variants]}
-            min={1}
-            max={4}
-            step={1}
-            onValueChange={(v) => setVariants(v[0])}
-            disabled={isGenerating}
-          />
-          <p className="text-[10px] text-muted-foreground">
-            {variants === 1
-              ? "Schnell — 1 cinematic Shot"
-              : variants === 2
-                ? "Balance — 2 Varianten parallel"
-                : variants === 3
-                  ? "3 Varianten parallel"
-                  : "Maximale Auswahl — 4 ultrarealistische Shots parallel"}
-          </p>
-        </div>
+        )}
 
         {/* Generate button */}
         <div className="space-y-2">
@@ -574,17 +576,20 @@ export default function ThumbnailGenerator({
             size="lg"
             className="w-full h-12 rounded-2xl glass-button-primary text-primary-foreground text-sm font-bold gap-2"
           >
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {variants} Cinematic Thumbnails generieren...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4" />
-                {variants} Cinematic Thumbnails generieren
-              </>
-            )}
+            {(() => {
+              const count = vlogStyle === "podcast" ? podcastStyles.length : variants;
+              return isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {count} Cinematic Thumbnails generieren...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  {count} Cinematic Thumbnails generieren
+                </>
+              );
+            })()}
           </Button>
           {isGenerating && (
             <div className="space-y-1.5">
