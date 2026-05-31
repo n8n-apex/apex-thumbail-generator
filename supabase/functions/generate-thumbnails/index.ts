@@ -210,7 +210,7 @@ ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - Razor-sharp focus on the eyes, micro-catchlights, individual eyelashes resolvable
 - STRICT 16:9 LANDSCAPE aspect ratio (1280×720 or higher 16:9). NEVER square, vertical or 4:3.
 - Must read clearly at 320×180 small preview size
-- ${body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug)."}
+- ${isPodcast ? "NO car in the scene unless the podcast style explicitly references it — this is a PODCAST thumbnail, not a car vlog." : (body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug).")}
 - CONSISTENCY ACROSS BATCH: same color grade, same lighting mood, same subject identity across all variants.
 
 NEVER DO:
