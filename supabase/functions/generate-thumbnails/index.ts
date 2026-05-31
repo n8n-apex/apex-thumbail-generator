@@ -16,7 +16,8 @@ type PodcastStyle =
   | "bold-hero"
   | "punchy-reaction"
   | "tools-showcase"
-  | "podcast-frame";
+  | "podcast-frame"
+  | "cinematic-portrait";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
   lifestyle: {
