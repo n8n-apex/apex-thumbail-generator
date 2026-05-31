@@ -15,13 +15,18 @@ import {
   ChevronDown,
   X,
   Coffee,
-  Mountain,
+  Mic,
   Cpu,
-  Flame,
   Type,
   Feather,
   Minus,
   Eye,
+  LayoutGrid,
+  Frame,
+  Zap,
+  Boxes,
+  Radio,
+  Check,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -33,13 +38,27 @@ import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type VlogStyle = "lifestyle" | "travel" | "tech";
+type VlogStyle = "lifestyle" | "podcast" | "tech";
 type TextStyle = "serif" | "modern" | "none";
+type PodcastStyle =
+  | "clean-cutout"
+  | "bold-hero"
+  | "punchy-reaction"
+  | "tools-showcase"
+  | "podcast-frame";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
-  { id: "travel", label: "Travel", sub: "Adventure · cinematic · epic", icon: Mountain },
+  { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "tech", label: "Tech / Business", sub: "Modern · clean · premium", icon: Cpu },
+];
+
+const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid }[] = [
+  { id: "clean-cutout", label: "Clean Cutout", sub: "Editorial · LinkedIn-style · grid bg", icon: LayoutGrid },
+  { id: "bold-hero", label: "Bold Hero", sub: "Centered · UI frames · keynote", icon: Frame },
+  { id: "punchy-reaction", label: "Punchy Reaction", sub: "Big white type · icon-letter", icon: Zap },
+  { id: "tools-showcase", label: "AI Tools Showcase", sub: "Glass app icons · laptop glow", icon: Boxes },
+  { id: "podcast-frame", label: "Show Frame", sub: "Brand gradient · italic accent", icon: Radio },
 ];
 
 const TEXT_OPTIONS: { id: TextStyle; label: string; sub: string; icon: typeof Type }[] = [
