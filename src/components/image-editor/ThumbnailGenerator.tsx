@@ -624,7 +624,7 @@ export default function ThumbnailGenerator({
         </div>
 
         {/* Variants slider (hidden in podcast mode — count = selected styles) */}
-        {vlogStyle !== "podcast" && (
+        {(vlogStyle !== "podcast" || !!referenceStyleImage) && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
