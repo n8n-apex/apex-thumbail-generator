@@ -145,6 +145,8 @@ export default function ThumbnailGenerator({
   const [vlogStyle, setVlogStyle] = useState<VlogStyle>("lifestyle");
   const [textStyle, setTextStyle] = useState<TextStyle>("serif");
   const [title, setTitle] = useState("");
+  const [autoTitle, setAutoTitle] = useState(false);
+  const [titleKeywords, setTitleKeywords] = useState("");
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [variants, setVariants] = useState(2);
