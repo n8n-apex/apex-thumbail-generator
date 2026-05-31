@@ -334,7 +334,7 @@ export default function ThumbnailGenerator({
         {/* Vlog Style */}
         <div className="space-y-2">
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-            Vlog-Stil
+            Content-Typ
           </label>
           <div className="grid grid-cols-3 gap-2">
             {VLOG_OPTIONS.map((opt) => {
