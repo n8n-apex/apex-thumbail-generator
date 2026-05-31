@@ -510,7 +510,7 @@ export default function ThumbnailGenerator({
         {/* Subject image */}
         <div className="space-y-2">
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-            Dein Foto (optional — leer lassen für komplett AI-generiert)
+            Foto der Person(en) im Thumbnail (optional — reicht ein Portrait/Selfie der Personen, die erscheinen sollen)
           </label>
 
           {batchImages.length > 0 && (
