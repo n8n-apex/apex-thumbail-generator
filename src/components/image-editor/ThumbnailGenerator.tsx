@@ -151,6 +151,9 @@ export default function ThumbnailGenerator({
   const [podcastStyles, setPodcastStyles] = useState<PodcastStyle[]>(["clean-cutout", "podcast-frame"]);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
+  const [referenceStyleImage, setReferenceStyleImage] = useState<string | null>(null);
+  const [referenceYoutubeUrl, setReferenceYoutubeUrl] = useState("");
+  const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
