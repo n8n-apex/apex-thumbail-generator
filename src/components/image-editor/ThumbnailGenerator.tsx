@@ -661,7 +661,7 @@ export default function ThumbnailGenerator({
             className="w-full h-12 rounded-2xl glass-button-primary text-primary-foreground text-sm font-bold gap-2"
           >
             {(() => {
-              const count = vlogStyle === "podcast" ? podcastStyles.length : variants;
+              const count = vlogStyle === "podcast" && !referenceStyleImage ? podcastStyles.length : variants;
               return isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
