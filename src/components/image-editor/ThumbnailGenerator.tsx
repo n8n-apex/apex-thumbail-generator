@@ -149,6 +149,7 @@ export default function ThumbnailGenerator({
   const [titleKeywords, setTitleKeywords] = useState("");
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
+  const [enforceApexCI, setEnforceApexCI] = useState(false);
   const [variants, setVariants] = useState(2);
   const [podcastStyles, setPodcastStyles] = useState<PodcastStyle[]>(["clean-cutout", "podcast-frame"]);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -316,7 +317,8 @@ export default function ThumbnailGenerator({
           autoTitle: autoTitle && titleKeywords.trim().length > 0,
           titleKeywords: autoTitle ? titleKeywords.trim().slice(0, 300) : undefined,
           sceneDescription: sceneDescription.trim().slice(0, 500) || undefined,
-          brandColor,
+          brandColor: enforceApexCI ? "#00BCFF" : brandColor,
+          enforceApexCI,
           imageBase64,
           variants: requestedVariants,
           podcastStyles: isPodcast && !referenceStyleImage ? podcastStyles : undefined,
@@ -339,7 +341,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, variants, podcastStyles, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
+  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
@@ -648,18 +650,39 @@ export default function ThumbnailGenerator({
             <div className="flex gap-2">
               <input
                 type="color"
-                value={brandColor}
+                value={enforceApexCI ? "#00BCFF" : brandColor}
                 onChange={(e) => setBrandColor(e.target.value)}
-                className="w-10 h-10 rounded-xl border border-border cursor-pointer"
+                disabled={enforceApexCI}
+                className="w-10 h-10 rounded-xl border border-border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <Input
-                value={brandColor}
+                value={enforceApexCI ? "#00BCFF" : brandColor}
                 onChange={(e) => setBrandColor(e.target.value)}
+                disabled={enforceApexCI}
                 className="text-xs rounded-xl h-10 font-mono flex-1"
               />
             </div>
+            <label className="flex items-center gap-1.5 cursor-pointer select-none pt-0.5">
+              <input
+                type="checkbox"
+                checked={enforceApexCI}
+                onChange={(e) => setEnforceApexCI(e.target.checked)}
+                className="w-3.5 h-3.5 rounded accent-primary cursor-pointer"
+              />
+              <span className="text-[10px] font-bold text-foreground flex items-center gap-1">
+                <Sparkles className="h-2.5 w-2.5 text-primary" />
+                Full APEX CI erzwingen
+              </span>
+            </label>
+            {enforceApexCI && (
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                APEX Blue #00BCFF, Deep Ocean, Slate Steel, Frost White — strikte Markenpalette &amp; Typografie.
+              </p>
+            )}
           </div>
         </div>
+
+
 
         {/* Scene description (optional) */}
         <div className="space-y-1.5">

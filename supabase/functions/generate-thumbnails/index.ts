@@ -123,6 +123,7 @@ interface GenerateBody {
   referenceStyleBase64?: string;
   autoTitle?: boolean;
   titleKeywords?: string;
+  enforceApexCI?: boolean;
 }
 
 
@@ -142,10 +143,36 @@ function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: numb
   const textBlock = TEXT_STYLES[body.textStyle];
   const textLayout = TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
   const titleText = body.title?.trim();
-  const brand = body.brandColor || "#00BCFF";
+  const enforceCI = !!body.enforceApexCI;
+  const brand = enforceCI ? "#00BCFF" : (body.brandColor || "#00BCFF");
   const isPodcast = body.vlogStyle === "podcast";
   const podcastStyle = isPodcast && body.podcastStyle ? PODCAST_STYLES[body.podcastStyle] : null;
   const hasStyleRef = !!body.referenceStyleBase64;
+
+  const apexCIBlock = enforceCI ? `═══ APEX CORPORATE IDENTITY — STRICT BRAND LOCK (HIGHEST PRIORITY) ═══
+This thumbnail is OFFICIAL APEX CONSULTING brand content. The full APEX 2025 CI applies and OVERRIDES any conflicting style direction (vlog style, podcast style, even style reference) for COLOR, TYPOGRAPHY and TONE.
+
+APEX COLOR PALETTE — use ONLY these colors:
+• Ice White       #FCFEFF  — primary clean background, negative space
+• APEX Blue       #00BCFF  — single hero accent (rim light, headline accent, key highlight). Use sparingly, never flood.
+• Deep Ocean      #001A23  — dominant dark background, base shadow tone, headline color on light bg
+• Slate Steel     #4B585D  — secondary surfaces, subtle UI elements
+• Frost White     #EDF9FE  — soft light backgrounds, alt clean surface
+• Graphite Gray   #1E2126  — deep contrast tone for premium dark frames
+Allowed secondary (use at most ONE, optional, very sparingly): Neon Sky #2DD4E8, Signal Orange #FF7A1A, Elevate Purple #6B4BE0, Crimson Flame #E63946.
+FORBIDDEN colors: warm sunset oranges, teal-orange film grade, generic Netflix red, MrBeast yellow, any color outside this palette as a dominant tone.
+
+APEX COLOR GRADE: cool, clean, premium-tech. Slight cyan lift in highlights, deep neutral blacks (Deep Ocean / Graphite Gray), NO warm orange skin grade — keep skin tones natural with a cool-neutral cinematic film grade. Think Apple keynote × McKinsey × premium SaaS keyframe.
+
+APEX TYPOGRAPHY: modern geometric sans-serif, clean, precise, confident (Inter / Söhne / Neue Haas Grotesk family). Tight tracking on display sizes, generous wide tracking on small caps. NEVER serif, NEVER script, NEVER condensed bold "MrBeast" type. Headline color: APEX Blue #00BCFF or Ice White #FCFEFF only.
+
+APEX TONE: confident, authoritative, premium, modern-tech consulting. No gimmicks, no clickbait shock, no neon arrows, no red circles, no emojis. Elevation, ambition, excellence.
+
+If a podcast/vlog/reference style implies different colors or typography, REINTERPRET that style INSIDE the APEX palette and typography — never break the palette.
+═══════════════════════════════════════════════
+` : "";
+
+
 
   const styleRefBlock = hasStyleRef ? `═══ STYLE REFERENCE — FOLLOW THIS LOOK ═══
 A SECOND image is attached AFTER the subject photo. It is a REFERENCE THUMBNAIL whose VISUAL STYLE you must emulate. Mirror these aspects from the reference:
@@ -163,7 +190,7 @@ This style reference OVERRIDES the podcast/vlog style direction when in conflict
 
   return `${body.imageBase64 ? `TASK: This is a PHOTO RETOUCH / COMPOSITE task. The attached image IS the subject reference. Keep the EXACT same person, face, hair, expression — only restage them into the cinematic ${isPodcast ? "podcast thumbnail" : "vlog thumbnail"} layout described below. Do NOT replace the face. Do NOT swap ethnicity, age, gender. Do NOT idealize.
 
-` : ""}${styleRefBlock}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
+` : ""}${apexCIBlock}${styleRefBlock}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}.${enforceCI ? " This is an OFFICIAL APEX CONSULTING brand thumbnail — strict APEX 2025 CI (palette + typography + tone) applies and overrides any conflicting style cue." : ""} The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
 
 
 ${body.imageBase64 ? (isPodcast ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
