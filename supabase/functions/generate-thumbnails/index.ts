@@ -138,7 +138,20 @@ function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: numb
 ` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
 
 
-${body.imageBase64 ? `═══ IMAGE LOCK — ABSOLUTE TOP PRIORITY (overrides everything else) ═══
+${body.imageBase64 ? (isPodcast ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
+Use the uploaded photo as the IDENTITY reference for the subject. Re-stage the person into the podcast thumbnail layout described below, but keep these 1:1:
+• ENTIRE FACE: face shape, geometry, every facial feature, eyes/eyebrows/nose/mouth/lips/ears/jawline
+• Skin tone, undertone, freckles, moles, scars, tattoos
+• Hairstyle: cut, length, parting, texture, color, hairline
+• Beard / stubble / facial hair: exact pattern, density, color
+• Apparent age, ethnicity, gender presentation, body type
+• Glasses, jewelry, piercings — exactly as in the reference
+
+YOU MAY change: pose, expression (slightly more expressive/confident), framing/crop, clothing color, background (per podcast style direction), lighting setup. The face must look like the SAME PERSON, not a generated lookalike.
+
+FORBIDDEN: face swap, ethnicity change, age shift, idealized/"model-ified" version, generic AI face.
+═══════════════════════════════════════════════
+` : `═══ IMAGE LOCK — ABSOLUTE TOP PRIORITY (overrides everything else) ═══
 The uploaded photo IS the output. Treat it like a RAW file going through color grading + retouch — never like a reference to redraw.
 
 PRESERVE 1:1 from the uploaded photo (do NOT alter ANY of these):
@@ -160,9 +173,9 @@ FORBIDDEN: do NOT beautify, slim, smooth, de-age, age-up, idealize, "model-ify",
 
 A stranger comparing reference and output must instantly say "yes, that's the same photo, just color-graded."
 ═══════════════════════════════════════════════
-` : `SUBJECT: Generate a photorealistic relatable vlogger (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. Across all variants in this batch keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.
+`) : `SUBJECT: Generate a photorealistic relatable ${isPodcast ? "podcast host (mid-20s to mid-40s, confident expressive)" : "vlogger (mid-20s to mid-30s, expressive but natural)"}. Photo-real human, never illustrated. Across all variants in this batch keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.
 `}
-${body.imageBase64 ? "" : `VLOG STYLE DIRECTION:\n${vlog.prompt}\n`}
+${isPodcast && podcastStyle ? `PODCAST STYLE DIRECTION (FOLLOW THIS EXACTLY):\n${podcastStyle.prompt}\n` : (body.imageBase64 ? "" : `VLOG STYLE DIRECTION:\n${vlog.prompt}\n`)}
 ${titleText ? `═══ TEXT RULES — STRICT, ELEGANT, APPLE-STYLE ═══
 EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words.
 
