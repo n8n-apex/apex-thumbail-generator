@@ -149,6 +149,7 @@ export default function ThumbnailGenerator({
   const [titleKeywords, setTitleKeywords] = useState("");
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
+  const [enforceApexCI, setEnforceApexCI] = useState(false);
   const [variants, setVariants] = useState(2);
   const [podcastStyles, setPodcastStyles] = useState<PodcastStyle[]>(["clean-cutout", "podcast-frame"]);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
