@@ -120,6 +120,7 @@ interface GenerateBody {
   sceneDescription?: string;
   podcastStyles?: PodcastStyle[];
   podcastStyle?: PodcastStyle;
+  referenceStyleBase64?: string;
 }
 
 
@@ -142,10 +143,25 @@ function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: numb
   const brand = body.brandColor || "#00BCFF";
   const isPodcast = body.vlogStyle === "podcast";
   const podcastStyle = isPodcast && body.podcastStyle ? PODCAST_STYLES[body.podcastStyle] : null;
+  const hasStyleRef = !!body.referenceStyleBase64;
+
+  const styleRefBlock = hasStyleRef ? `═══ STYLE REFERENCE — FOLLOW THIS LOOK ═══
+A SECOND image is attached AFTER the subject photo. It is a REFERENCE THUMBNAIL whose VISUAL STYLE you must emulate. Mirror these aspects from the reference:
+• Overall composition and subject placement (left/center/right, crop, framing)
+• Typography style, size, weight, placement and color treatment
+• Color palette, color grade, lighting mood, contrast level
+• Background treatment (cutout / scene / gradient / blur / props)
+• Any UI frames, icons, badges, shapes or decorative elements
+• Overall energy (calm editorial vs. punchy reaction vs. premium keynote)
+
+DO NOT copy the reference's PEOPLE, FACES, BRAND LOGOS, or EXACT TEXT WORDS. Replace those with the subject from the first image (or generated subject) and the headline below.
+This style reference OVERRIDES the podcast/vlog style direction when in conflict.
+═══════════════════════════════════════════════
+` : "";
 
   return `${body.imageBase64 ? `TASK: This is a PHOTO RETOUCH / COMPOSITE task. The attached image IS the subject reference. Keep the EXACT same person, face, hair, expression — only restage them into the cinematic ${isPodcast ? "podcast thumbnail" : "vlog thumbnail"} layout described below. Do NOT replace the face. Do NOT swap ethnicity, age, gender. Do NOT idealize.
 
-` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
+` : ""}${styleRefBlock}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
 
 
 ${body.imageBase64 ? (isPodcast ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
@@ -243,26 +259,31 @@ const VARIANT_SEEDS = [
   "Overcast diffused soft light, neutral filmic grade, muted background, refined understated mood.",
 ];
 
-async function callGemini(prompt: string, imageBase64: string | undefined, apiKey: string): Promise<string> {
+async function callGemini(
+  prompt: string,
+  imageBase64: string | undefined,
+  apiKey: string,
+  referenceStyleBase64?: string,
+): Promise<string> {
+  const contentParts: Array<Record<string, unknown>> = [];
+  if (imageBase64) contentParts.push({ type: "image_url", image_url: { url: imageBase64 } });
+  if (referenceStyleBase64) contentParts.push({ type: "image_url", image_url: { url: referenceStyleBase64 } });
+  contentParts.push({ type: "text", text: prompt });
+
   const messages = [
     {
       role: "user",
-      content: imageBase64
-        ? [
-            // Image FIRST so the model treats it as the primary reference subject to composite/edit.
-            { type: "image_url", image_url: { url: imageBase64 } },
-            { type: "text", text: prompt },
-          ]
-        : prompt,
+      content: contentParts.length === 1 ? prompt : contentParts,
     },
   ];
-  const models = imageBase64
+  const hasAnyImage = !!imageBase64 || !!referenceStyleBase64;
+  const models = hasAnyImage
     ? ["google/gemini-3.1-flash-image-preview"]
     : ["google/gemini-3.1-flash-image-preview", "google/gemini-3-pro-image-preview"];
   let lastError = "";
   for (const model of models) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), imageBase64 ? 70000 : 55000);
+    const timeout = setTimeout(() => controller.abort(), hasAnyImage ? 75000 : 55000);
     let resp: Response;
     try {
       resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -324,13 +345,15 @@ serve(async (req) => {
       // Build job list: for podcast batch mode -> one job per selected style; else -> variant seeds
       type Job = { prompt: string; index: number };
       const jobs: Job[] = [];
-      if (podcastStyles) {
+      const hasStyleRef = !!body.referenceStyleBase64;
+      if (podcastStyles && !hasStyleRef) {
         podcastStyles.forEach((ps, i) => {
           const variantSeed = VARIANT_SEEDS[i % VARIANT_SEEDS.length];
           const bodyForJob: GenerateBody = { ...body, podcastStyle: ps };
           jobs.push({ prompt: buildPrompt(bodyForJob, variantSeed, i), index: i });
         });
       } else {
+        // Custom reference OR non-podcast: use variant seeds
         const variants = Math.min(4, Math.max(1, body.variants ?? 2));
         VARIANT_SEEDS.slice(0, variants).forEach((seed, i) => {
           jobs.push({ prompt: buildPrompt(body, seed, i), index: i });
@@ -343,7 +366,7 @@ serve(async (req) => {
       for (let i = 0; i < jobs.length; i += CONCURRENCY) {
         const chunk = jobs.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map((job) => callGemini(job.prompt, body.imageBase64, LOVABLE_API_KEY))
+          chunk.map((job) => callGemini(job.prompt, body.imageBase64, LOVABLE_API_KEY, body.referenceStyleBase64))
         );
         settled.push(...chunkResults);
       }
