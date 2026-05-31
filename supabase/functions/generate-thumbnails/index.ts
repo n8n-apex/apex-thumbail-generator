@@ -393,6 +393,42 @@ serve(async (req) => {
           ? body.podcastStyles.slice(0, 6)
           : undefined;
 
+      // Auto-generate title from keywords if requested
+      if (body.autoTitle && typeof body.titleKeywords === "string" && body.titleKeywords.trim().length > 0) {
+        try {
+          const styleHint = body.textStyle === "serif"
+            ? "elegant cinematic display serif, magazine-cover, smart Title Case"
+            : body.textStyle === "modern"
+              ? "clean modern sans-serif Apple keynote, Title Case or ALL CAPS"
+              : "no text — but still generate a short title in case";
+          const contentType = isPodcast ? "podcast / interview" : (body.vlogStyle || "vlog");
+          const generated = await generateTitleFromKeywords(
+            body.titleKeywords,
+            contentType,
+            styleHint,
+            LOVABLE_API_KEY,
+          );
+          if (generated) {
+            body.title = generated;
+            console.log("Auto-generated title:", generated);
+          }
+        } catch (e) {
+          const msg = (e as Error).message;
+          if (msg === "__RATE_LIMIT__" || msg === "__CREDITS__") {
+            return new Response(
+              JSON.stringify({
+                error: msg === "__RATE_LIMIT__"
+                  ? "Rate limit erreicht beim Titel-Generieren."
+                  : "AI-Credits aufgebraucht.",
+              }),
+              { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
+          console.error("Auto-title failed, continuing without title:", e);
+        }
+      }
+
+
       // Build job list: for podcast batch mode -> one job per selected style; else -> variant seeds
       type Job = { prompt: string; index: number };
       const jobs: Job[] = [];
