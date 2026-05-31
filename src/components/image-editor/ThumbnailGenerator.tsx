@@ -145,6 +145,8 @@ export default function ThumbnailGenerator({
   const [vlogStyle, setVlogStyle] = useState<VlogStyle>("lifestyle");
   const [textStyle, setTextStyle] = useState<TextStyle>("serif");
   const [title, setTitle] = useState("");
+  const [autoTitle, setAutoTitle] = useState(false);
+  const [titleKeywords, setTitleKeywords] = useState("");
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [variants, setVariants] = useState(2);
@@ -310,7 +312,9 @@ export default function ThumbnailGenerator({
           action: "generate",
           vlogStyle,
           textStyle,
-          title: title.trim().slice(0, 100) || undefined,
+          title: autoTitle ? undefined : (title.trim().slice(0, 100) || undefined),
+          autoTitle: autoTitle && titleKeywords.trim().length > 0,
+          titleKeywords: autoTitle ? titleKeywords.trim().slice(0, 300) : undefined,
           sceneDescription: sceneDescription.trim().slice(0, 500) || undefined,
           brandColor,
           imageBase64,
@@ -335,7 +339,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, sceneDescription, brandColor, variants, podcastStyles, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
+  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, variants, podcastStyles, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
@@ -593,18 +597,50 @@ export default function ThumbnailGenerator({
         {/* Title + Brand */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="sm:col-span-2 space-y-1.5">
-            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Titel auf dem Thumbnail
-            </label>
-            <Input
-              placeholder="z.B. '24h ALLEIN IN TOKIO' oder '1 Jahr Daily Vlog' (leer = ohne Text)"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={100}
-              className="text-xs rounded-xl h-10"
-              disabled={textStyle === "none"}
-            />
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                {autoTitle ? "Keywords (AI schreibt Titel)" : "Titel auf dem Thumbnail"}
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={autoTitle}
+                  onChange={(e) => setAutoTitle(e.target.checked)}
+                  disabled={textStyle === "none"}
+                  className="w-3.5 h-3.5 rounded accent-primary cursor-pointer"
+                />
+                <span className="text-[10px] font-bold text-foreground flex items-center gap-1">
+                  <Sparkles className="h-2.5 w-2.5 text-primary" />
+                  AI-Titel
+                </span>
+              </label>
+            </div>
+            {autoTitle ? (
+              <Input
+                placeholder="z.B. 'AI Agents 2026, Startup, ChatGPT, Productivity'"
+                value={titleKeywords}
+                onChange={(e) => setTitleKeywords(e.target.value)}
+                maxLength={300}
+                className="text-xs rounded-xl h-10"
+                disabled={textStyle === "none"}
+              />
+            ) : (
+              <Input
+                placeholder="z.B. '24h ALLEIN IN TOKIO' oder '1 Jahr Daily Vlog' (leer = ohne Text)"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={100}
+                className="text-xs rounded-xl h-10"
+                disabled={textStyle === "none"}
+              />
+            )}
+            {autoTitle && (
+              <p className="text-[10px] text-muted-foreground">
+                Beschreibe Thema in 3–8 Stichworten — die AI generiert einen scroll-stoppenden Titel im gewählten Stil.
+              </p>
+            )}
           </div>
+
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
               Akzent-Farbe

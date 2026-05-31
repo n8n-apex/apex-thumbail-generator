@@ -121,6 +121,8 @@ interface GenerateBody {
   podcastStyles?: PodcastStyle[];
   podcastStyle?: PodcastStyle;
   referenceStyleBase64?: string;
+  autoTitle?: boolean;
+  titleKeywords?: string;
 }
 
 
@@ -259,6 +261,55 @@ const VARIANT_SEEDS = [
   "Overcast diffused soft light, neutral filmic grade, muted background, refined understated mood.",
 ];
 
+async function generateTitleFromKeywords(
+  keywords: string,
+  contentType: string,
+  textStyleHint: string,
+  apiKey: string,
+): Promise<string> {
+  const systemPrompt = `You are a world-class YouTube thumbnail copywriter. Generate ONE single scroll-stopping thumbnail title in the LANGUAGE of the keywords (auto-detect — German keywords → German title, English → English).
+RULES:
+- 2 to 7 words MAX, ideally 3–5
+- ALL CAPS or smart Title Case (match the visual style hint)
+- Punchy, curiosity-inducing, premium — Apple/Netflix energy, NOT clickbait spam
+- No quotes, no emojis, no hashtags, no numbering, no period at the end
+- No subtitle, no episode number
+- Output ONLY the title text, nothing else, no explanation
+Visual style hint: ${textStyleHint}
+Content type: ${contentType}`;
+
+  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Keywords / Thema: ${keywords}` },
+      ],
+    }),
+  });
+  if (!resp.ok) {
+    if (resp.status === 429) throw new Error("__RATE_LIMIT__");
+    if (resp.status === 402) throw new Error("__CREDITS__");
+    throw new Error(`Title generation failed: ${resp.status}`);
+  }
+  const data = await resp.json();
+  const raw: string = data.choices?.[0]?.message?.content || "";
+  // Clean up: strip quotes, trailing punctuation, newlines
+  const cleaned = raw
+    .trim()
+    .replace(/^["'`„"]+|["'`""]+$/g, "")
+    .replace(/[.!?]+$/g, "")
+    .split("\n")[0]
+    .trim()
+    .slice(0, 100);
+  return cleaned;
+}
+
 async function callGemini(
   prompt: string,
   imageBase64: string | undefined,
@@ -341,6 +392,42 @@ serve(async (req) => {
         isPodcast && Array.isArray(body.podcastStyles) && body.podcastStyles.length > 0
           ? body.podcastStyles.slice(0, 6)
           : undefined;
+
+      // Auto-generate title from keywords if requested
+      if (body.autoTitle && typeof body.titleKeywords === "string" && body.titleKeywords.trim().length > 0) {
+        try {
+          const styleHint = body.textStyle === "serif"
+            ? "elegant cinematic display serif, magazine-cover, smart Title Case"
+            : body.textStyle === "modern"
+              ? "clean modern sans-serif Apple keynote, Title Case or ALL CAPS"
+              : "no text — but still generate a short title in case";
+          const contentType = isPodcast ? "podcast / interview" : (body.vlogStyle || "vlog");
+          const generated = await generateTitleFromKeywords(
+            body.titleKeywords,
+            contentType,
+            styleHint,
+            LOVABLE_API_KEY,
+          );
+          if (generated) {
+            body.title = generated;
+            console.log("Auto-generated title:", generated);
+          }
+        } catch (e) {
+          const msg = (e as Error).message;
+          if (msg === "__RATE_LIMIT__" || msg === "__CREDITS__") {
+            return new Response(
+              JSON.stringify({
+                error: msg === "__RATE_LIMIT__"
+                  ? "Rate limit erreicht beim Titel-Generieren."
+                  : "AI-Credits aufgebraucht.",
+              }),
+              { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
+          console.error("Auto-title failed, continuing without title:", e);
+        }
+      }
+
 
       // Build job list: for podcast batch mode -> one job per selected style; else -> variant seeds
       type Job = { prompt: string; index: number };
