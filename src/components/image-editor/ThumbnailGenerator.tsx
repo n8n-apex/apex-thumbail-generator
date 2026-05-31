@@ -326,8 +326,8 @@ export default function ThumbnailGenerator({
             <Sparkles className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-foreground">YouTube Vlog Thumbnail Studio</h2>
-            <p className="text-[11px] text-muted-foreground">Cinematic, click-worthy 16:9 Thumbnails per AI</p>
+            <h2 className="text-sm font-bold text-foreground">APEX Thumbnail Studio</h2>
+            <p className="text-[11px] text-muted-foreground">Cinematic Vlog- & Podcast-Thumbnails per AI</p>
           </div>
         </div>
 
@@ -691,7 +691,7 @@ export default function ThumbnailGenerator({
             </div>
             <h3 className="text-sm font-bold text-foreground">Noch keine Thumbnails</h3>
             <p className="text-xs text-muted-foreground">
-              Wähle Stil & Titel, dann generiere {variants} cinematic Vlog-Thumbnails in einem Klick.
+              Wähle Stil & Titel, dann generiere cinematic Vlog- oder Podcast-Thumbnails in einem Klick.
             </p>
           </div>
         </div>
