@@ -490,6 +490,77 @@ export default function ThumbnailGenerator({
           </div>
         )}
 
+        {/* Custom reference (own thumbnail upload OR YouTube URL) */}
+        <div className="space-y-2 rounded-2xl border border-dashed border-border/60 p-3 bg-background/30">
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+              Eigene Referenz (überschreibt Stil-Auswahl)
+            </label>
+            {referenceStyleImage && (
+              <Button variant="ghost" size="sm" className="h-7 rounded-lg text-[10px]" onClick={clearReference}>
+                <X className="h-3 w-3 mr-1" /> Entfernen
+              </Button>
+            )}
+          </div>
+
+          {referenceStyleImage ? (
+            <div className="flex items-center gap-3">
+              <img
+                src={referenceStyleImage}
+                alt="Style reference"
+                className="w-28 h-16 rounded-xl object-cover border border-primary/60 shadow-md shadow-primary/20"
+              />
+              <div className="flex-1">
+                <div className="text-xs font-bold text-foreground">Referenz aktiv ✓</div>
+                <div className="text-[10px] text-muted-foreground">
+                  Die AI emuliert Komposition, Typografie & Farb-Grade dieser Vorlage. Dein Gesicht bleibt 1:1.
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label className="cursor-pointer">
+                <div className="flex items-center gap-2 px-3 h-10 rounded-xl border border-dashed border-border text-xs text-muted-foreground hover:bg-accent/50 hover:border-primary/40 transition-colors">
+                  <ImageIcon className="h-3.5 w-3.5" />
+                  Eigenes Thumbnail hochladen
+                </div>
+                <input type="file" accept="image/*" className="hidden" onChange={handleReferenceUpload} />
+              </label>
+              <div className="flex gap-1.5">
+                <Input
+                  value={referenceYoutubeUrl}
+                  onChange={(e) => setReferenceYoutubeUrl(e.target.value)}
+                  placeholder="YouTube-Link einfügen…"
+                  className="text-xs rounded-xl h-10 flex-1"
+                  disabled={isLoadingYoutube}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      loadYoutubeReference();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-10 rounded-xl px-3 text-[11px]"
+                  onClick={loadYoutubeReference}
+                  disabled={isLoadingYoutube || !referenceYoutubeUrl.trim()}
+                >
+                  {isLoadingYoutube ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Laden"}
+                </Button>
+              </div>
+            </div>
+          )}
+          <p className="text-[10px] text-muted-foreground">
+            Optional — wenn gesetzt, ignoriert die AI die Stil-Auswahl oben und orientiert sich an deiner Vorlage.
+          </p>
+        </div>
+
+
+
+
 
         {/* Text Style */}
         <div className="space-y-2">
