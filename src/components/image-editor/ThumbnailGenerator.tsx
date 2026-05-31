@@ -139,6 +139,7 @@ export default function ThumbnailGenerator({
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [variants, setVariants] = useState(2);
+  const [podcastStyles, setPodcastStyles] = useState<PodcastStyle[]>(["clean-cutout", "podcast-frame"]);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -213,11 +214,26 @@ export default function ThumbnailGenerator({
     return undefined;
   }, [uploadedImage, selectedBatchImageId, batchImages]);
 
+  const togglePodcastStyle = useCallback((id: PodcastStyle) => {
+    setPodcastStyles((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev; // keep at least 1
+        return prev.filter((p) => p !== id);
+      }
+      if (prev.length >= 6) {
+        toast.info("Maximal 6 Podcast-Stile gleichzeitig");
+        return prev;
+      }
+      return [...prev, id];
+    });
+  }, []);
+
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     startProgress();
     try {
       const imageBase64 = await activeImageBase64();
+      const isPodcast = vlogStyle === "podcast";
       const requestedVariants = Math.min(Math.max(variants, 1), 4);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
@@ -229,6 +245,7 @@ export default function ThumbnailGenerator({
           brandColor,
           imageBase64,
           variants: requestedVariants,
+          podcastStyles: isPodcast ? podcastStyles : undefined,
         },
       });
       if (error) throw error;
@@ -247,7 +264,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, sceneDescription, brandColor, variants, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
+  }, [vlogStyle, textStyle, title, sceneDescription, brandColor, variants, podcastStyles, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
