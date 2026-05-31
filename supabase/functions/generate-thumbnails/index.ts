@@ -108,7 +108,10 @@ interface GenerateBody {
   imageBase64?: string;
   variants?: number;
   sceneDescription?: string;
+  podcastStyles?: PodcastStyle[];
+  podcastStyle?: PodcastStyle;
 }
+
 
 const TEXT_LAYOUTS = [
   "IMMERSION / TEXT-BEHIND-SUBJECT: Large display headline rendered BIG in the background BEHIND the subject (magazine-cover depth trick). The subject's head and shoulders occlude part of the letters, while the visible portions remain clearly readable. Letters extend wide across the frame (up to ~70% width) but sit in the background plane with subtle atmospheric haze, slight motion blur on the far edges, and color-graded to blend with the scene. Premium Vogue / Apple TV+ feel — never flat sticker text.",
@@ -127,10 +130,13 @@ function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: numb
   const textLayout = TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
   const titleText = body.title?.trim();
   const brand = body.brandColor || "#00BCFF";
+  const isPodcast = body.vlogStyle === "podcast";
+  const podcastStyle = isPodcast && body.podcastStyle ? PODCAST_STYLES[body.podcastStyle] : null;
 
-  return `${body.imageBase64 ? `TASK: This is a PHOTO RETOUCH / RE-GRADE task. The attached image IS the output base. Your job is to keep the EXACT same photo — same person, same face, same pose, same framing, same background composition — and only upgrade the lighting, color grade and atmosphere into a cinematic YouTube vlog thumbnail. Do NOT generate a new scene, do NOT re-pose, do NOT swap the background.
+  return `${body.imageBase64 ? `TASK: This is a PHOTO RETOUCH / COMPOSITE task. The attached image IS the subject reference. Keep the EXACT same person, face, hair, expression — only restage them into the cinematic ${isPodcast ? "podcast thumbnail" : "vlog thumbnail"} layout described below. Do NOT replace the face. Do NOT swap ethnicity, age, gender. Do NOT idealize.
 
-` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a personal VLOG. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
+` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
+
 
 ${body.imageBase64 ? `═══ IMAGE LOCK — ABSOLUTE TOP PRIORITY (overrides everything else) ═══
 The uploaded photo IS the output. Treat it like a RAW file going through color grading + retouch — never like a reference to redraw.
