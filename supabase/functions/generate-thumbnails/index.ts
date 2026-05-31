@@ -283,7 +283,7 @@ async function callGemini(
   let lastError = "";
   for (const model of models) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), imageBase64 ? 70000 : 55000);
+    const timeout = setTimeout(() => controller.abort(), hasAnyImage ? 75000 : 55000);
     let resp: Response;
     try {
       resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
