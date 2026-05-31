@@ -381,7 +381,7 @@ export default function ThumbnailGenerator({
                 {podcastStyles.length} ausgewählt
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {PODCAST_OPTIONS.map((opt) => {
                 const Icon = opt.icon;
                 const active = podcastStyles.includes(opt.id);
@@ -389,22 +389,35 @@ export default function ThumbnailGenerator({
                   <button
                     key={opt.id}
                     onClick={() => togglePodcastStyle(opt.id)}
-                    className={`relative text-left p-3 rounded-2xl border transition-all ${
+                    className={`group relative text-left rounded-2xl border overflow-hidden transition-all ${
                       active
-                        ? "border-primary bg-primary/10 shadow-md shadow-primary/20"
-                        : "border-border/50 hover:border-primary/40 bg-background/40"
+                        ? "border-primary shadow-md shadow-primary/30 ring-2 ring-primary/40"
+                        : "border-border/50 hover:border-primary/40"
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <Icon className={`h-4 w-4 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                    <div className="relative aspect-video bg-muted/40 overflow-hidden">
+                      <img
+                        src={opt.preview}
+                        alt={`${opt.label} preview`}
+                        loading="lazy"
+                        width={896}
+                        height={512}
+                        className={`w-full h-full object-cover transition-transform ${active ? "scale-105" : "group-hover:scale-105"}`}
+                      />
+                      <div className={`absolute inset-0 transition-colors ${active ? "bg-primary/10" : "bg-foreground/0 group-hover:bg-foreground/10"}`} />
                       {active && (
-                        <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center shrink-0">
-                          <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                          <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
                         </div>
                       )}
                     </div>
-                    <div className="text-xs font-bold text-foreground">{opt.label}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">{opt.sub}</div>
+                    <div className="p-2.5 bg-background/60 backdrop-blur-sm">
+                      <div className="flex items-center gap-1.5">
+                        <Icon className={`h-3 w-3 shrink-0 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                        <div className="text-[11px] font-bold text-foreground truncate">{opt.label}</div>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5 truncate">{opt.sub}</div>
+                    </div>
                   </button>
                 );
               })}
