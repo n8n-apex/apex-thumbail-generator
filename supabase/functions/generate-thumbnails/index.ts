@@ -120,6 +120,7 @@ interface GenerateBody {
   sceneDescription?: string;
   podcastStyles?: PodcastStyle[];
   podcastStyle?: PodcastStyle;
+  referenceStyleBase64?: string;
 }
 
 
