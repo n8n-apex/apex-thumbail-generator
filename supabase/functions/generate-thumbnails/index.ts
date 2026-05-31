@@ -200,7 +200,7 @@ BRAND ACCENT COLOR: ${brand}
 
 ${body.sceneDescription && !body.imageBase64 ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
-${body.imageBase64 ? `GRADE VARIANT (lighting/atmosphere only — perspective and content stay 100% locked to the uploaded photo): ${variantSeed}` : `COMPOSITION VARIANT: ${variantSeed}`}
+${body.imageBase64 ? `GRADE VARIANT (lighting/atmosphere${isPodcast ? "" : " only — perspective and content stay 100% locked to the uploaded photo"}): ${variantSeed}` : `COMPOSITION VARIANT: ${variantSeed}`}
 
 ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - HYPER-PHOTOREALISTIC, indistinguishable from a real DSLR/cinema-camera frame (ARRI Alexa, RED Komodo, Sony FX6 look)
@@ -220,7 +220,7 @@ NEVER DO:
 - No garbled or misspelled text
 - No square / portrait / vertical framing — 16:9 landscape ONLY
 - No plastic / waxy / airbrushed / over-smoothed skin, no AI-generic faces
-- ${body.imageBase64 ? "NEVER change the person, pose, clothing, background or camera angle from the uploaded photo." : "Do NOT change the subject's identity between variants."}
+- ${isPodcast ? "When using the uploaded photo, the face identity must match (same person), but pose/background/lighting follow the podcast style direction." : (body.imageBase64 ? "NEVER change the person, pose, clothing, background or camera angle from the uploaded photo." : "Do NOT change the subject's identity between variants.")}
 - ONLY cinematic, hyperrealistic, premium vlog aesthetic — nothing else`;
 }
 
