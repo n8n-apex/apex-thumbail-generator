@@ -315,7 +315,8 @@ export default function ThumbnailGenerator({
           brandColor,
           imageBase64,
           variants: requestedVariants,
-          podcastStyles: isPodcast ? podcastStyles : undefined,
+          podcastStyles: isPodcast && !referenceStyleImage ? podcastStyles : undefined,
+          referenceStyleBase64: referenceStyleImage ?? undefined,
         },
       });
       if (error) throw error;
