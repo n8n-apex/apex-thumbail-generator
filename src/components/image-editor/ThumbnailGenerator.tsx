@@ -548,7 +548,7 @@ export default function ThumbnailGenerator({
               <label className="flex-1">
                 <div className="flex items-center gap-2 px-3 h-10 rounded-xl border border-dashed border-border text-xs text-muted-foreground cursor-pointer hover:bg-accent/50 hover:border-primary/40 transition-colors">
                   <ImageIcon className="h-3.5 w-3.5" />
-                  Foto hochladen (Selfie / Szene)
+                  Portrait / Selfie hochladen — nur die Person(en) im Bild reicht
                 </div>
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </label>
