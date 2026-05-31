@@ -305,19 +305,39 @@ serve(async (req) => {
     const body = await req.json();
 
     if (body.action === "generate") {
-      const variants = Math.min(4, Math.max(1, body.variants ?? 2));
-      const seeds = VARIANT_SEEDS.slice(0, variants);
+      const isPodcast = body.vlogStyle === "podcast";
+      const podcastStyles: PodcastStyle[] | undefined =
+        isPodcast && Array.isArray(body.podcastStyles) && body.podcastStyles.length > 0
+          ? body.podcastStyles.slice(0, 6)
+          : undefined;
+
+      // Build job list: for podcast batch mode -> one job per selected style; else -> variant seeds
+      type Job = { prompt: string; index: number };
+      const jobs: Job[] = [];
+      if (podcastStyles) {
+        podcastStyles.forEach((ps, i) => {
+          const variantSeed = VARIANT_SEEDS[i % VARIANT_SEEDS.length];
+          const bodyForJob: GenerateBody = { ...body, podcastStyle: ps };
+          jobs.push({ prompt: buildPrompt(bodyForJob, variantSeed, i), index: i });
+        });
+      } else {
+        const variants = Math.min(4, Math.max(1, body.variants ?? 2));
+        VARIANT_SEEDS.slice(0, variants).forEach((seed, i) => {
+          jobs.push({ prompt: buildPrompt(body, seed, i), index: i });
+        });
+      }
 
       // Process with limited concurrency to balance speed and memory
       const CONCURRENCY = 2;
       const settled: PromiseSettledResult<string>[] = [];
-      for (let i = 0; i < seeds.length; i += CONCURRENCY) {
-        const chunk = seeds.slice(i, i + CONCURRENCY);
+      for (let i = 0; i < jobs.length; i += CONCURRENCY) {
+        const chunk = jobs.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map((seed, j) => callGemini(buildPrompt(body, seed, i + j), body.imageBase64, LOVABLE_API_KEY))
+          chunk.map((job) => callGemini(job.prompt, body.imageBase64, LOVABLE_API_KEY))
         );
         settled.push(...chunkResults);
       }
+
 
       // Surface critical errors
       for (const s of settled) {
