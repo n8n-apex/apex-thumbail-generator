@@ -45,7 +45,15 @@ type PodcastStyle =
   | "bold-hero"
   | "punchy-reaction"
   | "tools-showcase"
-  | "podcast-frame";
+  | "podcast-frame"
+  | "cinematic-portrait";
+
+import podcastPreviewCleanCutout from "@/assets/podcast-style-clean-cutout.jpg";
+import podcastPreviewBoldHero from "@/assets/podcast-style-bold-hero.jpg";
+import podcastPreviewPunchyReaction from "@/assets/podcast-style-punchy-reaction.jpg";
+import podcastPreviewToolsShowcase from "@/assets/podcast-style-tools-showcase.jpg";
+import podcastPreviewPodcastFrame from "@/assets/podcast-style-podcast-frame.jpg";
+import podcastPreviewCinematicPortrait from "@/assets/podcast-style-cinematic-portrait.jpg";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
@@ -53,12 +61,13 @@ const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Co
   { id: "tech", label: "Tech / Business", sub: "Modern · clean · premium", icon: Cpu },
 ];
 
-const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid }[] = [
-  { id: "clean-cutout", label: "Clean Cutout", sub: "Editorial · LinkedIn-style · grid bg", icon: LayoutGrid },
-  { id: "bold-hero", label: "Bold Hero", sub: "Centered · UI frames · keynote", icon: Frame },
-  { id: "punchy-reaction", label: "Punchy Reaction", sub: "Big white type · icon-letter", icon: Zap },
-  { id: "tools-showcase", label: "AI Tools Showcase", sub: "Glass app icons · laptop glow", icon: Boxes },
-  { id: "podcast-frame", label: "Show Frame", sub: "Brand gradient · italic accent", icon: Radio },
+const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid; preview: string }[] = [
+  { id: "clean-cutout", label: "Clean Cutout", sub: "Editorial · LinkedIn-style · grid bg", icon: LayoutGrid, preview: podcastPreviewCleanCutout },
+  { id: "bold-hero", label: "Bold Hero", sub: "Centered · UI frames · keynote", icon: Frame, preview: podcastPreviewBoldHero },
+  { id: "punchy-reaction", label: "Punchy Reaction", sub: "Big white type · icon-letter", icon: Zap, preview: podcastPreviewPunchyReaction },
+  { id: "tools-showcase", label: "AI Tools Showcase", sub: "Glass app icons · laptop glow", icon: Boxes, preview: podcastPreviewToolsShowcase },
+  { id: "podcast-frame", label: "Show Frame", sub: "Brand gradient · italic accent", icon: Radio, preview: podcastPreviewPodcastFrame },
+  { id: "cinematic-portrait", label: "Cinematic Portrait", sub: "Vanity Fair · moody · prestige", icon: Feather, preview: podcastPreviewCinematicPortrait },
 ];
 
 const TEXT_OPTIONS: { id: TextStyle; label: string; sub: string; icon: typeof Type }[] = [
