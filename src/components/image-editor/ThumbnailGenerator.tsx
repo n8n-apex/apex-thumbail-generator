@@ -240,6 +240,64 @@ export default function ThumbnailGenerator({
     });
   }, []);
 
+  const handleReferenceUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    imageSourceToOptimizedBase64(objectUrl)
+      .then((optimized) => {
+        setReferenceStyleImage(optimized);
+        setReferenceYoutubeUrl("");
+        toast.success("Referenz-Thumbnail geladen");
+      })
+      .catch(() => toast.error("Referenz konnte nicht geladen werden"))
+      .finally(() => {
+        URL.revokeObjectURL(objectUrl);
+        e.target.value = "";
+      });
+  }, []);
+
+  const loadYoutubeReference = useCallback(async () => {
+    const url = referenceYoutubeUrl.trim();
+    if (!url) return;
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    const id = match?.[1];
+    if (!id) {
+      toast.error("Keine gültige YouTube-URL");
+      return;
+    }
+    setIsLoadingYoutube(true);
+    try {
+      // Try maxres first, fallback to hq
+      const tryUrls = [
+        `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
+        `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+      ];
+      let base64: string | null = null;
+      for (const u of tryUrls) {
+        try {
+          const b64 = await imageSourceToOptimizedBase64(u);
+          base64 = b64;
+          break;
+        } catch {
+          // try next
+        }
+      }
+      if (!base64) throw new Error("Thumbnail nicht gefunden");
+      setReferenceStyleImage(base64);
+      toast.success("YouTube-Thumbnail als Referenz geladen");
+    } catch {
+      toast.error("YouTube-Thumbnail konnte nicht geladen werden");
+    } finally {
+      setIsLoadingYoutube(false);
+    }
+  }, [referenceYoutubeUrl]);
+
+  const clearReference = useCallback(() => {
+    setReferenceStyleImage(null);
+    setReferenceYoutubeUrl("");
+  }, []);
+
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     startProgress();
