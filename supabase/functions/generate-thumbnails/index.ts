@@ -9,8 +9,14 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "travel" | "tech";
+type VlogStyle = "lifestyle" | "podcast" | "tech";
 type TextStyle = "serif" | "modern" | "none";
+type PodcastStyle =
+  | "clean-cutout"
+  | "bold-hero"
+  | "punchy-reaction"
+  | "tools-showcase"
+  | "podcast-frame";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
   lifestyle: {
@@ -22,14 +28,9 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 - Color Grade: warmes Cream/Amber gemischt mit dem tiefen Lack des RS6 (Daytona Grey / Nardo / Mythos Black) — ein einzelner gesättigter Akzent.
 - Stimmung: candid, lifestyle, "ein Tag mit dem RS6".`,
   },
-  travel: {
-    label: "Travel / Adventure",
-    prompt: `TRAVEL / ADVENTURE cinematic vlog im AUDI RS6 — episch, weit, awe-inspiring.
-- HERO CAR: Audi RS6 Avant (C8) muss prominent in der Szene sein — korrekte Proportionen, Single-Frame-Grill, Quad-Auspuff, RS-Felgen, breite Hüften.
-- Setting: RS6 auf Bergpass-Serpentine, Wüstenstraße, Küstenhighway, verschneitem Alpenpass, leerer Autobahn bei Sonnenaufgang. Subjekt steht am Auto, lehnt an der Motorhaube, oder sitzt mit offener Tür.
-- Dramatisches atmosphärisches Licht, Mist/Staub/Sonnenstrahlen, weite Landschaft die Maßstab erzeugt.
-- Color Grade: deep teal-orange cinematic, satte Schatten, glühende Highlights — RS6-Lack reflektiert die Umgebung.
-- Reference: Peter McKinnon / Sam Kolder Auto-Roadtrip-Cinematic.`,
+  podcast: {
+    label: "Podcast",
+    prompt: `PODCAST / INTERVIEW thumbnail — modern, premium, instant scroll-stop. Specific sub-style is provided separately below; this is just the umbrella category.`,
   },
   tech: {
     label: "Tech / Business",
@@ -39,6 +40,56 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 - Dashboard-Glow, MMI-Display sichtbar, Innenraum-Ambient-Light in Cyan/Blau, kontrollierte Three-Point-Beleuchtung mit Rim Light.
 - Color Palette: tiefes Charcoal/Navy, electric Cyan/Blau Akzent, crisp Whites — RS6-Lack glänzt.
 - Look: Apple Keynote / MKBHD Studio trifft Top-Gear-Hochglanz.`,
+  },
+};
+
+const PODCAST_STYLES: Record<PodcastStyle, { label: string; prompt: string }> = {
+  "clean-cutout": {
+    label: "Clean Cutout (LinkedIn-style)",
+    prompt: `CLEAN CUTOUT / EDITORIAL PODCAST THUMBNAIL — reference: top creator-economy podcasts.
+- Background: PURE off-white with a very subtle light grey GRID pattern (graph-paper look), absolutely clean, no clutter.
+- Subject: clean studio cutout on the LEFT third (head-to-shoulder), photo-realistic, sharp edges, soft natural studio key light, gentle drop shadow underneath for separation.
+- Typography: huge bold modern SANS-SERIF (Inter / Söhne / Neue Haas Grotesk Display) in deep near-black, lowercase, two-line headline filling the RIGHT 2/3 of the canvas. One key word gets a thick brand-color highlighter underline (chunky marker stroke).
+- Optional minimal vector glyph (chat bubble, app logo silhouette) sitting under the headline in flat brand color.
+- Mood: editorial, calm, premium, LinkedIn-friendly.`,
+  },
+  "bold-hero": {
+    label: "Bold Hero with Tool Frames",
+    prompt: `BOLD HERO PODCAST THUMBNAIL with software/product frames either side — reference: top tech-podcast creators.
+- Background: smooth dark navy or rich charcoal gradient with a soft brand-color glow behind subject.
+- Subject: confident centered cutout (chest-up), arms relaxed or slight gesture, sharp studio lighting, soft rim light.
+- TWO premium glass UI frames floating LEFT and RIGHT of the subject (code editor mockup, phone mockup, dashboard mockup) — semi-transparent glassmorphism, subtle green/cyan inner glow, light reflections.
+- Big bold display SANS-SERIF headline at the TOP center in crisp near-white, balanced kerning, single line preferred.
+- Subtle motion-style arrow or chevron between subject and frame for visual flow.
+- Mood: premium product-demo energy, MKBHD x Apple keynote.`,
+  },
+  "punchy-reaction": {
+    label: "Punchy Reaction (Big White Type)",
+    prompt: `PUNCHY REACTION PODCAST THUMBNAIL — reference: viral self-improvement / fitness / mindset podcasts.
+- Background: rich cinematic dark teal-to-deep-orange gradient, atmospheric, slightly out of focus, subtle film grain.
+- Subject: dramatic close-up on the LEFT (face fills ~half the frame), expressive emotional look (raised eyebrow, mouth slightly open, intense eye contact), strong rim light, filmic skin tones.
+- Typography: HUGE white display CONDENSED SANS-SERIF on the RIGHT (Anton, Bebas Neue feel), two-line headline, ALL CAPS, tight tracking. One letter inside the headline is REPLACED by a flat brand-color icon glyph (asterisk, sparkle, star) — same x-height, perfectly aligned.
+- Below the headline: a small punchy rectangular brand-color BADGE with one short white caps phrase (e.g. "TRY THIS", "WATCH NOW").
+- Mood: high-energy, scroll-stopping, premium reaction.`,
+  },
+  "tools-showcase": {
+    label: "AI Tools Showcase",
+    prompt: `AI TOOLS SHOWCASE PODCAST THUMBNAIL — reference: top AI/tech newsletter podcasts.
+- Background: moody dark blue tech office or server-room bokeh, soft cinematic depth-of-field, subtle warm rim light.
+- Subject: centered, chest-up behind an open laptop (laptop glow lighting the face from below), confident slight smile, studio-quality skin.
+- Four to five floating SQUIRCLE GLASS APP ICONS hovering symmetrically around the subject's head/shoulders (think frosted glass squares with vivid flat logos inside — ChatGPT, Claude, Notion-style), each connected to the laptop with a thin glowing fiber-optic light line.
+- Typography: ONE huge punchy display SANS-SERIF word at the BOTTOM center in vivid brand-yellow or brand color, ALL CAPS, tight tracking, slight soft glow.
+- Mood: futuristic, AI-native, premium tech.`,
+  },
+  "podcast-frame": {
+    label: "Podcast Show Frame",
+    prompt: `PODCAST SHOW-FRAME THUMBNAIL — reference: No Priors, Lenny's, Acquired style.
+- Background: deep saturated brand-color gradient (purple, navy, or dark magenta) with very subtle blurred UI/app screenshot ghosted behind for texture.
+- Show logo / wordmark in small caps TOP-LEFT corner, hairline weight, off-white.
+- Subject: clean cutout on the LEFT, chest-up, warm confident expression, soft studio key light, subtle rim.
+- THREE squircle glass APP ICONS floating in the UPPER-RIGHT quadrant, slight perspective tilt, frosted glass with vivid flat logos.
+- Headline: two-line bold display SANS-SERIF on the RIGHT/BOTTOM. First line in crisp white. Second line in italicized condensed display sans in vivid brand-orange or brand-color, slight slant, tight tracking.
+- Mood: premium podcast brand, instantly recognizable, editorial.`,
   },
 };
 
