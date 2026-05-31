@@ -556,8 +556,8 @@ export default function ThumbnailGenerator({
           </div>
           <p className="text-[10px] text-muted-foreground">
             {hasSubject
-              ? "✓ Foto wird komprimiert, Perspektive bleibt erhalten"
-              : "→ Ohne Foto generiert die AI eine komplett neue Vlogger-Szene"}
+              ? "✓ Gesicht/Person bleibt 1:1 erhalten, Szene wird im gewählten Stil neu komponiert"
+              : "→ Ohne Foto generiert die AI eine komplett neue Szene mit fiktiver Person"}
           </p>
         </div>
 
