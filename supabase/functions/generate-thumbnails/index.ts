@@ -9,8 +9,14 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "travel" | "tech";
+type VlogStyle = "lifestyle" | "podcast" | "tech";
 type TextStyle = "serif" | "modern" | "none";
+type PodcastStyle =
+  | "clean-cutout"
+  | "bold-hero"
+  | "punchy-reaction"
+  | "tools-showcase"
+  | "podcast-frame";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
   lifestyle: {
@@ -22,14 +28,9 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 - Color Grade: warmes Cream/Amber gemischt mit dem tiefen Lack des RS6 (Daytona Grey / Nardo / Mythos Black) — ein einzelner gesättigter Akzent.
 - Stimmung: candid, lifestyle, "ein Tag mit dem RS6".`,
   },
-  travel: {
-    label: "Travel / Adventure",
-    prompt: `TRAVEL / ADVENTURE cinematic vlog im AUDI RS6 — episch, weit, awe-inspiring.
-- HERO CAR: Audi RS6 Avant (C8) muss prominent in der Szene sein — korrekte Proportionen, Single-Frame-Grill, Quad-Auspuff, RS-Felgen, breite Hüften.
-- Setting: RS6 auf Bergpass-Serpentine, Wüstenstraße, Küstenhighway, verschneitem Alpenpass, leerer Autobahn bei Sonnenaufgang. Subjekt steht am Auto, lehnt an der Motorhaube, oder sitzt mit offener Tür.
-- Dramatisches atmosphärisches Licht, Mist/Staub/Sonnenstrahlen, weite Landschaft die Maßstab erzeugt.
-- Color Grade: deep teal-orange cinematic, satte Schatten, glühende Highlights — RS6-Lack reflektiert die Umgebung.
-- Reference: Peter McKinnon / Sam Kolder Auto-Roadtrip-Cinematic.`,
+  podcast: {
+    label: "Podcast",
+    prompt: `PODCAST / INTERVIEW thumbnail — modern, premium, instant scroll-stop. Specific sub-style is provided separately below; this is just the umbrella category.`,
   },
   tech: {
     label: "Tech / Business",
@@ -39,6 +40,56 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
 - Dashboard-Glow, MMI-Display sichtbar, Innenraum-Ambient-Light in Cyan/Blau, kontrollierte Three-Point-Beleuchtung mit Rim Light.
 - Color Palette: tiefes Charcoal/Navy, electric Cyan/Blau Akzent, crisp Whites — RS6-Lack glänzt.
 - Look: Apple Keynote / MKBHD Studio trifft Top-Gear-Hochglanz.`,
+  },
+};
+
+const PODCAST_STYLES: Record<PodcastStyle, { label: string; prompt: string }> = {
+  "clean-cutout": {
+    label: "Clean Cutout (LinkedIn-style)",
+    prompt: `CLEAN CUTOUT / EDITORIAL PODCAST THUMBNAIL — reference: top creator-economy podcasts.
+- Background: PURE off-white with a very subtle light grey GRID pattern (graph-paper look), absolutely clean, no clutter.
+- Subject: clean studio cutout on the LEFT third (head-to-shoulder), photo-realistic, sharp edges, soft natural studio key light, gentle drop shadow underneath for separation.
+- Typography: huge bold modern SANS-SERIF (Inter / Söhne / Neue Haas Grotesk Display) in deep near-black, lowercase, two-line headline filling the RIGHT 2/3 of the canvas. One key word gets a thick brand-color highlighter underline (chunky marker stroke).
+- Optional minimal vector glyph (chat bubble, app logo silhouette) sitting under the headline in flat brand color.
+- Mood: editorial, calm, premium, LinkedIn-friendly.`,
+  },
+  "bold-hero": {
+    label: "Bold Hero with Tool Frames",
+    prompt: `BOLD HERO PODCAST THUMBNAIL with software/product frames either side — reference: top tech-podcast creators.
+- Background: smooth dark navy or rich charcoal gradient with a soft brand-color glow behind subject.
+- Subject: confident centered cutout (chest-up), arms relaxed or slight gesture, sharp studio lighting, soft rim light.
+- TWO premium glass UI frames floating LEFT and RIGHT of the subject (code editor mockup, phone mockup, dashboard mockup) — semi-transparent glassmorphism, subtle green/cyan inner glow, light reflections.
+- Big bold display SANS-SERIF headline at the TOP center in crisp near-white, balanced kerning, single line preferred.
+- Subtle motion-style arrow or chevron between subject and frame for visual flow.
+- Mood: premium product-demo energy, MKBHD x Apple keynote.`,
+  },
+  "punchy-reaction": {
+    label: "Punchy Reaction (Big White Type)",
+    prompt: `PUNCHY REACTION PODCAST THUMBNAIL — reference: viral self-improvement / fitness / mindset podcasts.
+- Background: rich cinematic dark teal-to-deep-orange gradient, atmospheric, slightly out of focus, subtle film grain.
+- Subject: dramatic close-up on the LEFT (face fills ~half the frame), expressive emotional look (raised eyebrow, mouth slightly open, intense eye contact), strong rim light, filmic skin tones.
+- Typography: HUGE white display CONDENSED SANS-SERIF on the RIGHT (Anton, Bebas Neue feel), two-line headline, ALL CAPS, tight tracking. One letter inside the headline is REPLACED by a flat brand-color icon glyph (asterisk, sparkle, star) — same x-height, perfectly aligned.
+- Below the headline: a small punchy rectangular brand-color BADGE with one short white caps phrase (e.g. "TRY THIS", "WATCH NOW").
+- Mood: high-energy, scroll-stopping, premium reaction.`,
+  },
+  "tools-showcase": {
+    label: "AI Tools Showcase",
+    prompt: `AI TOOLS SHOWCASE PODCAST THUMBNAIL — reference: top AI/tech newsletter podcasts.
+- Background: moody dark blue tech office or server-room bokeh, soft cinematic depth-of-field, subtle warm rim light.
+- Subject: centered, chest-up behind an open laptop (laptop glow lighting the face from below), confident slight smile, studio-quality skin.
+- Four to five floating SQUIRCLE GLASS APP ICONS hovering symmetrically around the subject's head/shoulders (think frosted glass squares with vivid flat logos inside — ChatGPT, Claude, Notion-style), each connected to the laptop with a thin glowing fiber-optic light line.
+- Typography: ONE huge punchy display SANS-SERIF word at the BOTTOM center in vivid brand-yellow or brand color, ALL CAPS, tight tracking, slight soft glow.
+- Mood: futuristic, AI-native, premium tech.`,
+  },
+  "podcast-frame": {
+    label: "Podcast Show Frame",
+    prompt: `PODCAST SHOW-FRAME THUMBNAIL — reference: No Priors, Lenny's, Acquired style.
+- Background: deep saturated brand-color gradient (purple, navy, or dark magenta) with very subtle blurred UI/app screenshot ghosted behind for texture.
+- Show logo / wordmark in small caps TOP-LEFT corner, hairline weight, off-white.
+- Subject: clean cutout on the LEFT, chest-up, warm confident expression, soft studio key light, subtle rim.
+- THREE squircle glass APP ICONS floating in the UPPER-RIGHT quadrant, slight perspective tilt, frosted glass with vivid flat logos.
+- Headline: two-line bold display SANS-SERIF on the RIGHT/BOTTOM. First line in crisp white. Second line in italicized condensed display sans in vivid brand-orange or brand-color, slight slant, tight tracking.
+- Mood: premium podcast brand, instantly recognizable, editorial.`,
   },
 };
 
@@ -57,7 +108,10 @@ interface GenerateBody {
   imageBase64?: string;
   variants?: number;
   sceneDescription?: string;
+  podcastStyles?: PodcastStyle[];
+  podcastStyle?: PodcastStyle;
 }
+
 
 const TEXT_LAYOUTS = [
   "IMMERSION / TEXT-BEHIND-SUBJECT: Large display headline rendered BIG in the background BEHIND the subject (magazine-cover depth trick). The subject's head and shoulders occlude part of the letters, while the visible portions remain clearly readable. Letters extend wide across the frame (up to ~70% width) but sit in the background plane with subtle atmospheric haze, slight motion blur on the far edges, and color-graded to blend with the scene. Premium Vogue / Apple TV+ feel — never flat sticker text.",
@@ -76,12 +130,28 @@ function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: numb
   const textLayout = TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
   const titleText = body.title?.trim();
   const brand = body.brandColor || "#00BCFF";
+  const isPodcast = body.vlogStyle === "podcast";
+  const podcastStyle = isPodcast && body.podcastStyle ? PODCAST_STYLES[body.podcastStyle] : null;
 
-  return `${body.imageBase64 ? `TASK: This is a PHOTO RETOUCH / RE-GRADE task. The attached image IS the output base. Your job is to keep the EXACT same photo — same person, same face, same pose, same framing, same background composition — and only upgrade the lighting, color grade and atmosphere into a cinematic YouTube vlog thumbnail. Do NOT generate a new scene, do NOT re-pose, do NOT swap the background.
+  return `${body.imageBase64 ? `TASK: This is a PHOTO RETOUCH / COMPOSITE task. The attached image IS the subject reference. Keep the EXACT same person, face, hair, expression — only restage them into the cinematic ${isPodcast ? "podcast thumbnail" : "vlog thumbnail"} layout described below. Do NOT replace the face. Do NOT swap ethnicity, age, gender. Do NOT idealize.
 
-` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a personal VLOG. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
+` : ""}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}. The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
 
-${body.imageBase64 ? `═══ IMAGE LOCK — ABSOLUTE TOP PRIORITY (overrides everything else) ═══
+
+${body.imageBase64 ? (isPodcast ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
+Use the uploaded photo as the IDENTITY reference for the subject. Re-stage the person into the podcast thumbnail layout described below, but keep these 1:1:
+• ENTIRE FACE: face shape, geometry, every facial feature, eyes/eyebrows/nose/mouth/lips/ears/jawline
+• Skin tone, undertone, freckles, moles, scars, tattoos
+• Hairstyle: cut, length, parting, texture, color, hairline
+• Beard / stubble / facial hair: exact pattern, density, color
+• Apparent age, ethnicity, gender presentation, body type
+• Glasses, jewelry, piercings — exactly as in the reference
+
+YOU MAY change: pose, expression (slightly more expressive/confident), framing/crop, clothing color, background (per podcast style direction), lighting setup. The face must look like the SAME PERSON, not a generated lookalike.
+
+FORBIDDEN: face swap, ethnicity change, age shift, idealized/"model-ified" version, generic AI face.
+═══════════════════════════════════════════════
+` : `═══ IMAGE LOCK — ABSOLUTE TOP PRIORITY (overrides everything else) ═══
 The uploaded photo IS the output. Treat it like a RAW file going through color grading + retouch — never like a reference to redraw.
 
 PRESERVE 1:1 from the uploaded photo (do NOT alter ANY of these):
@@ -103,9 +173,9 @@ FORBIDDEN: do NOT beautify, slim, smooth, de-age, age-up, idealize, "model-ify",
 
 A stranger comparing reference and output must instantly say "yes, that's the same photo, just color-graded."
 ═══════════════════════════════════════════════
-` : `SUBJECT: Generate a photorealistic relatable vlogger (mid-20s to mid-30s, expressive but natural). Photo-real human, never illustrated. Across all variants in this batch keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.
+`) : `SUBJECT: Generate a photorealistic relatable ${isPodcast ? "podcast host (mid-20s to mid-40s, confident expressive)" : "vlogger (mid-20s to mid-30s, expressive but natural)"}. Photo-real human, never illustrated. Across all variants in this batch keep the SAME person — same face, hair, age, ethnicity, outfit family — only change pose, expression and composition.
 `}
-${body.imageBase64 ? "" : `VLOG STYLE DIRECTION:\n${vlog.prompt}\n`}
+${isPodcast && podcastStyle ? `PODCAST STYLE DIRECTION (FOLLOW THIS EXACTLY):\n${podcastStyle.prompt}\n` : (body.imageBase64 ? "" : `VLOG STYLE DIRECTION:\n${vlog.prompt}\n`)}
 ${titleText ? `═══ TEXT RULES — STRICT, ELEGANT, APPLE-STYLE ═══
 EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words.
 
@@ -130,7 +200,7 @@ BRAND ACCENT COLOR: ${brand}
 
 ${body.sceneDescription && !body.imageBase64 ? `SCENE / CONTEXT: ${body.sceneDescription}` : ""}
 
-${body.imageBase64 ? `GRADE VARIANT (lighting/atmosphere only — perspective and content stay 100% locked to the uploaded photo): ${variantSeed}` : `COMPOSITION VARIANT: ${variantSeed}`}
+${body.imageBase64 ? `GRADE VARIANT (lighting/atmosphere${isPodcast ? "" : " only — perspective and content stay 100% locked to the uploaded photo"}): ${variantSeed}` : `COMPOSITION VARIANT: ${variantSeed}`}
 
 ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - HYPER-PHOTOREALISTIC, indistinguishable from a real DSLR/cinema-camera frame (ARRI Alexa, RED Komodo, Sony FX6 look)
@@ -140,7 +210,7 @@ ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - Razor-sharp focus on the eyes, micro-catchlights, individual eyelashes resolvable
 - STRICT 16:9 LANDSCAPE aspect ratio (1280×720 or higher 16:9). NEVER square, vertical or 4:3.
 - Must read clearly at 320×180 small preview size
-- ${body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug)."}
+- ${isPodcast ? "NO car in the scene unless the podcast style explicitly references it — this is a PODCAST thumbnail, not a car vlog." : (body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug).")}
 - CONSISTENCY ACROSS BATCH: same color grade, same lighting mood, same subject identity across all variants.
 
 NEVER DO:
@@ -150,7 +220,7 @@ NEVER DO:
 - No garbled or misspelled text
 - No square / portrait / vertical framing — 16:9 landscape ONLY
 - No plastic / waxy / airbrushed / over-smoothed skin, no AI-generic faces
-- ${body.imageBase64 ? "NEVER change the person, pose, clothing, background or camera angle from the uploaded photo." : "Do NOT change the subject's identity between variants."}
+- ${isPodcast ? "When using the uploaded photo, the face identity must match (same person), but pose/background/lighting follow the podcast style direction." : (body.imageBase64 ? "NEVER change the person, pose, clothing, background or camera angle from the uploaded photo." : "Do NOT change the subject's identity between variants.")}
 - ONLY cinematic, hyperrealistic, premium vlog aesthetic — nothing else`;
 }
 
@@ -235,19 +305,39 @@ serve(async (req) => {
     const body = await req.json();
 
     if (body.action === "generate") {
-      const variants = Math.min(4, Math.max(1, body.variants ?? 2));
-      const seeds = VARIANT_SEEDS.slice(0, variants);
+      const isPodcast = body.vlogStyle === "podcast";
+      const podcastStyles: PodcastStyle[] | undefined =
+        isPodcast && Array.isArray(body.podcastStyles) && body.podcastStyles.length > 0
+          ? body.podcastStyles.slice(0, 6)
+          : undefined;
+
+      // Build job list: for podcast batch mode -> one job per selected style; else -> variant seeds
+      type Job = { prompt: string; index: number };
+      const jobs: Job[] = [];
+      if (podcastStyles) {
+        podcastStyles.forEach((ps, i) => {
+          const variantSeed = VARIANT_SEEDS[i % VARIANT_SEEDS.length];
+          const bodyForJob: GenerateBody = { ...body, podcastStyle: ps };
+          jobs.push({ prompt: buildPrompt(bodyForJob, variantSeed, i), index: i });
+        });
+      } else {
+        const variants = Math.min(4, Math.max(1, body.variants ?? 2));
+        VARIANT_SEEDS.slice(0, variants).forEach((seed, i) => {
+          jobs.push({ prompt: buildPrompt(body, seed, i), index: i });
+        });
+      }
 
       // Process with limited concurrency to balance speed and memory
       const CONCURRENCY = 2;
       const settled: PromiseSettledResult<string>[] = [];
-      for (let i = 0; i < seeds.length; i += CONCURRENCY) {
-        const chunk = seeds.slice(i, i + CONCURRENCY);
+      for (let i = 0; i < jobs.length; i += CONCURRENCY) {
+        const chunk = jobs.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map((seed, j) => callGemini(buildPrompt(body, seed, i + j), body.imageBase64, LOVABLE_API_KEY))
+          chunk.map((job) => callGemini(job.prompt, body.imageBase64, LOVABLE_API_KEY))
         );
         settled.push(...chunkResults);
       }
+
 
       // Surface critical errors
       for (const s of settled) {

@@ -15,13 +15,18 @@ import {
   ChevronDown,
   X,
   Coffee,
-  Mountain,
+  Mic,
   Cpu,
-  Flame,
   Type,
   Feather,
   Minus,
   Eye,
+  LayoutGrid,
+  Frame,
+  Zap,
+  Boxes,
+  Radio,
+  Check,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -33,13 +38,27 @@ import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type VlogStyle = "lifestyle" | "travel" | "tech";
+type VlogStyle = "lifestyle" | "podcast" | "tech";
 type TextStyle = "serif" | "modern" | "none";
+type PodcastStyle =
+  | "clean-cutout"
+  | "bold-hero"
+  | "punchy-reaction"
+  | "tools-showcase"
+  | "podcast-frame";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
-  { id: "travel", label: "Travel", sub: "Adventure · cinematic · epic", icon: Mountain },
+  { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "tech", label: "Tech / Business", sub: "Modern · clean · premium", icon: Cpu },
+];
+
+const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid }[] = [
+  { id: "clean-cutout", label: "Clean Cutout", sub: "Editorial · LinkedIn-style · grid bg", icon: LayoutGrid },
+  { id: "bold-hero", label: "Bold Hero", sub: "Centered · UI frames · keynote", icon: Frame },
+  { id: "punchy-reaction", label: "Punchy Reaction", sub: "Big white type · icon-letter", icon: Zap },
+  { id: "tools-showcase", label: "AI Tools Showcase", sub: "Glass app icons · laptop glow", icon: Boxes },
+  { id: "podcast-frame", label: "Show Frame", sub: "Brand gradient · italic accent", icon: Radio },
 ];
 
 const TEXT_OPTIONS: { id: TextStyle; label: string; sub: string; icon: typeof Type }[] = [
@@ -120,6 +139,7 @@ export default function ThumbnailGenerator({
   const [sceneDescription, setSceneDescription] = useState("");
   const [brandColor, setBrandColor] = useState("#00BCFF");
   const [variants, setVariants] = useState(2);
+  const [podcastStyles, setPodcastStyles] = useState<PodcastStyle[]>(["clean-cutout", "podcast-frame"]);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -194,11 +214,26 @@ export default function ThumbnailGenerator({
     return undefined;
   }, [uploadedImage, selectedBatchImageId, batchImages]);
 
+  const togglePodcastStyle = useCallback((id: PodcastStyle) => {
+    setPodcastStyles((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev; // keep at least 1
+        return prev.filter((p) => p !== id);
+      }
+      if (prev.length >= 6) {
+        toast.info("Maximal 6 Podcast-Stile gleichzeitig");
+        return prev;
+      }
+      return [...prev, id];
+    });
+  }, []);
+
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     startProgress();
     try {
       const imageBase64 = await activeImageBase64();
+      const isPodcast = vlogStyle === "podcast";
       const requestedVariants = Math.min(Math.max(variants, 1), 4);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
@@ -210,6 +245,7 @@ export default function ThumbnailGenerator({
           brandColor,
           imageBase64,
           variants: requestedVariants,
+          podcastStyles: isPodcast ? podcastStyles : undefined,
         },
       });
       if (error) throw error;
@@ -228,7 +264,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, sceneDescription, brandColor, variants, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
+  }, [vlogStyle, textStyle, title, sceneDescription, brandColor, variants, podcastStyles, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
@@ -290,15 +326,15 @@ export default function ThumbnailGenerator({
             <Sparkles className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-foreground">YouTube Vlog Thumbnail Studio</h2>
-            <p className="text-[11px] text-muted-foreground">Cinematic, click-worthy 16:9 Thumbnails per AI</p>
+            <h2 className="text-sm font-bold text-foreground">APEX Thumbnail Studio</h2>
+            <p className="text-[11px] text-muted-foreground">Cinematic Vlog- & Podcast-Thumbnails per AI</p>
           </div>
         </div>
 
         {/* Vlog Style */}
         <div className="space-y-2">
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-            Vlog-Stil
+            Content-Typ
           </label>
           <div className="grid grid-cols-3 gap-2">
             {VLOG_OPTIONS.map((opt) => {
@@ -324,6 +360,52 @@ export default function ThumbnailGenerator({
             })}
           </div>
         </div>
+
+        {/* Podcast sub-styles (multiselect 1-6) */}
+        {vlogStyle === "podcast" && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Podcast-Stile · Wähle 1–6 (inspiriert von Top-Creators)
+              </label>
+              <span className="text-[10px] font-bold text-primary tabular-nums">
+                {podcastStyles.length} ausgewählt
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {PODCAST_OPTIONS.map((opt) => {
+                const Icon = opt.icon;
+                const active = podcastStyles.includes(opt.id);
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => togglePodcastStyle(opt.id)}
+                    className={`relative text-left p-3 rounded-2xl border transition-all ${
+                      active
+                        ? "border-primary bg-primary/10 shadow-md shadow-primary/20"
+                        : "border-border/50 hover:border-primary/40 bg-background/40"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <Icon className={`h-4 w-4 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                      {active && (
+                        <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center shrink-0">
+                          <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs font-bold text-foreground">{opt.label}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{opt.sub}</div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Pro ausgewähltem Stil wird genau 1 Thumbnail in diesem exakten Look generiert.
+            </p>
+          </div>
+        )}
+
 
         {/* Text Style */}
         <div className="space-y-2">
@@ -457,32 +539,34 @@ export default function ThumbnailGenerator({
           </p>
         </div>
 
-        {/* Variants slider */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Varianten pro Generierung
-            </label>
-            <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
+        {/* Variants slider (hidden in podcast mode — count = selected styles) */}
+        {vlogStyle !== "podcast" && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Varianten pro Generierung
+              </label>
+              <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
+            </div>
+            <Slider
+              value={[variants]}
+              min={1}
+              max={4}
+              step={1}
+              onValueChange={(v) => setVariants(v[0])}
+              disabled={isGenerating}
+            />
+            <p className="text-[10px] text-muted-foreground">
+              {variants === 1
+                ? "Schnell — 1 cinematic Shot"
+                : variants === 2
+                  ? "Balance — 2 Varianten parallel"
+                  : variants === 3
+                    ? "3 Varianten parallel"
+                    : "Maximale Auswahl — 4 ultrarealistische Shots parallel"}
+            </p>
           </div>
-          <Slider
-            value={[variants]}
-            min={1}
-            max={4}
-            step={1}
-            onValueChange={(v) => setVariants(v[0])}
-            disabled={isGenerating}
-          />
-          <p className="text-[10px] text-muted-foreground">
-            {variants === 1
-              ? "Schnell — 1 cinematic Shot"
-              : variants === 2
-                ? "Balance — 2 Varianten parallel"
-                : variants === 3
-                  ? "3 Varianten parallel"
-                  : "Maximale Auswahl — 4 ultrarealistische Shots parallel"}
-          </p>
-        </div>
+        )}
 
         {/* Generate button */}
         <div className="space-y-2">
@@ -492,17 +576,20 @@ export default function ThumbnailGenerator({
             size="lg"
             className="w-full h-12 rounded-2xl glass-button-primary text-primary-foreground text-sm font-bold gap-2"
           >
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {variants} Cinematic Thumbnails generieren...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4" />
-                {variants} Cinematic Thumbnails generieren
-              </>
-            )}
+            {(() => {
+              const count = vlogStyle === "podcast" ? podcastStyles.length : variants;
+              return isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {count} Cinematic Thumbnails generieren...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  {count} Cinematic Thumbnails generieren
+                </>
+              );
+            })()}
           </Button>
           {isGenerating && (
             <div className="space-y-1.5">
@@ -604,7 +691,7 @@ export default function ThumbnailGenerator({
             </div>
             <h3 className="text-sm font-bold text-foreground">Noch keine Thumbnails</h3>
             <p className="text-xs text-muted-foreground">
-              Wähle Stil & Titel, dann generiere {variants} cinematic Vlog-Thumbnails in einem Klick.
+              Wähle Stil & Titel, dann generiere cinematic Vlog- oder Podcast-Thumbnails in einem Klick.
             </p>
           </div>
         </div>
