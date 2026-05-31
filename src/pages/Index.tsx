@@ -106,7 +106,7 @@ const Index = () => {
               <span className="text-xs font-black text-primary-foreground">A</span>
             </div>
             <span className="text-xs sm:text-sm font-bold text-foreground tracking-tight hidden sm:block">
-              APEX Vlog Thumbnail Studio
+              APEX Thumbnail Studio
             </span>
           </div>
 
@@ -121,7 +121,7 @@ const Index = () => {
               onClick={() => setActiveTab("thumbnails")}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
-              Vlog Studio
+              Studio
             </button>
             <button
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
