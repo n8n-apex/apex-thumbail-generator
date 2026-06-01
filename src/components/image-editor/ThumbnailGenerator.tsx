@@ -321,7 +321,7 @@ export default function ThumbnailGenerator({
           enforceApexCI,
           imageBase64,
           variants: requestedVariants,
-          podcastStyles: isPodcast && !referenceStyleImage ? podcastStyles : undefined,
+          podcastStyles: isPodcast ? podcastStyles : undefined,
           referenceStyleBase64: referenceStyleImage ?? undefined,
         },
       });
@@ -755,7 +755,7 @@ export default function ThumbnailGenerator({
 
         <div className="space-y-2">
           {(() => {
-            const isPodcastBatch = vlogStyle === "podcast" && !referenceStyleImage && podcastStyles.length > 0;
+            const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
             const total = isPodcastBatch ? variants * podcastStyles.length : variants;
             return (
               <>
