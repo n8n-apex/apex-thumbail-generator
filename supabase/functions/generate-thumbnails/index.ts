@@ -460,15 +460,16 @@ serve(async (req) => {
       type Job = { prompt: string; index: number };
       const jobs: Job[] = [];
       const hasStyleRef = !!body.referenceStyleBase64;
+      const variants = Math.min(4, Math.max(1, body.variants ?? 2));
       if (podcastStyles && !hasStyleRef) {
-        podcastStyles.forEach((ps, i) => {
+        // Generate `variants` images, cycling through selected podcast styles
+        for (let i = 0; i < variants; i++) {
+          const ps = podcastStyles[i % podcastStyles.length];
           const variantSeed = VARIANT_SEEDS[i % VARIANT_SEEDS.length];
           const bodyForJob: GenerateBody = { ...body, podcastStyle: ps };
           jobs.push({ prompt: buildPrompt(bodyForJob, variantSeed, i), index: i });
-        });
+        }
       } else {
-        // Custom reference OR non-podcast: use variant seeds
-        const variants = Math.min(4, Math.max(1, body.variants ?? 2));
         VARIANT_SEEDS.slice(0, variants).forEach((seed, i) => {
           jobs.push({ prompt: buildPrompt(body, seed, i), index: i });
         });
