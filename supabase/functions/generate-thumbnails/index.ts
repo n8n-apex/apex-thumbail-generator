@@ -456,12 +456,11 @@ serve(async (req) => {
       }
 
 
-      // Build job list: for podcast batch mode -> one job per selected style; else -> variant seeds
+      // Build job list: for podcast mode -> variants per selected style; else -> variant seeds
       type Job = { prompt: string; index: number };
       const jobs: Job[] = [];
-      const hasStyleRef = !!body.referenceStyleBase64;
       const variantsPerStyle = Math.min(6, Math.max(1, body.variants ?? 2));
-      if (podcastStyles && !hasStyleRef) {
+      if (podcastStyles) {
         // Generate `variantsPerStyle` images PER selected style => total = variantsPerStyle * styles.length
         let idx = 0;
         for (const ps of podcastStyles) {
