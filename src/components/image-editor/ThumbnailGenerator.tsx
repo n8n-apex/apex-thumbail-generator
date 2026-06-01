@@ -208,7 +208,7 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    if (variants > 4) setVariants(4);
+    if (variants > 6) setVariants(6);
     if (variants < 1) setVariants(1);
   }, [variants]);
 
