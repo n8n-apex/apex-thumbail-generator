@@ -86,7 +86,7 @@ const PODCAST_STYLES: Record<PodcastStyle, { label: string; prompt: string }> = 
     label: "Podcast Show Frame",
     prompt: `PODCAST SHOW-FRAME THUMBNAIL — reference: No Priors, Lenny's, Acquired style.
 - Background: deep saturated brand-color gradient (purple, navy, or dark magenta) with very subtle blurred UI/app screenshot ghosted behind for texture.
-- Show logo / wordmark in small caps TOP-LEFT corner, hairline weight, off-white.
+- TOP-LEFT corner: leave COMPLETELY EMPTY. Do NOT render any show logo, wordmark, brand name, channel name, podcast name, letters, or text of any kind in the top-left (or anywhere else outside the explicit headline). No "PRIORS", no "No Priors", no invented show names, no faux logos.
 - Subject: clean cutout on the LEFT, chest-up, warm confident expression, soft studio key light, subtle rim.
 - THREE squircle glass APP ICONS floating in the UPPER-RIGHT quadrant, slight perspective tilt, frosted glass with vivid flat logos.
 - Headline: two-line bold display SANS-SERIF on the RIGHT/BOTTOM. First line in crisp white. Second line in italicized condensed display sans in vivid brand-orange or brand-color, slight slant, tight tracking.
