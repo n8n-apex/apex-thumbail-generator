@@ -193,7 +193,7 @@ This style reference OVERRIDES the podcast/vlog style direction when in conflict
 
   return `${body.imageBase64 ? `TASK: This is a PHOTO RETOUCH / COMPOSITE task. The attached image IS the subject reference. Keep the EXACT same person, face, hair, expression — only restage them into the cinematic ${isPodcast ? "podcast thumbnail" : "vlog thumbnail"} layout described below. Do NOT replace the face. Do NOT swap ethnicity, age, gender. Do NOT idealize.
 
-` : ""}${apexCIBlock}${styleRefBlock}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}.${enforceCI ? " This is an OFFICIAL APEX CONSULTING brand thumbnail — strict APEX 2025 CI (palette + typography + tone) applies and overrides any conflicting style cue." : ""} The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional. Instant scroll-stop visual impact at maximum production value.
+` : ""}${apexCIBlock}${styleRefBlock}You are a world-class YouTube thumbnail designer creating a CINEMATIC, CLICK-WORTHY 16:9 thumbnail (exactly 1280×720, 16:9 landscape) for a ${isPodcast ? "PODCAST / INTERVIEW show" : "personal VLOG"}.${enforceCI ? " Apply the APEX 2025 visual identity (palette + typography + tone) silently — do NOT render brand names, logos or wordmarks in the image." : ""} The result must look like a high-end Netflix poster / Apple keynote frame — premium, sharp, intentional, SCHLICHT and uncluttered.
 
 
 ${body.imageBase64 ? (isPodcast ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
