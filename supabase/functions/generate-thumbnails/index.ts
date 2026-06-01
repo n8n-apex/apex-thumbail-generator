@@ -149,26 +149,29 @@ function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: numb
   const podcastStyle = isPodcast && body.podcastStyle ? PODCAST_STYLES[body.podcastStyle] : null;
   const hasStyleRef = !!body.referenceStyleBase64;
 
-  const apexCIBlock = enforceCI ? `═══ APEX CORPORATE IDENTITY — STRICT BRAND LOCK (HIGHEST PRIORITY) ═══
-This thumbnail is OFFICIAL APEX CONSULTING brand content. The full APEX 2025 CI applies and OVERRIDES any conflicting style direction (vlog style, podcast style, even style reference) for COLOR, TYPOGRAPHY and TONE.
+  const apexCIBlock = enforceCI ? `═══ APEX CI — STRICT BRAND LOCK (COLOR + TYPOGRAPHY ONLY) ═══
+Follow the APEX 2025 visual identity for COLOR, TYPOGRAPHY and TONE. This is NOT a corporate ad — keep it visually SCHLICHT / minimal / editorial.
 
 APEX COLOR PALETTE — use ONLY these colors:
-• Ice White       #FCFEFF  — primary clean background, negative space
-• APEX Blue       #00BCFF  — single hero accent (rim light, headline accent, key highlight). Use sparingly, never flood.
-• Deep Ocean      #001A23  — dominant dark background, base shadow tone, headline color on light bg
-• Slate Steel     #4B585D  — secondary surfaces, subtle UI elements
-• Frost White     #EDF9FE  — soft light backgrounds, alt clean surface
-• Graphite Gray   #1E2126  — deep contrast tone for premium dark frames
-Allowed secondary (use at most ONE, optional, very sparingly): Neon Sky #2DD4E8, Signal Orange #FF7A1A, Elevate Purple #6B4BE0, Crimson Flame #E63946.
-FORBIDDEN colors: warm sunset oranges, teal-orange film grade, generic Netflix red, MrBeast yellow, any color outside this palette as a dominant tone.
+• Ice White       #FCFEFF
+• APEX Blue       #00BCFF  — single hero accent, used sparingly
+• Deep Ocean      #001A23  — dominant dark background
+• Slate Steel     #4B585D
+• Frost White     #EDF9FE
+• Graphite Gray   #1E2126
+FORBIDDEN colors: warm sunset oranges, teal-orange film grade, Netflix red, MrBeast yellow, anything outside the palette as a dominant tone.
 
-APEX COLOR GRADE: cool, clean, premium-tech. Slight cyan lift in highlights, deep neutral blacks (Deep Ocean / Graphite Gray), NO warm orange skin grade — keep skin tones natural with a cool-neutral cinematic film grade. Think Apple keynote × McKinsey × premium SaaS keyframe.
+APEX GRADE: cool, clean, premium-tech. Natural skin tones, no warm orange grade.
+APEX TYPOGRAPHY: modern geometric sans-serif (Inter / Söhne / Neue Haas Grotesk). Headline color: APEX Blue #00BCFF or Ice White #FCFEFF only.
+APEX TONE: confident, premium, minimal, editorial. NO gimmicks, NO clickbait, NO emojis, NO arrows, NO red circles, NO badges, NO stickers, NO decorative shapes.
 
-APEX TYPOGRAPHY: modern geometric sans-serif, clean, precise, confident (Inter / Söhne / Neue Haas Grotesk family). Tight tracking on display sizes, generous wide tracking on small caps. NEVER serif, NEVER script, NEVER condensed bold "MrBeast" type. Headline color: APEX Blue #00BCFF or Ice White #FCFEFF only.
-
-APEX TONE: confident, authoritative, premium, modern-tech consulting. No gimmicks, no clickbait shock, no neon arrows, no red circles, no emojis. Elevation, ambition, excellence.
-
-If a podcast/vlog/reference style implies different colors or typography, REINTERPRET that style INSIDE the APEX palette and typography — never break the palette.
+═══ ABSOLUTELY FORBIDDEN TEXT / GRAPHICS (HARD RULE) ═══
+• DO NOT render the word "APEX" anywhere in the image.
+• DO NOT render the word "CONSULTING" anywhere in the image.
+• DO NOT invent any company name, tagline, slogan, URL, handle, @-mention, hashtag, episode number, date or channel name.
+• DO NOT add any logo, wordmark, monogram, icon-mark or brand seal. No fake APEX logo. No fake sponsor logos.
+• The ONLY text allowed on the entire thumbnail is the explicit HEADLINE provided below (if any). If no headline is provided, the image must contain ZERO text.
+• If a logo file is explicitly attached/provided, reproduce it 100% pixel-accurate (exact shape, proportions, colors, spacing) — never redraw, restyle, recolor or "interpret" it.
 ═══════════════════════════════════════════════
 ` : "";
 
