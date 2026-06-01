@@ -307,7 +307,7 @@ export default function ThumbnailGenerator({
     try {
       const imageBase64 = await activeImageBase64();
       const isPodcast = vlogStyle === "podcast";
-      const requestedVariants = Math.min(Math.max(variants, 1), 4);
+      const requestedVariants = Math.min(Math.max(variants, 1), 6);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
