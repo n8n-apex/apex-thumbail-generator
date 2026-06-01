@@ -208,7 +208,7 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    if (variants > 4) setVariants(4);
+    if (variants > 6) setVariants(6);
     if (variants < 1) setVariants(1);
   }, [variants]);
 
@@ -307,7 +307,7 @@ export default function ThumbnailGenerator({
     try {
       const imageBase64 = await activeImageBase64();
       const isPodcast = vlogStyle === "podcast";
-      const requestedVariants = Math.min(Math.max(variants, 1), 4);
+      const requestedVariants = Math.min(Math.max(variants, 1), 6);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -754,31 +754,33 @@ export default function ThumbnailGenerator({
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Varianten pro Generierung
-            </label>
-            <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
-          </div>
-          <Slider
-            value={[variants]}
-            min={1}
-            max={4}
-            step={1}
-            onValueChange={(v) => setVariants(v[0])}
-            disabled={isGenerating}
-          />
-          <p className="text-[10px] text-muted-foreground">
-            {vlogStyle === "podcast" && !referenceStyleImage && podcastStyles.length > 0
-              ? `Verteilt auf ${podcastStyles.length} Stil${podcastStyles.length > 1 ? "e" : ""} (rotierend)`
-              : variants === 1
-                ? "Schnell — 1 cinematic Shot"
-                : variants === 2
-                  ? "Balance — 2 Varianten parallel"
-                  : variants === 3
-                    ? "3 Varianten parallel"
-                    : "Maximale Auswahl — 4 ultrarealistische Shots parallel"}
-          </p>
+          {(() => {
+            const isPodcastBatch = vlogStyle === "podcast" && !referenceStyleImage && podcastStyles.length > 0;
+            const total = isPodcastBatch ? variants * podcastStyles.length : variants;
+            return (
+              <>
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                    {isPodcastBatch ? "Varianten pro Stil" : "Varianten pro Generierung"}
+                  </label>
+                  <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
+                </div>
+                <Slider
+                  value={[variants]}
+                  min={1}
+                  max={6}
+                  step={1}
+                  onValueChange={(v) => setVariants(v[0])}
+                  disabled={isGenerating}
+                />
+                <p className="text-[10px] text-muted-foreground">
+                  {isPodcastBatch
+                    ? `${variants} × ${podcastStyles.length} Stil${podcastStyles.length > 1 ? "e" : ""} = ${total} Bilder gesamt`
+                    : `${total} Bild${total > 1 ? "er" : ""} parallel`}
+                </p>
+              </>
+            );
+          })()}
         </div>
 
 

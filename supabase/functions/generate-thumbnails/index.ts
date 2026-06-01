@@ -460,17 +460,21 @@ serve(async (req) => {
       type Job = { prompt: string; index: number };
       const jobs: Job[] = [];
       const hasStyleRef = !!body.referenceStyleBase64;
-      const variants = Math.min(4, Math.max(1, body.variants ?? 2));
+      const variantsPerStyle = Math.min(6, Math.max(1, body.variants ?? 2));
       if (podcastStyles && !hasStyleRef) {
-        // Generate `variants` images, cycling through selected podcast styles
-        for (let i = 0; i < variants; i++) {
-          const ps = podcastStyles[i % podcastStyles.length];
-          const variantSeed = VARIANT_SEEDS[i % VARIANT_SEEDS.length];
-          const bodyForJob: GenerateBody = { ...body, podcastStyle: ps };
-          jobs.push({ prompt: buildPrompt(bodyForJob, variantSeed, i), index: i });
+        // Generate `variantsPerStyle` images PER selected style => total = variantsPerStyle * styles.length
+        let idx = 0;
+        for (const ps of podcastStyles) {
+          for (let v = 0; v < variantsPerStyle; v++) {
+            const variantSeed = VARIANT_SEEDS[v % VARIANT_SEEDS.length];
+            const bodyForJob: GenerateBody = { ...body, podcastStyle: ps };
+            jobs.push({ prompt: buildPrompt(bodyForJob, variantSeed, idx), index: idx });
+            idx++;
+          }
         }
       } else {
-        VARIANT_SEEDS.slice(0, variants).forEach((seed, i) => {
+        const total = Math.min(VARIANT_SEEDS.length, variantsPerStyle);
+        VARIANT_SEEDS.slice(0, total).forEach((seed, i) => {
           jobs.push({ prompt: buildPrompt(body, seed, i), index: i });
         });
       }
