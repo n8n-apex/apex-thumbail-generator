@@ -235,7 +235,7 @@ A stranger comparing reference and output must instantly say "yes, that's the sa
 `}
 ${isPodcast && podcastStyle ? `PODCAST STYLE DIRECTION (FOLLOW THIS EXACTLY):\n${podcastStyle.prompt}\n` : (body.imageBase64 ? "" : `VLOG STYLE DIRECTION:\n${vlog.prompt}\n`)}
 ${titleText ? `═══ TEXT RULES — STRICT, ELEGANT, APPLE-STYLE ═══
-EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words.
+EXACTLY ONE text element on the entire thumbnail: the headline below. NOTHING ELSE — no subtitle, no tagline, no episode number, no date, no channel name, no logo text, no captions, no badges, no watermark, no extra words, no signage, no book titles, no screen UI text, no posters, no graffiti, no labels, no name tags, no microphone branding, no clothing prints, no random glyphs or fake foreign-language characters in the background. Every surface that would normally carry text (signs, screens, books, mic flags, shirts) must render BLANK.
 
 HEADLINE (render EXACTLY this text, perfectly spelled, NO additions, NO variations, NO translations, NO duplication): "${titleText}"
 
@@ -251,7 +251,11 @@ SIZE & PLACEMENT (hard rules — follow the LAYOUT TREATMENT above):
 - NEVER cover the subject's face. Partial occlusion of letters by head/shoulders is REQUIRED for behind-subject layouts and creates the immersion depth.
 - NEVER duplicated, NEVER mirrored, NEVER overlapping itself. Render only ONCE.
 - ${body.imageBase64 ? "Composite the headline as a typographic layer that lives in the depth plane behind the subject — the person from the uploaded photo must remain in front, fully intact, naturally occluding parts of the letters." : ""}
-═══════════════════════════════════════════════` : `NO TEXT AT ALL. Zero words, letters, numbers, logos, captions, watermarks, signage. Pure cinematic image only.`}
+═══════════════════════════════════════════════` : `═══ ZERO TEXT — ABSOLUTE HARD RULE ═══
+The image must contain ZERO text of any kind. No words, no letters, no numbers, no glyphs, no symbols, no captions, no subtitles, no headlines, no taglines, no slogans, no logos, no wordmarks, no monograms, no watermarks, no signatures, no URLs, no @handles, no #hashtags, no dates, no episode numbers, no channel names, no fake brand names, no invented company names.
+Also remove ALL incidental text from the scene: no signage, no street signs, no posters, no billboards, no book titles, no magazine covers, no screen UI text, no phone notifications, no microphone branding, no clothing prints/labels, no graffiti, no name tags, no chyrons, no LED tickers, no scoreboards, no random glyphs or fake foreign-language characters in the background.
+If a surface would normally carry text (book spine, sign, screen, mic flag, t-shirt print, laptop lid, mug, poster, whiteboard), render it BLANK or replace it with abstract shapes/textures.
+═══════════════════════════════════════════════`}
 
 BRAND ACCENT COLOR: ${brand}
 - Use sparingly: rim light tint or headline color hint only. Do NOT flood the image.
