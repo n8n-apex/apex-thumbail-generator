@@ -761,9 +761,11 @@ export default function ThumbnailGenerator({
               <>
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    {isPodcastBatch ? "Varianten pro Stil" : "Varianten pro Generierung"}
+                    {isPodcastBatch ? `Bilder pro Stil (× ${podcastStyles.length} Stile)` : "Varianten pro Generierung"}
                   </label>
-                  <span className="text-xs font-bold text-primary tabular-nums">{variants}</span>
+                  <span className="text-xs font-bold text-primary tabular-nums">
+                    {isPodcastBatch ? `${variants} → ${total} gesamt` : total}
+                  </span>
                 </div>
                 <Slider
                   value={[variants]}
@@ -775,7 +777,7 @@ export default function ThumbnailGenerator({
                 />
                 <p className="text-[10px] text-muted-foreground">
                   {isPodcastBatch
-                    ? `${variants} × ${podcastStyles.length} Stil${podcastStyles.length > 1 ? "e" : ""} = ${total} Bilder gesamt`
+                    ? `Slider = Bilder pro Stil. ${variants} × ${podcastStyles.length} Stil${podcastStyles.length > 1 ? "e" : ""} = ${total} Bilder gesamt`
                     : `${total} Bild${total > 1 ? "er" : ""} parallel`}
                 </p>
               </>
