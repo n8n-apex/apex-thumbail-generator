@@ -266,6 +266,20 @@ export default function ThumbnailGenerator({
     });
   }, []);
 
+  const toggleTestimonialLayout = useCallback((id: TestimonialLayout) => {
+    setTestimonialLayouts((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((p) => p !== id);
+      }
+      if (prev.length >= 6) {
+        toast.info("Maximal 6 Testimonial-Layouts gleichzeitig");
+        return prev;
+      }
+      return [...prev, id];
+    });
+  }, []);
+
   const handleReferenceUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
