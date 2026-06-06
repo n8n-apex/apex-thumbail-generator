@@ -340,6 +340,32 @@ export default function ThumbnailGenerator({
     setReferenceYoutubeUrl("");
   }, []);
 
+  const extractTestimonialQuote = useCallback(async () => {
+    const url = testimonialSourceUrl.trim();
+    if (!url) return;
+    setIsExtractingQuote(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("extract-testimonial-quote", {
+        body: { url },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const quote = String(data?.quote ?? "").trim();
+      if (!quote) throw new Error("Keine Quintessenz erkannt");
+      if (autoTitle) {
+        setTitleKeywords(quote);
+      } else {
+        setTitle(quote);
+      }
+      toast.success(`Quintessenz übernommen: „${quote}"`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Quote-Extraktion fehlgeschlagen");
+    } finally {
+      setIsExtractingQuote(false);
+    }
+  }, [testimonialSourceUrl, autoTitle]);
+
+
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     startProgress();
