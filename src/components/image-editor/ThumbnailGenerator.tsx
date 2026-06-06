@@ -360,6 +360,7 @@ export default function ThumbnailGenerator({
           imageBase64,
           variants: requestedVariants,
           podcastStyles: isPodcast ? podcastStyles : undefined,
+          testimonialLayouts: isTestimonial ? testimonialLayouts : undefined,
           referenceStyleBase64: referenceStyleImage ?? undefined,
         },
       });
