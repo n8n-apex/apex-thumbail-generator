@@ -48,6 +48,13 @@ type PodcastStyle =
   | "tools-showcase"
   | "podcast-frame"
   | "cinematic-portrait";
+type TestimonialLayout =
+  | "quote-card"
+  | "five-star"
+  | "before-after"
+  | "result-number"
+  | "magazine"
+  | "chat-bubble";
 
 import podcastPreviewCleanCutout from "@/assets/podcast-style-clean-cutout.jpg";
 import podcastPreviewBoldHero from "@/assets/podcast-style-bold-hero.jpg";
