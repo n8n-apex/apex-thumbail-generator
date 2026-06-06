@@ -9,7 +9,7 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "podcast" | "tech";
+type VlogStyle = "lifestyle" | "podcast" | "testimonial";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
