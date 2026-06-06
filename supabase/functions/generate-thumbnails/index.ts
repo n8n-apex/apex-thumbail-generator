@@ -33,14 +33,14 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
     label: "Podcast",
     prompt: `PODCAST / INTERVIEW thumbnail — modern, premium, instant scroll-stop. Specific sub-style is provided separately below; this is just the umbrella category.`,
   },
-  tech: {
-    label: "Tech / Business",
-    prompt: `TECH / BUSINESS vlog im AUDI RS6 — clean, modern, premium, futuristic.
-- HERO CAR: Audi RS6 Avant (C8) als Statement-Objekt — perfekte Reflexionen, Studio-saubere Karosserie, RS-Details (Single-Frame, Quad-Auspuff, RS-Felgen, OLED-Lichter) korrekt.
-- Setting: RS6 in moderner Tiefgarage mit LED-Strips, Glas-Showroom, nächtliche Skyline-Rooftop, oder minimal Studio mit kontrolliertem Light. Subjekt confident am/im Auto.
-- Dashboard-Glow, MMI-Display sichtbar, Innenraum-Ambient-Light in Cyan/Blau, kontrollierte Three-Point-Beleuchtung mit Rim Light.
-- Color Palette: tiefes Charcoal/Navy, electric Cyan/Blau Akzent, crisp Whites — RS6-Lack glänzt.
-- Look: Apple Keynote / MKBHD Studio trifft Top-Gear-Hochglanz.`,
+  testimonial: {
+    label: "Testimonial",
+    prompt: `TESTIMONIAL / SOCIAL PROOF thumbnail — high-converting, editorial, scroll-stopping. Reference: top creator-economy testimonial reels, Apple "Shot on iPhone" portraits, premium SaaS case-study covers.
+- Subject: ONE real, relatable, photo-real person (client / customer / happy user) — confident genuine expression (warm smile, eyes-into-camera, slight head tilt), authentic skin texture, natural make-up, normal everyday outfit (NOT corporate stock-photo suit).
+- Lighting: soft natural three-point or window key, gentle rim, creamy skin tones, shallow depth of field, real DSLR / 85mm portrait feel.
+- Background: clean, intentional, premium — soft neutral studio gradient, blurred minimal interior, or simple branded color wash. Never busy, never office-stock.
+- Composition: subject anchored on ONE side (left or right) leaving generous negative space for the quote / star rating / result number.
+- Mood: trustworthy, premium, human, "this is a real person who got a real result" — never salesy, never cheesy, never stock-photo.`,
   },
 };
 
