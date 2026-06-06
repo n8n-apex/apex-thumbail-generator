@@ -127,6 +127,8 @@ interface GenerateBody {
   sceneDescription?: string;
   podcastStyles?: PodcastStyle[];
   podcastStyle?: PodcastStyle;
+  testimonialLayouts?: TestimonialLayout[];
+  testimonialLayout?: TestimonialLayout;
   referenceStyleBase64?: string;
   autoTitle?: boolean;
   titleKeywords?: string;
