@@ -467,9 +467,14 @@ serve(async (req) => {
 
     if (body.action === "generate") {
       const isPodcast = body.vlogStyle === "podcast";
+      const isTestimonial = body.vlogStyle === "testimonial";
       const podcastStyles: PodcastStyle[] | undefined =
         isPodcast && Array.isArray(body.podcastStyles) && body.podcastStyles.length > 0
           ? body.podcastStyles.slice(0, 6)
+          : undefined;
+      const testimonialLayouts: TestimonialLayout[] | undefined =
+        isTestimonial && Array.isArray(body.testimonialLayouts) && body.testimonialLayouts.length > 0
+          ? body.testimonialLayouts.slice(0, 6)
           : undefined;
 
       // Auto-generate title from keywords if requested
