@@ -147,30 +147,75 @@ const TEXT_LAYOUTS = [
   "Headline TOP-CENTER, small caps, wide letter-spacing, semi-transparent white — elegant Netflix title-card look.",
 ];
 
+// APEX TESTIMONIAL STYLES — Novist-reference quality, minimalist, premium, clickbait scroll-stop.
+// Shared base every layout inherits:
+const APEX_TESTIMONIAL_BASE = `
+APEX TESTIMONIAL THUMBNAIL — top 1% YouTube testimonial cover. Reference quality: Novist-style premium customer story covers, Apple keynote restraint, Linear / Vercel marketing.
+- AESTHETIC: minimalist, editorial, premium. ZERO clutter. ZERO stock-photo cheese. ZERO MrBeast loudness.
+- BACKGROUND: deep cinematic dark (near-black charcoal #0A0F14 → deep navy #0E1822 soft gradient) with a faint subtle cyan glow blooming from behind the subject. Optional very subtle blurred interior bokeh (office / studio) — never busy.
+- SUBJECT: ONE real photo-real person (the customer/client), cinematic medium portrait, shallow DOF, premium 85mm DSLR look, real skin micro-detail, soft three-point lighting, gentle cyan rim light on the hair/shoulder, warm natural skin tones, confident genuine micro-smile, sharp eye contact. NOT corporate stock-suit.
+- BRAND COLOR: APEX cyan #00BCFF used SPARINGLY as the single accent (rim light hint, star glyphs, one underline, one badge — never flooded).
+- TYPOGRAPHY: ONE single headline only — heavy modern sans-serif (Inter / Söhne / Neue Haas Grotesk Display, semibold/bold), tight tracking, mixed-case with smart quotation marks "..." wrapping the quote. Crisp off-white. Premium kerning. Two to three short lines max. The quote is the HOOK — clickbait energy via curiosity, not via shouting.
+- 5-STAR ROW: 5 solid sharp star glyphs in APEX cyan #00BCFF, small, premium, never oversized — sits inside a small rounded "badge" capsule with a subtle glass tint OR floats above the quote.
+- MICRO-BADGE (optional): one tiny pill-shaped capsule with a single short uppercase label like "KUNDENSTIMME" / "CASE STUDY" / "RESULT" in tiny tracked sans-serif, soft glass fill, cyan 1px border. Bottom-left corner only.
+- GLASS / LIQUID-GLASS surfaces: quote container is a softly rounded translucent glass card (frosted, very subtle inner highlight, 1px cyan-tinted hairline border, soft drop shadow) — Apple Liquid-Glass feel. Never plastic, never heavy.
+- ABSOLUTELY NO: fake names, fake logos, fake brand wordmarks, signature scribbles, hand-drawn arrows, comic fonts, neon glow spam, multiple headlines, second sub-headline, watermark, URL, @handle, hashtag, episode number, channel name. Render ONLY the single provided quote/headline. Any other text surface (laptop screen, lanyard, mug, t-shirt) must be BLANK.
+- COMPOSITION: clear focal hierarchy — eye lands on the quote first, then the stars, then the face. Generous negative space. 16:9 landscape only.
+`;
+
 const TESTIMONIAL_STYLES: Record<TestimonialLayout, { label: string; prompt: string }> = {
   "quote-card": {
-    label: "Quote Card",
-    prompt: `QUOTE-CARD LAYOUT: Subject portrait on the LEFT third (chest-up, soft smile, sharp eyes). On the RIGHT 2/3: huge editorial pull-quote in elegant mixed-weight sans-serif with the HEADLINE wrapped in stylized quotation marks ("  "). One key word inside the quote is highlighted with a thick brand-color marker underline. Below the quote, a small row of 5 solid brand-color stars and a tiny subtle name line that stays BLANK (no fake name). Clean off-white or soft cream background.`,
+    label: "Glass Quote Card",
+    prompt: `${APEX_TESTIMONIAL_BASE}
+LAYOUT — GLASS QUOTE CARD (Novist-style hero):
+- Subject anchored on the RIGHT third (chest-up, looking slightly toward the quote), softly lit, cyan rim light on the shoulder.
+- LEFT 2/3: large rounded translucent glass quote card floating over the dark background. Inside the card top-left: a small cyan 5-star row inside a tiny rounded glass capsule. Below it: the HEADLINE wrapped in big stylized quotation marks ("..."), bold sans-serif, 2–3 short lines, crisp off-white.
+- Bottom-left of frame: a single tiny cyan pill badge with the word KUNDENSTIMME (or CASE STUDY if the quote is English). No other text.`,
   },
   "five-star": {
     label: "Five-Star Hero",
-    prompt: `FIVE-STAR HERO LAYOUT: Subject centered or slightly right, warm confident look. Massive row of 5 solid gold/brand-color STAR glyphs floating prominently above or beside the subject (oversized, premium, sharp vector). The HEADLINE sits below the stars in bold modern sans-serif, two lines max, perfectly centered. Soft studio gradient background. Feels like an App Store hero.`,
+    prompt: `${APEX_TESTIMONIAL_BASE}
+LAYOUT — FIVE-STAR HERO:
+- Subject centered, chest-up, calm confident look directly into camera.
+- ABOVE the headline: a clean horizontal row of 5 sharp cyan stars, medium size, perfectly aligned, sitting inside a subtle pill-shaped glass capsule.
+- BELOW the stars: the HEADLINE in bold sans-serif, perfectly centered, 2 short lines max, crisp off-white, wrapped in smart quotation marks.
+- Background: dark gradient with a soft cyan halo behind the subject's head. Nothing else.`,
   },
   "before-after": {
-    label: "Before / After",
-    prompt: `BEFORE / AFTER SPLIT: Vertical 50/50 split frame. LEFT half: same subject, muted desaturated cooler grade, slightly slumped posture, dimmer light. RIGHT half: same subject, vibrant warm confident, upright, glowing rim light. A thin vertical brand-color divider line between halves. HEADLINE overlaid centered at the bottom, restrained sans-serif. Do NOT render the words "BEFORE" or "AFTER" — let the visual contrast tell the story.`,
+    label: "Transformation",
+    prompt: `${APEX_TESTIMONIAL_BASE}
+LAYOUT — TRANSFORMATION (minimalist, no labels):
+- Subject takes the full frame as a single cinematic portrait — confident, glowing rim light, premium.
+- A single oversized cyan upward arrow glyph (thin elegant line-art, NOT cartoon) sits subtly behind the subject as a depth element, suggesting transformation/result.
+- HEADLINE bottom-third, restrained bold sans-serif, off-white, wrapped in smart quotes. Tiny cyan 5-star row directly above the headline.
+- Do NOT render the words "BEFORE" or "AFTER" — pure visual.`,
   },
   "result-number": {
-    label: "Result Number",
-    prompt: `RESULT-NUMBER FLEX: Subject anchored on the LEFT, smiling, arms crossed or relaxed gesture. On the RIGHT: ONE OVERSIZED RESULT NUMBER or short metric rendered as enormous display sans-serif glyphs in brand color (e.g. the headline IS the number/metric). Tiny supporting label underneath in muted grey. Minimal background — soft gradient. Feels like a premium SaaS case study cover.`,
+    label: "Result Metric",
+    prompt: `${APEX_TESTIMONIAL_BASE}
+LAYOUT — RESULT METRIC (the quote IS the number):
+- Subject anchored on the RIGHT third, smiling, relaxed posture, cyan rim light.
+- LEFT side: ONE oversized metric/number rendered as massive bold sans-serif glyphs in crisp off-white (the headline string IS the metric, e.g. "+45 Neukunden"). The KEY number is tinted APEX cyan #00BCFF for emphasis.
+- Below the metric: a tiny single-line muted-grey supporting label is OMITTED — keep it pure number only.
+- Tiny cyan 5-star row sits ABOVE the metric inside a subtle glass capsule.
+- Bottom-left: tiny cyan pill badge "RESULT". No other text.`,
   },
   "magazine": {
-    label: "Magazine Cover",
-    prompt: `MAGAZINE-COVER TESTIMONIAL: Subject takes the full frame (cinematic medium portrait, shallow DOF, GQ / Vanity Fair lighting). HEADLINE rendered as a TALL display serif masthead across the TOP of the frame in semi-transparent off-white, with the subject's head partially eclipsing the letters (magazine-cover depth trick). Below the subject, a subtle thin horizontal rule and a tiny row of 5 stars in brand color. Prestige, editorial, premium.`,
+    label: "Editorial Cover",
+    prompt: `${APEX_TESTIMONIAL_BASE}
+LAYOUT — EDITORIAL COVER (prestige, GQ/Vanity Fair feel — but APEX-modern, NOT serif):
+- Subject takes the full frame, cinematic medium portrait, dramatic Rembrandt-style lighting with cyan rim, glossy filmic skin, sharp eyes.
+- The HEADLINE sits across the TOP of the frame in HUGE bold modern sans-serif (NOT serif), semi-transparent off-white, the subject's head partially eclipses the letters (magazine masthead depth trick). Wrapped in smart quotes.
+- A small cyan 5-star row sits at the BOTTOM-LEFT inside a tiny glass capsule. Nothing else.`,
   },
   "chat-bubble": {
-    label: "Chat-Bubble Proof",
-    prompt: `CONVERSATION-BUBBLE PROOF: Subject on the RIGHT half, casual confident expression, looking slightly toward the LEFT. On the LEFT: a CLEAN ROUNDED CHAT-BUBBLE card (iMessage-style, glassy white with soft shadow) containing the HEADLINE as a short quote, with a small 5-star row inside the bubble. Minimal premium background (soft neutral). Feels like a real customer message screenshot — but elevated and editorial.`,
+    label: "iMessage Proof",
+    prompt: `${APEX_TESTIMONIAL_BASE}
+LAYOUT — iMESSAGE PROOF (premium glass bubble):
+- Subject anchored on the RIGHT half, casual confident expression, looking slightly toward the bubble on the LEFT.
+- LEFT side: one CLEAN ROUNDED iMessage-style CHAT BUBBLE rendered as Liquid Glass — frosted translucent, 1px cyan hairline border, soft drop shadow, subtle inner highlight. Inside the bubble: a small cyan 5-star row at top, then the HEADLINE as a short quote in bold sans-serif, crisp off-white, wrapped in smart quotes.
+- Bubble has a small tail pointing toward the subject. NO sender name, NO timestamp, NO read receipt — keep the bubble pure.
+- Background: deep dark gradient with a soft cyan glow behind the subject.`,
   },
 };
 
