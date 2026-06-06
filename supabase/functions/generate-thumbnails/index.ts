@@ -145,14 +145,34 @@ const TEXT_LAYOUTS = [
   "Headline TOP-CENTER, small caps, wide letter-spacing, semi-transparent white — elegant Netflix title-card look.",
 ];
 
-const TESTIMONIAL_LAYOUTS = [
-  `QUOTE-CARD LAYOUT: Subject portrait on the LEFT third (chest-up, soft smile, sharp eyes). On the RIGHT 2/3: huge editorial pull-quote in elegant mixed-weight sans-serif with the HEADLINE wrapped in stylized quotation marks ("  "). One key word inside the quote is highlighted with a thick brand-color marker underline. Below the quote, a small row of 5 solid brand-color stars and a tiny subtle name line that stays BLANK (no fake name). Clean off-white or soft cream background.`,
-  `FIVE-STAR HERO LAYOUT: Subject centered or slightly right, warm confident look. Massive row of 5 solid gold/brand-color STAR glyphs floating prominently above or beside the subject (oversized, premium, sharp vector). The HEADLINE sits below the stars in bold modern sans-serif, two lines max, perfectly centered. Soft studio gradient background. Feels like an App Store hero.`,
-  `BEFORE / AFTER SPLIT: Vertical 50/50 split frame. LEFT half: same subject, muted desaturated cooler grade, slightly slumped posture, dimmer light — labeled subtly "BEFORE" only if a headline is provided. RIGHT half: same subject, vibrant warm confident, upright, glowing rim light. A thin vertical brand-color divider line between halves. HEADLINE overlaid centered at the bottom, restrained sans-serif.`,
-  `RESULT-NUMBER FLEX: Subject anchored on the LEFT, smiling, arms crossed or relaxed gesture. On the RIGHT: ONE OVERSIZED RESULT NUMBER or short metric rendered as enormous display sans-serif glyphs in brand color (e.g. the headline IS the number/metric). Tiny supporting label underneath in muted grey. Minimal background — soft gradient. Feels like a premium SaaS case study cover.`,
-  `MAGAZINE-COVER TESTIMONIAL: Subject takes the full frame (cinematic medium portrait, shallow DOF, GQ / Vanity Fair lighting). HEADLINE rendered as a TALL display serif masthead across the TOP of the frame in semi-transparent off-white, with the subject's head partially eclipsing the letters (magazine-cover depth trick). Below the subject, a subtle thin horizontal rule and a tiny row of 5 stars in brand color. Prestige, editorial, premium.`,
-  `CONVERSATION-BUBBLE PROOF: Subject on the RIGHT half, casual confident expression, looking slightly toward the LEFT. On the LEFT: a CLEAN ROUNDED CHAT-BUBBLE card (iMessage-style, glassy white with soft shadow) containing the HEADLINE as a short quote, with a small 5-star row inside the bubble. Minimal premium background (soft neutral). Feels like a real customer message screenshot — but elevated and editorial.`,
-];
+const TESTIMONIAL_STYLES: Record<TestimonialLayout, { label: string; prompt: string }> = {
+  "quote-card": {
+    label: "Quote Card",
+    prompt: `QUOTE-CARD LAYOUT: Subject portrait on the LEFT third (chest-up, soft smile, sharp eyes). On the RIGHT 2/3: huge editorial pull-quote in elegant mixed-weight sans-serif with the HEADLINE wrapped in stylized quotation marks ("  "). One key word inside the quote is highlighted with a thick brand-color marker underline. Below the quote, a small row of 5 solid brand-color stars and a tiny subtle name line that stays BLANK (no fake name). Clean off-white or soft cream background.`,
+  },
+  "five-star": {
+    label: "Five-Star Hero",
+    prompt: `FIVE-STAR HERO LAYOUT: Subject centered or slightly right, warm confident look. Massive row of 5 solid gold/brand-color STAR glyphs floating prominently above or beside the subject (oversized, premium, sharp vector). The HEADLINE sits below the stars in bold modern sans-serif, two lines max, perfectly centered. Soft studio gradient background. Feels like an App Store hero.`,
+  },
+  "before-after": {
+    label: "Before / After",
+    prompt: `BEFORE / AFTER SPLIT: Vertical 50/50 split frame. LEFT half: same subject, muted desaturated cooler grade, slightly slumped posture, dimmer light. RIGHT half: same subject, vibrant warm confident, upright, glowing rim light. A thin vertical brand-color divider line between halves. HEADLINE overlaid centered at the bottom, restrained sans-serif. Do NOT render the words "BEFORE" or "AFTER" — let the visual contrast tell the story.`,
+  },
+  "result-number": {
+    label: "Result Number",
+    prompt: `RESULT-NUMBER FLEX: Subject anchored on the LEFT, smiling, arms crossed or relaxed gesture. On the RIGHT: ONE OVERSIZED RESULT NUMBER or short metric rendered as enormous display sans-serif glyphs in brand color (e.g. the headline IS the number/metric). Tiny supporting label underneath in muted grey. Minimal background — soft gradient. Feels like a premium SaaS case study cover.`,
+  },
+  "magazine": {
+    label: "Magazine Cover",
+    prompt: `MAGAZINE-COVER TESTIMONIAL: Subject takes the full frame (cinematic medium portrait, shallow DOF, GQ / Vanity Fair lighting). HEADLINE rendered as a TALL display serif masthead across the TOP of the frame in semi-transparent off-white, with the subject's head partially eclipsing the letters (magazine-cover depth trick). Below the subject, a subtle thin horizontal rule and a tiny row of 5 stars in brand color. Prestige, editorial, premium.`,
+  },
+  "chat-bubble": {
+    label: "Chat-Bubble Proof",
+    prompt: `CONVERSATION-BUBBLE PROOF: Subject on the RIGHT half, casual confident expression, looking slightly toward the LEFT. On the LEFT: a CLEAN ROUNDED CHAT-BUBBLE card (iMessage-style, glassy white with soft shadow) containing the HEADLINE as a short quote, with a small 5-star row inside the bubble. Minimal premium background (soft neutral). Feels like a real customer message screenshot — but elevated and editorial.`,
+  },
+};
+
+const TESTIMONIAL_LAYOUT_ORDER: TestimonialLayout[] = ["quote-card", "five-star", "before-after", "result-number", "magazine", "chat-bubble"];
 
 
 function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: number) {
@@ -160,8 +180,11 @@ function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: numb
   const textBlock = TEXT_STYLES[body.textStyle];
   const isPodcast = body.vlogStyle === "podcast";
   const isTestimonial = body.vlogStyle === "testimonial";
+  const testimonialKey: TestimonialLayout = isTestimonial
+    ? (body.testimonialLayout ?? TESTIMONIAL_LAYOUT_ORDER[variantIndex % TESTIMONIAL_LAYOUT_ORDER.length])
+    : "quote-card";
   const textLayout = isTestimonial
-    ? TESTIMONIAL_LAYOUTS[variantIndex % TESTIMONIAL_LAYOUTS.length]
+    ? TESTIMONIAL_STYLES[testimonialKey].prompt
     : TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
   const titleText = body.title?.trim();
   const enforceCI = !!body.enforceApexCI;
