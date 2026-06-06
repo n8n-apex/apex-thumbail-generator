@@ -18,6 +18,13 @@ type PodcastStyle =
   | "tools-showcase"
   | "podcast-frame"
   | "cinematic-portrait";
+type TestimonialLayout =
+  | "quote-card"
+  | "five-star"
+  | "before-after"
+  | "result-number"
+  | "magazine"
+  | "chat-bubble";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
   lifestyle: {
