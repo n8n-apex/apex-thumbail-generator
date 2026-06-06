@@ -174,6 +174,7 @@ export default function ThumbnailGenerator({
   const [enforceApexCI, setEnforceApexCI] = useState(false);
   const [variants, setVariants] = useState(2);
   const [podcastStyles, setPodcastStyles] = useState<PodcastStyle[]>(["clean-cutout", "podcast-frame"]);
+  const [testimonialLayouts, setTestimonialLayouts] = useState<TestimonialLayout[]>(["quote-card", "five-star"]);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [referenceStyleImage, setReferenceStyleImage] = useState<string | null>(null);
