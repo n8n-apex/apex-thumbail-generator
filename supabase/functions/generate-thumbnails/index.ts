@@ -9,7 +9,7 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "podcast" | "tech";
+type VlogStyle = "lifestyle" | "podcast" | "testimonial";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
@@ -33,14 +33,14 @@ const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
     label: "Podcast",
     prompt: `PODCAST / INTERVIEW thumbnail — modern, premium, instant scroll-stop. Specific sub-style is provided separately below; this is just the umbrella category.`,
   },
-  tech: {
-    label: "Tech / Business",
-    prompt: `TECH / BUSINESS vlog im AUDI RS6 — clean, modern, premium, futuristic.
-- HERO CAR: Audi RS6 Avant (C8) als Statement-Objekt — perfekte Reflexionen, Studio-saubere Karosserie, RS-Details (Single-Frame, Quad-Auspuff, RS-Felgen, OLED-Lichter) korrekt.
-- Setting: RS6 in moderner Tiefgarage mit LED-Strips, Glas-Showroom, nächtliche Skyline-Rooftop, oder minimal Studio mit kontrolliertem Light. Subjekt confident am/im Auto.
-- Dashboard-Glow, MMI-Display sichtbar, Innenraum-Ambient-Light in Cyan/Blau, kontrollierte Three-Point-Beleuchtung mit Rim Light.
-- Color Palette: tiefes Charcoal/Navy, electric Cyan/Blau Akzent, crisp Whites — RS6-Lack glänzt.
-- Look: Apple Keynote / MKBHD Studio trifft Top-Gear-Hochglanz.`,
+  testimonial: {
+    label: "Testimonial",
+    prompt: `TESTIMONIAL / SOCIAL PROOF thumbnail — high-converting, editorial, scroll-stopping. Reference: top creator-economy testimonial reels, Apple "Shot on iPhone" portraits, premium SaaS case-study covers.
+- Subject: ONE real, relatable, photo-real person (client / customer / happy user) — confident genuine expression (warm smile, eyes-into-camera, slight head tilt), authentic skin texture, natural make-up, normal everyday outfit (NOT corporate stock-photo suit).
+- Lighting: soft natural three-point or window key, gentle rim, creamy skin tones, shallow depth of field, real DSLR / 85mm portrait feel.
+- Background: clean, intentional, premium — soft neutral studio gradient, blurred minimal interior, or simple branded color wash. Never busy, never office-stock.
+- Composition: subject anchored on ONE side (left or right) leaving generous negative space for the quote / star rating / result number.
+- Mood: trustworthy, premium, human, "this is a real person who got a real result" — never salesy, never cheesy, never stock-photo.`,
   },
 };
 
@@ -138,14 +138,27 @@ const TEXT_LAYOUTS = [
   "Headline TOP-CENTER, small caps, wide letter-spacing, semi-transparent white — elegant Netflix title-card look.",
 ];
 
+const TESTIMONIAL_LAYOUTS = [
+  `QUOTE-CARD LAYOUT: Subject portrait on the LEFT third (chest-up, soft smile, sharp eyes). On the RIGHT 2/3: huge editorial pull-quote in elegant mixed-weight sans-serif with the HEADLINE wrapped in stylized quotation marks ("  "). One key word inside the quote is highlighted with a thick brand-color marker underline. Below the quote, a small row of 5 solid brand-color stars and a tiny subtle name line that stays BLANK (no fake name). Clean off-white or soft cream background.`,
+  `FIVE-STAR HERO LAYOUT: Subject centered or slightly right, warm confident look. Massive row of 5 solid gold/brand-color STAR glyphs floating prominently above or beside the subject (oversized, premium, sharp vector). The HEADLINE sits below the stars in bold modern sans-serif, two lines max, perfectly centered. Soft studio gradient background. Feels like an App Store hero.`,
+  `BEFORE / AFTER SPLIT: Vertical 50/50 split frame. LEFT half: same subject, muted desaturated cooler grade, slightly slumped posture, dimmer light — labeled subtly "BEFORE" only if a headline is provided. RIGHT half: same subject, vibrant warm confident, upright, glowing rim light. A thin vertical brand-color divider line between halves. HEADLINE overlaid centered at the bottom, restrained sans-serif.`,
+  `RESULT-NUMBER FLEX: Subject anchored on the LEFT, smiling, arms crossed or relaxed gesture. On the RIGHT: ONE OVERSIZED RESULT NUMBER or short metric rendered as enormous display sans-serif glyphs in brand color (e.g. the headline IS the number/metric). Tiny supporting label underneath in muted grey. Minimal background — soft gradient. Feels like a premium SaaS case study cover.`,
+  `MAGAZINE-COVER TESTIMONIAL: Subject takes the full frame (cinematic medium portrait, shallow DOF, GQ / Vanity Fair lighting). HEADLINE rendered as a TALL display serif masthead across the TOP of the frame in semi-transparent off-white, with the subject's head partially eclipsing the letters (magazine-cover depth trick). Below the subject, a subtle thin horizontal rule and a tiny row of 5 stars in brand color. Prestige, editorial, premium.`,
+  `CONVERSATION-BUBBLE PROOF: Subject on the RIGHT half, casual confident expression, looking slightly toward the LEFT. On the LEFT: a CLEAN ROUNDED CHAT-BUBBLE card (iMessage-style, glassy white with soft shadow) containing the HEADLINE as a short quote, with a small 5-star row inside the bubble. Minimal premium background (soft neutral). Feels like a real customer message screenshot — but elevated and editorial.`,
+];
+
+
 function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: number) {
   const vlog = VLOG_STYLES[body.vlogStyle];
   const textBlock = TEXT_STYLES[body.textStyle];
-  const textLayout = TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
+  const isPodcast = body.vlogStyle === "podcast";
+  const isTestimonial = body.vlogStyle === "testimonial";
+  const textLayout = isTestimonial
+    ? TESTIMONIAL_LAYOUTS[variantIndex % TESTIMONIAL_LAYOUTS.length]
+    : TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
   const titleText = body.title?.trim();
   const enforceCI = !!body.enforceApexCI;
   const brand = enforceCI ? "#00BCFF" : (body.brandColor || "#00BCFF");
-  const isPodcast = body.vlogStyle === "podcast";
   const podcastStyle = isPodcast && body.podcastStyle ? PODCAST_STYLES[body.podcastStyle] : null;
   const hasStyleRef = !!body.referenceStyleBase64;
 
@@ -272,7 +285,7 @@ ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - Razor-sharp focus on the eyes, micro-catchlights, individual eyelashes resolvable
 - STRICT 16:9 LANDSCAPE aspect ratio (1280×720 or higher 16:9). NEVER square, vertical or 4:3.
 - Must read clearly at 320×180 small preview size
-- ${isPodcast ? "NO car in the scene unless the podcast style explicitly references it — this is a PODCAST thumbnail, not a car vlog." : (body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug).")}
+- ${isPodcast ? "NO car in the scene unless the podcast style explicitly references it — this is a PODCAST thumbnail, not a car vlog." : isTestimonial ? "NO car, NO vehicle, NO automotive setting — this is a TESTIMONIAL thumbnail. Focus is the human + the social proof (quote / stars / result number)." : (body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug).")}
 - CONSISTENCY ACROSS BATCH: same color grade, same lighting mood, same subject identity across all variants.
 
 NEVER DO:
