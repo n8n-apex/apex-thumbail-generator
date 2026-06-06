@@ -58,7 +58,7 @@ import podcastPreviewCinematicPortrait from "@/assets/podcast-style-cinematic-po
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
   { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
-  { id: "tech", label: "Tech / Business", sub: "Modern · clean · premium", icon: Cpu },
+  { id: "testimonial", label: "Testimonial", sub: "Social proof · stars · quote", icon: Quote },
 ];
 
 const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid; preview: string }[] = [
