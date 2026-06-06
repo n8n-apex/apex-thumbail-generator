@@ -17,6 +17,7 @@ import {
   Coffee,
   Mic,
   Cpu,
+  Quote,
   Type,
   Feather,
   Minus,
