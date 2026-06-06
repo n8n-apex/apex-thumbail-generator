@@ -83,6 +83,15 @@ const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typ
   { id: "cinematic-portrait", label: "Cinematic Portrait", sub: "Vanity Fair · moody · prestige", icon: Feather, preview: podcastPreviewCinematicPortrait },
 ];
 
+const TESTIMONIAL_OPTIONS: { id: TestimonialLayout; label: string; sub: string; icon: typeof Quote }[] = [
+  { id: "quote-card", label: "Quote Card", sub: "Pull-quote · marker · 5 stars", icon: Quote },
+  { id: "five-star", label: "Five-Star Hero", sub: "Big stars · centered subject", icon: Star },
+  { id: "before-after", label: "Before / After", sub: "50/50 split · contrast", icon: SplitSquareHorizontal },
+  { id: "result-number", label: "Result Number", sub: "Big metric · SaaS case-study", icon: Hash },
+  { id: "magazine", label: "Magazine Cover", sub: "Editorial masthead · prestige", icon: BookOpen },
+  { id: "chat-bubble", label: "Chat Bubble", sub: "iMessage proof · glassy card", icon: MessageCircle },
+];
+
 const TEXT_OPTIONS: { id: TextStyle; label: string; sub: string; icon: typeof Type }[] = [
   { id: "serif", label: "Cinematic Serif", sub: "Magazine-cover · filmic", icon: Feather },
   { id: "modern", label: "Modern Clean", sub: "Apple-keynote · sleek", icon: Sparkles },
