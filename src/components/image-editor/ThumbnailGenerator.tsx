@@ -18,6 +18,11 @@ import {
   Mic,
   Cpu,
   Quote,
+  Star,
+  SplitSquareHorizontal,
+  Hash,
+  BookOpen,
+  MessageCircle,
   Type,
   Feather,
   Minus,
@@ -48,6 +53,13 @@ type PodcastStyle =
   | "tools-showcase"
   | "podcast-frame"
   | "cinematic-portrait";
+type TestimonialLayout =
+  | "quote-card"
+  | "five-star"
+  | "before-after"
+  | "result-number"
+  | "magazine"
+  | "chat-bubble";
 
 import podcastPreviewCleanCutout from "@/assets/podcast-style-clean-cutout.jpg";
 import podcastPreviewBoldHero from "@/assets/podcast-style-bold-hero.jpg";
@@ -69,6 +81,15 @@ const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typ
   { id: "tools-showcase", label: "AI Tools Showcase", sub: "Glass app icons · laptop glow", icon: Boxes, preview: podcastPreviewToolsShowcase },
   { id: "podcast-frame", label: "Show Frame", sub: "Brand gradient · italic accent", icon: Radio, preview: podcastPreviewPodcastFrame },
   { id: "cinematic-portrait", label: "Cinematic Portrait", sub: "Vanity Fair · moody · prestige", icon: Feather, preview: podcastPreviewCinematicPortrait },
+];
+
+const TESTIMONIAL_OPTIONS: { id: TestimonialLayout; label: string; sub: string; icon: typeof Quote }[] = [
+  { id: "quote-card", label: "Quote Card", sub: "Pull-quote · marker · 5 stars", icon: Quote },
+  { id: "five-star", label: "Five-Star Hero", sub: "Big stars · centered subject", icon: Star },
+  { id: "before-after", label: "Before / After", sub: "50/50 split · contrast", icon: SplitSquareHorizontal },
+  { id: "result-number", label: "Result Number", sub: "Big metric · SaaS case-study", icon: Hash },
+  { id: "magazine", label: "Magazine Cover", sub: "Editorial masthead · prestige", icon: BookOpen },
+  { id: "chat-bubble", label: "Chat Bubble", sub: "iMessage proof · glassy card", icon: MessageCircle },
 ];
 
 const TEXT_OPTIONS: { id: TextStyle; label: string; sub: string; icon: typeof Type }[] = [
@@ -153,6 +174,7 @@ export default function ThumbnailGenerator({
   const [enforceApexCI, setEnforceApexCI] = useState(false);
   const [variants, setVariants] = useState(2);
   const [podcastStyles, setPodcastStyles] = useState<PodcastStyle[]>(["clean-cutout", "podcast-frame"]);
+  const [testimonialLayouts, setTestimonialLayouts] = useState<TestimonialLayout[]>(["quote-card", "five-star"]);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [referenceStyleImage, setReferenceStyleImage] = useState<string | null>(null);
@@ -244,6 +266,20 @@ export default function ThumbnailGenerator({
     });
   }, []);
 
+  const toggleTestimonialLayout = useCallback((id: TestimonialLayout) => {
+    setTestimonialLayouts((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((p) => p !== id);
+      }
+      if (prev.length >= 6) {
+        toast.info("Maximal 6 Testimonial-Layouts gleichzeitig");
+        return prev;
+      }
+      return [...prev, id];
+    });
+  }, []);
+
   const handleReferenceUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -308,6 +344,7 @@ export default function ThumbnailGenerator({
     try {
       const imageBase64 = await activeImageBase64();
       const isPodcast = vlogStyle === "podcast";
+      const isTestimonial = vlogStyle === "testimonial";
       const requestedVariants = Math.min(Math.max(variants, 1), 6);
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
@@ -323,6 +360,7 @@ export default function ThumbnailGenerator({
           imageBase64,
           variants: requestedVariants,
           podcastStyles: isPodcast ? podcastStyles : undefined,
+          testimonialLayouts: isTestimonial ? testimonialLayouts : undefined,
           referenceStyleBase64: referenceStyleImage ?? undefined,
         },
       });
@@ -342,7 +380,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
+  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
@@ -493,6 +531,49 @@ export default function ThumbnailGenerator({
             </div>
             <p className="text-[10px] text-muted-foreground">
               Pro ausgewähltem Stil wird genau 1 Thumbnail in diesem exakten Look generiert.
+            </p>
+          </div>
+        )}
+
+        {/* Testimonial layouts (multiselect 1-6) */}
+        {vlogStyle === "testimonial" && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Testimonial-Layouts · Wähle 1–6
+              </label>
+              <span className="text-[10px] font-bold text-primary tabular-nums">
+                {testimonialLayouts.length} ausgewählt
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {TESTIMONIAL_OPTIONS.map((opt) => {
+                const Icon = opt.icon;
+                const active = testimonialLayouts.includes(opt.id);
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => toggleTestimonialLayout(opt.id)}
+                    className={`relative text-left p-3 rounded-2xl border transition-all ${
+                      active
+                        ? "border-primary bg-primary/10 shadow-md shadow-primary/30 ring-2 ring-primary/40"
+                        : "border-border/50 hover:border-primary/40 bg-background/40"
+                    }`}
+                  >
+                    {active && (
+                      <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                        <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
+                      </div>
+                    )}
+                    <Icon className={`h-4 w-4 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                    <div className="text-xs font-bold text-foreground">{opt.label}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{opt.sub}</div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Pro ausgewähltem Layout wird die volle Variantenzahl generiert.
             </p>
           </div>
         )}
@@ -757,15 +838,24 @@ export default function ThumbnailGenerator({
         <div className="space-y-2">
           {(() => {
             const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
-            const total = isPodcastBatch ? variants * podcastStyles.length : variants;
+            const isTestimonialBatch = vlogStyle === "testimonial" && testimonialLayouts.length > 0;
+            const batchCount = isPodcastBatch
+              ? podcastStyles.length
+              : isTestimonialBatch
+                ? testimonialLayouts.length
+                : 0;
+            const batchLabel = isPodcastBatch ? "Stile" : "Layouts";
+            const batchLabelSingular = isPodcastBatch ? "Stil" : "Layout";
+            const isBatch = isPodcastBatch || isTestimonialBatch;
+            const total = isBatch ? variants * batchCount : variants;
             return (
               <>
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    {isPodcastBatch ? `Bilder pro Stil (× ${podcastStyles.length} Stile)` : "Varianten pro Generierung"}
+                    {isBatch ? `Bilder pro ${batchLabelSingular} (× ${batchCount} ${batchLabel})` : "Varianten pro Generierung"}
                   </label>
                   <span className="text-xs font-bold text-primary tabular-nums">
-                    {isPodcastBatch ? `${variants} → ${total} gesamt` : total}
+                    {isBatch ? `${variants} → ${total} gesamt` : total}
                   </span>
                 </div>
                 <Slider
@@ -777,8 +867,8 @@ export default function ThumbnailGenerator({
                   disabled={isGenerating}
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  {isPodcastBatch
-                    ? `Slider = Bilder pro Stil. ${variants} × ${podcastStyles.length} Stil${podcastStyles.length > 1 ? "e" : ""} = ${total} Bilder gesamt`
+                  {isBatch
+                    ? `Slider = Bilder pro ${batchLabelSingular}. ${variants} × ${batchCount} ${batchCount > 1 ? batchLabel : batchLabelSingular} = ${total} Bilder gesamt`
                     : `${total} Bild${total > 1 ? "er" : ""} parallel`}
                 </p>
               </>
