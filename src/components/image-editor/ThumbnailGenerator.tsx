@@ -838,15 +838,24 @@ export default function ThumbnailGenerator({
         <div className="space-y-2">
           {(() => {
             const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
-            const total = isPodcastBatch ? variants * podcastStyles.length : variants;
+            const isTestimonialBatch = vlogStyle === "testimonial" && testimonialLayouts.length > 0;
+            const batchCount = isPodcastBatch
+              ? podcastStyles.length
+              : isTestimonialBatch
+                ? testimonialLayouts.length
+                : 0;
+            const batchLabel = isPodcastBatch ? "Stile" : "Layouts";
+            const batchLabelSingular = isPodcastBatch ? "Stil" : "Layout";
+            const isBatch = isPodcastBatch || isTestimonialBatch;
+            const total = isBatch ? variants * batchCount : variants;
             return (
               <>
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    {isPodcastBatch ? `Bilder pro Stil (× ${podcastStyles.length} Stile)` : "Varianten pro Generierung"}
+                    {isBatch ? `Bilder pro ${batchLabelSingular} (× ${batchCount} ${batchLabel})` : "Varianten pro Generierung"}
                   </label>
                   <span className="text-xs font-bold text-primary tabular-nums">
-                    {isPodcastBatch ? `${variants} → ${total} gesamt` : total}
+                    {isBatch ? `${variants} → ${total} gesamt` : total}
                   </span>
                 </div>
                 <Slider
@@ -858,8 +867,8 @@ export default function ThumbnailGenerator({
                   disabled={isGenerating}
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  {isPodcastBatch
-                    ? `Slider = Bilder pro Stil. ${variants} × ${podcastStyles.length} Stil${podcastStyles.length > 1 ? "e" : ""} = ${total} Bilder gesamt`
+                  {isBatch
+                    ? `Slider = Bilder pro ${batchLabelSingular}. ${variants} × ${batchCount} ${batchCount > 1 ? batchLabel : batchLabelSingular} = ${total} Bilder gesamt`
                     : `${total} Bild${total > 1 ? "er" : ""} parallel`}
                 </p>
               </>
