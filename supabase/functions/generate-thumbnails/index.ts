@@ -151,11 +151,14 @@ const TESTIMONIAL_LAYOUTS = [
 function buildPrompt(body: GenerateBody, variantSeed: string, variantIndex: number) {
   const vlog = VLOG_STYLES[body.vlogStyle];
   const textBlock = TEXT_STYLES[body.textStyle];
-  const textLayout = TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
+  const isPodcast = body.vlogStyle === "podcast";
+  const isTestimonial = body.vlogStyle === "testimonial";
+  const textLayout = isTestimonial
+    ? TESTIMONIAL_LAYOUTS[variantIndex % TESTIMONIAL_LAYOUTS.length]
+    : TEXT_LAYOUTS[variantIndex % TEXT_LAYOUTS.length];
   const titleText = body.title?.trim();
   const enforceCI = !!body.enforceApexCI;
   const brand = enforceCI ? "#00BCFF" : (body.brandColor || "#00BCFF");
-  const isPodcast = body.vlogStyle === "podcast";
   const podcastStyle = isPodcast && body.podcastStyle ? PODCAST_STYLES[body.podcastStyle] : null;
   const hasStyleRef = !!body.referenceStyleBase64;
 
