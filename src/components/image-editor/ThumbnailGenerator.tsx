@@ -535,6 +535,49 @@ export default function ThumbnailGenerator({
           </div>
         )}
 
+        {/* Testimonial layouts (multiselect 1-6) */}
+        {vlogStyle === "testimonial" && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Testimonial-Layouts · Wähle 1–6
+              </label>
+              <span className="text-[10px] font-bold text-primary tabular-nums">
+                {testimonialLayouts.length} ausgewählt
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {TESTIMONIAL_OPTIONS.map((opt) => {
+                const Icon = opt.icon;
+                const active = testimonialLayouts.includes(opt.id);
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => toggleTestimonialLayout(opt.id)}
+                    className={`relative text-left p-3 rounded-2xl border transition-all ${
+                      active
+                        ? "border-primary bg-primary/10 shadow-md shadow-primary/30 ring-2 ring-primary/40"
+                        : "border-border/50 hover:border-primary/40 bg-background/40"
+                    }`}
+                  >
+                    {active && (
+                      <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                        <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
+                      </div>
+                    )}
+                    <Icon className={`h-4 w-4 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                    <div className="text-xs font-bold text-foreground">{opt.label}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{opt.sub}</div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Pro ausgewähltem Layout wird die volle Variantenzahl generiert.
+            </p>
+          </div>
+        )}
+
         {/* Custom reference (own thumbnail upload OR YouTube URL) */}
         <div className="space-y-2 rounded-2xl border border-dashed border-border/60 p-3 bg-background/30">
           <div className="flex items-center justify-between">
