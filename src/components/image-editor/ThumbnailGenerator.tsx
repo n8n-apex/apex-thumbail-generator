@@ -603,8 +603,52 @@ export default function ThumbnailGenerator({
             <p className="text-[10px] text-muted-foreground">
               Pro ausgewähltem Layout wird die volle Variantenzahl generiert.
             </p>
+
+            {/* YouTube quote extractor */}
+            <div className="rounded-2xl border border-dashed border-primary/40 p-3 bg-primary/5 space-y-2">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3 text-primary" />
+                Quintessenz aus YouTube-Video holen
+              </label>
+              <div className="flex gap-1.5">
+                <Input
+                  value={testimonialSourceUrl}
+                  onChange={(e) => setTestimonialSourceUrl(e.target.value)}
+                  placeholder="YouTube-Link mit Testimonial / Case-Study…"
+                  className="text-xs rounded-xl h-10 flex-1"
+                  disabled={isExtractingQuote}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      extractTestimonialQuote();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-10 rounded-xl px-3 text-[11px]"
+                  onClick={extractTestimonialQuote}
+                  disabled={isExtractingQuote || !testimonialSourceUrl.trim()}
+                >
+                  {isExtractingQuote ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <>
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Extrahieren
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                AI liest Transcript & Beschreibung und füllt das Titel-Feld unten automatisch mit dem knackigsten Zitat / Resultat.
+              </p>
+            </div>
           </div>
         )}
+
 
         {/* Custom reference (own thumbnail upload OR YouTube URL) */}
         <div className="space-y-2 rounded-2xl border border-dashed border-border/60 p-3 bg-background/30">
