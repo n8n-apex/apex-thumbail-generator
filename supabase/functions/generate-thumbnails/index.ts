@@ -167,10 +167,20 @@ const TESTIMONIAL_STYLES: Record<TestimonialLayout, { label: string; prompt: str
   "quote-card": {
     label: "Glass Quote Card",
     prompt: `${APEX_TESTIMONIAL_BASE}
-LAYOUT — GLASS QUOTE CARD (Novist-style hero):
-- Subject anchored on the RIGHT third (chest-up, looking slightly toward the quote), softly lit, cyan rim light on the shoulder.
-- LEFT 2/3: large rounded translucent glass quote card floating over the dark background. Inside the card top-left: a small cyan 5-star row inside a tiny rounded glass capsule. Below it: the HEADLINE wrapped in big stylized quotation marks ("..."), bold sans-serif, 2–3 short lines, crisp off-white.
-- Bottom-left of frame: a single tiny cyan pill badge with the word KUNDENSTIMME (or CASE STUDY if the quote is English). No other text.`,
+LAYOUT — GLASS QUOTE CARD (STRICT TEMPLATE — must match this exact composition every single time, only the person and the quote text change):
+
+EXACT CANVAS LAYOUT (16:9, must be reproduced precisely):
+- BACKGROUND: deep dark charcoal-to-navy gradient (#0A0F14 → #0E1822) with very subtle dark blurred interior bokeh (out-of-focus office/studio environment). Faint cyan glow bloom from behind the subject. No other elements.
+- SUBJECT (person) anchored on the RIGHT side of the frame, occupying roughly the right 35–40% of the canvas. Chest-and-head portrait, cropped at upper chest, head near the top of the frame. Photo-real, cinematic 85mm DSLR look, shallow depth of field, soft three-point lighting, gentle cyan rim light on hair/shoulder, warm natural skin, confident genuine micro-smile, sharp eye contact toward camera. The subject's body slightly overlaps the right edge of the glass quote card (the card sits BEHIND the shoulder for depth).
+- GLASS QUOTE CARD on the LEFT, vertically centered, occupying roughly the left 55–60% of the canvas width and the middle ~55% of the height. Large softly rounded rectangle (corner radius ~28px at 1920w scale), frosted translucent dark glass fill (very low opacity white tint over the dark bg), 1px hairline cyan-tinted border #00BCFF at ~25% opacity, soft diffuse drop shadow, subtle inner top-left highlight. Apple Liquid-Glass feel.
+- FIVE-STAR CAPSULE: a small pill-shaped glass capsule sits CENTERED HORIZONTALLY at the TOP EDGE of the quote card, half-overlapping the card's top border (straddling it). Inside the capsule: exactly 5 solid sharp cyan stars #00BCFF, evenly spaced, medium-small size.
+- HEADLINE (the quote): rendered INSIDE the glass card, centered both horizontally and vertically. Heavy modern sans-serif (Inter / Söhne / Neue Haas Grotesk Display, bold), crisp off-white #F2F5F8, tight tracking, generous line-height. WRAPPED IN SMART QUOTATION MARKS ("...") — opening quote at the start, closing quote at the end. Maximum 2 lines, broken naturally at a comma if present. Large display size — fills the card with comfortable padding.
+- KUNDENSTIMME BADGE in the BOTTOM-LEFT corner of the canvas (with ~3% margin from edges): a small pill-shaped glass capsule, 1px cyan border #00BCFF, frosted dark glass fill, containing the single uppercase word "KUNDENSTIMME" (or "CASE STUDY" if the quote is English) in tiny tracked cyan sans-serif.
+
+ABSOLUTE CONSISTENCY RULES:
+- Position, size, and styling of the glass card, 5-star capsule, badge, and subject placement MUST be identical across every generation — this is a fixed brand template. Only the person's face/body and the quote text vary.
+- NO additional text, NO name, NO company, NO logo, NO secondary line, NO arrows, NO icons beyond the 5 stars.
+- The quote text must appear EXACTLY as provided, only wrapped in smart quotes.`,
   },
   "five-star": {
     label: "Five-Star Hero",
