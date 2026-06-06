@@ -528,6 +528,17 @@ serve(async (req) => {
             idx++;
           }
         }
+      } else if (testimonialLayouts) {
+        // Generate `variantsPerStyle` images PER selected testimonial layout
+        let idx = 0;
+        for (const tl of testimonialLayouts) {
+          for (let v = 0; v < variantsPerStyle; v++) {
+            const variantSeed = VARIANT_SEEDS[v % VARIANT_SEEDS.length];
+            const bodyForJob: GenerateBody = { ...body, testimonialLayout: tl };
+            jobs.push({ prompt: buildPrompt(bodyForJob, variantSeed, idx), index: idx });
+            idx++;
+          }
+        }
       } else {
         const total = Math.min(VARIANT_SEEDS.length, variantsPerStyle);
         VARIANT_SEEDS.slice(0, total).forEach((seed, i) => {
