@@ -180,6 +180,8 @@ export default function ThumbnailGenerator({
   const [referenceStyleImage, setReferenceStyleImage] = useState<string | null>(null);
   const [referenceYoutubeUrl, setReferenceYoutubeUrl] = useState("");
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
+  const [testimonialSourceUrl, setTestimonialSourceUrl] = useState("");
+  const [isExtractingQuote, setIsExtractingQuote] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
