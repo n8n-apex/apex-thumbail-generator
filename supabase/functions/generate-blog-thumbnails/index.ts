@@ -261,17 +261,24 @@ DO NOT copy the reference's people, faces, logos or exact text. Replace with the
 `
     : "";
 
-  return `You are a world-class brand designer creating a MINIMALIST APEX-brand thumbnail (16:9, exactly 1280×720) for a blog insight card. The aesthetic is ULTRA-MODERN, EDITORIAL, MINIMAL — Apple keynote × Linear × Vercel marketing.
+  return `You are a world-class brand designer creating a MINIMALIST APEX-brand thumbnail (16:9, exactly 1280×720) for a blog insight card. The aesthetic is ULTRA-MODERN, EDITORIAL, MINIMAL — Apple keynote × Linear × Vercel marketing, infused with the dark cinematic mood of premium European AI creators (think Leonard Schmedding's ultra-dark backgrounds, dramatic single-source side lighting, high contrast, and near-zero text clutter).
 
 ${faceLock}${styleRef}═══ APEX BRAND LOCK — STRICT ═══
 APEX COLOR PALETTE — use ONLY these:
 • Ice White       #FCFEFF
-• APEX Blue       #00BCFF  — single hero accent, used sparingly
+• APEX Blue       #00BCFF  — single hero accent, used sparingly as light/rim/glow
 • Deep Ocean      #001A23  — dominant dark background
 • Slate Steel     #4B585D
 • Frost White     #EDF9FE
 • Graphite Gray   #1E2126
 FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.
+
+STYLE INSPIRATION — Leonard Schmedding × Hormozi × Tina Huang × Everlast AI:
+• Backgrounds: ultra-dark, almost black (#001A23 to #050508), never busy
+• Lighting: dramatic single-source side or rim light, strong shadows, cinematic chiaroscuro
+• Face treatment: when a person is present, they must be lit like a premium portrait — sharp catchlights, cyan rim light, no flat lighting
+• Text restraint: maximum 2 lines of text, generous negative space, no badges/stickers/emojis
+• Mood: confident, mysterious, premium, editorial — like a magazine cover meets tech tutorial
 
 APEX TYPOGRAPHY: modern geometric sans-serif (Inter / Söhne / Neue Haas Grotesk). Perfect kerning, premium tracking.
 APEX TONE: confident, premium, minimal, editorial. NO gimmicks, NO emojis, NO cartoon arrows, NO badges spam, NO stickers.
