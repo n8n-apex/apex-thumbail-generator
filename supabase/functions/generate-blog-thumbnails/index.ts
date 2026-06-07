@@ -326,12 +326,44 @@ APEX TONE: confident, premium, minimal, editorial. NO gimmicks, NO emojis, NO ca
 • DO NOT add any logo or wordmark.
 • The ONLY text on the entire image is the HEADLINE below. Zero other text.
 • NO decorative micro-text, NO tagline, NO sublabel, NO "AI era" / "AI tools" / "2024" / "GUIDE" / "EPISODE" style tracked-uppercase mini labels, NO captions under the headline, NO category chips, NO tiny eyebrow text above the headline. Headline only — nothing else.
-• NO tiny labels under icons/tiles/metrics unless explicitly required by the TOOLS LIST section.
+• NO tiny labels under icons/tiles/metrics unless explicitly allowed by the BLOG CONTEXT section below for this specific layout.
 • Perfect spelling. No typos. No gibberish letters.${hasSubject ? "" : "\n• NO people, NO faces, NO portraits."}
 
 ═══ LAYOUT (follow precisely) ═══
 ${layoutPrompt}
-${toolsList && toolsList.length > 0 ? `\n═══ TOOLS LIST (render these specific AI-tool logos/icons in the tiles, in this exact order) ═══\n${toolsList.map((t, i) => `${i + 1}. ${t}`).join("\n")}\nRender each tool as a clean, recognizable modern app-icon-style logo inside its own glass tile. Names appear ONLY as tiny tracked uppercase labels under each tile (these tool labels are allowed in addition to the headline).\n` : ""}
+${(() => {
+  if (!ctx) return "";
+  const blocks: string[] = [];
+  // Always inject general blog context so visualizations are blog-themed
+  if (ctx.topics.length > 0 || ctx.tools.length > 0 || ctx.metric) {
+    blocks.push(`\n═══ BLOG CONTEXT (drive visuals from this — never invent off-topic content) ═══
+${ctx.topics.length > 0 ? `• Topics: ${ctx.topics.join(", ")}\n` : ""}${ctx.tools.length > 0 ? `• Tools mentioned: ${ctx.tools.join(", ")}\n` : ""}${ctx.metric ? `• Key metric: ${ctx.metric}\n` : ""}All visual elements (icons, tiles, panels, code, prompts, charts, metrics) MUST reflect these blog specifics — not generic AI imagery.`);
+  }
+  // Layout-specific data sections
+  if (layoutId === "ai-tools-row" && ctx.tools.length > 0) {
+    blocks.push(`\n═══ TOOLS LIST (render these specific AI-tool logos/icons in the tiles, in this exact order) ═══
+${ctx.tools.map((t, i) => `${i + 1}. ${t}`).join("\n")}
+Render each tool as a clean, recognizable modern app-icon-style logo inside its own glass tile. Names appear ONLY as tiny tracked uppercase labels under each tile (these tool labels are allowed in addition to the headline).`);
+  }
+  if (layoutId === "holo-stack" && (ctx.metric || ctx.topics.length > 0 || ctx.tools.length > 0)) {
+    blocks.push(`\n═══ DASHBOARD CONTENT (render inside the 3 glass panels) ═══
+${ctx.metric ? `• Panel 1: hero metric "${ctx.metric}" with a small cyan sparkline below\n` : ""}${ctx.topics[0] ? `• Panel 2: tiny tracked uppercase label "${ctx.topics[0].toUpperCase()}" above a stylized cyan bar/line chart\n` : ""}${ctx.tools[0] ? `• Panel 3: a clean app-icon-style logo of ${ctx.tools[0]} with a tiny tracked uppercase "${ctx.tools[0].toUpperCase()}" label\n` : ""}These short labels are allowed; no other text.`);
+  }
+  if (layoutId === "code-glass" && ctx.codeLines.length > 0) {
+    blocks.push(`\n═══ CODE PANEL CONTENT (render these exact lines inside the terminal, monospaced, blinking cursor on last line) ═══
+${ctx.codeLines.map((l) => `> ${l}`).join("\n")}`);
+  }
+  if (layoutId === "prompt-ui" && ctx.promptLine) {
+    blocks.push(`\n═══ PROMPT CONTENT (render this exact line inside the chat panel as the example user prompt) ═══
+"${ctx.promptLine}"`);
+  }
+  if (layoutId === "metric-hero" && ctx.metric) {
+    blocks.push(`\n═══ METRIC OVERRIDE ═══
+Render the metric "${ctx.metric}" as the oversized hero number/label on the left. The digits/number portion is APEX Blue; the unit/label is Deep Ocean. Tiny tracked uppercase label below in Slate Steel referencing the blog topic "${ctx.topics[0] ?? ""}".`);
+  }
+  return blocks.join("\n");
+})()}
+
 ═══ HEADLINE TO RENDER (verbatim, perfect spelling) ═══
 "${headline}"
 
