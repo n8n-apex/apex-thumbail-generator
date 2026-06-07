@@ -125,6 +125,19 @@ const APEX_BLOG_LAYOUTS = [
 - Centered horizontal row of 4–5 floating translucent glassmorphic rounded-square tiles (visionOS Liquid Glass), 1px APEX Blue hairlines, each showing the LOGO/ICON of a specific AI tool from the TOOLS list below as clean app-icon style. Tiny uppercase Slate Steel tool labels under each tile.
 - Above: bold Ice White sans-serif headline, smart quotes, 2 lines max. APEX Blue 3-dot accent.`,
   },
+  {
+    id: "prompt-ui",
+    label: "Prompt UI",
+    promptWithSubject: `LAYOUT — PROMPT UI (Tina Huang × visionOS):
+- Background: Deep Ocean #001A23 with soft cyan glow.
+- Subject (person from uploaded photo) anchored on the LEFT third, chest-up cinematic portrait, photo-real, cyan rim light, confident eye contact.
+- RIGHT 60%: a translucent frosted Liquid-Glass CHAT/PROMPT input panel (visionOS aesthetic), 1px APEX Blue hairline, soft outer glow, rounded corners, with a stylized "Ask anything…" placeholder line and a glowing cyan submit-arrow circle on the right. Above the input: one short example prompt line in Ice White that references the BLOG TOPIC from context (max 8 words). Tiny tracked uppercase Slate Steel label "PROMPT" above the panel — this label is allowed.
+- ABOVE the panel: bold Ice White sans-serif headline (Inter Heavy), 2 lines max, smart quotes.`,
+    promptNoSubject: `LAYOUT — PROMPT UI:
+- Deep Ocean background with cyan glow.
+- Centered translucent frosted Liquid-Glass chat/prompt input panel (visionOS), 1px APEX Blue hairline, glowing cyan submit-arrow circle, "Ask anything…" placeholder, one short example prompt referencing the BLOG TOPIC above (max 8 words).
+- Above: bold Ice White sans-serif headline, 2 lines, smart quotes.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
