@@ -125,6 +125,19 @@ const APEX_BLOG_LAYOUTS = [
 - Centered horizontal row of 4–5 floating translucent glassmorphic rounded-square tiles (visionOS Liquid Glass), 1px APEX Blue hairlines, each showing the LOGO/ICON of a specific AI tool from the TOOLS list below as clean app-icon style. Tiny uppercase Slate Steel tool labels under each tile.
 - Above: bold Ice White sans-serif headline, smart quotes, 2 lines max. APEX Blue 3-dot accent.`,
   },
+  {
+    id: "prompt-ui",
+    label: "Prompt UI",
+    promptWithSubject: `LAYOUT — PROMPT UI (Tina Huang × visionOS):
+- Background: Deep Ocean #001A23 with soft cyan glow.
+- Subject (person from uploaded photo) anchored on the LEFT third, chest-up cinematic portrait, photo-real, cyan rim light, confident eye contact.
+- RIGHT 60%: a translucent frosted Liquid-Glass CHAT/PROMPT input panel (visionOS aesthetic), 1px APEX Blue hairline, soft outer glow, rounded corners, with a stylized "Ask anything…" placeholder line and a glowing cyan submit-arrow circle on the right. Above the input: one short example prompt line in Ice White that references the BLOG TOPIC from context (max 8 words). Tiny tracked uppercase Slate Steel label "PROMPT" above the panel — this label is allowed.
+- ABOVE the panel: bold Ice White sans-serif headline (Inter Heavy), 2 lines max, smart quotes.`,
+    promptNoSubject: `LAYOUT — PROMPT UI:
+- Deep Ocean background with cyan glow.
+- Centered translucent frosted Liquid-Glass chat/prompt input panel (visionOS), 1px APEX Blue hairline, glowing cyan submit-arrow circle, "Ask anything…" placeholder, one short example prompt referencing the BLOG TOPIC above (max 8 words).
+- Above: bold Ice White sans-serif headline, 2 lines, smart quotes.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
@@ -201,8 +214,25 @@ OUTPUT FORMAT: Reines JSON-Array mit ${count} Strings, nichts anderes. Beispiel:
   return hooks;
 }
 
-async function extractAiTools(blogText: string, apiKey: string): Promise<string[]> {
-  const systemPrompt = `Aus dem Blog-Text extrahierst du eine Liste von 4–5 konkreten AI-Tools / Software-Produkten / Plattformen, die im Text namentlich erwähnt werden (z.B. ChatGPT, Claude, Midjourney, Notion AI, Perplexity, Cursor, Gemini, Runway, ElevenLabs, n8n, Zapier, …). Falls weniger als 4 explizit genannt sind, ergänze passende, im Kontext sinnvolle, real existierende AI-Tools. Nur echte, bekannte Produktnamen. OUTPUT: reines JSON-Array mit Strings, nichts anderes. Beispiel: ["ChatGPT","Claude","Midjourney","Notion AI"]`;
+type BlogContext = {
+  tools: string[];     // 4–5 concrete AI tools/products mentioned (or fitting)
+  topics: string[];    // 3–5 short topic keywords (1–3 words each) from the blog
+  metric: string;      // ONE short metric/number with a 1–2 word label, e.g. "10x Output" or "5 Min Setup"
+  promptLine: string;  // ONE short example user-prompt line referencing the blog topic, max 8 words
+  codeLines: string[]; // 3–5 short stylized code/terminal lines themed to the blog topic, max 40 chars each
+};
+
+async function extractBlogContext(blogText: string, apiKey: string): Promise<BlogContext> {
+  const systemPrompt = `Aus dem Blog-Text extrahierst du strukturierten Kontext für Thumbnail-Visualisierungen. Sprache: gleiche Sprache wie der Blog.
+Liefere EIN JSON-Objekt mit genau diesen Feldern:
+{
+  "tools":   string[4..5]   // konkrete, real existierende AI-Tools / Produkte / Plattformen, die zum Blog passen (z.B. ChatGPT, Claude, Midjourney, Notion AI, Perplexity, Cursor, Gemini, Runway, ElevenLabs, n8n, Zapier). Bevorzuge im Text genannte. Nur echte Namen.
+  "topics":  string[3..5]   // kurze Themen-Keywords aus dem Blog, je 1–3 Wörter, Title Case
+  "metric":  string         // EINE prägnante Kennzahl + Mini-Label aus dem Blog (z.B. "10x Output", "5 Min Setup", "+250% ROI"). Wenn keine im Text, erfinde EINE plausible, zum Thema passende
+  "promptLine": string      // EINE kurze Beispiel-User-Prompt-Zeile, die das Blog-Thema referenziert, max 8 Wörter, keine Anführungszeichen
+  "codeLines": string[3..5] // kurze, stilisierte Code-/Terminal-Zeilen, die zum Blog-Thema passen (z.B. "$ apex run --workflow", "import openai"), max 40 Zeichen
+}
+Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
   const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -214,17 +244,23 @@ async function extractAiTools(blogText: string, apiKey: string): Promise<string[
       ],
     }),
   });
-  if (!resp.ok) return [];
+  const fallback: BlogContext = { tools: [], topics: [], metric: "", promptLine: "", codeLines: [] };
+  if (!resp.ok) return fallback;
   const data = await resp.json();
   const raw: string = data.choices?.[0]?.message?.content || "";
-  const m = raw.match(/\[[\s\S]*\]/);
-  if (!m) return [];
+  const m = raw.match(/\{[\s\S]*\}/);
+  if (!m) return fallback;
   try {
-    const arr = JSON.parse(m[0]);
-    if (!Array.isArray(arr)) return [];
-    return arr.map((x) => String(x).trim()).filter(Boolean).slice(0, 5);
+    const obj = JSON.parse(m[0]);
+    return {
+      tools: Array.isArray(obj.tools) ? obj.tools.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
+      topics: Array.isArray(obj.topics) ? obj.topics.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
+      metric: typeof obj.metric === "string" ? obj.metric.trim() : "",
+      promptLine: typeof obj.promptLine === "string" ? obj.promptLine.trim() : "",
+      codeLines: Array.isArray(obj.codeLines) ? obj.codeLines.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
+    };
   } catch {
-    return [];
+    return fallback;
   }
 }
 
@@ -233,7 +269,8 @@ function buildBlogThumbnailPrompt(
   layoutPrompt: string,
   hasSubject: boolean,
   hasStyleRef: boolean,
-  toolsList?: string[],
+  ctx?: BlogContext,
+  layoutId?: string,
 ): string {
   const faceLock = hasSubject
     ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
@@ -289,12 +326,44 @@ APEX TONE: confident, premium, minimal, editorial. NO gimmicks, NO emojis, NO ca
 • DO NOT add any logo or wordmark.
 • The ONLY text on the entire image is the HEADLINE below. Zero other text.
 • NO decorative micro-text, NO tagline, NO sublabel, NO "AI era" / "AI tools" / "2024" / "GUIDE" / "EPISODE" style tracked-uppercase mini labels, NO captions under the headline, NO category chips, NO tiny eyebrow text above the headline. Headline only — nothing else.
-• NO tiny labels under icons/tiles/metrics unless explicitly required by the TOOLS LIST section.
+• NO tiny labels under icons/tiles/metrics unless explicitly allowed by the BLOG CONTEXT section below for this specific layout.
 • Perfect spelling. No typos. No gibberish letters.${hasSubject ? "" : "\n• NO people, NO faces, NO portraits."}
 
 ═══ LAYOUT (follow precisely) ═══
 ${layoutPrompt}
-${toolsList && toolsList.length > 0 ? `\n═══ TOOLS LIST (render these specific AI-tool logos/icons in the tiles, in this exact order) ═══\n${toolsList.map((t, i) => `${i + 1}. ${t}`).join("\n")}\nRender each tool as a clean, recognizable modern app-icon-style logo inside its own glass tile. Names appear ONLY as tiny tracked uppercase labels under each tile (these tool labels are allowed in addition to the headline).\n` : ""}
+${(() => {
+  if (!ctx) return "";
+  const blocks: string[] = [];
+  // Always inject general blog context so visualizations are blog-themed
+  if (ctx.topics.length > 0 || ctx.tools.length > 0 || ctx.metric) {
+    blocks.push(`\n═══ BLOG CONTEXT (drive visuals from this — never invent off-topic content) ═══
+${ctx.topics.length > 0 ? `• Topics: ${ctx.topics.join(", ")}\n` : ""}${ctx.tools.length > 0 ? `• Tools mentioned: ${ctx.tools.join(", ")}\n` : ""}${ctx.metric ? `• Key metric: ${ctx.metric}\n` : ""}All visual elements (icons, tiles, panels, code, prompts, charts, metrics) MUST reflect these blog specifics — not generic AI imagery.`);
+  }
+  // Layout-specific data sections
+  if (layoutId === "ai-tools-row" && ctx.tools.length > 0) {
+    blocks.push(`\n═══ TOOLS LIST (render these specific AI-tool logos/icons in the tiles, in this exact order) ═══
+${ctx.tools.map((t, i) => `${i + 1}. ${t}`).join("\n")}
+Render each tool as a clean, recognizable modern app-icon-style logo inside its own glass tile. Names appear ONLY as tiny tracked uppercase labels under each tile (these tool labels are allowed in addition to the headline).`);
+  }
+  if (layoutId === "holo-stack" && (ctx.metric || ctx.topics.length > 0 || ctx.tools.length > 0)) {
+    blocks.push(`\n═══ DASHBOARD CONTENT (render inside the 3 glass panels) ═══
+${ctx.metric ? `• Panel 1: hero metric "${ctx.metric}" with a small cyan sparkline below\n` : ""}${ctx.topics[0] ? `• Panel 2: tiny tracked uppercase label "${ctx.topics[0].toUpperCase()}" above a stylized cyan bar/line chart\n` : ""}${ctx.tools[0] ? `• Panel 3: a clean app-icon-style logo of ${ctx.tools[0]} with a tiny tracked uppercase "${ctx.tools[0].toUpperCase()}" label\n` : ""}These short labels are allowed; no other text.`);
+  }
+  if (layoutId === "code-glass" && ctx.codeLines.length > 0) {
+    blocks.push(`\n═══ CODE PANEL CONTENT (render these exact lines inside the terminal, monospaced, blinking cursor on last line) ═══
+${ctx.codeLines.map((l) => `> ${l}`).join("\n")}`);
+  }
+  if (layoutId === "prompt-ui" && ctx.promptLine) {
+    blocks.push(`\n═══ PROMPT CONTENT (render this exact line inside the chat panel as the example user prompt) ═══
+"${ctx.promptLine}"`);
+  }
+  if (layoutId === "metric-hero" && ctx.metric) {
+    blocks.push(`\n═══ METRIC OVERRIDE ═══
+Render the metric "${ctx.metric}" as the oversized hero number/label on the left. The digits/number portion is APEX Blue; the unit/label is Deep Ocean. Tiny tracked uppercase label below in Slate Steel referencing the blog topic "${ctx.topics[0] ?? ""}".`);
+  }
+  return blocks.join("\n");
+})()}
+
 ═══ HEADLINE TO RENDER (verbatim, perfect spelling) ═══
 "${headline}"
 
@@ -427,23 +496,20 @@ serve(async (req) => {
       throw e;
     }
 
-    const willUseToolsRow = forcedLayouts.some((l) => l.id === "ai-tools-row")
-      || (forcedLayouts.length === 0 && APEX_BLOG_LAYOUTS.some((l) => l.id === "ai-tools-row"));
-    let toolsList: string[] | undefined;
-    if (willUseToolsRow) {
-      try { toolsList = await extractAiTools(blogContent, LOVABLE_API_KEY); } catch { toolsList = []; }
-    }
+    // Always extract a unified blog context so visuals in EVERY layout
+    // (tools row, holo stack, code panel, prompt UI, metric hero) are blog-themed.
+    let blogCtx: BlogContext | undefined;
+    try { blogCtx = await extractBlogContext(blogContent, LOVABLE_API_KEY); } catch { blogCtx = undefined; }
 
     const jobs = hooks.map((headline, i) => {
       const layout = forcedLayouts.length > 0
         ? forcedLayouts[Math.floor(i / variantsPerStyle) % forcedLayouts.length]
         : APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
       const layoutPrompt = hasSubject ? layout.promptWithSubject : layout.promptNoSubject;
-      const tools = layout.id === "ai-tools-row" ? toolsList : undefined;
       return {
         headline,
         layoutId: layout.id,
-        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef, tools),
+        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef, blogCtx, layout.id),
       };
     });
 
