@@ -452,7 +452,7 @@ serve(async (req) => {
     for (let i = 0; i < jobs.length; i += CONCURRENCY) {
       const chunk = jobs.slice(i, i + CONCURRENCY);
       const chunkResults = await Promise.allSettled(
-        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, referenceStyleBase64)),
+        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, useStyleRef ? referenceStyleBase64 : undefined)),
       );
       settled.push(...chunkResults);
     }
