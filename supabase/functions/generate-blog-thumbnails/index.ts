@@ -288,6 +288,8 @@ APEX TONE: confident, premium, minimal, editorial. NO gimmicks, NO emojis, NO ca
 • DO NOT invent company names, taglines, slogans, URLs, @handles, hashtags, dates.
 • DO NOT add any logo or wordmark.
 • The ONLY text on the entire image is the HEADLINE below. Zero other text.
+• NO decorative micro-text, NO tagline, NO sublabel, NO "AI era" / "AI tools" / "2024" / "GUIDE" / "EPISODE" style tracked-uppercase mini labels, NO captions under the headline, NO category chips, NO tiny eyebrow text above the headline. Headline only — nothing else.
+• NO tiny labels under icons/tiles/metrics unless explicitly required by the TOOLS LIST section.
 • Perfect spelling. No typos. No gibberish letters.${hasSubject ? "" : "\n• NO people, NO faces, NO portraits."}
 
 ═══ LAYOUT (follow precisely) ═══
