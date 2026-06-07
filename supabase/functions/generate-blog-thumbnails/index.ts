@@ -365,6 +365,7 @@ serve(async (req) => {
     let blogContent: string = typeof body.blogContent === "string" ? body.blogContent.trim() : "";
     const imageBase64: string | undefined = typeof body.imageBase64 === "string" && body.imageBase64 ? body.imageBase64 : undefined;
     const referenceStyleBase64: string | undefined = typeof body.referenceStyleBase64 === "string" && body.referenceStyleBase64 ? body.referenceStyleBase64 : undefined;
+    const forcedLayoutId: string | undefined = typeof body.forcedLayoutId === "string" && body.forcedLayoutId ? body.forcedLayoutId : undefined;
     const hasSubject = !!imageBase64;
     const hasStyleRef = !!referenceStyleBase64;
 
