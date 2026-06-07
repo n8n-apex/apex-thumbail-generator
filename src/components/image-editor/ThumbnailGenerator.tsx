@@ -969,6 +969,7 @@ export default function ThumbnailGenerator({
 
         <div className="space-y-2">
           {(() => {
+            const isBlog = vlogStyle === "blog";
             const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
             const isTestimonialBatch = vlogStyle === "testimonial" && testimonialLayouts.length > 0;
             const batchCount = isPodcastBatch
@@ -980,11 +981,16 @@ export default function ThumbnailGenerator({
             const batchLabelSingular = isPodcastBatch ? "Stil" : "Layout";
             const isBatch = isPodcastBatch || isTestimonialBatch;
             const total = isBatch ? variants * batchCount : variants;
+            const sliderMax = isBlog ? 12 : 6;
             return (
               <>
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    {isBatch ? `Bilder pro ${batchLabelSingular} (× ${batchCount} ${batchLabel})` : "Varianten pro Generierung"}
+                    {isBlog
+                      ? "Anzahl Thumbnails aus dem Blog"
+                      : isBatch
+                        ? `Bilder pro ${batchLabelSingular} (× ${batchCount} ${batchLabel})`
+                        : "Varianten pro Generierung"}
                   </label>
                   <span className="text-xs font-bold text-primary tabular-nums">
                     {isBatch ? `${variants} → ${total} gesamt` : total}
@@ -993,15 +999,17 @@ export default function ThumbnailGenerator({
                 <Slider
                   value={[variants]}
                   min={1}
-                  max={6}
+                  max={sliderMax}
                   step={1}
                   onValueChange={(v) => setVariants(v[0])}
                   disabled={isGenerating}
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  {isBatch
-                    ? `Slider = Bilder pro ${batchLabelSingular}. ${variants} × ${batchCount} ${batchCount > 1 ? batchLabel : batchLabelSingular} = ${total} Bilder gesamt`
-                    : `${total} Bild${total > 1 ? "er" : ""} parallel`}
+                  {isBlog
+                    ? `${variants} eigenständige minimale APEX-Thumbnails — jedes mit einer anderen Quintessenz aus dem Blog.`
+                    : isBatch
+                      ? `Slider = Bilder pro ${batchLabelSingular}. ${variants} × ${batchCount} ${batchCount > 1 ? batchLabel : batchLabelSingular} = ${total} Bilder gesamt`
+                      : `${total} Bild${total > 1 ? "er" : ""} parallel`}
                 </p>
               </>
             );
