@@ -214,8 +214,25 @@ OUTPUT FORMAT: Reines JSON-Array mit ${count} Strings, nichts anderes. Beispiel:
   return hooks;
 }
 
-async function extractAiTools(blogText: string, apiKey: string): Promise<string[]> {
-  const systemPrompt = `Aus dem Blog-Text extrahierst du eine Liste von 4–5 konkreten AI-Tools / Software-Produkten / Plattformen, die im Text namentlich erwähnt werden (z.B. ChatGPT, Claude, Midjourney, Notion AI, Perplexity, Cursor, Gemini, Runway, ElevenLabs, n8n, Zapier, …). Falls weniger als 4 explizit genannt sind, ergänze passende, im Kontext sinnvolle, real existierende AI-Tools. Nur echte, bekannte Produktnamen. OUTPUT: reines JSON-Array mit Strings, nichts anderes. Beispiel: ["ChatGPT","Claude","Midjourney","Notion AI"]`;
+type BlogContext = {
+  tools: string[];     // 4–5 concrete AI tools/products mentioned (or fitting)
+  topics: string[];    // 3–5 short topic keywords (1–3 words each) from the blog
+  metric: string;      // ONE short metric/number with a 1–2 word label, e.g. "10x Output" or "5 Min Setup"
+  promptLine: string;  // ONE short example user-prompt line referencing the blog topic, max 8 words
+  codeLines: string[]; // 3–5 short stylized code/terminal lines themed to the blog topic, max 40 chars each
+};
+
+async function extractBlogContext(blogText: string, apiKey: string): Promise<BlogContext> {
+  const systemPrompt = `Aus dem Blog-Text extrahierst du strukturierten Kontext für Thumbnail-Visualisierungen. Sprache: gleiche Sprache wie der Blog.
+Liefere EIN JSON-Objekt mit genau diesen Feldern:
+{
+  "tools":   string[4..5]   // konkrete, real existierende AI-Tools / Produkte / Plattformen, die zum Blog passen (z.B. ChatGPT, Claude, Midjourney, Notion AI, Perplexity, Cursor, Gemini, Runway, ElevenLabs, n8n, Zapier). Bevorzuge im Text genannte. Nur echte Namen.
+  "topics":  string[3..5]   // kurze Themen-Keywords aus dem Blog, je 1–3 Wörter, Title Case
+  "metric":  string         // EINE prägnante Kennzahl + Mini-Label aus dem Blog (z.B. "10x Output", "5 Min Setup", "+250% ROI"). Wenn keine im Text, erfinde EINE plausible, zum Thema passende
+  "promptLine": string      // EINE kurze Beispiel-User-Prompt-Zeile, die das Blog-Thema referenziert, max 8 Wörter, keine Anführungszeichen
+  "codeLines": string[3..5] // kurze, stilisierte Code-/Terminal-Zeilen, die zum Blog-Thema passen (z.B. "$ apex run --workflow", "import openai"), max 40 Zeichen
+}
+Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
   const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -227,17 +244,23 @@ async function extractAiTools(blogText: string, apiKey: string): Promise<string[
       ],
     }),
   });
-  if (!resp.ok) return [];
+  const fallback: BlogContext = { tools: [], topics: [], metric: "", promptLine: "", codeLines: [] };
+  if (!resp.ok) return fallback;
   const data = await resp.json();
   const raw: string = data.choices?.[0]?.message?.content || "";
-  const m = raw.match(/\[[\s\S]*\]/);
-  if (!m) return [];
+  const m = raw.match(/\{[\s\S]*\}/);
+  if (!m) return fallback;
   try {
-    const arr = JSON.parse(m[0]);
-    if (!Array.isArray(arr)) return [];
-    return arr.map((x) => String(x).trim()).filter(Boolean).slice(0, 5);
+    const obj = JSON.parse(m[0]);
+    return {
+      tools: Array.isArray(obj.tools) ? obj.tools.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
+      topics: Array.isArray(obj.topics) ? obj.topics.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
+      metric: typeof obj.metric === "string" ? obj.metric.trim() : "",
+      promptLine: typeof obj.promptLine === "string" ? obj.promptLine.trim() : "",
+      codeLines: Array.isArray(obj.codeLines) ? obj.codeLines.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
+    };
   } catch {
-    return [];
+    return fallback;
   }
 }
 
@@ -246,7 +269,8 @@ function buildBlogThumbnailPrompt(
   layoutPrompt: string,
   hasSubject: boolean,
   hasStyleRef: boolean,
-  toolsList?: string[],
+  ctx?: BlogContext,
+  layoutId?: string,
 ): string {
   const faceLock = hasSubject
     ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
