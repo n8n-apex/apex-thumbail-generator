@@ -735,7 +735,7 @@ export default function ThumbnailGenerator({
               disabled={isGenerating}
             />
             <p className="text-[10px] text-muted-foreground">
-              Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual (Glass Card, Big Quote, Metric Hero, Split Accent, …) — Person aus Foto-Upload wird integriert wenn vorhanden.
+              Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual. <span className="text-primary font-semibold">Ohne Blog/URL?</span> Trag einfach unten einen Titel (oder AI-Keywords) ein — das wird als Headline für alle Thumbnails benutzt.
             </p>
 
             {/* APEX reference thumbnail picker (multi-select 0-9) */}
