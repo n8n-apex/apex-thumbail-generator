@@ -735,21 +735,21 @@ export default function ThumbnailGenerator({
               Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual (Glass Card, Big Quote, Metric Hero, Split Accent, …) — Person aus Foto-Upload wird integriert wenn vorhanden.
             </p>
 
-            {/* APEX reference thumbnail picker (9 styles) */}
+            {/* APEX reference thumbnail picker (multi-select 0-9) */}
             <div className="space-y-1.5 pt-1">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3 text-primary" />
-                  APEX Referenz-Stil wählen (optional)
+                  APEX Referenz-Stile · Mehrfachauswahl ({selectedBlogRefSrcs.length})
                 </label>
-                {(referenceStyleImage || selectedBlogRefSrc) && (
+                {(referenceStyleImage || selectedBlogRefSrcs.length > 0) && (
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 rounded-lg text-[10px] px-2"
                     onClick={() => {
                       setReferenceStyleImage(null);
-                      setSelectedBlogRefSrc(null);
+                      setSelectedBlogRefSrcs([]);
                     }}
                   >
                     <X className="h-3 w-3 mr-0.5" /> Auswahl löschen
@@ -758,24 +758,15 @@ export default function ThumbnailGenerator({
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {APEX_BLOG_REFERENCES.map((ref) => {
-                  const active = selectedBlogRefSrc === ref.src;
+                  const active = selectedBlogRefSrcs.includes(ref.src);
                   return (
                     <button
                       key={ref.src}
                       type="button"
-                      onClick={async () => {
-                        if (selectedBlogRefSrc === ref.src) {
-                          setSelectedBlogRefSrc(null);
-                          setReferenceStyleImage(null);
-                          return;
-                        }
-                        try {
-                          const b64 = await imageSourceToOptimizedBase64(ref.src);
-                          setReferenceStyleImage(b64);
-                          setSelectedBlogRefSrc(ref.src);
-                        } catch {
-                          toast.error("Referenz konnte nicht geladen werden");
-                        }
+                      onClick={() => {
+                        setSelectedBlogRefSrcs((prev) =>
+                          prev.includes(ref.src) ? prev.filter((s) => s !== ref.src) : [...prev, ref.src]
+                        );
                       }}
                       disabled={isGenerating}
                       className={`group relative rounded-xl overflow-hidden border-2 transition-all ${
@@ -806,11 +797,14 @@ export default function ThumbnailGenerator({
                 })}
               </div>
               <p className="text-[10px] text-muted-foreground">
-                Klick auf eine Vorlage = AI emuliert Komposition, Typo &amp; Look in jedem deiner generierten Thumbnails.
+                Pro ausgewähltem Stil werden <span className="text-primary font-bold">Slider-Anzahl</span> Bilder erzeugt. Gesamt = Stile × Varianten. Face-Upload unten wird in jedes Bild integriert.
               </p>
             </div>
           </div>
         )}
+
+
+
 
 
 
