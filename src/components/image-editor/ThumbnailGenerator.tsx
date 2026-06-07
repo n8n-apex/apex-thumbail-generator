@@ -407,17 +407,17 @@ export default function ThumbnailGenerator({
           throw new Error("Bitte Blog-Inhalt einfügen oder URL angeben");
         }
         const blogImageBase64 = await activeImageBase64();
-        const forcedLayoutId = selectedBlogRefSrc
-          ? APEX_BLOG_REFERENCES.find((r) => r.src === selectedBlogRefSrc)?.layoutId
-          : undefined;
+        const forcedLayoutIds = selectedBlogRefSrcs
+          .map((src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId)
+          .filter((x): x is string => !!x);
         const { data, error } = await supabase.functions.invoke("generate-blog-thumbnails", {
           body: {
             blogContent: blogContent.trim().slice(0, 20000) || undefined,
             blogUrl: blogUrl.trim() || undefined,
             count: requestedVariants,
             imageBase64: blogImageBase64,
-            referenceStyleBase64: referenceStyleImage ?? undefined,
-            forcedLayoutId,
+            referenceStyleBase64: forcedLayoutIds.length === 0 ? (referenceStyleImage ?? undefined) : undefined,
+            forcedLayoutIds: forcedLayoutIds.length > 0 ? forcedLayoutIds : undefined,
           },
         });
         if (error) throw error;
