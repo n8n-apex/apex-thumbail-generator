@@ -369,14 +369,21 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const body = await req.json();
-    const count = Math.min(12, Math.max(1, Number(body.count) || 4));
+    const variantsPerStyle = Math.min(12, Math.max(1, Number(body.count) || 4));
     const blogUrl: string | undefined = typeof body.blogUrl === "string" && body.blogUrl.trim() ? body.blogUrl.trim() : undefined;
     let blogContent: string = typeof body.blogContent === "string" ? body.blogContent.trim() : "";
     const imageBase64: string | undefined = typeof body.imageBase64 === "string" && body.imageBase64 ? body.imageBase64 : undefined;
     const referenceStyleBase64: string | undefined = typeof body.referenceStyleBase64 === "string" && body.referenceStyleBase64 ? body.referenceStyleBase64 : undefined;
-    const forcedLayoutId: string | undefined = typeof body.forcedLayoutId === "string" && body.forcedLayoutId ? body.forcedLayoutId : undefined;
+    const rawForcedIds: string[] = Array.isArray(body.forcedLayoutIds)
+      ? body.forcedLayoutIds.filter((x: unknown): x is string => typeof x === "string" && !!x)
+      : (typeof body.forcedLayoutId === "string" && body.forcedLayoutId ? [body.forcedLayoutId] : []);
+    const forcedLayouts = rawForcedIds
+      .map((id) => APEX_BLOG_LAYOUTS.find((l) => l.id === id))
+      .filter((x): x is typeof APEX_BLOG_LAYOUTS[number] => !!x);
     const hasSubject = !!imageBase64;
-    const hasStyleRef = !!referenceStyleBase64;
+    // When user explicitly picked layouts we drive composition via layout prompt; skip style-ref leak
+    const useStyleRef = !!referenceStyleBase64 && forcedLayouts.length === 0;
+    const hasStyleRef = useStyleRef;
 
     if (!blogContent && blogUrl) {
       try {
@@ -396,9 +403,13 @@ serve(async (req) => {
       );
     }
 
+    const totalImages = forcedLayouts.length > 0
+      ? forcedLayouts.length * variantsPerStyle
+      : variantsPerStyle;
+
     let hooks: string[];
     try {
-      hooks = await extractHooks(blogContent, count, LOVABLE_API_KEY);
+      hooks = await extractHooks(blogContent, totalImages, LOVABLE_API_KEY);
     } catch (e) {
       const msg = (e as Error).message;
       if (msg === "__RATE_LIMIT__") {
@@ -416,20 +427,17 @@ serve(async (req) => {
       throw e;
     }
 
-    const forcedLayout = forcedLayoutId
-      ? APEX_BLOG_LAYOUTS.find((l) => l.id === forcedLayoutId)
-      : undefined;
-
+    const willUseToolsRow = forcedLayouts.some((l) => l.id === "ai-tools-row")
+      || (forcedLayouts.length === 0 && APEX_BLOG_LAYOUTS.some((l) => l.id === "ai-tools-row"));
     let toolsList: string[] | undefined;
-    if ((forcedLayoutId === "ai-tools-row") || APEX_BLOG_LAYOUTS.some((l) => l.id === "ai-tools-row" && !forcedLayoutId)) {
-      // only extract if ai-tools-row will actually be used (forced, or in rotation)
-      if (forcedLayoutId === "ai-tools-row") {
-        try { toolsList = await extractAiTools(blogContent, LOVABLE_API_KEY); } catch { toolsList = []; }
-      }
+    if (willUseToolsRow) {
+      try { toolsList = await extractAiTools(blogContent, LOVABLE_API_KEY); } catch { toolsList = []; }
     }
 
     const jobs = hooks.map((headline, i) => {
-      const layout = forcedLayout ?? APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
+      const layout = forcedLayouts.length > 0
+        ? forcedLayouts[Math.floor(i / variantsPerStyle) % forcedLayouts.length]
+        : APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
       const layoutPrompt = hasSubject ? layout.promptWithSubject : layout.promptNoSubject;
       const tools = layout.id === "ai-tools-row" ? toolsList : undefined;
       return {
@@ -444,7 +452,7 @@ serve(async (req) => {
     for (let i = 0; i < jobs.length; i += CONCURRENCY) {
       const chunk = jobs.slice(i, i + CONCURRENCY);
       const chunkResults = await Promise.allSettled(
-        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, referenceStyleBase64)),
+        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, useStyleRef ? referenceStyleBase64 : undefined)),
       );
       settled.push(...chunkResults);
     }
