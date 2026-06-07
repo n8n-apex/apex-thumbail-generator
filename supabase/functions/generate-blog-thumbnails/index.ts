@@ -201,11 +201,39 @@ OUTPUT FORMAT: Reines JSON-Array mit ${count} Strings, nichts anderes. Beispiel:
   return hooks;
 }
 
+async function extractAiTools(blogText: string, apiKey: string): Promise<string[]> {
+  const systemPrompt = `Aus dem Blog-Text extrahierst du eine Liste von 4–5 konkreten AI-Tools / Software-Produkten / Plattformen, die im Text namentlich erwähnt werden (z.B. ChatGPT, Claude, Midjourney, Notion AI, Perplexity, Cursor, Gemini, Runway, ElevenLabs, n8n, Zapier, …). Falls weniger als 4 explizit genannt sind, ergänze passende, im Kontext sinnvolle, real existierende AI-Tools. Nur echte, bekannte Produktnamen. OUTPUT: reines JSON-Array mit Strings, nichts anderes. Beispiel: ["ChatGPT","Claude","Midjourney","Notion AI"]`;
+  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Blog-Text:\n\n${blogText}` },
+      ],
+    }),
+  });
+  if (!resp.ok) return [];
+  const data = await resp.json();
+  const raw: string = data.choices?.[0]?.message?.content || "";
+  const m = raw.match(/\[[\s\S]*\]/);
+  if (!m) return [];
+  try {
+    const arr = JSON.parse(m[0]);
+    if (!Array.isArray(arr)) return [];
+    return arr.map((x) => String(x).trim()).filter(Boolean).slice(0, 5);
+  } catch {
+    return [];
+  }
+}
+
 function buildBlogThumbnailPrompt(
   headline: string,
   layoutPrompt: string,
   hasSubject: boolean,
   hasStyleRef: boolean,
+  toolsList?: string[],
 ): string {
   const faceLock = hasSubject
     ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
