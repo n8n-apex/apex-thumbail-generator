@@ -403,8 +403,9 @@ export default function ThumbnailGenerator({
       const requestedVariants = Math.min(Math.max(variants, 1), 12);
 
       if (isBlog) {
-        if (!blogContent.trim() && !blogUrl.trim()) {
-          throw new Error("Bitte Blog-Inhalt einfügen oder URL angeben");
+        const manualTitle = (autoTitle ? titleKeywords : title).trim();
+        if (!blogContent.trim() && !blogUrl.trim() && !manualTitle) {
+          throw new Error("Bitte Blog-Inhalt, URL oder einen Titel angeben");
         }
         const blogImageBase64 = await activeImageBase64();
         const forcedLayoutIds = selectedBlogRefSrcs
@@ -414,6 +415,8 @@ export default function ThumbnailGenerator({
           body: {
             blogContent: blogContent.trim().slice(0, 20000) || undefined,
             blogUrl: blogUrl.trim() || undefined,
+            manualTitle: manualTitle ? manualTitle.slice(0, 200) : undefined,
+            autoTitle: autoTitle && !!manualTitle && !blogContent.trim() && !blogUrl.trim(),
             count: requestedVariants,
             imageBase64: blogImageBase64,
             referenceStyleBase64: forcedLayoutIds.length === 0 ? (referenceStyleImage ?? undefined) : undefined,
@@ -732,7 +735,7 @@ export default function ThumbnailGenerator({
               disabled={isGenerating}
             />
             <p className="text-[10px] text-muted-foreground">
-              Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual (Glass Card, Big Quote, Metric Hero, Split Accent, …) — Person aus Foto-Upload wird integriert wenn vorhanden.
+              Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual. <span className="text-primary font-semibold">Ohne Blog/URL?</span> Trag einfach unten einen Titel (oder AI-Keywords) ein — das wird als Headline für alle Thumbnails benutzt.
             </p>
 
             {/* APEX reference thumbnail picker (multi-select 0-9) */}

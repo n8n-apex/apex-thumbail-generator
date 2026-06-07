@@ -441,6 +441,8 @@ serve(async (req) => {
     const variantsPerStyle = Math.min(12, Math.max(1, Number(body.count) || 4));
     const blogUrl: string | undefined = typeof body.blogUrl === "string" && body.blogUrl.trim() ? body.blogUrl.trim() : undefined;
     let blogContent: string = typeof body.blogContent === "string" ? body.blogContent.trim() : "";
+    const manualTitle: string | undefined = typeof body.manualTitle === "string" && body.manualTitle.trim() ? body.manualTitle.trim().slice(0, 200) : undefined;
+    const autoTitleFlag: boolean = !!body.autoTitle;
     const imageBase64: string | undefined = typeof body.imageBase64 === "string" && body.imageBase64 ? body.imageBase64 : undefined;
     const referenceStyleBase64: string | undefined = typeof body.referenceStyleBase64 === "string" && body.referenceStyleBase64 ? body.referenceStyleBase64 : undefined;
     const rawForcedIds: string[] = Array.isArray(body.forcedLayoutIds)
@@ -450,7 +452,6 @@ serve(async (req) => {
       .map((id) => APEX_BLOG_LAYOUTS.find((l) => l.id === id))
       .filter((x): x is typeof APEX_BLOG_LAYOUTS[number] => !!x);
     const hasSubject = !!imageBase64;
-    // When user explicitly picked layouts we drive composition via layout prompt; skip style-ref leak
     const useStyleRef = !!referenceStyleBase64 && forcedLayouts.length === 0;
     const hasStyleRef = useStyleRef;
 
@@ -458,16 +459,19 @@ serve(async (req) => {
       try {
         blogContent = await fetchBlogContent(blogUrl);
       } catch (e) {
-        return new Response(
-          JSON.stringify({ error: `Blog konnte nicht geladen werden: ${(e as Error).message}. Bitte Inhalt einfügen.` }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
+        if (!manualTitle) {
+          return new Response(
+            JSON.stringify({ error: `Blog konnte nicht geladen werden: ${(e as Error).message}. Bitte Inhalt einfügen oder Titel angeben.` }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
       }
     }
 
-    if (!blogContent || blogContent.length < 80) {
+    const haveBlog = !!blogContent && blogContent.length >= 80;
+    if (!haveBlog && !manualTitle) {
       return new Response(
-        JSON.stringify({ error: "Blog-Inhalt zu kurz. Bitte vollen Blog-Text einfügen oder URL angeben." }),
+        JSON.stringify({ error: "Bitte Blog-Inhalt, URL oder manuellen Titel angeben." }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -478,7 +482,16 @@ serve(async (req) => {
 
     let hooks: string[];
     try {
-      hooks = await extractHooks(blogContent, totalImages, LOVABLE_API_KEY);
+      if (haveBlog) {
+        hooks = await extractHooks(blogContent, totalImages, LOVABLE_API_KEY);
+      } else if (autoTitleFlag && manualTitle) {
+        // Treat manualTitle as keywords; generate distinct hook headlines from them.
+        const synthBlog = `Topic keywords: ${manualTitle}\n\nWrite scroll-stopping thumbnail headlines around these keywords.`;
+        hooks = await extractHooks(synthBlog, totalImages, LOVABLE_API_KEY);
+      } else {
+        // Use the manual title verbatim for every variant.
+        hooks = Array.from({ length: totalImages }, () => manualTitle as string);
+      }
     } catch (e) {
       const msg = (e as Error).message;
       if (msg === "__RATE_LIMIT__") {
@@ -493,13 +506,19 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      throw e;
+      // Fallback for manual title: use it as-is for all variants.
+      if (manualTitle) {
+        hooks = Array.from({ length: totalImages }, () => manualTitle);
+      } else {
+        throw e;
+      }
     }
 
-    // Always extract a unified blog context so visuals in EVERY layout
-    // (tools row, holo stack, code panel, prompt UI, metric hero) are blog-themed.
+    // Blog-context extraction only when we have a blog. Otherwise layouts use generic visuals.
     let blogCtx: BlogContext | undefined;
-    try { blogCtx = await extractBlogContext(blogContent, LOVABLE_API_KEY); } catch { blogCtx = undefined; }
+    if (haveBlog) {
+      try { blogCtx = await extractBlogContext(blogContent, LOVABLE_API_KEY); } catch { blogCtx = undefined; }
+    }
 
     const jobs = hooks.map((headline, i) => {
       const layout = forcedLayouts.length > 0
