@@ -67,6 +67,27 @@ import podcastPreviewPunchyReaction from "@/assets/podcast-style-punchy-reaction
 import podcastPreviewToolsShowcase from "@/assets/podcast-style-tools-showcase.jpg";
 import podcastPreviewPodcastFrame from "@/assets/podcast-style-podcast-frame.jpg";
 import podcastPreviewCinematicPortrait from "@/assets/podcast-style-cinematic-portrait.jpg";
+import apexRef1 from "@/assets/apex-ref-1.jpg";
+import apexRef2 from "@/assets/apex-ref-2.jpg";
+import apexRef3 from "@/assets/apex-ref-3.jpg";
+import apexRef4 from "@/assets/apex-ref-4.jpg";
+import apexRef5 from "@/assets/apex-ref-5.jpg";
+import apexRef6 from "@/assets/apex-ref-6.jpg";
+import apexRef7 from "@/assets/apex-ref-7.jpg";
+import apexRef8 from "@/assets/apex-ref-8.jpg";
+import apexRef9 from "@/assets/apex-ref-9.jpg";
+
+const APEX_BLOG_REFERENCES: { src: string; label: string }[] = [
+  { src: apexRef1, label: "Glass Card" },
+  { src: apexRef2, label: "AI Tools Row" },
+  { src: apexRef3, label: "Big Quote" },
+  { src: apexRef4, label: "Metric Hero" },
+  { src: apexRef5, label: "Split Accent" },
+  { src: apexRef6, label: "Laptop Glow" },
+  { src: apexRef7, label: "Neural Net" },
+  { src: apexRef8, label: "Prompt UI" },
+  { src: apexRef9, label: "Arrow Up" },
+];
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "RS Talk", sub: "Audi RS6 · cinematic · daily", icon: Coffee },
@@ -185,6 +206,7 @@ export default function ThumbnailGenerator({
   const [isExtractingQuote, setIsExtractingQuote] = useState(false);
   const [blogContent, setBlogContent] = useState("");
   const [blogUrl, setBlogUrl] = useState("");
+  const [selectedBlogRefSrc, setSelectedBlogRefSrc] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -342,6 +364,7 @@ export default function ThumbnailGenerator({
   const clearReference = useCallback(() => {
     setReferenceStyleImage(null);
     setReferenceYoutubeUrl("");
+    setSelectedBlogRefSrc(null);
   }, []);
 
   const extractTestimonialQuote = useCallback(async () => {
@@ -705,8 +728,83 @@ export default function ThumbnailGenerator({
               disabled={isGenerating}
             />
             <p className="text-[10px] text-muted-foreground">
-              Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual (Glass Card, Big Quote, Metric Hero, Split Accent, …) — keine Person nötig.
+              Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual (Glass Card, Big Quote, Metric Hero, Split Accent, …) — Person aus Foto-Upload wird integriert wenn vorhanden.
             </p>
+
+            {/* APEX reference thumbnail picker (9 styles) */}
+            <div className="space-y-1.5 pt-1">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3 text-primary" />
+                  APEX Referenz-Stil wählen (optional)
+                </label>
+                {(referenceStyleImage || selectedBlogRefSrc) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 rounded-lg text-[10px] px-2"
+                    onClick={() => {
+                      setReferenceStyleImage(null);
+                      setSelectedBlogRefSrc(null);
+                    }}
+                  >
+                    <X className="h-3 w-3 mr-0.5" /> Auswahl löschen
+                  </Button>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {APEX_BLOG_REFERENCES.map((ref) => {
+                  const active = selectedBlogRefSrc === ref.src;
+                  return (
+                    <button
+                      key={ref.src}
+                      type="button"
+                      onClick={async () => {
+                        if (selectedBlogRefSrc === ref.src) {
+                          setSelectedBlogRefSrc(null);
+                          setReferenceStyleImage(null);
+                          return;
+                        }
+                        try {
+                          const b64 = await imageSourceToOptimizedBase64(ref.src);
+                          setReferenceStyleImage(b64);
+                          setSelectedBlogRefSrc(ref.src);
+                        } catch {
+                          toast.error("Referenz konnte nicht geladen werden");
+                        }
+                      }}
+                      disabled={isGenerating}
+                      className={`group relative rounded-xl overflow-hidden border-2 transition-all ${
+                        active
+                          ? "border-primary shadow-lg shadow-primary/30 ring-2 ring-primary/40"
+                          : "border-border/40 hover:border-primary/40"
+                      }`}
+                    >
+                      <div className="aspect-video bg-muted/40 overflow-hidden">
+                        <img
+                          src={ref.src}
+                          alt={`APEX style ${ref.label}`}
+                          loading="lazy"
+                          className={`w-full h-full object-cover transition-transform ${active ? "scale-105" : "group-hover:scale-105"}`}
+                        />
+                        <div className={`absolute inset-0 transition-colors ${active ? "bg-primary/15" : "bg-foreground/0 group-hover:bg-foreground/10"}`} />
+                        {active && (
+                          <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                            <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="absolute bottom-0 inset-x-0 px-1.5 py-0.5 bg-gradient-to-t from-background/90 to-transparent">
+                        <div className="text-[9px] font-bold text-foreground truncate">{ref.label}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Klick auf eine Vorlage = AI emuliert Komposition, Typo &amp; Look in jedem deiner generierten Thumbnails.
+              </p>
+            </div>
           </div>
         )}
 
