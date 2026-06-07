@@ -496,23 +496,20 @@ serve(async (req) => {
       throw e;
     }
 
-    const willUseToolsRow = forcedLayouts.some((l) => l.id === "ai-tools-row")
-      || (forcedLayouts.length === 0 && APEX_BLOG_LAYOUTS.some((l) => l.id === "ai-tools-row"));
-    let toolsList: string[] | undefined;
-    if (willUseToolsRow) {
-      try { toolsList = await extractAiTools(blogContent, LOVABLE_API_KEY); } catch { toolsList = []; }
-    }
+    // Always extract a unified blog context so visuals in EVERY layout
+    // (tools row, holo stack, code panel, prompt UI, metric hero) are blog-themed.
+    let blogCtx: BlogContext | undefined;
+    try { blogCtx = await extractBlogContext(blogContent, LOVABLE_API_KEY); } catch { blogCtx = undefined; }
 
     const jobs = hooks.map((headline, i) => {
       const layout = forcedLayouts.length > 0
         ? forcedLayouts[Math.floor(i / variantsPerStyle) % forcedLayouts.length]
         : APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
       const layoutPrompt = hasSubject ? layout.promptWithSubject : layout.promptNoSubject;
-      const tools = layout.id === "ai-tools-row" ? toolsList : undefined;
       return {
         headline,
         layoutId: layout.id,
-        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef, tools),
+        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef, blogCtx, layout.id),
       };
     });
 
