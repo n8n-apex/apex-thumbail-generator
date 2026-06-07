@@ -77,16 +77,16 @@ import apexRef7 from "@/assets/apex-ref-7.jpg";
 import apexRef8 from "@/assets/apex-ref-8.jpg";
 import apexRef9 from "@/assets/apex-ref-9.jpg";
 
-const APEX_BLOG_REFERENCES: { src: string; label: string }[] = [
-  { src: apexRef1, label: "Glass Card" },
-  { src: apexRef2, label: "AI Tools Row" },
-  { src: apexRef3, label: "Big Quote" },
-  { src: apexRef4, label: "Metric Hero" },
-  { src: apexRef5, label: "Split Accent" },
-  { src: apexRef6, label: "Laptop Glow" },
-  { src: apexRef7, label: "Neural Net" },
-  { src: apexRef8, label: "Prompt UI" },
-  { src: apexRef9, label: "Arrow Up" },
+const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
+  { src: apexRef1, label: "Glass Card", layoutId: "glass-card" },
+  { src: apexRef2, label: "AI Tools Row", layoutId: "ai-tools-row" },
+  { src: apexRef3, label: "Big Quote", layoutId: "big-quote" },
+  { src: apexRef4, label: "Metric Hero", layoutId: "metric-hero" },
+  { src: apexRef5, label: "Neon Bracket", layoutId: "neon-bracket" },
+  { src: apexRef6, label: "Holo Stack", layoutId: "holo-stack" },
+  { src: apexRef7, label: "Spectrum Glow", layoutId: "spectrum-glow" },
+  { src: apexRef8, label: "Prompt UI", layoutId: "prompt-ui" },
+  { src: apexRef9, label: "Code Glass", layoutId: "code-glass" },
 ];
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
