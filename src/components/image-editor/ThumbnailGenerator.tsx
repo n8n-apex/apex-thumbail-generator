@@ -364,7 +364,7 @@ export default function ThumbnailGenerator({
   const clearReference = useCallback(() => {
     setReferenceStyleImage(null);
     setReferenceYoutubeUrl("");
-    setSelectedBlogRefSrc(null);
+    setSelectedBlogRefSrcs([]);
   }, []);
 
   const extractTestimonialQuote = useCallback(async () => {
