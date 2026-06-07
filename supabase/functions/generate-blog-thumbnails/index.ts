@@ -63,26 +63,67 @@ const APEX_BLOG_LAYOUTS = [
 - Oversized number/metric from the headline, massive bold sans-serif, Deep Ocean — KEY digits tinted APEX Blue. Small tracked uppercase label below in Slate Steel. No people.`,
   },
   {
-    id: "split-accent",
-    label: "Split Accent",
-    promptWithSubject: `LAYOUT — SPLIT ACCENT:
-- LEFT 40%: flat APEX Blue #00BCFF panel containing the subject (person from uploaded photo) as a clean photo-real cutout, chest-up, soft studio lighting, looking slightly toward the right.
-- RIGHT 60%: Deep Ocean #001A23 with the headline in bold sans-serif, Ice White, left-aligned, 2 lines max, wrapped in smart quotes. Tiny APEX Blue label "INSIGHT" in the bottom-right corner.`,
-    promptNoSubject: `LAYOUT — SPLIT ACCENT:
-- LEFT 35%: flat APEX Blue panel with one thin Ice White geometric icon (arrow, spark, circle) centered.
-- RIGHT 65%: Deep Ocean with headline in bold sans-serif, Ice White, left-aligned, 2 lines max, wrapped in smart quotes. Tiny APEX Blue "INSIGHT" label bottom-right.`,
+    id: "neon-bracket",
+    label: "Neon Bracket",
+    promptWithSubject: `LAYOUT — NEON BRACKET (Hormozi × Everlast AI futurism):
+- Background: cinematic Deep Ocean #001A23 with a soft APEX Blue #00BCFF aurora glow bloom on one side, fine film grain, ultra-premium.
+- Subject (person from uploaded photo) anchored on the RIGHT third, chest-up cinematic portrait, photo-real 85mm DSLR, shallow DOF, sharp cyan rim light on hair/shoulder, confident micro-smile, sharp eye contact.
+- LEFT/CENTER: two oversized neon cyan square BRACKETS [ ] as massive typographic frame element, frosted Liquid-Glass effect with 1px APEX Blue hairline + soft outer glow, slight 3D depth.
+- Inside the brackets: headline in heavy modern sans-serif (Inter Heavy), Ice White #FCFEFF, 2 short lines max, wrapped in smart quotes. Tiny APEX Blue 3-dot indicator under the brackets.`,
+    promptNoSubject: `LAYOUT — NEON BRACKET:
+- Deep Ocean background with cyan aurora glow on one side.
+- Two oversized neon cyan frosted-glass square BRACKETS [ ] centered, 1px APEX Blue hairline + soft glow.
+- Inside: headline in heavy sans-serif, Ice White, wrapped in smart quotes, max 2 lines. APEX Blue 3-dot accent below.`,
   },
   {
-    id: "cinematic-portrait",
-    label: "Cinematic Portrait",
-    promptWithSubject: `LAYOUT — CINEMATIC EDITORIAL PORTRAIT:
-- Background: deep Deep Ocean darkness with single soft cyan side-light source (Rembrandt), heavy chiaroscuro, fine film grain.
-- Subject (person from uploaded photo) as dramatic tight close-up on the RIGHT half, intense direct eye contact, half-face lit / half in shadow, glossy filmic skin, sharp eyes, shallow DOF.
-- HEADLINE in HUGE modern sans-serif (NOT serif) across the TOP in semi-transparent Ice White — the subject's head partially eclipses the letters (magazine-cover masthead). Wrapped in smart quotes. Same headline repeated SMALL solid Ice White at the BOTTOM-LEFT.
-- Tiny APEX Blue 1px underline accent under the bottom headline.`,
-    promptNoSubject: `LAYOUT — FROSTED OVERLAY:
-- Deep Ocean background with subtle abstract cyan light-leak in one corner.
-- Headline HUGE across center in light-weight modern sans-serif, Ice White, FIRST or LAST word highlighted in solid APEX Blue. Thin 60px APEX Blue divider below. No people.`,
+    id: "holo-stack",
+    label: "Holo Stack",
+    promptWithSubject: `LAYOUT — HOLO STACK (Everlast AI futurism, Apple visionOS Liquid Glass):
+- Background: Deep Ocean #001A23 → Graphite Gray #1E2126 gradient with soft cyan #00BCFF rim glow.
+- Subject (person from uploaded photo) anchored on the RIGHT third, chest-up cinematic portrait, photo-real DSLR, glossy filmic skin, cyan rim light, confident eye contact.
+- LEFT/CENTER: a floating perspective stack of 3 translucent glassmorphic UI dashboard PANELS (visionOS Liquid Glass), frosted blur, 1px APEX Blue hairline borders at 25% opacity, soft inner shadows + outer glow, each containing tiny cyan sparkline charts / metric tiles. The panels appear to hover in 3D space.
+- Above the stack: bold white sans-serif headline (Inter Heavy), 2 lines max, wrapped in smart quotes. Tiny APEX Blue square accent.`,
+    promptNoSubject: `LAYOUT — HOLO STACK:
+- Deep Ocean → Graphite gradient with cyan glow.
+- Centered floating 3D stack of 3 translucent glassmorphic UI dashboard cards (visionOS Liquid Glass), 1px APEX Blue hairlines, soft glow, tiny cyan charts inside.
+- Above: bold Ice White sans-serif headline, 2 lines, smart quotes. APEX Blue square accent.`,
+  },
+  {
+    id: "spectrum-glow",
+    label: "Spectrum Glow",
+    promptWithSubject: `LAYOUT — SPECTRUM GLOW (Everlast AI cinematic):
+- Background: Deep Ocean #001A23 with a chromatic cyan #00BCFF aurora ribbon sweeping diagonally behind the subject, soft bloom, fine film grain.
+- Subject (person from uploaded photo) anchored on the LEFT third, cinematic medium portrait, photo-real, glossy skin, strong cyan rim light edge, intense direct eye contact.
+- RIGHT 60%: massive bold sans-serif headline (Inter Heavy), Ice White #FCFEFF, stacked 2 lines max, each line with subtle CYAN chromatic-offset RGB-split aesthetic. A thin APEX Blue underline accent below the last word. Generous negative space.`,
+    promptNoSubject: `LAYOUT — SPECTRUM GLOW:
+- Deep Ocean background with diagonal cyan aurora ribbon and bloom.
+- Center: massive Ice White sans-serif headline, 2 lines, subtle cyan chromatic RGB-split offset on each line. Thin APEX Blue underline accent.`,
+  },
+  {
+    id: "code-glass",
+    label: "Code Glass",
+    promptWithSubject: `LAYOUT — CODE GLASS (Tina Huang × Apple visionOS):
+- Background: Deep Ocean #001A23 with soft cyan #00BCFF glow.
+- Subject (person from uploaded photo) anchored on the LEFT third, chest-up clean photo-real cutout with soft cyan rim, confident expression.
+- RIGHT 60%: a translucent frosted Liquid-Glass code/terminal PANEL (visionOS aesthetic), 1px APEX Blue hairline border, soft drop shadow + outer glow, traffic-light dots top-left, containing a few stylized lines of monospaced cyan/white code snippets with a blinking cursor.
+- Above the panel: bold Ice White sans-serif headline (Inter Heavy), 2 lines max, wrapped in smart quotes. Tiny APEX Blue 3-dot accent.`,
+    promptNoSubject: `LAYOUT — CODE GLASS:
+- Deep Ocean background with cyan glow.
+- Centered translucent frosted Liquid-Glass code/terminal panel, 1px APEX Blue hairline, traffic-light dots, stylized monospaced cyan/white code lines.
+- Above: bold Ice White sans-serif headline, 2 lines, smart quotes. APEX Blue 3-dot accent.`,
+  },
+  {
+    id: "ai-tools-row",
+    label: "AI Tools Row",
+    promptWithSubject: `LAYOUT — AI TOOLS ROW (Tina Huang tech-creator):
+- Background: Deep Ocean #001A23 with soft cyan #00BCFF glow bloom, premium futuristic.
+- Subject (person from uploaded photo) anchored on the RIGHT third, chest-up cinematic portrait, photo-real, glossy skin, cyan rim light, pointing/gesturing toward the tools, confident eye contact.
+- LEFT/CENTER: a horizontal ROW of 4–5 floating translucent glassmorphic ROUNDED-SQUARE tiles (visionOS Liquid Glass), 1px APEX Blue hairline borders, soft inner shadows + outer glow, each tile prominently displays the LOGO/ICON of a specific AI tool from the TOOLS list below (render them as clean modern app-icon style, recognizable but stylized to fit the brand — no fake/garbled logos). Tiny tool name labels in tracked uppercase Slate Steel #4B585D under each tile.
+- ABOVE the row: bold Ice White sans-serif headline (Inter Heavy), 1–2 lines max, wrapped in smart quotes. Tiny APEX Blue 3-dot accent.`,
+    promptNoSubject: `LAYOUT — AI TOOLS ROW:
+- Deep Ocean background with cyan glow.
+- Centered horizontal row of 4–5 floating translucent glassmorphic rounded-square tiles (visionOS Liquid Glass), 1px APEX Blue hairlines, each showing the LOGO/ICON of a specific AI tool from the TOOLS list below as clean app-icon style. Tiny uppercase Slate Steel tool labels under each tile.
+- Above: bold Ice White sans-serif headline, smart quotes, 2 lines max. APEX Blue 3-dot accent.`,
   },
 ];
 
@@ -160,11 +201,39 @@ OUTPUT FORMAT: Reines JSON-Array mit ${count} Strings, nichts anderes. Beispiel:
   return hooks;
 }
 
+async function extractAiTools(blogText: string, apiKey: string): Promise<string[]> {
+  const systemPrompt = `Aus dem Blog-Text extrahierst du eine Liste von 4–5 konkreten AI-Tools / Software-Produkten / Plattformen, die im Text namentlich erwähnt werden (z.B. ChatGPT, Claude, Midjourney, Notion AI, Perplexity, Cursor, Gemini, Runway, ElevenLabs, n8n, Zapier, …). Falls weniger als 4 explizit genannt sind, ergänze passende, im Kontext sinnvolle, real existierende AI-Tools. Nur echte, bekannte Produktnamen. OUTPUT: reines JSON-Array mit Strings, nichts anderes. Beispiel: ["ChatGPT","Claude","Midjourney","Notion AI"]`;
+  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Blog-Text:\n\n${blogText}` },
+      ],
+    }),
+  });
+  if (!resp.ok) return [];
+  const data = await resp.json();
+  const raw: string = data.choices?.[0]?.message?.content || "";
+  const m = raw.match(/\[[\s\S]*\]/);
+  if (!m) return [];
+  try {
+    const arr = JSON.parse(m[0]);
+    if (!Array.isArray(arr)) return [];
+    return arr.map((x) => String(x).trim()).filter(Boolean).slice(0, 5);
+  } catch {
+    return [];
+  }
+}
+
 function buildBlogThumbnailPrompt(
   headline: string,
   layoutPrompt: string,
   hasSubject: boolean,
   hasStyleRef: boolean,
+  toolsList?: string[],
 ): string {
   const faceLock = hasSubject
     ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
@@ -216,7 +285,7 @@ APEX TONE: confident, premium, minimal, editorial. NO gimmicks, NO emojis, NO ca
 
 ═══ LAYOUT (follow precisely) ═══
 ${layoutPrompt}
-
+${toolsList && toolsList.length > 0 ? `\n═══ TOOLS LIST (render these specific AI-tool logos/icons in the tiles, in this exact order) ═══\n${toolsList.map((t, i) => `${i + 1}. ${t}`).join("\n")}\nRender each tool as a clean, recognizable modern app-icon-style logo inside its own glass tile. Names appear ONLY as tiny tracked uppercase labels under each tile (these tool labels are allowed in addition to the headline).\n` : ""}
 ═══ HEADLINE TO RENDER (verbatim, perfect spelling) ═══
 "${headline}"
 
@@ -296,6 +365,7 @@ serve(async (req) => {
     let blogContent: string = typeof body.blogContent === "string" ? body.blogContent.trim() : "";
     const imageBase64: string | undefined = typeof body.imageBase64 === "string" && body.imageBase64 ? body.imageBase64 : undefined;
     const referenceStyleBase64: string | undefined = typeof body.referenceStyleBase64 === "string" && body.referenceStyleBase64 ? body.referenceStyleBase64 : undefined;
+    const forcedLayoutId: string | undefined = typeof body.forcedLayoutId === "string" && body.forcedLayoutId ? body.forcedLayoutId : undefined;
     const hasSubject = !!imageBase64;
     const hasStyleRef = !!referenceStyleBase64;
 
@@ -337,13 +407,26 @@ serve(async (req) => {
       throw e;
     }
 
+    const forcedLayout = forcedLayoutId
+      ? APEX_BLOG_LAYOUTS.find((l) => l.id === forcedLayoutId)
+      : undefined;
+
+    let toolsList: string[] | undefined;
+    if ((forcedLayoutId === "ai-tools-row") || APEX_BLOG_LAYOUTS.some((l) => l.id === "ai-tools-row" && !forcedLayoutId)) {
+      // only extract if ai-tools-row will actually be used (forced, or in rotation)
+      if (forcedLayoutId === "ai-tools-row") {
+        try { toolsList = await extractAiTools(blogContent, LOVABLE_API_KEY); } catch { toolsList = []; }
+      }
+    }
+
     const jobs = hooks.map((headline, i) => {
-      const layout = APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
+      const layout = forcedLayout ?? APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
       const layoutPrompt = hasSubject ? layout.promptWithSubject : layout.promptNoSubject;
+      const tools = layout.id === "ai-tools-row" ? toolsList : undefined;
       return {
         headline,
         layoutId: layout.id,
-        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef),
+        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef, tools),
       };
     });
 
