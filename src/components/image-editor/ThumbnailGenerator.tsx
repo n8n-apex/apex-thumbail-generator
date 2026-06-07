@@ -44,7 +44,7 @@ import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type VlogStyle = "lifestyle" | "podcast" | "testimonial";
+type VlogStyle = "lifestyle" | "podcast" | "testimonial" | "blog";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
@@ -69,9 +69,10 @@ import podcastPreviewPodcastFrame from "@/assets/podcast-style-podcast-frame.jpg
 import podcastPreviewCinematicPortrait from "@/assets/podcast-style-cinematic-portrait.jpg";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
-  { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
+  { id: "lifestyle", label: "RS Talk", sub: "Audi RS6 · cinematic · daily", icon: Coffee },
   { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "testimonial", label: "Testimonial", sub: "Social proof · stars · quote", icon: Quote },
+  { id: "blog", label: "Blog → Thumbnails", sub: "Auto · APEX minimal · X visuals", icon: BookOpen },
 ];
 
 const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid; preview: string }[] = [
