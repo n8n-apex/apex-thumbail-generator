@@ -754,7 +754,19 @@ export default function ThumbnailGenerator({
                     <button
                       key={ref.src}
                       type="button"
-                      onClick={() => setReferenceStyleImage((prev) => (prev === ref.src ? null : ref.src))}
+                      onClick={async () => {
+                        if (referenceStyleImage === ref.src) {
+                          setReferenceStyleImage(null);
+                          return;
+                        }
+                        try {
+                          const b64 = await imageSourceToOptimizedBase64(ref.src);
+                          setReferenceStyleImage(b64);
+                          // store the original src on the element too via dataset trick not needed; we compare via b64
+                        } catch {
+                          toast.error("Referenz konnte nicht geladen werden");
+                        }
+                      }}
                       disabled={isGenerating}
                       className={`group relative rounded-xl overflow-hidden border-2 transition-all ${
                         active
