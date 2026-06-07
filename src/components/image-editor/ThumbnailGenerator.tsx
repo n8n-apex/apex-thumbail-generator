@@ -403,8 +403,9 @@ export default function ThumbnailGenerator({
       const requestedVariants = Math.min(Math.max(variants, 1), 12);
 
       if (isBlog) {
-        if (!blogContent.trim() && !blogUrl.trim()) {
-          throw new Error("Bitte Blog-Inhalt einfügen oder URL angeben");
+        const manualTitle = (autoTitle ? titleKeywords : title).trim();
+        if (!blogContent.trim() && !blogUrl.trim() && !manualTitle) {
+          throw new Error("Bitte Blog-Inhalt, URL oder einen Titel angeben");
         }
         const blogImageBase64 = await activeImageBase64();
         const forcedLayoutIds = selectedBlogRefSrcs
@@ -414,6 +415,8 @@ export default function ThumbnailGenerator({
           body: {
             blogContent: blogContent.trim().slice(0, 20000) || undefined,
             blogUrl: blogUrl.trim() || undefined,
+            manualTitle: manualTitle ? manualTitle.slice(0, 200) : undefined,
+            autoTitle: autoTitle && !!manualTitle && !blogContent.trim() && !blogUrl.trim(),
             count: requestedVariants,
             imageBase64: blogImageBase64,
             referenceStyleBase64: forcedLayoutIds.length === 0 ? (referenceStyleImage ?? undefined) : undefined,
