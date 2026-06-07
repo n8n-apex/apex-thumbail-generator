@@ -206,7 +206,7 @@ export default function ThumbnailGenerator({
   const [isExtractingQuote, setIsExtractingQuote] = useState(false);
   const [blogContent, setBlogContent] = useState("");
   const [blogUrl, setBlogUrl] = useState("");
-  const [selectedBlogRefSrc, setSelectedBlogRefSrc] = useState<string | null>(null);
+  const [selectedBlogRefSrcs, setSelectedBlogRefSrcs] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
