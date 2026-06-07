@@ -373,10 +373,35 @@ export default function ThumbnailGenerator({
     setIsGenerating(true);
     startProgress();
     try {
-      const imageBase64 = await activeImageBase64();
+      const isBlog = vlogStyle === "blog";
       const isPodcast = vlogStyle === "podcast";
       const isTestimonial = vlogStyle === "testimonial";
-      const requestedVariants = Math.min(Math.max(variants, 1), 6);
+      const requestedVariants = Math.min(Math.max(variants, 1), 12);
+
+      if (isBlog) {
+        if (!blogContent.trim() && !blogUrl.trim()) {
+          throw new Error("Bitte Blog-Inhalt einfügen oder URL angeben");
+        }
+        const { data, error } = await supabase.functions.invoke("generate-blog-thumbnails", {
+          body: {
+            blogContent: blogContent.trim().slice(0, 20000) || undefined,
+            blogUrl: blogUrl.trim() || undefined,
+            count: requestedVariants,
+          },
+        });
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        const newThumbs: GeneratedThumbnail[] = (data.images as string[]).map((url, idx) => ({
+          templateId: `${data.template.id}-${Date.now()}-${idx}`,
+          imageUrl: url,
+          template: data.template,
+        }));
+        onGeneratedChange((prev) => [...newThumbs, ...prev]);
+        toast.success(`${newThumbs.length} APEX-Blog-Thumbnails generiert!`);
+        return;
+      }
+
+      const imageBase64 = await activeImageBase64();
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -389,7 +414,7 @@ export default function ThumbnailGenerator({
           brandColor: enforceApexCI ? "#00BCFF" : brandColor,
           enforceApexCI,
           imageBase64,
-          variants: requestedVariants,
+          variants: Math.min(requestedVariants, 6),
           podcastStyles: isPodcast ? podcastStyles : undefined,
           testimonialLayouts: isTestimonial ? testimonialLayouts : undefined,
           referenceStyleBase64: referenceStyleImage ?? undefined,
@@ -411,7 +436,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
+  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
