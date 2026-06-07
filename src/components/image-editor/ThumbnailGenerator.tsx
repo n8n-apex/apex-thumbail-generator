@@ -183,6 +183,8 @@ export default function ThumbnailGenerator({
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [testimonialSourceUrl, setTestimonialSourceUrl] = useState("");
   const [isExtractingQuote, setIsExtractingQuote] = useState(false);
+  const [blogContent, setBlogContent] = useState("");
+  const [blogUrl, setBlogUrl] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
