@@ -407,13 +407,26 @@ serve(async (req) => {
       throw e;
     }
 
+    const forcedLayout = forcedLayoutId
+      ? APEX_BLOG_LAYOUTS.find((l) => l.id === forcedLayoutId)
+      : undefined;
+
+    let toolsList: string[] | undefined;
+    if ((forcedLayoutId === "ai-tools-row") || APEX_BLOG_LAYOUTS.some((l) => l.id === "ai-tools-row" && !forcedLayoutId)) {
+      // only extract if ai-tools-row will actually be used (forced, or in rotation)
+      if (forcedLayoutId === "ai-tools-row") {
+        try { toolsList = await extractAiTools(blogContent, LOVABLE_API_KEY); } catch { toolsList = []; }
+      }
+    }
+
     const jobs = hooks.map((headline, i) => {
-      const layout = APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
+      const layout = forcedLayout ?? APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
       const layoutPrompt = hasSubject ? layout.promptWithSubject : layout.promptNoSubject;
+      const tools = layout.id === "ai-tools-row" ? toolsList : undefined;
       return {
         headline,
         layoutId: layout.id,
-        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef),
+        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef, tools),
       };
     });
 
