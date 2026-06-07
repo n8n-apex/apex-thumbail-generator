@@ -44,7 +44,7 @@ import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type VlogStyle = "lifestyle" | "podcast" | "testimonial";
+type VlogStyle = "lifestyle" | "podcast" | "testimonial" | "blog";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
@@ -69,9 +69,10 @@ import podcastPreviewPodcastFrame from "@/assets/podcast-style-podcast-frame.jpg
 import podcastPreviewCinematicPortrait from "@/assets/podcast-style-cinematic-portrait.jpg";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
-  { id: "lifestyle", label: "Lifestyle", sub: "Daily Vlog · warm · cozy", icon: Coffee },
+  { id: "lifestyle", label: "RS Talk", sub: "Audi RS6 · cinematic · daily", icon: Coffee },
   { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "testimonial", label: "Testimonial", sub: "Social proof · stars · quote", icon: Quote },
+  { id: "blog", label: "Blog → Thumbnails", sub: "Auto · APEX minimal · X visuals", icon: BookOpen },
 ];
 
 const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid; preview: string }[] = [
@@ -182,6 +183,8 @@ export default function ThumbnailGenerator({
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [testimonialSourceUrl, setTestimonialSourceUrl] = useState("");
   const [isExtractingQuote, setIsExtractingQuote] = useState(false);
+  const [blogContent, setBlogContent] = useState("");
+  const [blogUrl, setBlogUrl] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -233,9 +236,10 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    if (variants > 6) setVariants(6);
+    const cap = vlogStyle === "blog" ? 12 : 6;
+    if (variants > cap) setVariants(cap);
     if (variants < 1) setVariants(1);
-  }, [variants]);
+  }, [variants, vlogStyle]);
 
   const selectBatchImage = useCallback((id: string) => {
     setSelectedBatchImageId((prev) => (prev === id ? null : id));
@@ -370,10 +374,35 @@ export default function ThumbnailGenerator({
     setIsGenerating(true);
     startProgress();
     try {
-      const imageBase64 = await activeImageBase64();
+      const isBlog = vlogStyle === "blog";
       const isPodcast = vlogStyle === "podcast";
       const isTestimonial = vlogStyle === "testimonial";
-      const requestedVariants = Math.min(Math.max(variants, 1), 6);
+      const requestedVariants = Math.min(Math.max(variants, 1), 12);
+
+      if (isBlog) {
+        if (!blogContent.trim() && !blogUrl.trim()) {
+          throw new Error("Bitte Blog-Inhalt einfügen oder URL angeben");
+        }
+        const { data, error } = await supabase.functions.invoke("generate-blog-thumbnails", {
+          body: {
+            blogContent: blogContent.trim().slice(0, 20000) || undefined,
+            blogUrl: blogUrl.trim() || undefined,
+            count: requestedVariants,
+          },
+        });
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        const newThumbs: GeneratedThumbnail[] = (data.images as string[]).map((url, idx) => ({
+          templateId: `${data.template.id}-${Date.now()}-${idx}`,
+          imageUrl: url,
+          template: data.template,
+        }));
+        onGeneratedChange((prev) => [...newThumbs, ...prev]);
+        toast.success(`${newThumbs.length} APEX-Blog-Thumbnails generiert!`);
+        return;
+      }
+
+      const imageBase64 = await activeImageBase64();
       const { data, error } = await supabase.functions.invoke("generate-thumbnails", {
         body: {
           action: "generate",
@@ -386,7 +415,7 @@ export default function ThumbnailGenerator({
           brandColor: enforceApexCI ? "#00BCFF" : brandColor,
           enforceApexCI,
           imageBase64,
-          variants: requestedVariants,
+          variants: Math.min(requestedVariants, 6),
           podcastStyles: isPodcast ? podcastStyles : undefined,
           testimonialLayouts: isTestimonial ? testimonialLayouts : undefined,
           referenceStyleBase64: referenceStyleImage ?? undefined,
@@ -408,7 +437,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress]);
+  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
@@ -480,7 +509,7 @@ export default function ThumbnailGenerator({
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Content-Typ
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {VLOG_OPTIONS.map((opt) => {
               const Icon = opt.icon;
               const active = vlogStyle === opt.id;
@@ -648,6 +677,38 @@ export default function ThumbnailGenerator({
             </div>
           </div>
         )}
+
+        {/* Blog → Thumbnails */}
+        {vlogStyle === "blog" && (
+          <div className="space-y-2 rounded-2xl border border-dashed border-primary/40 p-3 bg-primary/5">
+            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <BookOpen className="h-3 w-3 text-primary" />
+              Blog-Inhalt — AI erstellt X minimalistische APEX-Thumbnails
+            </label>
+            <Input
+              value={blogUrl}
+              onChange={(e) => setBlogUrl(e.target.value)}
+              placeholder="Blog-URL (optional) — z.B. https://meinblog.de/ai-trends-2026"
+              className="text-xs rounded-xl h-10"
+              disabled={isGenerating}
+            />
+            <Textarea
+              value={blogContent}
+              onChange={(e) => setBlogContent(e.target.value)}
+              placeholder="ODER vollen Blog-Text hier einfügen (überschreibt URL, robuster)…"
+              rows={5}
+              maxLength={20000}
+              className="text-xs rounded-xl resize-none"
+              disabled={isGenerating}
+            />
+            <p className="text-[10px] text-muted-foreground">
+              Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual (Glass Card, Big Quote, Metric Hero, Split Accent, …) — keine Person nötig.
+            </p>
+          </div>
+        )}
+
+
+
 
 
         {/* Custom reference (own thumbnail upload OR YouTube URL) */}
@@ -909,6 +970,7 @@ export default function ThumbnailGenerator({
 
         <div className="space-y-2">
           {(() => {
+            const isBlog = vlogStyle === "blog";
             const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
             const isTestimonialBatch = vlogStyle === "testimonial" && testimonialLayouts.length > 0;
             const batchCount = isPodcastBatch
@@ -920,11 +982,16 @@ export default function ThumbnailGenerator({
             const batchLabelSingular = isPodcastBatch ? "Stil" : "Layout";
             const isBatch = isPodcastBatch || isTestimonialBatch;
             const total = isBatch ? variants * batchCount : variants;
+            const sliderMax = isBlog ? 12 : 6;
             return (
               <>
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    {isBatch ? `Bilder pro ${batchLabelSingular} (× ${batchCount} ${batchLabel})` : "Varianten pro Generierung"}
+                    {isBlog
+                      ? "Anzahl Thumbnails aus dem Blog"
+                      : isBatch
+                        ? `Bilder pro ${batchLabelSingular} (× ${batchCount} ${batchLabel})`
+                        : "Varianten pro Generierung"}
                   </label>
                   <span className="text-xs font-bold text-primary tabular-nums">
                     {isBatch ? `${variants} → ${total} gesamt` : total}
@@ -933,15 +1000,17 @@ export default function ThumbnailGenerator({
                 <Slider
                   value={[variants]}
                   min={1}
-                  max={6}
+                  max={sliderMax}
                   step={1}
                   onValueChange={(v) => setVariants(v[0])}
                   disabled={isGenerating}
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  {isBatch
-                    ? `Slider = Bilder pro ${batchLabelSingular}. ${variants} × ${batchCount} ${batchCount > 1 ? batchLabel : batchLabelSingular} = ${total} Bilder gesamt`
-                    : `${total} Bild${total > 1 ? "er" : ""} parallel`}
+                  {isBlog
+                    ? `${variants} eigenständige minimale APEX-Thumbnails — jedes mit einer anderen Quintessenz aus dem Blog.`
+                    : isBatch
+                      ? `Slider = Bilder pro ${batchLabelSingular}. ${variants} × ${batchCount} ${batchCount > 1 ? batchLabel : batchLabelSingular} = ${total} Bilder gesamt`
+                      : `${total} Bild${total > 1 ? "er" : ""} parallel`}
                 </p>
               </>
             );
