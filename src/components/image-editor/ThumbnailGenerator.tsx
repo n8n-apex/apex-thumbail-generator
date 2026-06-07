@@ -1072,24 +1072,27 @@ export default function ThumbnailGenerator({
             const isBlog = vlogStyle === "blog";
             const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
             const isTestimonialBatch = vlogStyle === "testimonial" && testimonialLayouts.length > 0;
+            const isBlogBatch = isBlog && selectedBlogRefSrcs.length > 0;
             const batchCount = isPodcastBatch
               ? podcastStyles.length
               : isTestimonialBatch
                 ? testimonialLayouts.length
-                : 0;
-            const batchLabel = isPodcastBatch ? "Stile" : "Layouts";
-            const batchLabelSingular = isPodcastBatch ? "Stil" : "Layout";
-            const isBatch = isPodcastBatch || isTestimonialBatch;
+                : isBlogBatch
+                  ? selectedBlogRefSrcs.length
+                  : 0;
+            const batchLabel = isPodcastBatch ? "Stile" : isBlogBatch ? "Stile" : "Layouts";
+            const batchLabelSingular = isPodcastBatch ? "Stil" : isBlogBatch ? "Stil" : "Layout";
+            const isBatch = isPodcastBatch || isTestimonialBatch || isBlogBatch;
             const total = isBatch ? variants * batchCount : variants;
             const sliderMax = isBlog ? 12 : 6;
             return (
               <>
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    {isBlog
-                      ? "Anzahl Thumbnails aus dem Blog"
-                      : isBatch
-                        ? `Bilder pro ${batchLabelSingular} (× ${batchCount} ${batchLabel})`
+                    {isBatch
+                      ? `Bilder pro ${batchLabelSingular} (× ${batchCount} ${batchLabel})`
+                      : isBlog
+                        ? "Anzahl Thumbnails aus dem Blog"
                         : "Varianten pro Generierung"}
                   </label>
                   <span className="text-xs font-bold text-primary tabular-nums">
@@ -1105,10 +1108,10 @@ export default function ThumbnailGenerator({
                   disabled={isGenerating}
                 />
                 <p className="text-[10px] text-muted-foreground">
-                  {isBlog
-                    ? `${variants} eigenständige minimale APEX-Thumbnails — jedes mit einer anderen Quintessenz aus dem Blog.`
-                    : isBatch
-                      ? `Slider = Bilder pro ${batchLabelSingular}. ${variants} × ${batchCount} ${batchCount > 1 ? batchLabel : batchLabelSingular} = ${total} Bilder gesamt`
+                  {isBatch
+                    ? `Slider = Bilder pro ${batchLabelSingular}. ${variants} × ${batchCount} ${batchCount > 1 ? batchLabel : batchLabelSingular} = ${total} Bilder gesamt`
+                    : isBlog
+                      ? `${variants} eigenständige minimale APEX-Thumbnails — jedes mit einer anderen Quintessenz aus dem Blog.`
                       : `${total} Bild${total > 1 ? "er" : ""} parallel`}
                 </p>
               </>
