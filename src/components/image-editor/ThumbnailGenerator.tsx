@@ -677,6 +677,38 @@ export default function ThumbnailGenerator({
           </div>
         )}
 
+        {/* Blog → Thumbnails */}
+        {vlogStyle === "blog" && (
+          <div className="space-y-2 rounded-2xl border border-dashed border-primary/40 p-3 bg-primary/5">
+            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <BookOpen className="h-3 w-3 text-primary" />
+              Blog-Inhalt — AI erstellt X minimalistische APEX-Thumbnails
+            </label>
+            <Input
+              value={blogUrl}
+              onChange={(e) => setBlogUrl(e.target.value)}
+              placeholder="Blog-URL (optional) — z.B. https://meinblog.de/ai-trends-2026"
+              className="text-xs rounded-xl h-10"
+              disabled={isGenerating}
+            />
+            <Textarea
+              value={blogContent}
+              onChange={(e) => setBlogContent(e.target.value)}
+              placeholder="ODER vollen Blog-Text hier einfügen (überschreibt URL, robuster)…"
+              rows={5}
+              maxLength={20000}
+              className="text-xs rounded-xl resize-none"
+              disabled={isGenerating}
+            />
+            <p className="text-[10px] text-muted-foreground">
+              Slider unten = Anzahl Thumbnails. AI extrahiert pro Bild eine andere Hook-Headline aus dem Blog und generiert ein eigenständiges minimales APEX-Brand Visual (Glass Card, Big Quote, Metric Hero, Split Accent, …) — keine Person nötig.
+            </p>
+          </div>
+        )}
+
+
+
+
 
         {/* Custom reference (own thumbnail upload OR YouTube URL) */}
         <div className="space-y-2 rounded-2xl border border-dashed border-border/60 p-3 bg-background/30">
