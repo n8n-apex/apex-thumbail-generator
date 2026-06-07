@@ -383,11 +383,14 @@ export default function ThumbnailGenerator({
         if (!blogContent.trim() && !blogUrl.trim()) {
           throw new Error("Bitte Blog-Inhalt einfügen oder URL angeben");
         }
+        const blogImageBase64 = await activeImageBase64();
         const { data, error } = await supabase.functions.invoke("generate-blog-thumbnails", {
           body: {
             blogContent: blogContent.trim().slice(0, 20000) || undefined,
             blogUrl: blogUrl.trim() || undefined,
             count: requestedVariants,
+            imageBase64: blogImageBase64,
+            referenceStyleBase64: referenceStyleImage ?? undefined,
           },
         });
         if (error) throw error;
