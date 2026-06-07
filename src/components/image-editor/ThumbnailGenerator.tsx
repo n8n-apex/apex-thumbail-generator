@@ -236,9 +236,10 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    if (variants > 6) setVariants(6);
+    const cap = vlogStyle === "blog" ? 12 : 6;
+    if (variants > cap) setVariants(cap);
     if (variants < 1) setVariants(1);
-  }, [variants]);
+  }, [variants, vlogStyle]);
 
   const selectBatchImage = useCallback((id: string) => {
     setSelectedBatchImageId((prev) => (prev === id ? null : id));
