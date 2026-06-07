@@ -737,12 +737,15 @@ export default function ThumbnailGenerator({
                   <Sparkles className="h-3 w-3 text-primary" />
                   APEX Referenz-Stil wählen (optional)
                 </label>
-                {referenceStyleImage && (
+                {(referenceStyleImage || selectedBlogRefSrc) && (
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 rounded-lg text-[10px] px-2"
-                    onClick={() => setReferenceStyleImage(null)}
+                    onClick={() => {
+                      setReferenceStyleImage(null);
+                      setSelectedBlogRefSrc(null);
+                    }}
                   >
                     <X className="h-3 w-3 mr-0.5" /> Auswahl löschen
                   </Button>
@@ -750,20 +753,21 @@ export default function ThumbnailGenerator({
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {APEX_BLOG_REFERENCES.map((ref) => {
-                  const active = referenceStyleImage === ref.src;
+                  const active = selectedBlogRefSrc === ref.src;
                   return (
                     <button
                       key={ref.src}
                       type="button"
                       onClick={async () => {
-                        if (referenceStyleImage === ref.src) {
+                        if (selectedBlogRefSrc === ref.src) {
+                          setSelectedBlogRefSrc(null);
                           setReferenceStyleImage(null);
                           return;
                         }
                         try {
                           const b64 = await imageSourceToOptimizedBase64(ref.src);
                           setReferenceStyleImage(b64);
-                          // store the original src on the element too via dataset trick not needed; we compare via b64
+                          setSelectedBlogRefSrc(ref.src);
                         } catch {
                           toast.error("Referenz konnte nicht geladen werden");
                         }
