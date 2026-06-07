@@ -285,7 +285,7 @@ APEX TONE: confident, premium, minimal, editorial. NO gimmicks, NO emojis, NO ca
 
 ═══ LAYOUT (follow precisely) ═══
 ${layoutPrompt}
-
+${toolsList && toolsList.length > 0 ? `\n═══ TOOLS LIST (render these specific AI-tool logos/icons in the tiles, in this exact order) ═══\n${toolsList.map((t, i) => `${i + 1}. ${t}`).join("\n")}\nRender each tool as a clean, recognizable modern app-icon-style logo inside its own glass tile. Names appear ONLY as tiny tracked uppercase labels under each tile (these tool labels are allowed in addition to the headline).\n` : ""}
 ═══ HEADLINE TO RENDER (verbatim, perfect spelling) ═══
 "${headline}"
 
