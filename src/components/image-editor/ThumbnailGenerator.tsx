@@ -67,6 +67,27 @@ import podcastPreviewPunchyReaction from "@/assets/podcast-style-punchy-reaction
 import podcastPreviewToolsShowcase from "@/assets/podcast-style-tools-showcase.jpg";
 import podcastPreviewPodcastFrame from "@/assets/podcast-style-podcast-frame.jpg";
 import podcastPreviewCinematicPortrait from "@/assets/podcast-style-cinematic-portrait.jpg";
+import apexRef1 from "@/assets/apex-ref-1.jpg";
+import apexRef2 from "@/assets/apex-ref-2.jpg";
+import apexRef3 from "@/assets/apex-ref-3.jpg";
+import apexRef4 from "@/assets/apex-ref-4.jpg";
+import apexRef5 from "@/assets/apex-ref-5.jpg";
+import apexRef6 from "@/assets/apex-ref-6.jpg";
+import apexRef7 from "@/assets/apex-ref-7.jpg";
+import apexRef8 from "@/assets/apex-ref-8.jpg";
+import apexRef9 from "@/assets/apex-ref-9.jpg";
+
+const APEX_BLOG_REFERENCES: { src: string; label: string }[] = [
+  { src: apexRef1, label: "Glass Card" },
+  { src: apexRef2, label: "AI Tools Row" },
+  { src: apexRef3, label: "Big Quote" },
+  { src: apexRef4, label: "Metric Hero" },
+  { src: apexRef5, label: "Split Accent" },
+  { src: apexRef6, label: "Laptop Glow" },
+  { src: apexRef7, label: "Neural Net" },
+  { src: apexRef8, label: "Prompt UI" },
+  { src: apexRef9, label: "Arrow Up" },
+];
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "lifestyle", label: "RS Talk", sub: "Audi RS6 · cinematic · daily", icon: Coffee },
