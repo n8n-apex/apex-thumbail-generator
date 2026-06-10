@@ -40,15 +40,15 @@ const APEX_BLOG_LAYOUTS = [
   },
   {
     id: "big-quote",
-    label: "Big Quote",
-    promptWithSubject: `LAYOUT — BIG QUOTE PORTRAIT:
+    label: "Editorial Hero",
+    promptWithSubject: `LAYOUT — EDITORIAL HERO PORTRAIT:
 - Background: Deep Ocean #001A23 with one soft warm/cyan side rim.
 - Subject (person from uploaded photo) on the RIGHT half, cinematic medium portrait, Rembrandt-style lighting with cyan rim, glossy filmic skin.
-- LEFT: oversized opening smart quotation mark “ in semi-transparent APEX Blue #00BCFF as giant typographic element. Below it the headline in bold sans-serif, Ice White, 2 short lines. Thin 1px APEX Blue underline beneath. Generous negative space.`,
-    promptNoSubject: `LAYOUT — BIG QUOTE:
+- LEFT: oversized thick APEX Blue #00BCFF vertical bar (8px wide, 70% height) as editorial accent. Right of the bar: headline in bold sans-serif, Ice White, 2 short lines, NO quotation marks. Thin 1px APEX Blue underline beneath. Generous negative space.`,
+    promptNoSubject: `LAYOUT — EDITORIAL HERO:
 - Solid Deep Ocean background.
-- Oversized opening smart quote “ in light APEX Blue (semi-transparent) upper-left.
-- Headline below in bold sans-serif, Ice White, 2 lines max. Thin APEX Blue underline. Editorial magazine restraint.`,
+- Thick APEX Blue vertical bar accent on the left (8px wide, 60% height).
+- Headline next to the bar in bold sans-serif, Ice White, 2 lines max, NO quotation marks. Thin APEX Blue underline. Editorial magazine restraint.`,
   },
   {
     id: "metric-hero",
