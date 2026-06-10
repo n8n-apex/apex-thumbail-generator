@@ -365,7 +365,9 @@ Render the metric "${ctx.metric}" as the oversized hero number/label on the left
 })()}
 
 ═══ HEADLINE TO RENDER (verbatim, perfect spelling) ═══
-"${headline}"
+${headline}
+
+CRITICAL: render the headline as plain text WITHOUT any surrounding quotation marks (no " " no “ ” no ' ' no ‘ ’). No quote glyphs anywhere on the image.
 
 OUTPUT: a single premium 16:9 minimalist APEX brand thumbnail image. Sharp, intentional, editorial. Top 1% quality.`;
 }
