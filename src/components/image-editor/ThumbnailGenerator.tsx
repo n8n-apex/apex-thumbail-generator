@@ -80,7 +80,7 @@ import apexRef9 from "@/assets/apex-ref-9.jpg";
 const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
   { src: apexRef1, label: "Glass Quote", layoutId: "glass-card" },
   { src: apexRef2, label: "AI Tools Row", layoutId: "ai-tools-row" },
-  { src: apexRef3, label: "Big Quote", layoutId: "big-quote" },
+  { src: apexRef3, label: "Editorial Hero", layoutId: "big-quote" },
   { src: apexRef4, label: "Metric Hero", layoutId: "metric-hero" },
   { src: apexRef5, label: "Neon Bracket", layoutId: "neon-bracket" },
   { src: apexRef6, label: "Dashboard Stack", layoutId: "holo-stack" },
