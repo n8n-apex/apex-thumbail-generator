@@ -18,11 +18,11 @@ const APEX_BLOG_LAYOUTS = [
     promptWithSubject: `LAYOUT — CLEAN CUTOUT (LinkedIn-editorial):
 - Background: Frost White #EDF9FE with very subtle light-grey graph-paper grid.
 - Subject (person from uploaded photo) as a clean photo-real studio cutout on the LEFT third, head-to-shoulder, sharp edges, soft natural studio key light, gentle drop shadow underneath for separation.
-- Headline on the RIGHT 2/3 in HUGE bold modern sans-serif (Inter / Söhne), Deep Ocean #001A23, mixed-case, max 2 lines, wrapped in smart quotes. ONE key word underlined with a thick APEX Blue #00BCFF marker stroke.
+- Headline on the RIGHT 2/3 in HUGE bold modern sans-serif (Inter / Söhne), Deep Ocean #001A23, mixed-case, max 2 lines. ONE key word underlined with a thick APEX Blue #00BCFF marker stroke.
 - Tiny APEX Blue 1px line accent under the headline. Nothing else.`,
     promptNoSubject: `LAYOUT — CLEAN STATEMENT:
 - Background: Frost White #EDF9FE with subtle light-grey graph-paper grid.
-- Headline LEFT-aligned in HUGE bold modern sans-serif, Deep Ocean #001A23, 2 lines max, wrapped in smart quotes. ONE key word underlined with thick APEX Blue #00BCFF marker.
+- Headline LEFT-aligned in HUGE bold modern sans-serif, Deep Ocean #001A23, 2 lines max. ONE key word underlined with thick APEX Blue #00BCFF marker.
 - Tiny APEX Blue square glyph in the bottom-right corner. No people.`,
   },
   {
@@ -31,12 +31,12 @@ const APEX_BLOG_LAYOUTS = [
     promptWithSubject: `LAYOUT — GLASS QUOTE CARD:
 - Background: Deep Ocean #001A23 → Graphite Gray #1E2126 soft gradient with subtle cyan glow bloom behind the subject.
 - Subject (person from uploaded photo) anchored on the RIGHT third, chest-and-head portrait, photo-real 85mm DSLR, shallow DOF, gentle APEX Blue rim light on hair/shoulder, confident micro-smile, sharp eye contact.
-- LEFT 55–60%: softly rounded translucent frosted Liquid-Glass card, 1px APEX Blue hairline border at 25% opacity, soft drop shadow. Inside: headline in heavy modern sans-serif, Ice White #FCFEFF, centered, wrapped in smart quotes, max 2 lines.
+- LEFT 55–60%: softly rounded translucent frosted Liquid-Glass card, 1px APEX Blue hairline border at 25% opacity, soft drop shadow. Inside: headline in heavy modern sans-serif, Ice White #FCFEFF, centered, max 2 lines.
 - Tiny APEX Blue 3-dot indicator above headline inside the card.`,
     promptNoSubject: `LAYOUT — GLASS CARD:
 - Background: Deep Ocean → Graphite Gray gradient, cyan glow center.
 - Centered Liquid-Glass card with 1px APEX Blue hairline border, soft drop shadow.
-- Headline inside in heavy sans-serif, Ice White, wrapped in smart quotes, perfectly centered. Tiny APEX Blue 3-dot accent above.`,
+- Headline inside in heavy sans-serif, Ice White, perfectly centered. Tiny APEX Blue 3-dot accent above.`,
   },
   {
     id: "big-quote",
@@ -44,11 +44,11 @@ const APEX_BLOG_LAYOUTS = [
     promptWithSubject: `LAYOUT — BIG QUOTE PORTRAIT:
 - Background: Deep Ocean #001A23 with one soft warm/cyan side rim.
 - Subject (person from uploaded photo) on the RIGHT half, cinematic medium portrait, Rembrandt-style lighting with cyan rim, glossy filmic skin.
-- LEFT: oversized opening smart quotation mark “ in semi-transparent APEX Blue #00BCFF as giant typographic element. Below it the headline in bold sans-serif, Ice White, 2 short lines, wrapped in smart quotes. Thin 1px APEX Blue underline beneath. Generous negative space.`,
+- LEFT: oversized opening smart quotation mark “ in semi-transparent APEX Blue #00BCFF as giant typographic element. Below it the headline in bold sans-serif, Ice White, 2 short lines. Thin 1px APEX Blue underline beneath. Generous negative space.`,
     promptNoSubject: `LAYOUT — BIG QUOTE:
 - Solid Deep Ocean background.
 - Oversized opening smart quote “ in light APEX Blue (semi-transparent) upper-left.
-- Headline below in bold sans-serif, Ice White, 2 lines max, wrapped in smart quotes. Thin APEX Blue underline. Editorial magazine restraint.`,
+- Headline below in bold sans-serif, Ice White, 2 lines max. Thin APEX Blue underline. Editorial magazine restraint.`,
   },
   {
     id: "metric-hero",
@@ -69,11 +69,11 @@ const APEX_BLOG_LAYOUTS = [
 - Background: cinematic Deep Ocean #001A23 with a soft APEX Blue #00BCFF aurora glow bloom on one side, fine film grain, ultra-premium.
 - Subject (person from uploaded photo) anchored on the RIGHT third, chest-up cinematic portrait, photo-real 85mm DSLR, shallow DOF, sharp cyan rim light on hair/shoulder, confident micro-smile, sharp eye contact.
 - LEFT/CENTER: two oversized neon cyan square BRACKETS [ ] as massive typographic frame element, frosted Liquid-Glass effect with 1px APEX Blue hairline + soft outer glow, slight 3D depth.
-- Inside the brackets: headline in heavy modern sans-serif (Inter Heavy), Ice White #FCFEFF, 2 short lines max, wrapped in smart quotes. Tiny APEX Blue 3-dot indicator under the brackets.`,
+- Inside the brackets: headline in heavy modern sans-serif (Inter Heavy), Ice White #FCFEFF, 2 short lines max. Tiny APEX Blue 3-dot indicator under the brackets.`,
     promptNoSubject: `LAYOUT — NEON BRACKET:
 - Deep Ocean background with cyan aurora glow on one side.
 - Two oversized neon cyan frosted-glass square BRACKETS [ ] centered, 1px APEX Blue hairline + soft glow.
-- Inside: headline in heavy sans-serif, Ice White, wrapped in smart quotes, max 2 lines. APEX Blue 3-dot accent below.`,
+- Inside: headline in heavy sans-serif, Ice White, max 2 lines. APEX Blue 3-dot accent below.`,
   },
   {
     id: "holo-stack",
@@ -82,11 +82,11 @@ const APEX_BLOG_LAYOUTS = [
 - Background: Deep Ocean #001A23 → Graphite Gray #1E2126 gradient with soft cyan #00BCFF rim glow.
 - Subject (person from uploaded photo) anchored on the RIGHT third, chest-up cinematic portrait, photo-real DSLR, glossy filmic skin, cyan rim light, confident eye contact.
 - LEFT/CENTER: a floating perspective stack of 3 translucent glassmorphic UI dashboard PANELS (visionOS Liquid Glass), frosted blur, 1px APEX Blue hairline borders at 25% opacity, soft inner shadows + outer glow, each containing tiny cyan sparkline charts / metric tiles. The panels appear to hover in 3D space.
-- Above the stack: bold white sans-serif headline (Inter Heavy), 2 lines max, wrapped in smart quotes. Tiny APEX Blue square accent.`,
+- Above the stack: bold white sans-serif headline (Inter Heavy), 2 lines max. Tiny APEX Blue square accent.`,
     promptNoSubject: `LAYOUT — HOLO STACK:
 - Deep Ocean → Graphite gradient with cyan glow.
 - Centered floating 3D stack of 3 translucent glassmorphic UI dashboard cards (visionOS Liquid Glass), 1px APEX Blue hairlines, soft glow, tiny cyan charts inside.
-- Above: bold Ice White sans-serif headline, 2 lines, smart quotes. APEX Blue square accent.`,
+- Above: bold Ice White sans-serif headline, 2 lines. APEX Blue square accent.`,
   },
   {
     id: "spectrum-glow",
@@ -106,11 +106,11 @@ const APEX_BLOG_LAYOUTS = [
 - Background: Deep Ocean #001A23 with soft cyan #00BCFF glow.
 - Subject (person from uploaded photo) anchored on the LEFT third, chest-up clean photo-real cutout with soft cyan rim, confident expression.
 - RIGHT 60%: a translucent frosted Liquid-Glass code/terminal PANEL (visionOS aesthetic), 1px APEX Blue hairline border, soft drop shadow + outer glow, traffic-light dots top-left, containing a few stylized lines of monospaced cyan/white code snippets with a blinking cursor.
-- Above the panel: bold Ice White sans-serif headline (Inter Heavy), 2 lines max, wrapped in smart quotes. Tiny APEX Blue 3-dot accent.`,
+- Above the panel: bold Ice White sans-serif headline (Inter Heavy), 2 lines max. Tiny APEX Blue 3-dot accent.`,
     promptNoSubject: `LAYOUT — CODE GLASS:
 - Deep Ocean background with cyan glow.
 - Centered translucent frosted Liquid-Glass code/terminal panel, 1px APEX Blue hairline, traffic-light dots, stylized monospaced cyan/white code lines.
-- Above: bold Ice White sans-serif headline, 2 lines, smart quotes. APEX Blue 3-dot accent.`,
+- Above: bold Ice White sans-serif headline, 2 lines. APEX Blue 3-dot accent.`,
   },
   {
     id: "ai-tools-row",
@@ -119,11 +119,11 @@ const APEX_BLOG_LAYOUTS = [
 - Background: Deep Ocean #001A23 with soft cyan #00BCFF glow bloom, premium futuristic.
 - Subject (person from uploaded photo) anchored on the RIGHT third, chest-up cinematic portrait, photo-real, glossy skin, cyan rim light, pointing/gesturing toward the tools, confident eye contact.
 - LEFT/CENTER: a horizontal ROW of 4–5 floating translucent glassmorphic ROUNDED-SQUARE tiles (visionOS Liquid Glass), 1px APEX Blue hairline borders, soft inner shadows + outer glow, each tile prominently displays the LOGO/ICON of a specific AI tool from the TOOLS list below (render them as clean modern app-icon style, recognizable but stylized to fit the brand — no fake/garbled logos). Tiny tool name labels in tracked uppercase Slate Steel #4B585D under each tile.
-- ABOVE the row: bold Ice White sans-serif headline (Inter Heavy), 1–2 lines max, wrapped in smart quotes. Tiny APEX Blue 3-dot accent.`,
+- ABOVE the row: bold Ice White sans-serif headline (Inter Heavy), 1–2 lines max. Tiny APEX Blue 3-dot accent.`,
     promptNoSubject: `LAYOUT — AI TOOLS ROW:
 - Deep Ocean background with cyan glow.
 - Centered horizontal row of 4–5 floating translucent glassmorphic rounded-square tiles (visionOS Liquid Glass), 1px APEX Blue hairlines, each showing the LOGO/ICON of a specific AI tool from the TOOLS list below as clean app-icon style. Tiny uppercase Slate Steel tool labels under each tile.
-- Above: bold Ice White sans-serif headline, smart quotes, 2 lines max. APEX Blue 3-dot accent.`,
+- Above: bold Ice White sans-serif headline, 2 lines max. APEX Blue 3-dot accent.`,
   },
   {
     id: "prompt-ui",
@@ -132,11 +132,11 @@ const APEX_BLOG_LAYOUTS = [
 - Background: Deep Ocean #001A23 with soft cyan glow.
 - Subject (person from uploaded photo) anchored on the LEFT third, chest-up cinematic portrait, photo-real, cyan rim light, confident eye contact.
 - RIGHT 60%: a translucent frosted Liquid-Glass CHAT/PROMPT input panel (visionOS aesthetic), 1px APEX Blue hairline, soft outer glow, rounded corners, with a stylized "Ask anything…" placeholder line and a glowing cyan submit-arrow circle on the right. Above the input: one short example prompt line in Ice White that references the BLOG TOPIC from context (max 8 words). Tiny tracked uppercase Slate Steel label "PROMPT" above the panel — this label is allowed.
-- ABOVE the panel: bold Ice White sans-serif headline (Inter Heavy), 2 lines max, smart quotes.`,
+- ABOVE the panel: bold Ice White sans-serif headline (Inter Heavy), 2 lines max.`,
     promptNoSubject: `LAYOUT — PROMPT UI:
 - Deep Ocean background with cyan glow.
 - Centered translucent frosted Liquid-Glass chat/prompt input panel (visionOS), 1px APEX Blue hairline, glowing cyan submit-arrow circle, "Ask anything…" placeholder, one short example prompt referencing the BLOG TOPIC above (max 8 words).
-- Above: bold Ice White sans-serif headline, 2 lines, smart quotes.`,
+- Above: bold Ice White sans-serif headline, 2 lines.`,
   },
 ];
 
