@@ -93,6 +93,7 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
 ];
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
+  { id: "hero-word", label: "Face + Wort", sub: "3D-Tool-Icon · ein Wort · shocked", icon: Wand2 },
   { id: "lifestyle", label: "RS Talk", sub: "Audi RS6 · cinematic · daily", icon: Coffee },
   { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "testimonial", label: "Testimonial", sub: "Social proof · stars · quote", icon: Quote },
