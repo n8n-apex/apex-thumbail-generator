@@ -182,7 +182,7 @@ const APEX_BLOG_LAYOUTS = [
   • MUST be the LITERAL APP/TOOL LOGO of the single KEY WORD. Mandatory.
   • Known brand (ChatGPT, Claude, Gemini, Midjourney, Figma, Notion, Photoshop, Premiere, Canva, Cursor, GitHub, Lovable, Supabase, Vercel, Linear, n8n, Zapier, etc.) → render its OFFICIAL real app icon in true brand colors as premium 3D liquid-glass.
   • Generic concept (Design, Code, AI, Video, Music, Write, Analytics, Photo, Edit, Chat, Brain, Cloud, Speed, Lock, Idea) → amber liquid-glass squircle with 3D glyph literally representing it.
-- TOP-LEFT: ONE huge bright SINGLE WORD (Inter Heavy), Ice White #FCFEFF, Title Case — the ONE essence word of the headline (tool name or core concept). Never multiple words, never filler. ~35–45% canvas width, generous tracking, subtle white glow. May be partially occluded by the icon.
+- TOP-LEFT: ONE huge bright SINGLE WORD (Inter Heavy), Ice White #FCFEFF, Title Case — the ONE essence word of the headline (tool name or core concept). HARD LIMIT: MAX 8 CHARACTERS. If longer, use a shorter synonym/abbreviation (Midjourney → MJ, ChatGPT → GPT, Photoshop → PS, Analytics → Data). Never multiple words, never filler, never more than 8 characters. ~35–45% canvas width, generous tracking, subtle white glow. May be partially occluded by the icon.
 - BRAND EXCEPTION: icon uses its true brand colors. Headline pure Ice White. Background deep near-black.
 - ONLY ONE WORD in the whole image. No subtitles, no badges, no extra text. Cinematic, dramatic, ultra-premium, mostly dark.`,
   },
