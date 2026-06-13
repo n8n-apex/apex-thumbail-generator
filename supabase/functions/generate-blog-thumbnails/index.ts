@@ -172,7 +172,7 @@ const APEX_BLOG_LAYOUTS = [
   • THE ICON MUST BE THE LITERAL APP/TOOL LOGO of the single KEY WORD in the headline. MANDATORY.
   • If the KEY WORD is a known software/app/brand (ChatGPT, GPT, Claude, Gemini, Midjourney, Sora, Runway, Figma, Notion, Photoshop, Illustrator, Premiere, After Effects, Lightroom, Canva, Cursor, VSCode, GitHub, Slack, Discord, YouTube, Instagram, TikTok, X/Twitter, LinkedIn, Spotify, Apple, Lovable, Supabase, Vercel, Linear, Perplexity, Grok, Copilot, n8n, Zapier, Make, Webflow, Framer, Blender, Davinci, CapCut), render its OFFICIAL real app icon — correct shape, correct brand colors, correct glyph — as a premium 3D liquid-glass version of that exact icon. Do NOT use a generic squircle in that case.
   • If the KEY WORD is a generic concept (Design, Code, AI, Video, Music, Write, Analytics, Photo, Edit, Chat, Brain, Cloud, Speed, Lock, Idea), use a rounded liquid-glass squircle containing a 3D glyph that literally represents the concept.
-- TOP-LEFT: ONE huge bright SINGLE WORD in MASSIVE bold modern sans-serif (Inter Heavy / SF Pro Display Black), Ice White #FCFEFF, Title Case. EXTRACT THE ONE ESSENCE WORD from the headline — the single most important noun / tool name / core concept. Examples: "ChatGPT Tutorial für Anfänger" → "ChatGPT"; "Wie du besser designst" → "Design"; "Video Editing mit KI" → "Video"; "Midjourney Prompts die wirken" → "Midjourney". NEVER multiple words. NEVER filler words. Word takes ~35–45% of canvas width, top-left aligned, generous tracking, subtle white outer glow. Letters may be partially occluded by the floating icon.
+- TOP-LEFT: ONE huge bright SINGLE WORD in MASSIVE bold modern sans-serif (Inter Heavy / SF Pro Display Black), Ice White #FCFEFF, Title Case. EXTRACT THE ONE ESSENCE WORD from the headline — the single most important noun / tool name / core concept. HARD LIMIT: MAXIMUM 8 CHARACTERS. If the essence word is longer than 8 characters, REPLACE it with a shorter synonym or accepted abbreviation that still represents the topic (e.g. "Midjourney" → "MJ"; "ChatGPT" → "GPT"; "Photoshop" → "PS"; "Analytics" → "Data"; "Marketing" → "Sales"; "Automation" → "Auto"). Examples within limit: "ChatGPT Tutorial für Anfänger" → "GPT"; "Wie du besser designst" → "Design"; "Video Editing mit KI" → "Video"; "Midjourney Prompts die wirken" → "MJ". NEVER multiple words. NEVER filler words. NEVER more than 8 characters total. Word takes ~35–45% of canvas width, top-left aligned, generous tracking, subtle white outer glow. Letters may be partially occluded by the floating icon.
 - BRAND EXCEPTION FOR THIS LAYOUT ONLY: the icon uses its TRUE brand colors (may be amber, green, purple, blue, etc.) and may spill that colored light onto face and hand. Headline stays pure Ice White. Background stays deep near-black.
 - ONLY ONE WORD in the entire image. No subtitles, no badges, no extra logos, no labels, no captions. Blank dark surfaces everywhere else.
 - Cinematic, dramatic, ultra-premium, mostly-DARK shocked-reaction-with-glowing-tool-icon YouTube hero aesthetic.`,
@@ -182,7 +182,7 @@ const APEX_BLOG_LAYOUTS = [
   • MUST be the LITERAL APP/TOOL LOGO of the single KEY WORD. Mandatory.
   • Known brand (ChatGPT, Claude, Gemini, Midjourney, Figma, Notion, Photoshop, Premiere, Canva, Cursor, GitHub, Lovable, Supabase, Vercel, Linear, n8n, Zapier, etc.) → render its OFFICIAL real app icon in true brand colors as premium 3D liquid-glass.
   • Generic concept (Design, Code, AI, Video, Music, Write, Analytics, Photo, Edit, Chat, Brain, Cloud, Speed, Lock, Idea) → amber liquid-glass squircle with 3D glyph literally representing it.
-- TOP-LEFT: ONE huge bright SINGLE WORD (Inter Heavy), Ice White #FCFEFF, Title Case — the ONE essence word of the headline (tool name or core concept). Never multiple words, never filler. ~35–45% canvas width, generous tracking, subtle white glow. May be partially occluded by the icon.
+- TOP-LEFT: ONE huge bright SINGLE WORD (Inter Heavy), Ice White #FCFEFF, Title Case — the ONE essence word of the headline (tool name or core concept). HARD LIMIT: MAX 8 CHARACTERS. If longer, use a shorter synonym/abbreviation (Midjourney → MJ, ChatGPT → GPT, Photoshop → PS, Analytics → Data). Never multiple words, never filler, never more than 8 characters. ~35–45% canvas width, generous tracking, subtle white glow. May be partially occluded by the icon.
 - BRAND EXCEPTION: icon uses its true brand colors. Headline pure Ice White. Background deep near-black.
 - ONLY ONE WORD in the whole image. No subtitles, no badges, no extra text. Cinematic, dramatic, ultra-premium, mostly dark.`,
   },
@@ -338,18 +338,21 @@ function buildBlogThumbnailPrompt(
   layoutId?: string,
 ): string {
   const faceLock = hasSubject
-    ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
-The FIRST attached image is the IDENTITY reference for the person. Re-stage them into the layout below, but keep 1:1:
-• ENTIRE FACE geometry, eyes, nose, mouth, jawline, ears
-• Skin tone, undertone, freckles, moles, scars, tattoos
-• Hairstyle: cut, length, parting, texture, color, hairline
-• Beard / stubble: exact pattern, density, color
-• Apparent age, ethnicity, gender presentation, body type
-• Glasses, jewelry, piercings — exactly as in the reference
-NEVER replace the face. NEVER swap ethnicity, age, gender. NEVER idealize.
+    ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY (HIGHEST RULE, OVERRIDES EVERYTHING ELSE) ═══
+The FIRST attached image IS the person. Treat it as a forensic photo reference. Re-stage them into the layout, but the face MUST be photographically identical — like the same person stepped into a new scene, not a similar-looking model.
+LOCK 1:1, pixel-faithful:
+• ENTIRE FACE geometry: skull shape, forehead height, brow ridge, eye spacing & shape & color, nose bridge/tip/nostrils, lip shape & thickness, philtrum, chin shape, jawline, cheekbones, ear shape & position
+• Skin: exact tone, undertone, texture, pores, freckles, moles, scars, blemishes — keep every mark
+• Hair: cut, length, parting, density, hairline shape, color (incl. buzzcut/very short if so)
+• Beard / stubble: exact pattern, density, length, color, edges — do not thicken or thin
+• Eyebrows: shape, thickness, color
+• Apparent age, ethnicity, gender, body type, neck/shoulder build
+• Glasses, jewelry, watch, piercings — exactly as in the reference
+NEVER beautify, slim, idealize, smooth skin, change ethnicity, change age, change gender, or generate a "similar" face. If in doubt, copy the reference face more literally. Identity match > artistic interpretation. A wrong face = failed output.
 ═══════════════════════════════════════════════
 `
     : "";
+
 
   const styleRef = hasStyleRef
     ? `═══ STYLE REFERENCE — MATCH THIS LOOK EXACTLY ═══
