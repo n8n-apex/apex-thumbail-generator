@@ -367,7 +367,7 @@ APEX COLOR PALETTE — use ONLY these:
 • Slate Steel     #4B585D
 • Frost White     #EDF9FE
 • Graphite Gray   #1E2126
-FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.${layoutId === "transform-duo" ? `\nEXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F is explicitly permitted as the glow color of the right-side "output" 3D object and its floor reflection only. Everything else stays brand-locked.` : ""}
+FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.${layoutId === "transform-duo" ? `\nEXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F is explicitly permitted as the glow color of the right-side "output" 3D object and its floor reflection only. Everything else stays brand-locked.` : ""}${layoutId === "hero-word" ? `\nEXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F / #FFB347 is explicitly permitted as the glow color of the floating 3D squircle icon AND its warm light spill on the subject's face, hand and shoulder. Headline stays pure Ice White, background circuit traces stay APEX Blue, everything else brand-locked.` : ""}
 
 STYLE INSPIRATION — Leonard Schmedding × Hormozi × Tina Huang × Everlast AI:
 • Backgrounds: ultra-dark, almost black (#001A23 to #050508), never busy
