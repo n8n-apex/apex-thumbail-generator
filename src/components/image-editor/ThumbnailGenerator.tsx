@@ -1112,7 +1112,7 @@ export default function ThumbnailGenerator({
             const batchLabelSingular = isPodcastBatch ? "Stil" : isBlogBatch ? "Stil" : "Layout";
             const isBatch = isPodcastBatch || isTestimonialBatch || isBlogBatch;
             const total = isBatch ? variants * batchCount : variants;
-            const sliderMax = isBlog ? 12 : 6;
+            const sliderMax = isBlog || vlogStyle === "hero-word" ? 12 : 6;
             return (
               <>
                 <div className="flex items-center justify-between">
