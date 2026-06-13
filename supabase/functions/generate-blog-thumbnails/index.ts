@@ -521,6 +521,14 @@ serve(async (req) => {
     const forcedLayouts = rawForcedIds
       .map((id) => APEX_BLOG_LAYOUTS.find((l) => l.id === id))
       .filter((x): x is typeof APEX_BLOG_LAYOUTS[number] => !!x);
+    const layoutReferences: Record<string, string> =
+      body.layoutReferences && typeof body.layoutReferences === "object" && !Array.isArray(body.layoutReferences)
+        ? Object.fromEntries(
+            Object.entries(body.layoutReferences as Record<string, unknown>).filter(
+              ([, v]) => typeof v === "string" && (v as string).startsWith("data:"),
+            ),
+          ) as Record<string, string>
+        : {};
     const hasSubject = !!imageBase64;
     const useStyleRef = !!referenceStyleBase64 && forcedLayouts.length === 0;
     const hasStyleRef = useStyleRef;
