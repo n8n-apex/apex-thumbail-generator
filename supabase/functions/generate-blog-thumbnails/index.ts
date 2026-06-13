@@ -401,6 +401,14 @@ ${ctx.codeLines.map((l) => `> ${l}`).join("\n")}`);
     blocks.push(`\n═══ METRIC OVERRIDE ═══
 Render the metric "${ctx.metric}" as the oversized hero number/label on the left. The digits/number portion is APEX Blue; the unit/label is Deep Ocean. Tiny tracked uppercase label below in Slate Steel referencing the blog topic "${ctx.topics[0] ?? ""}".`);
   }
+  if (layoutId === "transform-duo" && ctx.transformPair) {
+    const tp = ctx.transformPair;
+    blocks.push(`\n═══ TRANSFORM DUO CONTENT (render these exact objects) ═══
+• LEFT (input, glowing APEX Blue): a stylized 3D icon of "${tp.fromObject}" with the short embossed label "${tp.fromLabel}" on its face.
+• RIGHT (output, glowing warm amber): a stylized 3D icon of "${tp.toObject}" with the short embossed label "${tp.toLabel}" on its face.
+• Between them: chunky 3D white light-arrow with motion streaks.
+These two short labels on the objects are allowed in addition to the headline. No other text anywhere.`);
+  }
   return blocks.join("\n");
 })()}
 
