@@ -33,7 +33,6 @@ import {
   Boxes,
   Radio,
   Check,
-  Wand2,
 } from "lucide-react";
 import {
   DropdownMenu,
