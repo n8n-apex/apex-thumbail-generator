@@ -33,6 +33,7 @@ import {
   Boxes,
   Radio,
   Check,
+  Wand2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -44,7 +45,7 @@ import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type VlogStyle = "lifestyle" | "podcast" | "testimonial" | "blog";
+type VlogStyle = "lifestyle" | "podcast" | "testimonial" | "blog" | "hero-word";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
@@ -92,6 +93,7 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
 ];
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
+  { id: "hero-word", label: "Face + Wort", sub: "3D-Tool-Icon · ein Wort · shocked", icon: Wand2 },
   { id: "lifestyle", label: "RS Talk", sub: "Audi RS6 · cinematic · daily", icon: Coffee },
   { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "testimonial", label: "Testimonial", sub: "Social proof · stars · quote", icon: Quote },
@@ -260,7 +262,7 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    const cap = vlogStyle === "blog" ? 12 : 6;
+    const cap = vlogStyle === "blog" || vlogStyle === "hero-word" ? 12 : 6;
     if (variants > cap) setVariants(cap);
     if (variants < 1) setVariants(1);
   }, [variants, vlogStyle]);
@@ -402,7 +404,28 @@ export default function ThumbnailGenerator({
       const isBlog = vlogStyle === "blog";
       const isPodcast = vlogStyle === "podcast";
       const isTestimonial = vlogStyle === "testimonial";
+      const isHeroWord = vlogStyle === "hero-word";
       const requestedVariants = Math.min(Math.max(variants, 1), 12);
+
+      if (isHeroWord) {
+        const word = title.trim().split(/\s+/)[0] ?? "";
+        if (!word) throw new Error("Bitte ein Wort (z.B. 'Design', 'Code', 'AI') eingeben");
+        const faceBase64 = await activeImageBase64();
+        const { data, error } = await supabase.functions.invoke("generate-hero-thumbnail", {
+          body: { word, count: requestedVariants, imageBase64: faceBase64 },
+        });
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        const newThumbs: GeneratedThumbnail[] = (data.images as string[]).map((url, idx) => ({
+          templateId: `${data.template.id}-${Date.now()}-${idx}`,
+          imageUrl: url,
+          template: data.template,
+        }));
+        onGeneratedChange((prev) => [...newThumbs, ...prev]);
+        toast.success(`${newThumbs.length} Hero-Word Thumbnails generiert!`);
+        return;
+      }
+
 
       if (isBlog) {
         const manualTitle = (autoTitle ? titleKeywords : title).trim();
@@ -544,7 +567,7 @@ export default function ThumbnailGenerator({
           <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Content-Typ
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
             {VLOG_OPTIONS.map((opt) => {
               const Icon = opt.icon;
               const active = vlogStyle === opt.id;
@@ -807,6 +830,24 @@ export default function ThumbnailGenerator({
             </div>
           </div>
         )}
+
+        {/* Hero Word mode hint */}
+        {vlogStyle === "hero-word" && (
+          <div className="space-y-2 rounded-2xl border border-dashed border-primary/40 p-3 bg-primary/5">
+            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <Wand2 className="h-3 w-3 text-primary" />
+              Face + Wort Modus
+            </label>
+            <p className="text-[11px] text-foreground leading-snug">
+              Lade unten ein <span className="font-bold text-primary">Foto deines Gesichts</span> hoch und schreibe in das <span className="font-bold text-primary">Titel-Feld EIN Wort</span> (Tool / Thema, z.B. „Design", „Code", „AI", „Figma"). Die AI rendert dich mit schockierter Reaktion, hält ein leuchtendes 3D-App-Icon das genau dieses Wort visuell repräsentiert, und schreibt das Wort riesig in den Bildtitel — exakt im viralen YouTube-Hero-Style.
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              Slider unten = Anzahl Varianten (verschiedene Farb-Grades & Icon-Designs).
+            </p>
+          </div>
+        )}
+
+
 
 
 
@@ -1089,7 +1130,7 @@ export default function ThumbnailGenerator({
             const batchLabelSingular = isPodcastBatch ? "Stil" : isBlogBatch ? "Stil" : "Layout";
             const isBatch = isPodcastBatch || isTestimonialBatch || isBlogBatch;
             const total = isBatch ? variants * batchCount : variants;
-            const sliderMax = isBlog ? 12 : 6;
+            const sliderMax = isBlog || vlogStyle === "hero-word" ? 12 : 6;
             return (
               <>
                 <div className="flex items-center justify-between">
