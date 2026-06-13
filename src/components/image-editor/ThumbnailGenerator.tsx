@@ -262,7 +262,7 @@ export default function ThumbnailGenerator({
   }, []);
 
   useEffect(() => {
-    const cap = vlogStyle === "blog" || vlogStyle === "hero-word" ? 12 : 6;
+    const cap = vlogStyle === "blog" ? 12 : 6;
     if (variants > cap) setVariants(cap);
     if (variants < 1) setVariants(1);
   }, [variants, vlogStyle]);
