@@ -82,8 +82,8 @@ import apexRef12 from "@/assets/apex-ref-12.jpg";
 import apexRef13 from "@/assets/apex-ref-13.jpg";
 
 const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
-  { src: apexRef12, label: "Sticky Notes Board", layoutId: "sticky-board" },
-  { src: apexRef13, label: "Notebook Grid", layoutId: "notebook-grid" },
+  { src: apexRef12, label: "Glass Sticky Board", layoutId: "sticky-board" },
+  { src: apexRef13, label: "Glass Notebook Grid", layoutId: "notebook-grid" },
   { src: apexRef11, label: "Hero Word Glow", layoutId: "hero-word" },
   { src: apexRef10, label: "Transform Duo 3D", layoutId: "transform-duo" },
   { src: apexRef1, label: "Glass Quote Card", layoutId: "glass-card" },
