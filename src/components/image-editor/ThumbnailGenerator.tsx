@@ -813,21 +813,6 @@ export default function ThumbnailGenerator({
           </div>
         )}
 
-        {/* Hero Word mode hint */}
-        {vlogStyle === "hero-word" && (
-          <div className="space-y-2 rounded-2xl border border-dashed border-primary/40 p-3 bg-primary/5">
-            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Wand2 className="h-3 w-3 text-primary" />
-              Face + Wort Modus
-            </label>
-            <p className="text-[11px] text-foreground leading-snug">
-              Lade unten ein <span className="font-bold text-primary">Foto deines Gesichts</span> hoch und schreibe in das <span className="font-bold text-primary">Titel-Feld EIN Wort</span> (Tool / Thema, z.B. „Design", „Code", „AI", „Figma"). Die AI rendert dich mit schockierter Reaktion, hält ein leuchtendes 3D-App-Icon das genau dieses Wort visuell repräsentiert, und schreibt das Wort riesig in den Bildtitel — exakt im viralen YouTube-Hero-Style.
-            </p>
-            <p className="text-[10px] text-muted-foreground">
-              Slider unten = Anzahl Varianten (verschiedene Farb-Grades & Icon-Designs).
-            </p>
-          </div>
-        )}
 
 
 
