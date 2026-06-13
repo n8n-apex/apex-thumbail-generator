@@ -603,10 +603,14 @@ serve(async (req) => {
         ? forcedLayouts[Math.floor(i / variantsPerStyle) % forcedLayouts.length]
         : APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
       const layoutPrompt = hasSubject ? layout.promptWithSubject : layout.promptNoSubject;
+      const perLayoutRef = layoutReferences[layout.id];
+      const jobStyleRef = perLayoutRef ?? (useStyleRef ? referenceStyleBase64 : undefined);
+      const jobHasStyleRef = !!jobStyleRef;
       return {
         headline,
         layoutId: layout.id,
-        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef, blogCtx, layout.id),
+        styleRef: jobStyleRef,
+        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, jobHasStyleRef, blogCtx, layout.id),
       };
     });
 
@@ -615,7 +619,7 @@ serve(async (req) => {
     for (let i = 0; i < jobs.length; i += CONCURRENCY) {
       const chunk = jobs.slice(i, i + CONCURRENCY);
       const chunkResults = await Promise.allSettled(
-        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, useStyleRef ? referenceStyleBase64 : undefined)),
+        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, j.styleRef)),
       );
       settled.push(...chunkResults);
     }
