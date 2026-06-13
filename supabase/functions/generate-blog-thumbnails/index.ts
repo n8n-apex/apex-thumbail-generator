@@ -161,6 +161,25 @@ const APEX_BLOG_LAYOUTS = [
 - RIGHT EDGE: 2–3 small floating dark UI preview cards with faint amber rim, decorative only, no readable text.
 - Cinematic, dramatic, ultra-premium, sharp shadows, soft bloom, fine grain.`,
   },
+  {
+    id: "hero-word",
+    label: "Hero Word",
+    promptWithSubject: `LAYOUT — HERO WORD (viral YouTube tech-creator, face + glowing 3D tool icon + huge single word):
+- Background: pure near-black #050508 with subtle blue/cyan circuit-board glowing traces fading from edges, soft vignette, atmospheric depth, fine grain.
+- RIGHT half: the person from the uploaded photo, chest-up, with a STRONG shocked/amazed cinematic expression — eyes wide open, mouth slightly open, eyebrows raised, genuine astonishment. Face lit warm amber from below by the glowing icon, cool blue rim light from behind. Photo-real DSLR/85mm, glossy filmic skin, razor-sharp eyes.
+- The person's LEFT hand (lower-center of canvas) is visible, open palm facing up, fingers slightly curled, presenting the glowing icon.
+- CENTER-LEFT: ONE oversized floating 3D SQUIRCLE app icon (rounded-square iOS-style, ~28% of canvas height), made of glowing translucent liquid-glass / amber-orange crystal material with strong inner emissive light, soft outer bloom, hovering a few cm above the open palm and casting warm light onto skin, fingers and fabric. Inside the squircle: ONE clean stylized 3D glyph that visually represents the BLOG TOPIC / KEY TOOL (interpret semantically — design tool → asterisk/sun-burst/compass, code → < / > brackets or cursor, AI → neural spark / orbit, video → play triangle, music → waveform, writing → quill, analytics → bar chart, etc. — pick from BLOG CONTEXT / TOOLS below).
+- TOP-LEFT: ONE huge bright headline word in MASSIVE bold modern sans-serif (Inter Heavy / SF Pro Display Black), Ice White #FCFEFF, rendered as the SHORTEST punchy KEY WORD from the headline (max one word, Title Case — first letter capital, rest lowercase). Word takes ~35–45% of canvas width, top-left aligned, generous tracking, subtle soft white outer glow. Letters may be partially occluded by the floating 3D icon for depth.
+- BRAND EXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F / #FFB347 is permitted as the glow color of the 3D icon and its light spill on face and hand. Headline stays pure Ice White. Background traces stay APEX Blue.
+- ONLY one word in the whole image (the hero word). No subtitles, no badges, no logos, no extra text. Blank surfaces everywhere else.
+- Cinematic, dramatic, ultra-premium, shocked-reaction-with-glowing-app-icon YouTube hero aesthetic.`,
+    promptNoSubject: `LAYOUT — HERO WORD (no subject — glowing 3D tool icon + huge single word):
+- Background: pure near-black #050508 with subtle blue/cyan circuit-board glowing traces fading from edges, soft vignette, fine grain.
+- CENTER: ONE oversized floating 3D SQUIRCLE app icon (rounded-square iOS-style, ~35% of canvas height), translucent liquid-glass amber-orange crystal with strong emissive inner light and soft outer bloom. Inside: ONE clean stylized 3D glyph representing the BLOG TOPIC / KEY TOOL (asterisk/sun-burst, brackets, neural spark, play triangle, waveform, quill, bar chart — pick from BLOG CONTEXT / TOOLS).
+- TOP-LEFT: ONE huge bright KEY WORD from the headline in MASSIVE bold modern sans-serif (Inter Heavy), Ice White #FCFEFF, Title Case, ~35–45% of canvas width, generous tracking, subtle white outer glow, letters may be partially occluded by the icon for depth.
+- BRAND EXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F / #FFB347 is permitted as the glow color of the 3D icon. Headline pure Ice White. Background traces APEX Blue.
+- ONLY one word in the whole image. No subtitles, no badges, no logos, no extra text. Cinematic, dramatic, ultra-premium.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
@@ -348,7 +367,7 @@ APEX COLOR PALETTE — use ONLY these:
 • Slate Steel     #4B585D
 • Frost White     #EDF9FE
 • Graphite Gray   #1E2126
-FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.${layoutId === "transform-duo" ? `\nEXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F is explicitly permitted as the glow color of the right-side "output" 3D object and its floor reflection only. Everything else stays brand-locked.` : ""}
+FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.${layoutId === "transform-duo" ? `\nEXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F is explicitly permitted as the glow color of the right-side "output" 3D object and its floor reflection only. Everything else stays brand-locked.` : ""}${layoutId === "hero-word" ? `\nEXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F / #FFB347 is explicitly permitted as the glow color of the floating 3D squircle icon AND its warm light spill on the subject's face, hand and shoulder. Headline stays pure Ice White, background circuit traces stay APEX Blue, everything else brand-locked.` : ""}
 
 STYLE INSPIRATION — Leonard Schmedding × Hormozi × Tina Huang × Everlast AI:
 • Backgrounds: ultra-dark, almost black (#001A23 to #050508), never busy
