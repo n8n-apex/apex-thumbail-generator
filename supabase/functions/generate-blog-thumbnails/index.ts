@@ -255,6 +255,12 @@ Liefere EIN JSON-Objekt mit genau diesen Feldern:
   "metric":  string         // EINE prägnante Kennzahl + Mini-Label aus dem Blog (z.B. "10x Output", "5 Min Setup", "+250% ROI"). Wenn keine im Text, erfinde EINE plausible, zum Thema passende
   "promptLine": string      // EINE kurze Beispiel-User-Prompt-Zeile, die das Blog-Thema referenziert, max 8 Wörter, keine Anführungszeichen
   "codeLines": string[3..5] // kurze, stilisierte Code-/Terminal-Zeilen, die zum Blog-Thema passen (z.B. "$ apex run --workflow", "import openai"), max 40 Zeichen
+  "transformPair": {        // Vorher→Nachher Transformation, die das Blog-Thema visuell darstellt
+    "fromObject": string,   // 1–3 Wörter, das INPUT-Objekt als 3D-Icon (z.B. "Markdown folder", "raw notes", "blank canvas", "messy spreadsheet")
+    "fromLabel":  string,   // sehr kurzer Label-Text fürs Icon, max 5 Zeichen (z.B. ".md", "RAW", "IDEA", "TXT")
+    "toObject":   string,   // 1–3 Wörter, das OUTPUT-Objekt als 3D-Icon (z.B. "HTML document", "polished app", "finished video", "live dashboard")
+    "toLabel":    string    // sehr kurzer Label-Text fürs Icon, max 6 Zeichen (z.B. "HTML", "APP", "SITE", "VIDEO")
+  }
 }
 Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
   const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -268,7 +274,10 @@ Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
       ],
     }),
   });
-  const fallback: BlogContext = { tools: [], topics: [], metric: "", promptLine: "", codeLines: [] };
+  const fallback: BlogContext = {
+    tools: [], topics: [], metric: "", promptLine: "", codeLines: [],
+    transformPair: { fromObject: "raw notes", fromLabel: "RAW", toObject: "polished output", toLabel: "DONE" },
+  };
   if (!resp.ok) return fallback;
   const data = await resp.json();
   const raw: string = data.choices?.[0]?.message?.content || "";
@@ -276,12 +285,19 @@ Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
   if (!m) return fallback;
   try {
     const obj = JSON.parse(m[0]);
+    const tp = obj.transformPair && typeof obj.transformPair === "object" ? obj.transformPair : {};
     return {
       tools: Array.isArray(obj.tools) ? obj.tools.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
       topics: Array.isArray(obj.topics) ? obj.topics.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
       metric: typeof obj.metric === "string" ? obj.metric.trim() : "",
       promptLine: typeof obj.promptLine === "string" ? obj.promptLine.trim() : "",
       codeLines: Array.isArray(obj.codeLines) ? obj.codeLines.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
+      transformPair: {
+        fromObject: (typeof tp.fromObject === "string" && tp.fromObject.trim()) || fallback.transformPair.fromObject,
+        fromLabel: ((typeof tp.fromLabel === "string" && tp.fromLabel.trim()) || fallback.transformPair.fromLabel).slice(0, 6),
+        toObject: (typeof tp.toObject === "string" && tp.toObject.trim()) || fallback.transformPair.toObject,
+        toLabel: ((typeof tp.toLabel === "string" && tp.toLabel.trim()) || fallback.transformPair.toLabel).slice(0, 7),
+      },
     };
   } catch {
     return fallback;
