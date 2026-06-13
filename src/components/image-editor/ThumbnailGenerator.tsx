@@ -78,19 +78,23 @@ import apexRef8 from "@/assets/apex-ref-8.jpg";
 import apexRef9 from "@/assets/apex-ref-9.jpg";
 import apexRef10 from "@/assets/apex-ref-10.jpg";
 import apexRef11 from "@/assets/apex-ref-11.jpg";
+import apexRef12 from "@/assets/apex-ref-12.jpg";
+import apexRef13 from "@/assets/apex-ref-13.jpg";
 
 const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
-  { src: apexRef11, label: "Hero Word", layoutId: "hero-word" },
-  { src: apexRef10, label: "Transform Duo", layoutId: "transform-duo" },
-  { src: apexRef1, label: "Glass Quote", layoutId: "glass-card" },
+  { src: apexRef12, label: "Sticky Notes Board", layoutId: "sticky-board" },
+  { src: apexRef13, label: "Notebook Grid", layoutId: "notebook-grid" },
+  { src: apexRef11, label: "Hero Word Glow", layoutId: "hero-word" },
+  { src: apexRef10, label: "Transform Duo 3D", layoutId: "transform-duo" },
+  { src: apexRef1, label: "Glass Quote Card", layoutId: "glass-card" },
   { src: apexRef2, label: "AI Tools Row", layoutId: "ai-tools-row" },
-  { src: apexRef3, label: "Editorial Hero", layoutId: "big-quote" },
-  { src: apexRef4, label: "Metric Hero", layoutId: "metric-hero" },
-  { src: apexRef5, label: "Neon Bracket", layoutId: "neon-bracket" },
-  { src: apexRef6, label: "Dashboard Stack", layoutId: "holo-stack" },
-  { src: apexRef7, label: "Spectrum Glow", layoutId: "spectrum-glow" },
-  { src: apexRef8, label: "Prompt UI", layoutId: "prompt-ui" },
-  { src: apexRef9, label: "Code Panel", layoutId: "code-glass" },
+  { src: apexRef3, label: "Editorial Bar Hero", layoutId: "big-quote" },
+  { src: apexRef4, label: "Metric Number Hero", layoutId: "metric-hero" },
+  { src: apexRef5, label: "Neon Bracket Frame", layoutId: "neon-bracket" },
+  { src: apexRef6, label: "Holo Dashboard Stack", layoutId: "holo-stack" },
+  { src: apexRef7, label: "Spectrum Aurora", layoutId: "spectrum-glow" },
+  { src: apexRef8, label: "Prompt Chat UI", layoutId: "prompt-ui" },
+  { src: apexRef9, label: "Code Terminal Glass", layoutId: "code-glass" },
 ];
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
