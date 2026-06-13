@@ -189,31 +189,33 @@ const APEX_BLOG_LAYOUTS = [
   {
     id: "sticky-board",
     label: "Sticky Notes Board",
-    promptWithSubject: `LAYOUT — STICKY NOTES BOARD (viral coaching/business YouTube, post-its pinned around face on chalkboard):
-- Background: matte near-black chalkboard / dark wall #0a0a0a–#111111 with very faint chalk-dust texture and fine grain. No gradients, no glow, no patterns.
-- SUBJECT (person from uploaded photo) CENTERED, chest-up, facing camera with a calm confident slight smile, sharp eye contact, photo-real 85mm DSLR, soft natural key light. IDENTITY FORENSICALLY LOCKED — same skull shape, same beard density and shape, same hairline, same skin tone, same exact features as the uploaded photo. Do NOT idealize, do NOT slim the face, do NOT swap identity.
-- AROUND the head, 4 YELLOW POST-IT sticky notes (~13% canvas width each), 2 on the left and 2 on the right, each slightly rotated, each pinned with a small RED pushpin at the top. Each sticky note has ONE bold black hand-drawn LINE-ICON drawn on it that semantically matches the BLOG TOPIC (e.g. magnifying glass over document, person silhouette with short label, gear cluster with short label, eye with dollar sign, lightbulb, chart, checklist, target — pick 4 fitting the topic). Short ALL-CAPS labels under the icons (max 6 chars) are allowed ONLY inside the sticky notes.
-- A thin dashed WHITE curve loosely connects the 4 sticky notes in an arc behind the subject's head.
-- BOTTOM third: HUGE bold white sans-serif headline (Inter Heavy / SF Pro Display Black) ALL-CAPS, Ice White #FCFEFF, max 1 line if possible (2 short max), spanning full width, tight tracking. Under ONE key word: a thick GLOWING RED marker underline scribble (slightly imperfect 2 quick strokes).
-- Premium, photo-real, cinematic, mostly dark, sharp.`,
-    promptNoSubject: `LAYOUT — STICKY NOTES BOARD (no subject):
-- Matte near-black chalkboard background #0a0a0a with faint chalk-dust texture.
-- 4–5 YELLOW POST-IT sticky notes pinned with RED pushpins, slightly rotated, arranged in a loose arc across the upper two thirds. Each holds ONE bold black line-icon matching the BLOG TOPIC + short ALL-CAPS label (max 6 chars) — these labels are allowed.
-- Thin dashed WHITE curve connecting them.
-- BOTTOM third: HUGE bold Ice White ALL-CAPS sans-serif headline (Inter Heavy), 1 line if possible, with a thick GLOWING RED marker underline scribble under one key word.`,
+    promptWithSubject: `LAYOUT — GLASS STICKY BOARD (APEX liquid-glass post-its connected by dashed line):
+- Background: Deep Ocean #001A23 → Graphite Gray #1E2126 soft gradient with a subtle APEX Blue #00BCFF aurora glow bloom behind the subject, very faint cyan vignette, fine grain. Mostly dark, premium cinematic.
+- SUBJECT (person from uploaded photo) CENTERED, chest-up, calm confident slight smile, sharp eye contact, photo-real 85mm DSLR, soft natural key with cyan APEX-Blue rim light on hair/shoulder. IDENTITY FORENSICALLY LOCKED — same skull shape, same beard density and shape, same hairline, same skin tone, same exact features as the uploaded photo. Do NOT idealize, slim, or swap identity.
+- AROUND the head, 4 floating LIQUID-GLASS sticky tiles (visionOS / Apple Liquid Glass aesthetic): translucent frosted glass squares (~13% canvas width each), 1px APEX Blue #00BCFF hairline border at 35% opacity, soft inner shadow + outer cyan glow, gentle blur backdrop, subtle highlight on top edge, small rounded corners, each very slightly rotated. 2 tiles on the LEFT, 2 on the RIGHT. NO yellow paper, NO pushpins — they are glass panels, not post-its.
+- Each glass tile contains ONE clean modern line-icon in APEX Blue #00BCFF that semantically matches the BLOG TOPIC (e.g. magnifier-on-doc, person silhouette, gear cluster, eye-with-$, lightbulb, chart, checklist, target — pick 4 fitting). Tiny tracked uppercase Ice White label under each icon inside the tile (max 6 chars) — allowed only inside the tiles.
+- ALL 4 glass tiles are CONNECTED with ONE continuous thin WHITE DASHED LINE that arcs THROUGH/BEHIND the subject's head, passing from tile to tile in order (left-far → left-near → right-near → right-far). The dashed line is clearly visible (white, ~2px, dash 8/gap 6, subtle outer glow), forming one flowing arc.
+- BOTTOM third: HUGE modern bold sans-serif headline (Inter Heavy / SF Pro Display Black / Söhne Heavy) ALL-CAPS, Ice White #FCFEFF, max 1 line if possible (2 short max), spanning full width, tight modern tracking, subtle soft glow. Under ONE key word: a thick APEX Blue #00BCFF glowing marker underline scribble (slightly imperfect 2 quick strokes).
+- Premium, photo-real, cinematic, mostly dark, APEX liquid-glass aesthetic. No yellow, no red, no chalkboard texture.`,
+    promptNoSubject: `LAYOUT — GLASS STICKY BOARD (no subject):
+- Deep Ocean → Graphite gradient with subtle APEX Blue aurora glow, mostly dark, fine grain.
+- 4–5 floating LIQUID-GLASS tiles (visionOS / Apple Liquid Glass): translucent frosted, 1px APEX Blue hairline, soft inner shadow + cyan outer glow, slightly rotated, arranged in a loose arc across the upper two thirds. Each holds ONE clean APEX Blue line-icon matching the BLOG TOPIC + tiny tracked uppercase Ice White label (max 6 chars) inside the tile.
+- ONE continuous thin WHITE DASHED LINE (~2px, dash 8/gap 6, subtle glow) connects all tiles in a flowing arc through the canvas.
+- BOTTOM third: HUGE modern bold Ice White ALL-CAPS sans-serif (Inter Heavy), 1 line if possible, with a thick APEX Blue glowing marker underline scribble under one key word. No yellow, no red.`,
   },
   {
     id: "notebook-grid",
-    label: "Notebook Grid",
-    promptWithSubject: `LAYOUT — NOTEBOOK GRID (editorial graph-paper, headline stack + deadpan portrait):
-- Background: warm cream-beige PAPER #efe9d9 / #f2ecdd filling the whole frame, with a subtle ENGINEERING GRAPH-PAPER grid (fine light-grey 1px squares, ~36px). Faint paper grain. No gradients, no glow.
-- SUBJECT (person from uploaded photo) anchored on the RIGHT third, chest-up, with hand thoughtfully resting near temple or chin, looking dead-straight into camera with a serious calm deadpan expression. Photo-real 85mm DSLR, sharp. IDENTITY FORENSICALLY LOCKED — same skull shape, same beard density and shape, same hairline, same skin tone, same exact features as the uploaded photo. Do NOT idealize, do NOT slim the face, do NOT swap identity.
-- LEFT 55–60%: headline stacked in THREE short lines in HUGE bold black sans-serif (Inter Heavy / SF Pro Display Black), Deep Black #0a0a0a, mixed case, left-aligned. The MIDDLE line should be the punchy power phrase (number + noun if possible) and is rendered in the heaviest weight. Under the MIDDLE line: a thick hand-drawn RED marker underline scribble (slightly imperfect).
-- No other decoration. No glow, no chromatic effects, no cyan. Magazine-clean.`,
-    promptNoSubject: `LAYOUT — NOTEBOOK GRID (no subject):
-- Cream-beige paper background #efe9d9 with subtle engineering graph-paper grid.
-- Headline stacked in 3 short lines, HUGE bold black sans-serif (Inter Heavy), left-aligned, mixed case. The MIDDLE line is the punchy power phrase in the heaviest weight, with a hand-drawn red marker underline scribble under it.
-- No other decoration. Magazine-clean, editorial.`,
+    label: "Glass Notebook Grid",
+    promptWithSubject: `LAYOUT — GLASS NOTEBOOK GRID (APEX liquid-glass editorial grid + portrait):
+- Background: Deep Ocean #001A23 → Graphite Gray #1E2126 soft gradient with a subtle APEX Blue #00BCFF aurora glow bloom on the left, very faint cyan vignette, fine grain. Over the entire background, a subtle GRAPH-PAPER grid drawn in thin APEX Blue #00BCFF lines at ~12% opacity (fine 1px squares, ~36px) — feels like a futuristic engineering canvas, not paper.
+- SUBJECT (person from uploaded photo) anchored on the RIGHT third, chest-up, hand thoughtfully resting near temple or chin, looking dead-straight into camera with a serious calm deadpan expression. Photo-real 85mm DSLR, glossy filmic skin, cyan APEX-Blue rim light on hair/shoulder. IDENTITY FORENSICALLY LOCKED — same skull shape, same beard density and shape, same hairline, same skin tone, same exact features as the uploaded photo. Do NOT idealize, slim, or swap identity.
+- LEFT 55–60%: headline stacked in THREE short lines in HUGE modern bold sans-serif (Inter Heavy / SF Pro Display Black), Ice White #FCFEFF, mixed case, left-aligned. The MIDDLE line is the punchy power phrase (number + noun if possible) rendered in the heaviest weight. Under the MIDDLE line: a thick APEX Blue #00BCFF glowing marker underline scribble (slightly imperfect).
+- Optional: a very faint translucent liquid-glass panel behind the headline stack (1px APEX Blue hairline, soft glow, ~15% opacity backdrop) — keeps the editorial feel but unmistakably APEX.
+- No cream paper, no beige, no black headline. Premium, photo-real, cinematic, mostly dark, APEX liquid-glass aesthetic.`,
+    promptNoSubject: `LAYOUT — GLASS NOTEBOOK GRID (no subject):
+- Deep Ocean → Graphite gradient with subtle APEX Blue aurora glow, mostly dark.
+- Subtle APEX Blue graph-paper grid (~12% opacity) across the whole background.
+- Headline stacked in 3 short lines, HUGE modern bold Ice White sans-serif (Inter Heavy), left-aligned, mixed case. The MIDDLE line is the punchy power phrase in the heaviest weight, with a thick APEX Blue glowing marker underline scribble under it. Optional faint translucent glass panel behind the stack.`,
   },
 ];
 
