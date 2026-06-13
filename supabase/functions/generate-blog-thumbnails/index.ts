@@ -138,6 +138,29 @@ const APEX_BLOG_LAYOUTS = [
 - Centered translucent frosted Liquid-Glass chat/prompt input panel (visionOS), 1px APEX Blue hairline, glowing cyan submit-arrow circle, "Ask anything…" placeholder, one short example prompt referencing the BLOG TOPIC above (max 8 words).
 - Above: bold Ice White sans-serif headline, 2 lines.`,
   },
+  {
+    id: "transform-duo",
+    label: "Transform Duo",
+    promptWithSubject: `LAYOUT — TRANSFORM DUO (3D glowing input → output, premium YouTube hero):
+- Background: pure near-black #050508 with a subtle dark floor reflection plane (very faint).
+- TOP: bold modern sans-serif headline (Inter Heavy / Söhne Heavy), Ice White #FCFEFF, centered across the top third, 1 line if possible (2 max), HUGE size, generous tracking. UNDER the last word: a rough hand-drawn WHITE chalk/marker underline scribble (slightly imperfect, 2 quick strokes) — this is allowed.
+- CENTER: TWO oversized 3D glowing objects side by side with a glowing WHITE motion-arrow between them pointing left→right. Soft floor reflections under each object.
+  • LEFT object = the "FROM" state (input) of the blog topic, rendered as a stylized 3D icon (folder, file, raw note, chaotic stack, blank canvas, etc. — pick from BLOG CONTEXT below). Color: APEX Blue #00BCFF glowing, soft cyan rim light, blue floor reflection. Label embossed on the object face in clean white sans-serif (max 4 chars / file-ext style, e.g. ".md", "RAW", "IDEA").
+  • RIGHT object = the "TO" state (output / result) of the blog topic, rendered as a stylized 3D icon (document, app, dashboard, polished file, etc.). Color: warm amber #FF9A1F glowing with soft orange rim light and warm floor reflection (this single warm accent is ALLOWED for this layout only, as a deliberate output-state highlight). Label embossed on the object face (e.g. "</> HTML", "APP", "SITE", "VIDEO" — pick from BLOG CONTEXT).
+  • Between them: a chunky 3D motion-arrow made of WHITE light with speed-streak tail, glowing softly.
+- RIGHT EDGE of canvas: 2–3 small floating dark UI preview cards (image preview, code snippet, layout blocks) with faint amber rim light, suggesting the rich output. Tiny — they're decorative only, no readable text.
+- The subject (person from uploaded photo) is NOT placed in the scene for this layout — the objects ARE the hero. Ignore the subject photo for this specific layout.
+- Cinematic, dramatic, ultra-premium, sharp shadows, soft bloom, fine grain.`,
+    promptNoSubject: `LAYOUT — TRANSFORM DUO (3D glowing input → output):
+- Background: pure near-black #050508 with very subtle dark floor reflection plane.
+- TOP: bold Ice White sans-serif headline (Inter Heavy), centered, 1–2 lines max, with a rough hand-drawn WHITE chalk underline scribble under the last word (allowed).
+- CENTER: TWO oversized 3D glowing objects side by side with a glowing WHITE 3D motion-arrow between them.
+  • LEFT = input/"FROM" state of the blog topic as a stylized 3D icon (folder/file/note/raw stack), APEX Blue #00BCFF glowing, cyan rim light, blue floor reflection. Short embossed label on the face (e.g. ".md", "RAW", "IDEA" — pick from BLOG CONTEXT).
+  • RIGHT = output/"TO" state as a stylized 3D icon (document/app/dashboard/polished file), warm amber #FF9A1F glowing with warm rim light and floor reflection (this single warm accent is ALLOWED for this layout only). Short embossed label (e.g. "</> HTML", "APP", "SITE" — from BLOG CONTEXT).
+  • Between: chunky 3D WHITE light-arrow with speed-streak tail, soft glow.
+- RIGHT EDGE: 2–3 small floating dark UI preview cards with faint amber rim, decorative only, no readable text.
+- Cinematic, dramatic, ultra-premium, sharp shadows, soft bloom, fine grain.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
