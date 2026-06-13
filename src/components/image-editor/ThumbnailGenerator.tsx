@@ -404,27 +404,9 @@ export default function ThumbnailGenerator({
       const isBlog = vlogStyle === "blog";
       const isPodcast = vlogStyle === "podcast";
       const isTestimonial = vlogStyle === "testimonial";
-      const isHeroWord = vlogStyle === "hero-word";
       const requestedVariants = Math.min(Math.max(variants, 1), 12);
 
-      if (isHeroWord) {
-        const word = title.trim().split(/\s+/)[0] ?? "";
-        if (!word) throw new Error("Bitte ein Wort (z.B. 'Design', 'Code', 'AI') eingeben");
-        const faceBase64 = await activeImageBase64();
-        const { data, error } = await supabase.functions.invoke("generate-hero-thumbnail", {
-          body: { word, count: requestedVariants, imageBase64: faceBase64 },
-        });
-        if (error) throw error;
-        if (data?.error) throw new Error(data.error);
-        const newThumbs: GeneratedThumbnail[] = (data.images as string[]).map((url, idx) => ({
-          templateId: `${data.template.id}-${Date.now()}-${idx}`,
-          imageUrl: url,
-          template: data.template,
-        }));
-        onGeneratedChange((prev) => [...newThumbs, ...prev]);
-        toast.success(`${newThumbs.length} Hero-Word Thumbnails generiert!`);
-        return;
-      }
+
 
 
       if (isBlog) {
