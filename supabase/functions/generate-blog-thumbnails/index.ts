@@ -238,11 +238,12 @@ OUTPUT FORMAT: Reines JSON-Array mit ${count} Strings, nichts anderes. Beispiel:
 }
 
 type BlogContext = {
-  tools: string[];     // 4–5 concrete AI tools/products mentioned (or fitting)
-  topics: string[];    // 3–5 short topic keywords (1–3 words each) from the blog
-  metric: string;      // ONE short metric/number with a 1–2 word label, e.g. "10x Output" or "5 Min Setup"
-  promptLine: string;  // ONE short example user-prompt line referencing the blog topic, max 8 words
-  codeLines: string[]; // 3–5 short stylized code/terminal lines themed to the blog topic, max 40 chars each
+  tools: string[];
+  topics: string[];
+  metric: string;
+  promptLine: string;
+  codeLines: string[];
+  transformPair: { fromLabel: string; fromObject: string; toLabel: string; toObject: string };
 };
 
 async function extractBlogContext(blogText: string, apiKey: string): Promise<BlogContext> {
