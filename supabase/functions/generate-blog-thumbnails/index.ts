@@ -348,7 +348,7 @@ APEX COLOR PALETTE — use ONLY these:
 • Slate Steel     #4B585D
 • Frost White     #EDF9FE
 • Graphite Gray   #1E2126
-FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.
+FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.${layoutId === "transform-duo" ? `\nEXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F is explicitly permitted as the glow color of the right-side "output" 3D object and its floor reflection only. Everything else stays brand-locked.` : ""}
 
 STYLE INSPIRATION — Leonard Schmedding × Hormozi × Tina Huang × Everlast AI:
 • Backgrounds: ultra-dark, almost black (#001A23 to #050508), never busy
