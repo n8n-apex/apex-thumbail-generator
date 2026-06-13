@@ -346,13 +346,14 @@ NEVER replace the face. NEVER swap ethnicity, age, gender. NEVER idealize.
     : "";
 
   const styleRef = hasStyleRef
-    ? `═══ STYLE REFERENCE — FOLLOW THIS LOOK ═══
-A SECOND image is attached AFTER the subject photo. It is a REFERENCE THUMBNAIL whose VISUAL STYLE you must emulate:
-• Composition, subject placement, framing
-• Typography style, size, weight, placement
-• Color treatment within the APEX palette
-• Background treatment
-DO NOT copy the reference's people, faces, logos or exact text. Replace with the subject from the first image and the headline below.
+    ? `═══ STYLE REFERENCE — MATCH THIS LOOK EXACTLY ═══
+A SECOND image is attached AFTER the subject photo. It is the OFFICIAL APEX preview of THIS exact layout. Treat it as the visual ground truth and match it 1:1:
+• Composition, subject placement, framing, crop, camera angle
+• Typography style, weight, size, placement, color, casing
+• Background treatment (gradients, glow, traces, panels, textures)
+• Color palette and how each color is used
+• Lighting direction, rim light, shadow shape, overall mood
+DO NOT copy the reference's person/face — replace with the subject from the FIRST image (their identity is locked above). DO NOT copy the reference's headline text — replace with the HEADLINE below. Everything else (look, feel, layout structure) must match the reference as closely as possible. The output should be visually indistinguishable from the reference except for the swapped face and headline.
 ═══════════════════════════════════════════════
 `
     : "";
@@ -520,6 +521,14 @@ serve(async (req) => {
     const forcedLayouts = rawForcedIds
       .map((id) => APEX_BLOG_LAYOUTS.find((l) => l.id === id))
       .filter((x): x is typeof APEX_BLOG_LAYOUTS[number] => !!x);
+    const layoutReferences: Record<string, string> =
+      body.layoutReferences && typeof body.layoutReferences === "object" && !Array.isArray(body.layoutReferences)
+        ? Object.fromEntries(
+            Object.entries(body.layoutReferences as Record<string, unknown>).filter(
+              ([, v]) => typeof v === "string" && (v as string).startsWith("data:"),
+            ),
+          ) as Record<string, string>
+        : {};
     const hasSubject = !!imageBase64;
     const useStyleRef = !!referenceStyleBase64 && forcedLayouts.length === 0;
     const hasStyleRef = useStyleRef;
@@ -594,10 +603,14 @@ serve(async (req) => {
         ? forcedLayouts[Math.floor(i / variantsPerStyle) % forcedLayouts.length]
         : APEX_BLOG_LAYOUTS[i % APEX_BLOG_LAYOUTS.length];
       const layoutPrompt = hasSubject ? layout.promptWithSubject : layout.promptNoSubject;
+      const perLayoutRef = layoutReferences[layout.id];
+      const jobStyleRef = perLayoutRef ?? (useStyleRef ? referenceStyleBase64 : undefined);
+      const jobHasStyleRef = !!jobStyleRef;
       return {
         headline,
         layoutId: layout.id,
-        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, hasStyleRef, blogCtx, layout.id),
+        styleRef: jobStyleRef,
+        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, jobHasStyleRef, blogCtx, layout.id),
       };
     });
 
@@ -606,7 +619,7 @@ serve(async (req) => {
     for (let i = 0; i < jobs.length; i += CONCURRENCY) {
       const chunk = jobs.slice(i, i + CONCURRENCY);
       const chunkResults = await Promise.allSettled(
-        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, useStyleRef ? referenceStyleBase64 : undefined)),
+        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, j.styleRef)),
       );
       settled.push(...chunkResults);
     }

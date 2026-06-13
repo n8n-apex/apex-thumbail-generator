@@ -419,6 +419,19 @@ export default function ThumbnailGenerator({
         const forcedLayoutIds = selectedBlogRefSrcs
           .map((src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId)
           .filter((x): x is string => !!x);
+        // Load the preview JPGs of the selected layouts as per-layout style references
+        // so the model has the exact visual look to emulate (composition, colors, treatment)
+        // while restaging the uploaded subject into it.
+        const layoutReferences: Record<string, string> = {};
+        for (const src of selectedBlogRefSrcs) {
+          const ref = APEX_BLOG_REFERENCES.find((r) => r.src === src);
+          if (!ref) continue;
+          try {
+            layoutReferences[ref.layoutId] = await imageSourceToOptimizedBase64(src);
+          } catch {
+            // skip if a preview cannot be loaded
+          }
+        }
         const { data, error } = await supabase.functions.invoke("generate-blog-thumbnails", {
           body: {
             blogContent: blogContent.trim().slice(0, 20000) || undefined,
@@ -429,6 +442,7 @@ export default function ThumbnailGenerator({
             imageBase64: blogImageBase64,
             referenceStyleBase64: forcedLayoutIds.length === 0 ? (referenceStyleImage ?? undefined) : undefined,
             forcedLayoutIds: forcedLayoutIds.length > 0 ? forcedLayoutIds : undefined,
+            layoutReferences: Object.keys(layoutReferences).length > 0 ? layoutReferences : undefined,
           },
         });
         if (error) throw error;
