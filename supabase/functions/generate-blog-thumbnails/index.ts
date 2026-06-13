@@ -338,18 +338,21 @@ function buildBlogThumbnailPrompt(
   layoutId?: string,
 ): string {
   const faceLock = hasSubject
-    ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY ═══
-The FIRST attached image is the IDENTITY reference for the person. Re-stage them into the layout below, but keep 1:1:
-• ENTIRE FACE geometry, eyes, nose, mouth, jawline, ears
-• Skin tone, undertone, freckles, moles, scars, tattoos
-• Hairstyle: cut, length, parting, texture, color, hairline
-• Beard / stubble: exact pattern, density, color
-• Apparent age, ethnicity, gender presentation, body type
-• Glasses, jewelry, piercings — exactly as in the reference
-NEVER replace the face. NEVER swap ethnicity, age, gender. NEVER idealize.
+    ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY (HIGHEST RULE, OVERRIDES EVERYTHING ELSE) ═══
+The FIRST attached image IS the person. Treat it as a forensic photo reference. Re-stage them into the layout, but the face MUST be photographically identical — like the same person stepped into a new scene, not a similar-looking model.
+LOCK 1:1, pixel-faithful:
+• ENTIRE FACE geometry: skull shape, forehead height, brow ridge, eye spacing & shape & color, nose bridge/tip/nostrils, lip shape & thickness, philtrum, chin shape, jawline, cheekbones, ear shape & position
+• Skin: exact tone, undertone, texture, pores, freckles, moles, scars, blemishes — keep every mark
+• Hair: cut, length, parting, density, hairline shape, color (incl. buzzcut/very short if so)
+• Beard / stubble: exact pattern, density, length, color, edges — do not thicken or thin
+• Eyebrows: shape, thickness, color
+• Apparent age, ethnicity, gender, body type, neck/shoulder build
+• Glasses, jewelry, watch, piercings — exactly as in the reference
+NEVER beautify, slim, idealize, smooth skin, change ethnicity, change age, change gender, or generate a "similar" face. If in doubt, copy the reference face more literally. Identity match > artistic interpretation. A wrong face = failed output.
 ═══════════════════════════════════════════════
 `
     : "";
+
 
   const styleRef = hasStyleRef
     ? `═══ STYLE REFERENCE — MATCH THIS LOOK EXACTLY ═══
