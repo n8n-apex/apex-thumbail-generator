@@ -186,6 +186,35 @@ const APEX_BLOG_LAYOUTS = [
 - BRAND EXCEPTION: icon uses its true brand colors. Headline pure Ice White. Background deep near-black.
 - ONLY ONE WORD in the whole image. No subtitles, no badges, no extra text. Cinematic, dramatic, ultra-premium, mostly dark.`,
   },
+  {
+    id: "sticky-board",
+    label: "Sticky Notes Board",
+    promptWithSubject: `LAYOUT — STICKY NOTES BOARD (viral coaching/business YouTube, post-its pinned around face on chalkboard):
+- Background: matte near-black chalkboard / dark wall #0a0a0a–#111111 with very faint chalk-dust texture and fine grain. No gradients, no glow, no patterns.
+- SUBJECT (person from uploaded photo) CENTERED, chest-up, facing camera with a calm confident slight smile, sharp eye contact, photo-real 85mm DSLR, soft natural key light. IDENTITY FORENSICALLY LOCKED — same skull shape, same beard density and shape, same hairline, same skin tone, same exact features as the uploaded photo. Do NOT idealize, do NOT slim the face, do NOT swap identity.
+- AROUND the head, 4 YELLOW POST-IT sticky notes (~13% canvas width each), 2 on the left and 2 on the right, each slightly rotated, each pinned with a small RED pushpin at the top. Each sticky note has ONE bold black hand-drawn LINE-ICON drawn on it that semantically matches the BLOG TOPIC (e.g. magnifying glass over document, person silhouette with short label, gear cluster with short label, eye with dollar sign, lightbulb, chart, checklist, target — pick 4 fitting the topic). Short ALL-CAPS labels under the icons (max 6 chars) are allowed ONLY inside the sticky notes.
+- A thin dashed WHITE curve loosely connects the 4 sticky notes in an arc behind the subject's head.
+- BOTTOM third: HUGE bold white sans-serif headline (Inter Heavy / SF Pro Display Black) ALL-CAPS, Ice White #FCFEFF, max 1 line if possible (2 short max), spanning full width, tight tracking. Under ONE key word: a thick GLOWING RED marker underline scribble (slightly imperfect 2 quick strokes).
+- Premium, photo-real, cinematic, mostly dark, sharp.`,
+    promptNoSubject: `LAYOUT — STICKY NOTES BOARD (no subject):
+- Matte near-black chalkboard background #0a0a0a with faint chalk-dust texture.
+- 4–5 YELLOW POST-IT sticky notes pinned with RED pushpins, slightly rotated, arranged in a loose arc across the upper two thirds. Each holds ONE bold black line-icon matching the BLOG TOPIC + short ALL-CAPS label (max 6 chars) — these labels are allowed.
+- Thin dashed WHITE curve connecting them.
+- BOTTOM third: HUGE bold Ice White ALL-CAPS sans-serif headline (Inter Heavy), 1 line if possible, with a thick GLOWING RED marker underline scribble under one key word.`,
+  },
+  {
+    id: "notebook-grid",
+    label: "Notebook Grid",
+    promptWithSubject: `LAYOUT — NOTEBOOK GRID (editorial graph-paper, headline stack + deadpan portrait):
+- Background: warm cream-beige PAPER #efe9d9 / #f2ecdd filling the whole frame, with a subtle ENGINEERING GRAPH-PAPER grid (fine light-grey 1px squares, ~36px). Faint paper grain. No gradients, no glow.
+- SUBJECT (person from uploaded photo) anchored on the RIGHT third, chest-up, with hand thoughtfully resting near temple or chin, looking dead-straight into camera with a serious calm deadpan expression. Photo-real 85mm DSLR, sharp. IDENTITY FORENSICALLY LOCKED — same skull shape, same beard density and shape, same hairline, same skin tone, same exact features as the uploaded photo. Do NOT idealize, do NOT slim the face, do NOT swap identity.
+- LEFT 55–60%: headline stacked in THREE short lines in HUGE bold black sans-serif (Inter Heavy / SF Pro Display Black), Deep Black #0a0a0a, mixed case, left-aligned. The MIDDLE line should be the punchy power phrase (number + noun if possible) and is rendered in the heaviest weight. Under the MIDDLE line: a thick hand-drawn RED marker underline scribble (slightly imperfect).
+- No other decoration. No glow, no chromatic effects, no cyan. Magazine-clean.`,
+    promptNoSubject: `LAYOUT — NOTEBOOK GRID (no subject):
+- Cream-beige paper background #efe9d9 with subtle engineering graph-paper grid.
+- Headline stacked in 3 short lines, HUGE bold black sans-serif (Inter Heavy), left-aligned, mixed case. The MIDDLE line is the punchy power phrase in the heaviest weight, with a hand-drawn red marker underline scribble under it.
+- No other decoration. Magazine-clean, editorial.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
