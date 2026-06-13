@@ -76,8 +76,10 @@ import apexRef6 from "@/assets/apex-ref-6.jpg";
 import apexRef7 from "@/assets/apex-ref-7.jpg";
 import apexRef8 from "@/assets/apex-ref-8.jpg";
 import apexRef9 from "@/assets/apex-ref-9.jpg";
+import apexRef10 from "@/assets/apex-ref-10.jpg";
 
 const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
+  { src: apexRef10, label: "Transform Duo", layoutId: "transform-duo" },
   { src: apexRef1, label: "Glass Quote", layoutId: "glass-card" },
   { src: apexRef2, label: "AI Tools Row", layoutId: "ai-tools-row" },
   { src: apexRef3, label: "Editorial Hero", layoutId: "big-quote" },
