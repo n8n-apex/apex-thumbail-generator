@@ -346,13 +346,14 @@ NEVER replace the face. NEVER swap ethnicity, age, gender. NEVER idealize.
     : "";
 
   const styleRef = hasStyleRef
-    ? `═══ STYLE REFERENCE — FOLLOW THIS LOOK ═══
-A SECOND image is attached AFTER the subject photo. It is a REFERENCE THUMBNAIL whose VISUAL STYLE you must emulate:
-• Composition, subject placement, framing
-• Typography style, size, weight, placement
-• Color treatment within the APEX palette
-• Background treatment
-DO NOT copy the reference's people, faces, logos or exact text. Replace with the subject from the first image and the headline below.
+    ? `═══ STYLE REFERENCE — MATCH THIS LOOK EXACTLY ═══
+A SECOND image is attached AFTER the subject photo. It is the OFFICIAL APEX preview of THIS exact layout. Treat it as the visual ground truth and match it 1:1:
+• Composition, subject placement, framing, crop, camera angle
+• Typography style, weight, size, placement, color, casing
+• Background treatment (gradients, glow, traces, panels, textures)
+• Color palette and how each color is used
+• Lighting direction, rim light, shadow shape, overall mood
+DO NOT copy the reference's person/face — replace with the subject from the FIRST image (their identity is locked above). DO NOT copy the reference's headline text — replace with the HEADLINE below. Everything else (look, feel, layout structure) must match the reference as closely as possible. The output should be visually indistinguishable from the reference except for the swapped face and headline.
 ═══════════════════════════════════════════════
 `
     : "";
