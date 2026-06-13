@@ -138,6 +138,29 @@ const APEX_BLOG_LAYOUTS = [
 - Centered translucent frosted Liquid-Glass chat/prompt input panel (visionOS), 1px APEX Blue hairline, glowing cyan submit-arrow circle, "Ask anything…" placeholder, one short example prompt referencing the BLOG TOPIC above (max 8 words).
 - Above: bold Ice White sans-serif headline, 2 lines.`,
   },
+  {
+    id: "transform-duo",
+    label: "Transform Duo",
+    promptWithSubject: `LAYOUT — TRANSFORM DUO (3D glowing input → output, premium YouTube hero):
+- Background: pure near-black #050508 with a subtle dark floor reflection plane (very faint).
+- TOP: bold modern sans-serif headline (Inter Heavy / Söhne Heavy), Ice White #FCFEFF, centered across the top third, 1 line if possible (2 max), HUGE size, generous tracking. UNDER the last word: a rough hand-drawn WHITE chalk/marker underline scribble (slightly imperfect, 2 quick strokes) — this is allowed.
+- CENTER: TWO oversized 3D glowing objects side by side with a glowing WHITE motion-arrow between them pointing left→right. Soft floor reflections under each object.
+  • LEFT object = the "FROM" state (input) of the blog topic, rendered as a stylized 3D icon (folder, file, raw note, chaotic stack, blank canvas, etc. — pick from BLOG CONTEXT below). Color: APEX Blue #00BCFF glowing, soft cyan rim light, blue floor reflection. Label embossed on the object face in clean white sans-serif (max 4 chars / file-ext style, e.g. ".md", "RAW", "IDEA").
+  • RIGHT object = the "TO" state (output / result) of the blog topic, rendered as a stylized 3D icon (document, app, dashboard, polished file, etc.). Color: warm amber #FF9A1F glowing with soft orange rim light and warm floor reflection (this single warm accent is ALLOWED for this layout only, as a deliberate output-state highlight). Label embossed on the object face (e.g. "</> HTML", "APP", "SITE", "VIDEO" — pick from BLOG CONTEXT).
+  • Between them: a chunky 3D motion-arrow made of WHITE light with speed-streak tail, glowing softly.
+- RIGHT EDGE of canvas: 2–3 small floating dark UI preview cards (image preview, code snippet, layout blocks) with faint amber rim light, suggesting the rich output. Tiny — they're decorative only, no readable text.
+- The subject (person from uploaded photo) is NOT placed in the scene for this layout — the objects ARE the hero. Ignore the subject photo for this specific layout.
+- Cinematic, dramatic, ultra-premium, sharp shadows, soft bloom, fine grain.`,
+    promptNoSubject: `LAYOUT — TRANSFORM DUO (3D glowing input → output):
+- Background: pure near-black #050508 with very subtle dark floor reflection plane.
+- TOP: bold Ice White sans-serif headline (Inter Heavy), centered, 1–2 lines max, with a rough hand-drawn WHITE chalk underline scribble under the last word (allowed).
+- CENTER: TWO oversized 3D glowing objects side by side with a glowing WHITE 3D motion-arrow between them.
+  • LEFT = input/"FROM" state of the blog topic as a stylized 3D icon (folder/file/note/raw stack), APEX Blue #00BCFF glowing, cyan rim light, blue floor reflection. Short embossed label on the face (e.g. ".md", "RAW", "IDEA" — pick from BLOG CONTEXT).
+  • RIGHT = output/"TO" state as a stylized 3D icon (document/app/dashboard/polished file), warm amber #FF9A1F glowing with warm rim light and floor reflection (this single warm accent is ALLOWED for this layout only). Short embossed label (e.g. "</> HTML", "APP", "SITE" — from BLOG CONTEXT).
+  • Between: chunky 3D WHITE light-arrow with speed-streak tail, soft glow.
+- RIGHT EDGE: 2–3 small floating dark UI preview cards with faint amber rim, decorative only, no readable text.
+- Cinematic, dramatic, ultra-premium, sharp shadows, soft bloom, fine grain.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
@@ -215,11 +238,12 @@ OUTPUT FORMAT: Reines JSON-Array mit ${count} Strings, nichts anderes. Beispiel:
 }
 
 type BlogContext = {
-  tools: string[];     // 4–5 concrete AI tools/products mentioned (or fitting)
-  topics: string[];    // 3–5 short topic keywords (1–3 words each) from the blog
-  metric: string;      // ONE short metric/number with a 1–2 word label, e.g. "10x Output" or "5 Min Setup"
-  promptLine: string;  // ONE short example user-prompt line referencing the blog topic, max 8 words
-  codeLines: string[]; // 3–5 short stylized code/terminal lines themed to the blog topic, max 40 chars each
+  tools: string[];
+  topics: string[];
+  metric: string;
+  promptLine: string;
+  codeLines: string[];
+  transformPair: { fromLabel: string; fromObject: string; toLabel: string; toObject: string };
 };
 
 async function extractBlogContext(blogText: string, apiKey: string): Promise<BlogContext> {
@@ -231,6 +255,12 @@ Liefere EIN JSON-Objekt mit genau diesen Feldern:
   "metric":  string         // EINE prägnante Kennzahl + Mini-Label aus dem Blog (z.B. "10x Output", "5 Min Setup", "+250% ROI"). Wenn keine im Text, erfinde EINE plausible, zum Thema passende
   "promptLine": string      // EINE kurze Beispiel-User-Prompt-Zeile, die das Blog-Thema referenziert, max 8 Wörter, keine Anführungszeichen
   "codeLines": string[3..5] // kurze, stilisierte Code-/Terminal-Zeilen, die zum Blog-Thema passen (z.B. "$ apex run --workflow", "import openai"), max 40 Zeichen
+  "transformPair": {        // Vorher→Nachher Transformation, die das Blog-Thema visuell darstellt
+    "fromObject": string,   // 1–3 Wörter, das INPUT-Objekt als 3D-Icon (z.B. "Markdown folder", "raw notes", "blank canvas", "messy spreadsheet")
+    "fromLabel":  string,   // sehr kurzer Label-Text fürs Icon, max 5 Zeichen (z.B. ".md", "RAW", "IDEA", "TXT")
+    "toObject":   string,   // 1–3 Wörter, das OUTPUT-Objekt als 3D-Icon (z.B. "HTML document", "polished app", "finished video", "live dashboard")
+    "toLabel":    string    // sehr kurzer Label-Text fürs Icon, max 6 Zeichen (z.B. "HTML", "APP", "SITE", "VIDEO")
+  }
 }
 Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
   const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -244,7 +274,10 @@ Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
       ],
     }),
   });
-  const fallback: BlogContext = { tools: [], topics: [], metric: "", promptLine: "", codeLines: [] };
+  const fallback: BlogContext = {
+    tools: [], topics: [], metric: "", promptLine: "", codeLines: [],
+    transformPair: { fromObject: "raw notes", fromLabel: "RAW", toObject: "polished output", toLabel: "DONE" },
+  };
   if (!resp.ok) return fallback;
   const data = await resp.json();
   const raw: string = data.choices?.[0]?.message?.content || "";
@@ -252,12 +285,19 @@ Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
   if (!m) return fallback;
   try {
     const obj = JSON.parse(m[0]);
+    const tp = obj.transformPair && typeof obj.transformPair === "object" ? obj.transformPair : {};
     return {
       tools: Array.isArray(obj.tools) ? obj.tools.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
       topics: Array.isArray(obj.topics) ? obj.topics.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
       metric: typeof obj.metric === "string" ? obj.metric.trim() : "",
       promptLine: typeof obj.promptLine === "string" ? obj.promptLine.trim() : "",
       codeLines: Array.isArray(obj.codeLines) ? obj.codeLines.map((x: unknown) => String(x).trim()).filter(Boolean).slice(0, 5) : [],
+      transformPair: {
+        fromObject: (typeof tp.fromObject === "string" && tp.fromObject.trim()) || fallback.transformPair.fromObject,
+        fromLabel: ((typeof tp.fromLabel === "string" && tp.fromLabel.trim()) || fallback.transformPair.fromLabel).slice(0, 6),
+        toObject: (typeof tp.toObject === "string" && tp.toObject.trim()) || fallback.transformPair.toObject,
+        toLabel: ((typeof tp.toLabel === "string" && tp.toLabel.trim()) || fallback.transformPair.toLabel).slice(0, 7),
+      },
     };
   } catch {
     return fallback;
@@ -308,7 +348,7 @@ APEX COLOR PALETTE — use ONLY these:
 • Slate Steel     #4B585D
 • Frost White     #EDF9FE
 • Graphite Gray   #1E2126
-FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.
+FORBIDDEN: warm oranges, teal-orange film grade, red, yellow, gradients outside the palette.${layoutId === "transform-duo" ? `\nEXCEPTION FOR THIS LAYOUT ONLY: warm amber #FF9A1F is explicitly permitted as the glow color of the right-side "output" 3D object and its floor reflection only. Everything else stays brand-locked.` : ""}
 
 STYLE INSPIRATION — Leonard Schmedding × Hormozi × Tina Huang × Everlast AI:
 • Backgrounds: ultra-dark, almost black (#001A23 to #050508), never busy
@@ -360,6 +400,14 @@ ${ctx.codeLines.map((l) => `> ${l}`).join("\n")}`);
   if (layoutId === "metric-hero" && ctx.metric) {
     blocks.push(`\n═══ METRIC OVERRIDE ═══
 Render the metric "${ctx.metric}" as the oversized hero number/label on the left. The digits/number portion is APEX Blue; the unit/label is Deep Ocean. Tiny tracked uppercase label below in Slate Steel referencing the blog topic "${ctx.topics[0] ?? ""}".`);
+  }
+  if (layoutId === "transform-duo" && ctx.transformPair) {
+    const tp = ctx.transformPair;
+    blocks.push(`\n═══ TRANSFORM DUO CONTENT (render these exact objects) ═══
+• LEFT (input, glowing APEX Blue): a stylized 3D icon of "${tp.fromObject}" with the short embossed label "${tp.fromLabel}" on its face.
+• RIGHT (output, glowing warm amber): a stylized 3D icon of "${tp.toObject}" with the short embossed label "${tp.toLabel}" on its face.
+• Between them: chunky 3D white light-arrow with motion streaks.
+These two short labels on the objects are allowed in addition to the headline. No other text anywhere.`);
   }
   return blocks.join("\n");
 })()}
