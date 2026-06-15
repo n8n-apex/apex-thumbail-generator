@@ -80,6 +80,7 @@ import apexRef10 from "@/assets/apex-ref-10.jpg";
 import apexRef11 from "@/assets/apex-ref-11.jpg";
 import apexRef12 from "@/assets/apex-ref-12.jpg";
 import apexRef13 from "@/assets/apex-ref-13.jpg";
+import apexRefHeroWordV3 from "@/assets/apex-ref-hero-word-v3.jpg";
 
 const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
   { src: apexRef12, label: "Glass Sticky Board", layoutId: "sticky-board" },
