@@ -356,6 +356,53 @@ Antworte NUR mit dem reinen JSON-Objekt, nichts anderes.`;
   }
 }
 
+function extractHeroWord(headline: string): string {
+  const brands: Record<string, string> = {
+    chatgpt: "GPT", claude: "CLAUDE", gemini: "GEMINI", midjourney: "MJ",
+    sora: "SORA", runway: "RUNWAY", figma: "FIGMA", notion: "NOTION",
+    photoshop: "PS", illustrator: "AI", premiere: "PR", lightroom: "LR",
+    canva: "CANVA", cursor: "CURSOR", github: "GITHUB", slack: "SLACK",
+    youtube: "YT", instagram: "IG", tiktok: "TT", spotify: "SPOTIFY",
+    lovable: "LOVABLE", supabase: "SUPA", vercel: "VERCEL", linear: "LINEAR",
+    perplexity: "PERP", n8n: "N8N", zapier: "ZAP", blender: "BLENDER",
+    capcut: "CAPCUT", mcp: "MCP", marketing: "SALES", analytics: "DATA",
+    automation: "AUTO", development: "DEV", programming: "CODE", business: "BIZ",
+    strategy: "STRAT", management: "MGMT", productivity: "PROD", creativity: "CREATE",
+    generation: "GEN", intelligence: "AI", optimization: "OPT", transformation: "TRANS",
+    communication: "COMM", collaboration: "COLLAB", application: "APP",
+    platform: "PLAT", design: "DESIGN", photo: "PHOTO", video: "VIDEO",
+    music: "MUSIC", write: "WRITE", edit: "EDIT", chat: "CHAT", brain: "BRAIN",
+    cloud: "CLOUD", speed: "SPEED", lock: "LOCK", idea: "IDEA",
+  };
+  const lower = headline.toLowerCase().replace(/[^\w\s]/g, " ");
+  for (const [key, val] of Object.entries(brands)) {
+    if (lower.includes(key)) return val;
+  }
+  const stop = new Set([
+    "how","to","use","the","a","an","and","or","for","with","in","on","at","by","from","of",
+    "is","are","was","were","be","been","being","have","has","had","do","does","did",
+    "will","would","could","should","may","might","must","can","this","that","these","those",
+    "i","you","he","she","it","we","they","me","him","her","us","them","my","your","his",
+    "its","our","their","what","which","who","when","where","why","all","each","every",
+    "both","few","more","most","other","some","such","no","not","only","own","same","so",
+    "than","too","very","just","now","then","here","there","up","down","out","off","over",
+    "under","again","further","once","also","back","still","as","if","about","into",
+    "through","during","before","after","above","below","between","among","within",
+    "without","against","across","behind","beyond","despite","except","inside","outside",
+    "throughout","toward","underneath","until","upon","while","new","top","best",
+    "ultimate","complete","full","guide","tutorial","tips","tricks","hacks","review","vs",
+    "versus","beginner","advanced","pro","easy","quick","fast","simple","free","paid",
+    "2024","2025","2026","2027",
+  ]);
+  const words = lower.split(/\s+/).filter(w => w.length > 1 && !stop.has(w));
+  if (words.length === 0) {
+    const fallback = lower.split(/\s+/).filter(w => w.length > 0);
+    return (fallback[0] || "APEX").toUpperCase().slice(0, 8);
+  }
+  const w = words[0].toUpperCase();
+  return w.length <= 8 ? w : (brands[words[0]] || w.slice(0, 8));
+}
+
 function buildBlogThumbnailPrompt(
   headline: string,
   layoutPrompt: string,
@@ -364,6 +411,8 @@ function buildBlogThumbnailPrompt(
   ctx?: BlogContext,
   layoutId?: string,
 ): string {
+  const isHeroWord = layoutId === "hero-word";
+  const renderHeadline = isHeroWord ? extractHeroWord(headline) : headline;
   const faceLock = hasSubject
     ? `═══ FACE LOCK — ABSOLUTE TOP PRIORITY (HIGHEST RULE, OVERRIDES EVERYTHING ELSE) ═══
 The FIRST attached image IS the person. Treat it as a forensic photo reference. Re-stage them into the layout, but the face MUST be photographically identical — like the same person stepped into a new scene, not a similar-looking model.
