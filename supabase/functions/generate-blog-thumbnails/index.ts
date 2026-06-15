@@ -518,7 +518,7 @@ These two short labels on the objects are allowed in addition to the headline. N
 })()}
 
 ═══ HEADLINE TO RENDER (verbatim, perfect spelling) ═══
-${headline}
+${renderHeadline}
 
 CRITICAL: render the headline as plain text WITHOUT any surrounding quotation marks (no " " no “ ” no ' ' no ‘ ’). No quote glyphs anywhere on the image.
 
