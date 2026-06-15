@@ -472,7 +472,7 @@ APEX TONE: confident, premium, minimal, editorial. NO gimmicks, NO emojis, NO ca
 • The ONLY text on the entire image is the HEADLINE below. Zero other text.
 • NO decorative micro-text, NO tagline, NO sublabel, NO "AI era" / "AI tools" / "2024" / "GUIDE" / "EPISODE" style tracked-uppercase mini labels, NO captions under the headline, NO category chips, NO tiny eyebrow text above the headline. Headline only — nothing else.
 • NO tiny labels under icons/tiles/metrics unless explicitly allowed by the BLOG CONTEXT section below for this specific layout.
-• Perfect spelling. No typos. No gibberish letters.${hasSubject ? "" : "\n• NO people, NO faces, NO portraits."}
+• Perfect spelling. No typos. No gibberish letters.${hasSubject ? "" : "\n• NO people, NO faces, NO portraits."}${isHeroWord ? "\n• HERO WORD LAYOUT ADDITIONAL RULE: ZERO additional text. No word count label. No step number. No micro-caption. No badge. No UI element with text. Not a single letter besides the one headline word." : ""}
 
 ═══ LAYOUT (follow precisely) ═══
 ${layoutPrompt}
