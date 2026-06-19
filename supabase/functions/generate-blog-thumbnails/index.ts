@@ -521,6 +521,15 @@ Render the metric "${ctx.metric}" as the oversized hero number/label on the left
 • Between them: chunky 3D white light-arrow with motion streaks.
 These two short labels on the objects are allowed in addition to the headline. No other text anywhere.`);
   }
+  if (layoutId === "hero-word") {
+    const heroWord = extractHeroWord(headline);
+    const primaryTool = ctx.tools[0] || "";
+    const primaryTopic = ctx.topics[0] || "";
+    blocks.push(`\n═══ HERO WORD ICON OVERRIDE (mandatory — overrides any icon visible in the style reference) ═══
+The floating 3D app icon on the palm MUST literally represent THIS blog's subject — not whatever icon the style reference shows.
+• Hero word being rendered: "${heroWord}"
+${primaryTool ? `• Primary tool from blog: "${primaryTool}" — render its OFFICIAL real app icon (correct shape, glyph, true brand colors) as a premium 3D liquid-glass version on the palm.\n` : ""}${!primaryTool && primaryTopic ? `• Primary blog topic: "${primaryTopic}" — render a stylized 3D liquid-glass squircle icon with a literal 3D glyph for this concept.\n` : ""}DO NOT render the icon from the style reference (e.g. if the reference shows OnePage, ChatGPT, Notion, or any other logo, IGNORE it). The icon must match the hero word and blog tool above. Same VISUAL TREATMENT as the reference (size, palm placement, glow, rim light, occlusion of the word) — different LOGO/GLYPH.`);
+  }
   return blocks.join("\n");
 })()}
 
