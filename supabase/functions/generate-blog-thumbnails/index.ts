@@ -431,17 +431,24 @@ NEVER beautify, slim, idealize, smooth skin, change ethnicity, change age, chang
 
 
   const styleRef = hasStyleRef
-    ? `═══ STYLE REFERENCE — MATCH THIS LOOK EXACTLY ═══
-A SECOND image is attached AFTER the subject photo. It is the OFFICIAL APEX preview of THIS exact layout. Treat it as the visual ground truth and match it 1:1:
+    ? `═══ STYLE REFERENCE — MATCH THE LOOK, ADAPT THE CONTENT ═══
+A SECOND image is attached AFTER the subject photo. It is the OFFICIAL APEX preview of THIS exact layout. Treat it as the visual ground truth FOR STYLE ONLY — match it 1:1 on:
 • Composition, subject placement, framing, crop, camera angle
 • Typography style, weight, size, placement, color, casing
 • Background treatment (gradients, glow, traces, panels, textures)
 • Color palette and how each color is used
 • Lighting direction, rim light, shadow shape, overall mood
-DO NOT copy the reference's person/face — replace with the subject from the FIRST image (their identity is locked above). DO NOT copy the reference's headline text — replace with the HEADLINE below. Everything else (look, feel, layout structure) must match the reference as closely as possible. The output should be visually indistinguishable from the reference except for the swapped face and headline.
+• Number, shape, size and arrangement of decorative panels / tiles / cards / brackets
+
+CRITICAL — DO NOT copy the reference's CONTENT, only its style:
+• DO NOT copy the reference's person/face — replace with the subject from the FIRST image (their identity is locked above).
+• DO NOT copy the reference's headline text — replace with the HEADLINE below.
+• DO NOT copy the reference's ICONS, LOGOS, GLYPHS, CHART SHAPES, CODE LINES, PROMPT TEXT, METRIC NUMBERS, LABELS, or any other content-bearing element. These MUST be re-derived from the BLOG CONTEXT section below so the thumbnail visually represents THIS specific blog. If the reference shows a magnifier icon but the blog is about video, render a video-camera icon in the same tile style. If the reference shows "ChatGPT" but the blog talks about Midjourney, render Midjourney. Same VISUAL LANGUAGE, different SEMANTIC CONTENT.
+The output should be visually indistinguishable from the reference in STYLE, while every content element clearly reflects this blog's topic, tools, and metrics.
 ═══════════════════════════════════════════════
 `
     : "";
+
 
   return `You are a world-class brand designer creating a MINIMALIST APEX-brand thumbnail (16:9, exactly 1280×720) for a blog insight card. The aesthetic is ULTRA-MODERN, EDITORIAL, MINIMAL — Apple keynote × Linear × Vercel marketing, infused with the dark cinematic mood of premium European AI creators (think Leonard Schmedding's ultra-dark backgrounds, dramatic single-source side lighting, high contrast, and near-zero text clutter).
 
