@@ -407,7 +407,7 @@ export default function ConfidenceCurve() {
             const boxWidth = 360;
             const boxHeight = 86;
             const boxX = textAnchor === "left" ? lx + 14 : lx - 14 - boxWidth;
-            const descLines = s.description.split("\\n");
+            const descLines = s.description;
             return (
               <g key={s.id}>
                 {/* Marker circle */}
