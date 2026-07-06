@@ -6,7 +6,7 @@ interface Stage {
   id: number;
   title: string;
   color: string;
-  description: string;
+  description: string[];
   x: number;
   y: number;
   labelX: number;
