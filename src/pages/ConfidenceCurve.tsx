@@ -1,80 +1,81 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Aperture } from "lucide-react";
+import { Download } from "lucide-react";
 
 interface Stage {
   id: number;
   title: string;
-  color: string;
-  description: string[];
-  x: number;
-  y: number;
+  titleColor: string;
+  body: string;
+  x: number; // % along x (curve point)
+  y: number; // % along y
+  // Label box (top-left corner) in % of chart area
   labelX: number;
   labelY: number;
-  labelAlign: "left" | "right";
+  labelW: number;
 }
 
 const stages: Stage[] = [
   {
     id: 1,
-    title: "Wow",
-    color: "#00D4AA",
-    description: ["ChatGPT answers everything. Elaborated, credible, coherent.", "A superhuman chatbot."],
-    x: 12,
-    y: 90,
-    labelX: 24,
-    labelY: 82,
-    labelAlign: "left",
+    title: "Wow.",
+    titleColor: "#1FA34A",
+    body: "ChatGPT is able to answer all my questions. It quickly generates very elaborated answers that are credible and coherent. Finally a chatbot that behaves like a super human.",
+    x: 4,
+    y: 96,
+    labelX: 12,
+    labelY: 92,
+    labelW: 34,
   },
   {
     id: 2,
-    title: "Wait a minute",
-    color: "#F59E0B",
-    description: ["An LLM is just a statistical language predictor.", "It produces plausible answers, not understanding."],
-    x: 30,
-    y: 52,
-    labelX: 16,
-    labelY: 68,
-    labelAlign: "left",
+    title: "Wait a minute.",
+    titleColor: "#E8912B",
+    body: 'ChatGPT is powered by a Large Language Model (LLM) which is ultimately a statistical tool used to predict language without understanding it and produce "statistically plausible" answers.',
+    x: 22,
+    y: 55,
+    labelX: 30,
+    labelY: 72,
+    labelW: 34,
   },
   {
     id: 3,
-    title: "Damn",
-    color: "#EF4444",
-    description: ["It occasionally stitches wrong snippets together", "and confidently generates incorrect answers."],
-    x: 50,
+    title: "Damn.",
+    titleColor: "#D93A2B",
+    body: "This means that ChatGPT will occasionally generate incorrect answers by unintentionally stitching wrong snippet of information together.",
+    x: 44,
     y: 18,
-    labelX: 60,
-    labelY: 14,
-    labelAlign: "left",
+    labelX: 6,
+    labelY: 32,
+    labelW: 34,
   },
   {
     id: 4,
-    title: "Got it",
-    color: "#FBBF24",
-    description: ["Great when there is no single 'right' answer.", "Unreliable when perfection is required."],
-    x: 72,
-    y: 40,
-    labelX: 68,
-    labelY: 28,
-    labelAlign: "right",
+    title: "Got it.",
+    titleColor: "#E8912B",
+    body: 'ChatGPT is great when there isn\'t a precise "right answer". But it cannot be trusted when the answer must be "perfect" to be reliably useful.',
+    x: 70,
+    y: 30,
+    labelX: 48,
+    labelY: 22,
+    labelW: 34,
   },
   {
     id: 5,
-    title: "Ready now",
-    color: "#00BCFF",
-    description: ["The real value is clear. Productivity boost —", "while recognizing when it gets things completely wrong."],
-    x: 90,
-    y: 80,
-    labelX: 82,
-    labelY: 88,
-    labelAlign: "right",
+    title: "Ready now.",
+    titleColor: "#1FA34A",
+    body: "Now I understand where the real value of ChatGPT resides. It can definitely give my productivity a boost, but it's important to recognize when it gets things completely wrong.",
+    x: 92,
+    y: 78,
+    labelX: 62,
+    labelY: 96,
+    labelW: 34,
   },
 ];
 
 const WIDTH = 1600;
-const HEIGHT = 900;
-const PAD = { left: 120, right: 80, top: 140, bottom: 140 };
+const HEIGHT = 1000;
+const PAD = { left: 160, right: 80, top: 60, bottom: 160 };
 const GW = WIDTH - PAD.left - PAD.right;
 const GH = HEIGHT - PAD.top - PAD.bottom;
 
@@ -85,25 +86,41 @@ function cy(pct: number) {
   return PAD.top + GH - (pct / 100) * GH;
 }
 
+// Wrap text to N chars roughly, splitting on spaces.
+function wrap(text: string, maxChars: number): string[] {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length > maxChars) {
+      if (cur) lines.push(cur);
+      cur = w;
+    } else {
+      cur = (cur + " " + w).trim();
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
 export default function ConfidenceCurve() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [downloading, setDownloading] = useState(false);
 
-  const pathD = stages
-    .map((s, i) => {
-      const x = cx(s.x);
-      const y = cy(s.y);
-      if (i === 0) return `M ${x} ${y}`;
-      const prev = stages[i - 1];
-      const px = cx(prev.x);
-      const py = cy(prev.y);
-      const cp1x = px + (x - px) * 0.5;
-      const cp1y = py;
-      const cp2x = px + (x - px) * 0.5;
-      const cp2y = y;
-      return `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x} ${y}`;
-    })
-    .join(" ");
+  // Curve: smooth pass through the 5 points using cubic beziers
+  const pts = stages.map((s) => ({ x: cx(s.x), y: cy(s.y) }));
+  let pathD = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i];
+    const p1 = pts[i + 1];
+    const dx = p1.x - p0.x;
+    // Ease horizontal so curve is smooth
+    const c1x = p0.x + dx * 0.45;
+    const c1y = p0.y;
+    const c2x = p0.x + dx * 0.55;
+    const c2y = p1.y;
+    pathD += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p1.x} ${p1.y}`;
+  }
 
   const handleDownload = async () => {
     if (!svgRef.current) return;
@@ -123,7 +140,7 @@ export default function ConfidenceCurve() {
 
       await new Promise<void>((resolve, reject) => {
         img.onload = () => {
-          ctx.fillStyle = "#0B1120";
+          ctx.fillStyle = "#FFFFFF";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           URL.revokeObjectURL(url);
@@ -150,359 +167,254 @@ export default function ConfidenceCurve() {
     }
   };
 
+  const originX = cx(0);
+  const originY = cy(0);
+  const topY = cy(100);
+  const rightX = cx(100);
+
   return (
-    <div className="min-h-screen mesh-gradient flex flex-col items-center justify-center p-6 md:p-10">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-[1600px] flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl glass-button-primary flex items-center justify-center">
-            <Aperture className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              APEX <span className="text-[hsl(var(--primary))]">Intelligence</span>
-            </h1>
-            <p className="text-sm text-muted-foreground">ChatGPT Confidence Curve</p>
-          </div>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-neutral-900">
+            The ChatGPT Confidence Curve
+          </h1>
+          <p className="text-sm text-neutral-500">APEX · Light Edition</p>
         </div>
         <Button
           onClick={handleDownload}
           disabled={downloading}
-          className="glass-button-primary text-white border-0 rounded-full px-5 py-2 h-auto gap-2"
+          className="rounded-full px-5 py-2 h-auto gap-2 bg-[hsl(var(--primary))] text-white hover:opacity-90"
         >
           <Download className="w-4 h-4" />
           {downloading ? "Exporting…" : "Download PNG"}
         </Button>
       </div>
 
-      <div className="w-full max-w-[1600px] rounded-[2rem] glass-elevated p-4 md:p-6 overflow-hidden">
+      <div className="w-full max-w-[1600px] rounded-2xl border border-neutral-200 bg-white p-4 md:p-6 shadow-sm overflow-hidden">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-          className="w-full h-auto rounded-2xl"
+          className="w-full h-auto"
           xmlns="http://www.w3.org/2000/svg"
-          fontFamily="Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+          fontFamily="Inter, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif"
         >
           <defs>
-            <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#0B1120" />
-              <stop offset="50%" stopColor="#111A2E" />
-              <stop offset="100%" stopColor="#0B1120" />
-            </linearGradient>
-            <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#00D4AA" />
-              <stop offset="25%" stopColor="#F59E0B" />
-              <stop offset="50%" stopColor="#EF4444" />
-              <stop offset="75%" stopColor="#FBBF24" />
-              <stop offset="100%" stopColor="#00BCFF" />
-            </linearGradient>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="8" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="rgba(0,0,0,0.25)" />
-            </filter>
-          </defs>
-
-          <rect width={WIDTH} height={HEIGHT} fill="url(#bgGradient)" rx="24" />
-
-          {/* Decorative grid */}
-          <g opacity="0.06">
-            {Array.from({ length: 11 }).map((_, i) => (
-              <line
-                key={`v${i}`}
-                x1={cx(i * 10)}
-                y1={cy(0)}
-                x2={cx(i * 10)}
-                y2={cy(100)}
-                stroke="#FFFFFF"
-                strokeWidth="1"
-              />
-            ))}
-            {Array.from({ length: 11 }).map((_, i) => (
-              <line
-                key={`h${i}`}
-                x1={cx(0)}
-                y1={cy(i * 10)}
-                x2={cx(100)}
-                y2={cy(i * 10)}
-                stroke="#FFFFFF"
-                strokeWidth="1"
-              />
-            ))}
-          </g>
-
-          {/* Title */}
-          <text
-            x={WIDTH / 2}
-            y={72}
-            textAnchor="middle"
-            fontSize="42"
-            fontWeight="800"
-            fill="#F8FAFC"
-            letterSpacing="-0.02em"
-          >
-            The ChatGPT Confidence Curve
-          </text>
-          <text
-            x={WIDTH / 2}
-            y={108}
-            textAnchor="middle"
-            fontSize="18"
-            fontWeight="500"
-            fill="#94A3B8"
-          >
-            From hype to mastery — understanding where real value lives
-          </text>
-
-          {/* Axes */}
-          <line
-            x1={cx(0)}
-            y1={cy(0)}
-            x2={cx(100)}
-            y2={cy(0)}
-            stroke="rgba(255,255,255,0.25)"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <line
-            x1={cx(0)}
-            y1={cy(0)}
-            x2={cx(0)}
-            y2={cy(100)}
-            stroke="rgba(255,255,255,0.25)"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-
-          {/* Y-axis labels */}
-          {[0, 25, 50, 75, 100].map((pct) => (
-            <g key={pct}>
-              <text
-                x={cx(0) - 18}
-                y={cy(pct) + 6}
-                textAnchor="end"
-                fontSize="14"
-                fontWeight="600"
-                fill="#CBD5E1"
-              >
-                {pct}%
-              </text>
-            </g>
-          ))}
-          <text
-            x={cx(0) - 52}
-            y={cy(50) - 4}
-            textAnchor="middle"
-            fontSize="14"
-            fontWeight="700"
-            fill="#94A3B8"
-            transform={`rotate(-90, ${cx(0) - 52}, ${cy(50)})`}
-          >
-            Confidence in ChatGPT
-          </text>
-
-          {/* X-axis labels */}
-          <text
-            x={cx(0)}
-            y={cy(0) + 46}
-            textAnchor="middle"
-            fontSize="16"
-            fontWeight="700"
-            fill="#F1F5F9"
-          >
-            No knowledge
-          </text>
-          <text
-            x={cx(0)}
-            y={cy(0) + 68}
-            textAnchor="middle"
-            fontSize="13"
-            fontWeight="500"
-            fill="#64748B"
-          >
-            (believe the hype)
-          </text>
-
-          <text
-            x={cx(50)}
-            y={cy(0) + 46}
-            textAnchor="middle"
-            fontSize="16"
-            fontWeight="700"
-            fill="#F1F5F9"
-          >
-            Knowledge of ChatGPT
-          </text>
-
-          <text
-            x={cx(100)}
-            y={cy(0) + 46}
-            textAnchor="middle"
-            fontSize="16"
-            fontWeight="700"
-            fill="#F1F5F9"
-          >
-            Enough knowledge
-          </text>
-          <text
-            x={cx(100)}
-            y={cy(0) + 68}
-            textAnchor="middle"
-            fontSize="13"
-            fontWeight="500"
-            fill="#64748B"
-          >
-            (understand the reality)
-          </text>
-
-          {/* Direction arrows */}
-          <path
-            d={`M ${cx(12)} ${cy(0) + 90} L ${cx(38)} ${cy(0) + 90}`}
-            stroke="rgba(0,188,255,0.5)"
-            strokeWidth="2"
-            markerEnd="url(#arrowCyan)"
-          />
-          <path
-            d={`M ${cx(62)} ${cy(0) + 90} L ${cx(88)} ${cy(0) + 90}`}
-            stroke="rgba(0,188,255,0.5)"
-            strokeWidth="2"
-            markerEnd="url(#arrowCyan)"
-          />
-          <defs>
-            <marker id="arrowCyan" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-              <path d="M0,0 L0,6 L9,3 z" fill="rgba(0,188,255,0.7)" />
+            <marker id="arrowBlack" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L0,8 L10,4 z" fill="#111827" />
+            </marker>
+            <marker id="arrowAxis" markerWidth="14" markerHeight="14" refX="12" refY="5" orient="auto">
+              <path d="M0,0 L0,10 L12,5 z" fill="#111827" />
+            </marker>
+            <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+              <path d="M0,0 L0,8 L10,4 z" fill="#2E7BE0" />
             </marker>
           </defs>
 
-          {/* Confidence curve */}
+          {/* White background */}
+          <rect width={WIDTH} height={HEIGHT} fill="#FFFFFF" />
+
+          {/* HFS badge */}
+          <g>
+            <circle cx={WIDTH - 90} cy={70} r="36" fill="#F26A3F" />
+            <text
+              x={WIDTH - 90}
+              y={78}
+              textAnchor="middle"
+              fontSize="22"
+              fontWeight="800"
+              fill="#FFFFFF"
+              letterSpacing="0.05em"
+            >
+              HFS
+            </text>
+          </g>
+
+          {/* Y-axis */}
+          <line
+            x1={originX}
+            y1={originY}
+            x2={originX}
+            y2={topY - 20}
+            stroke="#111827"
+            strokeWidth="2.5"
+            markerEnd="url(#arrowAxis)"
+          />
+          {/* X-axis */}
+          <line
+            x1={originX}
+            y1={originY}
+            x2={rightX + 20}
+            y2={originY}
+            stroke="#111827"
+            strokeWidth="2.5"
+            markerEnd="url(#arrowAxis)"
+          />
+
+          {/* Y-axis labels */}
+          <text x={originX - 20} y={topY + 6} textAnchor="end" fontSize="24" fontWeight="700" fill="#111827">
+            100%
+          </text>
+          <text x={originX - 20} y={originY + 6} textAnchor="end" fontSize="24" fontWeight="700" fill="#111827">
+            0%
+          </text>
+
+          {/* Y-axis title */}
+          <g transform={`translate(${originX - 96}, ${(topY + originY) / 2}) rotate(-90)`}>
+            <text textAnchor="middle" fontSize="24" fontWeight="600" fill="#2E7BE0">
+              <tspan x="0" dy="0">Confidence level</tspan>
+              <tspan x="0" dy="30">in ChatGPT</tspan>
+            </text>
+          </g>
+          {/* small up arrow near Y-axis title */}
+          <path
+            d={`M ${originX - 50} ${topY + 40} L ${originX - 50} ${topY + 10}`}
+            stroke="#2E7BE0"
+            strokeWidth="2.5"
+            markerEnd="url(#arrowBlue)"
+          />
+
+          {/* X-axis title */}
+          <text
+            x={(originX + rightX) / 2}
+            y={originY + 110}
+            textAnchor="middle"
+            fontSize="28"
+            fontWeight="600"
+            fill="#111827"
+          >
+            Knowledge of
+          </text>
+          <text
+            x={(originX + rightX) / 2}
+            y={originY + 144}
+            textAnchor="middle"
+            fontSize="28"
+            fontWeight="600"
+            fill="#111827"
+          >
+            ChatGPT
+          </text>
+
+          {/* No knowledge / Enough knowledge */}
+          <text x={originX} y={originY + 60} textAnchor="middle" fontSize="20" fontWeight="700" fill="#111827">
+            No knowledge
+          </text>
+          <text x={originX} y={originY + 84} textAnchor="middle" fontSize="16" fill="#4B5563">
+            (believe the hype)
+          </text>
+          <path
+            d={`M ${originX - 60} ${originY + 100} L ${originX + 60} ${originY + 100}`}
+            stroke="#2E7BE0"
+            strokeWidth="2.5"
+            markerEnd="url(#arrowBlue)"
+          />
+
+          <text x={rightX} y={originY + 60} textAnchor="middle" fontSize="20" fontWeight="700" fill="#111827">
+            Enough knowledge
+          </text>
+          <text x={rightX} y={originY + 84} textAnchor="middle" fontSize="16" fill="#4B5563">
+            (understand the reality)
+          </text>
+          <path
+            d={`M ${rightX - 60} ${originY + 100} L ${rightX + 60} ${originY + 100}`}
+            stroke="#2E7BE0"
+            strokeWidth="2.5"
+            markerEnd="url(#arrowBlue)"
+          />
+
+          {/* Horizontal dotted reference at stage 5 level */}
+          <line
+            x1={originX}
+            y1={cy(78)}
+            x2={rightX}
+            y2={cy(78)}
+            stroke="#111827"
+            strokeWidth="1.5"
+            strokeDasharray="3 6"
+            opacity="0.55"
+          />
+
+          {/* The red confidence curve */}
           <path
             d={pathD}
             fill="none"
-            stroke="url(#lineGradient)"
-            strokeWidth="6"
+            stroke="#D93A2B"
+            strokeWidth="7"
             strokeLinecap="round"
             strokeLinejoin="round"
-            filter="url(#glow)"
           />
 
-          {/* Dotted reference line */}
-          <line
-            x1={cx(0)}
-            y1={cy(50)}
-            x2={cx(100)}
-            y2={cy(50)}
-            stroke="rgba(255,255,255,0.12)"
-            strokeWidth="2"
-            strokeDasharray="6 6"
-          />
-
-          {/* Stage markers and labels */}
+          {/* Stage markers + arrows + text labels */}
           {stages.map((s) => {
-            const x = cx(s.x);
-            const y = cy(s.y);
+            const mx = cx(s.x);
+            const my = cy(s.y);
             const lx = cx(s.labelX);
             const ly = cy(s.labelY);
-            const textAnchor = s.labelAlign;
-            const boxWidth = 360;
-            const boxHeight = 86;
-            const boxX = textAnchor === "left" ? lx + 14 : lx - 14 - boxWidth;
-            const descLines = s.description;
+            const lines = wrap(s.body, 42);
+            const titleFontSize = 20;
+            const bodyFontSize = 18;
+
+            // Arrow from label toward the marker
+            // Start near label edge, end just outside the marker circle.
+            const dx = mx - lx;
+            const dy = my - ly;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            const ux = dx / dist;
+            const uy = dy / dist;
+            const startX = lx + ux * 20;
+            const startY = ly + uy * 20;
+            const endX = mx - ux * 28;
+            const endY = my - uy * 28;
+
             return (
               <g key={s.id}>
+                {/* Arrow */}
+                <path
+                  d={`M ${startX} ${startY} L ${endX} ${endY}`}
+                  stroke="#111827"
+                  strokeWidth="2"
+                  markerEnd="url(#arrowBlack)"
+                  fill="none"
+                />
                 {/* Marker circle */}
-                <circle cx={x} cy={y} r="14" fill={s.color} filter="url(#glow)" />
-                <circle cx={x} cy={y} r="20" fill="none" stroke={s.color} strokeWidth="2" opacity="0.35" />
+                <circle cx={mx} cy={my} r="22" fill="#111827" stroke="#FFFFFF" strokeWidth="3" />
                 <text
-                  x={x}
-                  y={y + 6}
+                  x={mx}
+                  y={my + 8}
                   textAnchor="middle"
-                  fontSize="16"
+                  fontSize="22"
                   fontWeight="800"
-                  fill="#0B1120"
+                  fill="#FFFFFF"
                 >
                   {s.id}
                 </text>
 
-                {/* Leader line */}
-                <line
-                  x1={x}
-                  y1={y}
-                  x2={textAnchor === "left" ? boxX - 6 : boxX + boxWidth + 6}
-                  y2={ly}
-                  stroke={s.color}
-                  strokeWidth="2"
-                  opacity="0.6"
-                  strokeLinecap="round"
-                />
-
-                {/* Label card */}
-                <g filter="url(#softShadow)">
-                  <rect
-                    x={boxX}
-                    y={ly - 40}
-                    width={boxWidth}
-                    height={boxHeight}
-                    rx="14"
-                    fill="rgba(255,255,255,0.08)"
-                    stroke="rgba(255,255,255,0.14)"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x={boxX}
-                    y={ly - 40}
-                    width={4}
-                    height={boxHeight}
-                    rx="2"
-                    fill={s.color}
-                  />
-                </g>
-                <text
-                  x={boxX + 18}
-                  y={ly - 18}
-                  textAnchor="start"
-                  fontSize="17"
-                  fontWeight="800"
-                  fill={s.color}
-                >
+                {/* Label */}
+                <text x={lx} y={ly} fontSize={titleFontSize} fontWeight="800" fill={s.titleColor}>
                   {s.title}
+                  <tspan fill="#111827" fontWeight="500" fontSize={bodyFontSize}>
+                    {" "}
+                    {lines[0]}
+                  </tspan>
                 </text>
-                <text
-                  x={boxX + 18}
-                  y={ly + 6}
-                  textAnchor="start"
-                  fontSize="12"
-                  fontWeight="500"
-                  fill="#E2E8F0"
-                >
-                  {descLines.map((line, i) => (
-                    <tspan key={i} x={boxX + 18} dy={i === 0 ? 0 : 18}>
-                      {line}
-                    </tspan>
-                  ))}
-                </text>
+                {lines.slice(1).map((line, i) => (
+                  <text
+                    key={i}
+                    x={lx}
+                    y={ly + (i + 1) * 24}
+                    fontSize={bodyFontSize}
+                    fontWeight="500"
+                    fill="#111827"
+                  >
+                    {line}
+                  </text>
+                ))}
               </g>
             );
           })}
-
-          {/* APEX watermark */}
-          <text
-            x={WIDTH - 40}
-            y={HEIGHT - 30}
-            textAnchor="end"
-            fontSize="12"
-            fontWeight="700"
-            fill="rgba(255,255,255,0.25)"
-            letterSpacing="0.1em"
-          >
-            APEX AI INTELLIGENCE
-          </text>
         </svg>
       </div>
-
-      <p className="mt-4 text-sm text-muted-foreground">
-        Exportiert als 3200×1800 PNG — bereit für Thumbnails, Präsentationen oder Social Media.
-      </p>
     </div>
   );
 }
