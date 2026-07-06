@@ -404,8 +404,10 @@ export default function ConfidenceCurve() {
             const lx = cx(s.labelX);
             const ly = cy(s.labelY);
             const textAnchor = s.labelAlign;
-            const boxWidth = 320;
+            const boxWidth = 360;
+            const boxHeight = 86;
             const boxX = textAnchor === "left" ? lx + 14 : lx - 14 - boxWidth;
+            const descLines = s.description.split("\\n");
             return (
               <g key={s.id}>
                 {/* Marker circle */}
@@ -438,9 +440,9 @@ export default function ConfidenceCurve() {
                 <g filter="url(#softShadow)">
                   <rect
                     x={boxX}
-                    y={ly - 34}
+                    y={ly - 40}
                     width={boxWidth}
-                    height={74}
+                    height={boxHeight}
                     rx="14"
                     fill="rgba(255,255,255,0.08)"
                     stroke="rgba(255,255,255,0.14)"
@@ -448,16 +450,16 @@ export default function ConfidenceCurve() {
                   />
                   <rect
                     x={boxX}
-                    y={ly - 34}
+                    y={ly - 40}
                     width={4}
-                    height={74}
+                    height={boxHeight}
                     rx="2"
                     fill={s.color}
                   />
                 </g>
                 <text
                   x={boxX + 18}
-                  y={ly - 12}
+                  y={ly - 18}
                   textAnchor="start"
                   fontSize="17"
                   fontWeight="800"
@@ -467,13 +469,17 @@ export default function ConfidenceCurve() {
                 </text>
                 <text
                   x={boxX + 18}
-                  y={ly + 12}
+                  y={ly + 6}
                   textAnchor="start"
-                  fontSize="13"
+                  fontSize="12"
                   fontWeight="500"
                   fill="#E2E8F0"
                 >
-                  {s.description}
+                  {descLines.map((line, i) => (
+                    <tspan key={i} x={boxX + 18} dy={i === 0 ? 0 : 18}>
+                      {line}
+                    </tspan>
+                  ))}
                 </text>
               </g>
             );
