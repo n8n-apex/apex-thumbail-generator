@@ -13,6 +13,33 @@ const HEIGHT = 720;
 // (real person from uploaded photo) when one is provided, otherwise pure brand visual.
 const APEX_BLOG_LAYOUTS = [
   {
+    id: "welche-ki",
+    label: "Which AI? Icons Cloud",
+    promptWithSubject: `LAYOUT — WHICH AI? FLOATING APP-ICONS CLOUD (cinematic dark YouTube hero, mirrors the provided reference image):
+- BACKGROUND: cinematic near-black #050508 to Deep Ocean #001A23, mostly dark, very subtle dark radial glow behind the subject, fine film grain, ultra-premium.
+- SUBJECT (person from uploaded photo) CENTERED, chest-up cinematic portrait, wearing dark/black shirt or blazer, calm confident subtle smile, sharp direct eye contact into camera, photo-real 85mm DSLR, glossy filmic skin. IDENTITY FORENSICALLY LOCKED to the uploaded photo — same skull shape, same beard density and exact beard shape, same hairline, same skin tone, same nose, same eyes. Do NOT idealize, slim, age, or swap identity. LIGHTING: body stays in natural neutral dark studio light. The face catches subtle warm/cool ambient tint from the surrounding glowing icons (soft, max 20% intensity — like real reflected light from the icons around him).
+- AROUND the subject (LEFT and RIGHT sides, upper and lower zones — 6 to 8 icons total, NEVER covering the face): floating oversized glossy 3D LIQUID-GLASS app-icon SQUIRCLES (iOS/visionOS aesthetic — rounded-square tiles, ~14–18% canvas height each, slightly rotated in 3D perspective, some closer/some further with realistic depth-of-field blur on the farthest ones). Each squircle is a premium translucent white/glass tile with soft inner highlight and colored emissive glow, casting subtle colored light into the scene.
+- ICON CONTENT — render the OFFICIAL real app logos of these specific AI tools, correct shape/glyph/true brand colors, as premium 3D liquid-glass versions (NO fake or garbled logos, NO invented brands, NO text labels):
+  • ChatGPT (black spiral knot on white tile)
+  • Anthropic Claude (orange starburst)
+  • Google Gemini (blue-purple-red 4-point spark)
+  • Microsoft Copilot (rainbow ribbon loop)
+  • Perplexity (teal geometric bird/knot)
+  • Midjourney (sailing-ship silhouette)
+  • plus 1–2 additional recognizable AI tool icons from the BLOG CONTEXT below if it lists specific tools; otherwise use Notion AI, Cursor, Runway or Suno.
+- The icons FLOAT and OVERLAP the edges of the frame (some partially cropped by the canvas edges, some fully visible), arranged in a loose cloud composition — never in a symmetric grid, never in a straight row. Depth-of-field blur on foreground/background icons, sharp focus on middle-layer icons and on the subject's face.
+- BOTTOM third of canvas: ONE huge bold headline in MASSIVE modern sans-serif (Inter Heavy / SF Pro Display Black / Söhne Heavy), ALL-CAPS, pure Ice White #FCFEFF (NEVER yellow, NEVER cyan) with a subtle soft white outer glow, tight modern tracking, spanning nearly full width, MAX 2 short lines (1 line preferred). The headline may be partially occluded by 1–2 icons at its edges for depth. Centered.
+- Read order: cloud of glowing AI ICONS → subject's confident face in the middle → WHITE HEADLINE at bottom.
+- Absolutely nothing else in the frame. NO badges, NO tiny labels under icons, NO UI cards, NO extra text, NO tool name captions, NO subtitle, NO logos beyond the app icons themselves.`,
+    promptNoSubject: `LAYOUT — WHICH AI? FLOATING APP-ICONS CLOUD (no subject):
+- Cinematic near-black #050508 to Deep Ocean #001A23 background, mostly dark with subtle dark radial center glow, fine film grain.
+- 8–10 oversized floating 3D LIQUID-GLASS app-icon SQUIRCLES arranged in a loose cloud composition across the whole canvas (never grid, never row), slightly rotated in 3D perspective, some cropped by edges, foreground/background icons with soft depth-of-field blur.
+- Render the OFFICIAL real app logos of these AI tools (correct shape/glyph/true brand colors, premium 3D liquid-glass versions, NO fake logos, NO text on the tiles): ChatGPT, Claude, Gemini, Microsoft Copilot, Perplexity, Midjourney, plus 2–3 additional from the BLOG CONTEXT below (or Notion AI, Cursor, Runway, Suno as fallback).
+- Each tile has soft colored emissive glow that lights up the surrounding dark scene.
+- BOTTOM third: ONE huge bold Ice White #FCFEFF ALL-CAPS sans-serif headline (Inter Heavy), 1–2 short lines max, centered, with subtle soft white outer glow, tight tracking. NEVER yellow. Headline may be partially occluded by 1–2 icons for depth.
+- Nothing else — no labels, no tool captions, no badges, no subtitle.`,
+  },
+  {
     id: "clean-cutout",
     label: "Clean Cutout",
     promptWithSubject: `LAYOUT — CLEAN CUTOUT (LinkedIn-editorial):
