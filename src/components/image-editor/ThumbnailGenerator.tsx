@@ -211,6 +211,7 @@ export default function ThumbnailGenerator({
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [referenceStyleImage, setReferenceStyleImage] = useState<string | null>(null);
+  const [logoImage, setLogoImage] = useState<string | null>(null);
   const [referenceYoutubeUrl, setReferenceYoutubeUrl] = useState("");
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [testimonialSourceUrl, setTestimonialSourceUrl] = useState("");
@@ -336,6 +337,22 @@ export default function ThumbnailGenerator({
       });
   }, []);
 
+  const handleLogoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    imageSourceToOptimizedBase64(objectUrl)
+      .then((optimized) => {
+        setLogoImage(optimized);
+        toast.success("Logo geladen");
+      })
+      .catch(() => toast.error("Logo konnte nicht geladen werden"))
+      .finally(() => {
+        URL.revokeObjectURL(objectUrl);
+        e.target.value = "";
+      });
+  }, []);
+
   const loadYoutubeReference = useCallback(async () => {
     const url = referenceYoutubeUrl.trim();
     if (!url) return;
@@ -449,6 +466,7 @@ export default function ThumbnailGenerator({
             referenceStyleBase64: forcedLayoutIds.length === 0 ? (referenceStyleImage ?? undefined) : undefined,
             forcedLayoutIds: forcedLayoutIds.length > 0 ? forcedLayoutIds : undefined,
             layoutReferences: Object.keys(layoutReferences).length > 0 ? layoutReferences : undefined,
+            logoBase64: logoImage ?? undefined,
           },
         });
         if (error) throw error;
@@ -480,6 +498,7 @@ export default function ThumbnailGenerator({
           podcastStyles: isPodcast ? podcastStyles : undefined,
           testimonialLayouts: isTestimonial ? testimonialLayouts : undefined,
           referenceStyleBase64: referenceStyleImage ?? undefined,
+          logoBase64: logoImage ?? undefined,
         },
       });
       if (error) throw error;
@@ -498,7 +517,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl]);
+  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, logoImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl, selectedBlogRefSrcs]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
@@ -1031,6 +1050,46 @@ export default function ThumbnailGenerator({
         </div>
 
 
+
+        {/* Logo / Tool upload (optional) */}
+        <div className="space-y-2 rounded-2xl border border-dashed border-border/60 p-3 bg-background/30">
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+              Logo / Tool-Icon (optional)
+            </label>
+            {logoImage && (
+              <Button variant="ghost" size="sm" className="h-7 rounded-lg text-[10px]" onClick={() => setLogoImage(null)}>
+                <X className="h-3 w-3 mr-1" /> Entfernen
+              </Button>
+            )}
+          </div>
+          {logoImage ? (
+            <div className="flex items-center gap-3">
+              <img
+                src={logoImage}
+                alt="Logo"
+                className="w-16 h-16 rounded-xl object-contain border border-primary/60 bg-background/60 p-1 shadow-md shadow-primary/10"
+              />
+              <div className="flex-1">
+                <div className="text-xs font-bold text-foreground">Logo aktiv ✓</div>
+                <div className="text-[10px] text-muted-foreground">
+                  Wird prominent im Thumbnail integriert (z.B. als Tool-Icon, Watermark oder Brand-Element).
+                </div>
+              </div>
+            </div>
+          ) : (
+            <label className="cursor-pointer block">
+              <div className="flex items-center gap-2 px-3 h-10 rounded-xl border border-dashed border-border text-xs text-muted-foreground hover:bg-accent/50 hover:border-primary/40 transition-colors">
+                <ImageIcon className="h-3.5 w-3.5" />
+                Logo / Tool-Icon hochladen (PNG mit Transparenz empfohlen)
+              </div>
+              <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+            </label>
+          )}
+          <p className="text-[10px] text-muted-foreground">
+            Optional — AI integriert dein Logo (Firma, App, Tool) natürlich in die Szene bzw. das Layout.
+          </p>
+        </div>
 
         {/* Scene description (optional) */}
         <div className="space-y-1.5">

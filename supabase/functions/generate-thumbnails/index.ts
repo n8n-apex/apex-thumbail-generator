@@ -130,6 +130,7 @@ interface GenerateBody {
   testimonialLayouts?: TestimonialLayout[];
   testimonialLayout?: TestimonialLayout;
   referenceStyleBase64?: string;
+  logoBase64?: string;
   autoTitle?: boolean;
   titleKeywords?: string;
   enforceApexCI?: boolean;
@@ -449,19 +450,24 @@ async function callGemini(
   imageBase64: string | undefined,
   apiKey: string,
   referenceStyleBase64?: string,
+  logoBase64?: string,
 ): Promise<string> {
   const contentParts: Array<Record<string, unknown>> = [];
   if (imageBase64) contentParts.push({ type: "image_url", image_url: { url: imageBase64 } });
   if (referenceStyleBase64) contentParts.push({ type: "image_url", image_url: { url: referenceStyleBase64 } });
-  contentParts.push({ type: "text", text: prompt });
+  if (logoBase64) contentParts.push({ type: "image_url", image_url: { url: logoBase64 } });
+  const finalPrompt = logoBase64
+    ? `${prompt}\n\nBRAND LOGO INTEGRATION: The last attached image is a brand logo / tool icon. Integrate it PROMINENTLY and NATURALLY into the composition — keep the logo's exact colors, shape and proportions intact (never redraw, never restyle). Place it as a tasteful brand mark (corner watermark, on a device screen, on a product, or as a floating hero icon depending on the layout). Do NOT distort, do NOT recolor, do NOT add text to the logo.`
+    : prompt;
+  contentParts.push({ type: "text", text: finalPrompt });
 
   const messages = [
     {
       role: "user",
-      content: contentParts.length === 1 ? prompt : contentParts,
+      content: contentParts.length === 1 ? finalPrompt : contentParts,
     },
   ];
-  const hasAnyImage = !!imageBase64 || !!referenceStyleBase64;
+  const hasAnyImage = !!imageBase64 || !!referenceStyleBase64 || !!logoBase64;
   const models = hasAnyImage
     ? ["google/gemini-3.1-flash-image-preview"]
     : ["google/gemini-3.1-flash-image-preview", "google/gemini-3-pro-image-preview"];
@@ -607,7 +613,7 @@ serve(async (req) => {
       for (let i = 0; i < jobs.length; i += CONCURRENCY) {
         const chunk = jobs.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map((job) => callGemini(job.prompt, body.imageBase64, LOVABLE_API_KEY, body.referenceStyleBase64))
+          chunk.map((job) => callGemini(job.prompt, body.imageBase64, LOVABLE_API_KEY, body.referenceStyleBase64, body.logoBase64))
         );
         settled.push(...chunkResults);
       }

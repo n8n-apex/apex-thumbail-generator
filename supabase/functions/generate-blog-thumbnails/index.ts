@@ -573,20 +573,25 @@ async function callGeminiImage(
   apiKey: string,
   imageBase64?: string,
   referenceStyleBase64?: string,
+  logoBase64?: string,
 ): Promise<string> {
   const contentParts: Array<Record<string, unknown>> = [];
   if (imageBase64) contentParts.push({ type: "image_url", image_url: { url: imageBase64 } });
   if (referenceStyleBase64) contentParts.push({ type: "image_url", image_url: { url: referenceStyleBase64 } });
-  contentParts.push({ type: "text", text: prompt });
+  if (logoBase64) contentParts.push({ type: "image_url", image_url: { url: logoBase64 } });
+  const finalPrompt = logoBase64
+    ? `${prompt}\n\nBRAND LOGO INTEGRATION: The last attached image is a brand logo / tool icon. Integrate it PROMINENTLY and NATURALLY into the APEX layout — keep the logo's exact colors, shape and proportions intact (never redraw, never restyle). Depending on the layout, place it as a floating hero icon, on a device / app tile, or as a small corner brand mark. Do NOT distort, do NOT recolor, do NOT add text to the logo.`
+    : prompt;
+  contentParts.push({ type: "text", text: finalPrompt });
 
   const messages = [
     {
       role: "user",
-      content: contentParts.length === 1 ? prompt : contentParts,
+      content: contentParts.length === 1 ? finalPrompt : contentParts,
     },
   ];
 
-  const hasAnyImage = !!imageBase64 || !!referenceStyleBase64;
+  const hasAnyImage = !!imageBase64 || !!referenceStyleBase64 || !!logoBase64;
   const models = hasAnyImage
     ? ["google/gemini-3.1-flash-image-preview"]
     : ["google/gemini-3.1-flash-image-preview", "google/gemini-3-pro-image-preview"];
@@ -643,6 +648,7 @@ serve(async (req) => {
     const autoTitleFlag: boolean = !!body.autoTitle;
     const imageBase64: string | undefined = typeof body.imageBase64 === "string" && body.imageBase64 ? body.imageBase64 : undefined;
     const referenceStyleBase64: string | undefined = typeof body.referenceStyleBase64 === "string" && body.referenceStyleBase64 ? body.referenceStyleBase64 : undefined;
+    const logoBase64: string | undefined = typeof body.logoBase64 === "string" && body.logoBase64 ? body.logoBase64 : undefined;
     const rawForcedIds: string[] = Array.isArray(body.forcedLayoutIds)
       ? body.forcedLayoutIds.filter((x: unknown): x is string => typeof x === "string" && !!x)
       : (typeof body.forcedLayoutId === "string" && body.forcedLayoutId ? [body.forcedLayoutId] : []);
@@ -747,7 +753,7 @@ serve(async (req) => {
     for (let i = 0; i < jobs.length; i += CONCURRENCY) {
       const chunk = jobs.slice(i, i + CONCURRENCY);
       const chunkResults = await Promise.allSettled(
-        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, j.styleRef)),
+        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, j.styleRef, logoBase64)),
       );
       settled.push(...chunkResults);
     }
