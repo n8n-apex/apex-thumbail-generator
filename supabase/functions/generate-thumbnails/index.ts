@@ -613,7 +613,7 @@ serve(async (req) => {
       for (let i = 0; i < jobs.length; i += CONCURRENCY) {
         const chunk = jobs.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map((job) => callGemini(job.prompt, body.imageBase64, LOVABLE_API_KEY, body.referenceStyleBase64))
+          chunk.map((job) => callGemini(job.prompt, body.imageBase64, LOVABLE_API_KEY, body.referenceStyleBase64, body.logoBase64))
         );
         settled.push(...chunkResults);
       }
