@@ -130,6 +130,7 @@ interface GenerateBody {
   testimonialLayouts?: TestimonialLayout[];
   testimonialLayout?: TestimonialLayout;
   referenceStyleBase64?: string;
+  logoBase64?: string;
   autoTitle?: boolean;
   titleKeywords?: string;
   enforceApexCI?: boolean;
