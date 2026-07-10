@@ -466,6 +466,7 @@ export default function ThumbnailGenerator({
             referenceStyleBase64: forcedLayoutIds.length === 0 ? (referenceStyleImage ?? undefined) : undefined,
             forcedLayoutIds: forcedLayoutIds.length > 0 ? forcedLayoutIds : undefined,
             layoutReferences: Object.keys(layoutReferences).length > 0 ? layoutReferences : undefined,
+            logoBase64: logoImage ?? undefined,
           },
         });
         if (error) throw error;
