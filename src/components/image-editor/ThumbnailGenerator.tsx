@@ -337,6 +337,22 @@ export default function ThumbnailGenerator({
       });
   }, []);
 
+  const handleLogoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    imageSourceToOptimizedBase64(objectUrl)
+      .then((optimized) => {
+        setLogoImage(optimized);
+        toast.success("Logo geladen");
+      })
+      .catch(() => toast.error("Logo konnte nicht geladen werden"))
+      .finally(() => {
+        URL.revokeObjectURL(objectUrl);
+        e.target.value = "";
+      });
+  }, []);
+
   const loadYoutubeReference = useCallback(async () => {
     const url = referenceYoutubeUrl.trim();
     if (!url) return;
