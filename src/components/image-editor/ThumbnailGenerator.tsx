@@ -211,6 +211,7 @@ export default function ThumbnailGenerator({
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedBatchImageId, setSelectedBatchImageId] = useState<string | null>(null);
   const [referenceStyleImage, setReferenceStyleImage] = useState<string | null>(null);
+  const [logoImage, setLogoImage] = useState<string | null>(null);
   const [referenceYoutubeUrl, setReferenceYoutubeUrl] = useState("");
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [testimonialSourceUrl, setTestimonialSourceUrl] = useState("");
