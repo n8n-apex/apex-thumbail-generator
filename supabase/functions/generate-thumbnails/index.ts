@@ -459,7 +459,7 @@ async function callGemini(
   const finalPrompt = logoBase64
     ? `${prompt}\n\nBRAND LOGO INTEGRATION: The last attached image is a brand logo / tool icon. Integrate it PROMINENTLY and NATURALLY into the composition — keep the logo's exact colors, shape and proportions intact (never redraw, never restyle). Place it as a tasteful brand mark (corner watermark, on a device screen, on a product, or as a floating hero icon depending on the layout). Do NOT distort, do NOT recolor, do NOT add text to the logo.`
     : prompt;
-  contentParts[contentParts.length === 0 ? 0 : contentParts.length] = { type: "text", text: finalPrompt };
+  contentParts.push({ type: "text", text: finalPrompt });
 
   const messages = [
     {
