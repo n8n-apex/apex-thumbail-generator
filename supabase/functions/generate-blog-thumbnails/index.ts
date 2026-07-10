@@ -648,6 +648,7 @@ serve(async (req) => {
     const autoTitleFlag: boolean = !!body.autoTitle;
     const imageBase64: string | undefined = typeof body.imageBase64 === "string" && body.imageBase64 ? body.imageBase64 : undefined;
     const referenceStyleBase64: string | undefined = typeof body.referenceStyleBase64 === "string" && body.referenceStyleBase64 ? body.referenceStyleBase64 : undefined;
+    const logoBase64: string | undefined = typeof body.logoBase64 === "string" && body.logoBase64 ? body.logoBase64 : undefined;
     const rawForcedIds: string[] = Array.isArray(body.forcedLayoutIds)
       ? body.forcedLayoutIds.filter((x: unknown): x is string => typeof x === "string" && !!x)
       : (typeof body.forcedLayoutId === "string" && body.forcedLayoutId ? [body.forcedLayoutId] : []);
