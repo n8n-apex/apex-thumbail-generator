@@ -498,6 +498,7 @@ export default function ThumbnailGenerator({
           podcastStyles: isPodcast ? podcastStyles : undefined,
           testimonialLayouts: isTestimonial ? testimonialLayouts : undefined,
           referenceStyleBase64: referenceStyleImage ?? undefined,
+          logoBase64: logoImage ?? undefined,
         },
       });
       if (error) throw error;
