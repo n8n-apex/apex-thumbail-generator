@@ -517,7 +517,7 @@ export default function ThumbnailGenerator({
       stopProgress();
       setIsGenerating(false);
     }
-  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl]);
+  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, logoImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl, selectedBlogRefSrcs]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
