@@ -210,6 +210,24 @@ const APEX_BLOG_LAYOUTS = [
 - ONLY ONE WORD in the whole image. No subtitles, no badges, no extra text. Cinematic, dramatic, ultra-premium, mostly dark.`,
   },
   {
+    id: "ai-assistant-glow",
+    label: "AI Assistant Glow Hands",
+    promptWithSubject: `LAYOUT — AI ASSISTANT GLOW HANDS. MATCH THIS EXACT COMPOSITION (mirrors the provided reference image): person centered, both hands raised at chest height cupping a floating 3D app-icon of the KEY TOOL, with a bold hand-drawn white arrow pointing at the icon and a HERO TWO-WORD headline in the upper area.
+- BACKGROUND: pure near-black #030308 with a subtle APEX Blue #00BCFF radial glow behind the hands/icon. Empty otherwise — no grid, no patterns, no extra objects, no secondary text.
+- HERO HEADLINE (top area, ~40% canvas width): two short bold uppercase words in Inter Heavy / SF Pro Display Black, pure Ice White #FCFEFF with a soft white outer glow. Perfect kerning.
+- 3D ICON (center, floating just above the open cupped hands, ~28–34% of canvas height): oversized glossy 3D liquid-glass app icon of the KEY TOOL from the BLOG CONTEXT.
+  • If it's a known brand (ChatGPT, Claude, n8n, Zapier, Midjourney, Figma, Notion, Cursor, Lovable, Supabase, Vercel, Linear, etc.) → render its OFFICIAL real app icon in correct shape, glyph and TRUE brand colors as a premium 3D liquid-glass version.
+  • The icon keeps its native colors, BUT all glow, halo, rim light and ambient light spill around the icon and on the hands MUST be APEX BLUE / CYAN #00BCFF only (never orange, red, green or any other color — regardless of the icon's own colors).
+- ARROW: one bold hand-drawn WHITE arrow (marker-style, slight imperfection, subtle white glow) originating from the headline area and pointing directly at the 3D icon. Exactly ONE arrow. No second arrow.
+- PERSON (centered, chest-up, both hands visible cupping the icon): the man from the uploaded photo, wearing a dark shirt/jacket, with a confident SMIRK expression (closed mouth, subtle one-sided smile, calm intense direct gaze into camera). Photo-real 85mm DSLR, glossy filmic skin. IDENTITY FORENSICALLY LOCKED to the uploaded photo: same skull shape, same beard density and exact beard shape, same hairline, same skin tone, same eyes. Do NOT idealize, slim, age, or swap identity. LIGHTING: body in natural neutral dark studio light; the face and hands catch a soft APEX Blue #00BCFF rim from the glowing icon.
+- Cinematic, ultra-premium, mostly dark YouTube-thumbnail aesthetic. Read order: HEADLINE top → ARROW → glowing ICON on hands → SMIRKING PERSON. Nothing else in the frame.`,
+    promptNoSubject: `LAYOUT — AI ASSISTANT GLOW HANDS (no subject):
+- Deep near-black background with subtle APEX Blue radial glow.
+- CENTER: floating 3D app icon of the KEY TOOL from BLOG CONTEXT (official brand colors and glyph, premium liquid-glass). Glow / halo / rim light strictly APEX Blue #00BCFF regardless of the icon's own colors.
+- TOP: two-word Ice White uppercase hero headline (Inter Heavy) with soft white glow.
+- One bold hand-drawn white arrow pointing at the icon. Nothing else.`,
+  },
+  {
     id: "sticky-board",
     label: "Sticky Notes Board",
     promptWithSubject: `LAYOUT — GLASS STICKY BOARD (APEX liquid-glass post-its connected by dashed line):
@@ -465,6 +483,7 @@ A SECOND image is attached AFTER the subject photo. It is the OFFICIAL APEX prev
 • Background treatment (gradients, glow, traces, panels, textures)
 • Color palette and how each color is used
 • Lighting direction, rim light, shadow shape, overall mood
+• FACIAL EXPRESSION of the subject: mirror the exact expression shown in the reference — same mouth shape (smirk / neutral / open / laughing), same eye state (wide / calm / narrowed), same eyebrow position, same head tilt, same gaze direction. If the reference shows a calm smirk, the output MUST show a calm smirk (never a wide laugh, never surprised). If the reference shows a shocked open-mouth, the output MUST show that. The expression is part of the STYLE and is non-negotiable — apply it to the identity-locked face from the FIRST image.
 • Number, shape, size and arrangement of decorative panels / tiles / cards / brackets
 
 CRITICAL — DO NOT copy the reference's CONTENT, only its style:
