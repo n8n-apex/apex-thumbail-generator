@@ -483,6 +483,7 @@ A SECOND image is attached AFTER the subject photo. It is the OFFICIAL APEX prev
 • Background treatment (gradients, glow, traces, panels, textures)
 • Color palette and how each color is used
 • Lighting direction, rim light, shadow shape, overall mood
+• FACIAL EXPRESSION of the subject: mirror the exact expression shown in the reference — same mouth shape (smirk / neutral / open / laughing), same eye state (wide / calm / narrowed), same eyebrow position, same head tilt, same gaze direction. If the reference shows a calm smirk, the output MUST show a calm smirk (never a wide laugh, never surprised). If the reference shows a shocked open-mouth, the output MUST show that. The expression is part of the STYLE and is non-negotiable — apply it to the identity-locked face from the FIRST image.
 • Number, shape, size and arrangement of decorative panels / tiles / cards / brackets
 
 CRITICAL — DO NOT copy the reference's CONTENT, only its style:
