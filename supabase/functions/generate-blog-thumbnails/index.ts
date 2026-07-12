@@ -647,7 +647,15 @@ async function callGeminiImage(
     const data = await resp.json();
     const img = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     if (img) return img;
-    lastError = "No image returned";
+    // Fallbacks — Gemini image responses sometimes embed the image differently
+    const msg = data.choices?.[0]?.message;
+    const altUrl =
+      msg?.image_url?.url ||
+      msg?.content?.find?.((c: { type?: string; image_url?: { url?: string } }) => c?.type === "image_url")?.image_url?.url ||
+      (typeof msg?.content === "string" && msg.content.startsWith("data:image") ? msg.content : undefined);
+    if (altUrl) return altUrl;
+    console.error("[callGeminiImage] No image in response. finish_reason:", data.choices?.[0]?.finish_reason, "message keys:", msg ? Object.keys(msg) : "none");
+    lastError = `No image returned (finish_reason=${data.choices?.[0]?.finish_reason ?? "?"})`;
   }
   throw new Error(`All models failed: ${lastError}`);
 }
