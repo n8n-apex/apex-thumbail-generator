@@ -799,6 +799,10 @@ serve(async (req) => {
     const images = settled
       .map((s) => (s.status === "fulfilled" ? s.value : null))
       .filter((x): x is string => !!x);
+    console.log("[blog-thumbs] settled:", settled.map(s => s.status), "-> images returned:", images.length, "of", jobs.length, "jobs");
+    settled.forEach((s, i) => {
+      if (s.status === "rejected") console.error(`[blog-thumbs] job ${i} (${jobs[i].layoutId}) rejected:`, (s.reason as Error)?.message);
+    });
 
     if (images.length === 0) {
       throw new Error("Keine Thumbnails generiert");
