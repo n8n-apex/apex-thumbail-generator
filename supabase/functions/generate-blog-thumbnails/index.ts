@@ -647,7 +647,15 @@ async function callGeminiImage(
     const data = await resp.json();
     const img = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     if (img) return img;
-    lastError = "No image returned";
+    // Fallbacks — Gemini image responses sometimes embed the image differently
+    const msg = data.choices?.[0]?.message;
+    const altUrl =
+      msg?.image_url?.url ||
+      msg?.content?.find?.((c: { type?: string; image_url?: { url?: string } }) => c?.type === "image_url")?.image_url?.url ||
+      (typeof msg?.content === "string" && msg.content.startsWith("data:image") ? msg.content : undefined);
+    if (altUrl) return altUrl;
+    console.error("[callGeminiImage] No image in response. finish_reason:", data.choices?.[0]?.finish_reason, "message keys:", msg ? Object.keys(msg) : "none");
+    lastError = `No image returned (finish_reason=${data.choices?.[0]?.finish_reason ?? "?"})`;
   }
   throw new Error(`All models failed: ${lastError}`);
 }
@@ -674,6 +682,7 @@ serve(async (req) => {
     const forcedLayouts = rawForcedIds
       .map((id) => APEX_BLOG_LAYOUTS.find((l) => l.id === id))
       .filter((x): x is typeof APEX_BLOG_LAYOUTS[number] => !!x);
+    console.log("[blog-thumbs] rawForcedIds:", rawForcedIds, "-> matched layouts:", forcedLayouts.map(l => l.id));
     const layoutReferences: Record<string, string> =
       body.layoutReferences && typeof body.layoutReferences === "object" && !Array.isArray(body.layoutReferences)
         ? Object.fromEntries(
@@ -798,6 +807,10 @@ serve(async (req) => {
     const images = settled
       .map((s) => (s.status === "fulfilled" ? s.value : null))
       .filter((x): x is string => !!x);
+    console.log("[blog-thumbs] settled:", settled.map(s => s.status), "-> images returned:", images.length, "of", jobs.length, "jobs");
+    settled.forEach((s, i) => {
+      if (s.status === "rejected") console.error(`[blog-thumbs] job ${i} (${jobs[i].layoutId}) rejected:`, (s.reason as Error)?.message);
+    });
 
     if (images.length === 0) {
       throw new Error("Keine Thumbnails generiert");
