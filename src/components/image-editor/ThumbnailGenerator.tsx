@@ -1224,7 +1224,19 @@ export default function ThumbnailGenerator({
             className="w-full h-12 rounded-2xl glass-button-primary text-primary-foreground text-sm font-bold gap-2"
           >
             {(() => {
-              const count = variants;
+              const isBlog = vlogStyle === "blog";
+              const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
+              const isTestimonialBatch = vlogStyle === "testimonial" && testimonialLayouts.length > 0;
+              const isBlogBatch = isBlog && selectedBlogRefSrcs.length > 0;
+              const batchCount = isPodcastBatch
+                ? podcastStyles.length
+                : isTestimonialBatch
+                  ? testimonialLayouts.length
+                  : isBlogBatch
+                    ? selectedBlogRefSrcs.length
+                    : 1;
+              const isBatch = isPodcastBatch || isTestimonialBatch || isBlogBatch;
+              const count = isBatch ? variants * batchCount : variants;
               return isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
