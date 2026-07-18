@@ -9,7 +9,7 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "podcast" | "testimonial";
+type VlogStyle = "vlog" | "lifestyle" | "podcast" | "testimonial";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
@@ -27,6 +27,17 @@ type TestimonialLayout =
   | "chat-bubble";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
+  vlog: {
+    label: "Vlog (Manual Upload)",
+    prompt: `PERSONAL VLOG YOUTUBE THUMBNAIL — MEGA scroll-stopper, premium creator quality.
+- The uploaded photo is the HERO — treat it as the core composition. Do NOT invent a new setting, do NOT add cars, do NOT add fictional scenery. Keep the subject's own vibe/environment.
+- Enhance to top-tier YouTube thumbnail energy: dramatic cinematic lighting (motivated key + rim + subtle backlight glow), rich filmic contrast, punchy but natural color grade, crisp micro-detail, glossy skin realism, deep atmospheric background separation.
+- Expression: confident, magnetic, slight smirk or intense direct eye-contact — never awkward, never over-smiling. Small refinements only, identity locked.
+- Composition: strong subject placement (rule of thirds), generous negative space for the headline, subtle background bokeh depth. High-end MrBeast × Apple TV+ hybrid — bold and clean, never cheap.
+- Color grade: cinematic, saturated where it counts, deep blacks, controlled highlights, film grain hint. NO cheap Instagram filter, NO oversaturation, NO HDR halos.
+- Optional subtle atmospheric FX (soft haze, gentle light spill, lens flare hint) — always tasteful.
+- Mood: "you WANT to click this" — premium, high-production, scroll-stopping. Reference: top MrBeast/Colin&Samir/Ali Abdaal thumbnails but sharper and more editorial.`,
+  },
   lifestyle: {
     label: "Lifestyle / Daily Vlog",
     prompt: `LIFESTYLE / DAILY VLOG im AUDI RS6 — warm, persönlich, cinematic.
