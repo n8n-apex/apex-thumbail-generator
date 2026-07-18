@@ -44,7 +44,7 @@ import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type VlogStyle = "lifestyle" | "podcast" | "testimonial" | "blog";
+type VlogStyle = "vlog" | "lifestyle" | "podcast" | "testimonial" | "blog";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
@@ -102,7 +102,7 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
 ];
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
-  
+  { id: "vlog", label: "VLOG", sub: "Foto hochladen · YouTube killer · manuell", icon: Radio },
   { id: "lifestyle", label: "RS Talk", sub: "Audi RS6 · cinematic · daily", icon: Coffee },
   { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "testimonial", label: "Testimonial", sub: "Social proof · stars · quote", icon: Quote },

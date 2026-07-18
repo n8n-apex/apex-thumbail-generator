@@ -9,7 +9,7 @@ const corsHeaders = {
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-type VlogStyle = "lifestyle" | "podcast" | "testimonial";
+type VlogStyle = "vlog" | "lifestyle" | "podcast" | "testimonial";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
@@ -27,6 +27,17 @@ type TestimonialLayout =
   | "chat-bubble";
 
 const VLOG_STYLES: Record<VlogStyle, { label: string; prompt: string }> = {
+  vlog: {
+    label: "Vlog (Manual Upload)",
+    prompt: `PERSONAL VLOG YOUTUBE THUMBNAIL — MEGA scroll-stopper, premium creator quality.
+- The uploaded photo is the HERO — treat it as the core composition. Do NOT invent a new setting, do NOT add cars, do NOT add fictional scenery. Keep the subject's own vibe/environment.
+- Enhance to top-tier YouTube thumbnail energy: dramatic cinematic lighting (motivated key + rim + subtle backlight glow), rich filmic contrast, punchy but natural color grade, crisp micro-detail, glossy skin realism, deep atmospheric background separation.
+- Expression: confident, magnetic, slight smirk or intense direct eye-contact — never awkward, never over-smiling. Small refinements only, identity locked.
+- Composition: strong subject placement (rule of thirds), generous negative space for the headline, subtle background bokeh depth. High-end MrBeast × Apple TV+ hybrid — bold and clean, never cheap.
+- Color grade: cinematic, saturated where it counts, deep blacks, controlled highlights, film grain hint. NO cheap Instagram filter, NO oversaturation, NO HDR halos.
+- Optional subtle atmospheric FX (soft haze, gentle light spill, lens flare hint) — always tasteful.
+- Mood: "you WANT to click this" — premium, high-production, scroll-stopping. Reference: top MrBeast/Colin&Samir/Ali Abdaal thumbnails but sharper and more editorial.`,
+  },
   lifestyle: {
     label: "Lifestyle / Daily Vlog",
     prompt: `LIFESTYLE / DAILY VLOG im AUDI RS6 — warm, persönlich, cinematic.
@@ -373,7 +384,7 @@ ABSOLUTE QUALITY BAR — HYPERREALISTIC CINEMATIC VLOG THUMBNAIL:
 - Razor-sharp focus on the eyes, micro-catchlights, individual eyelashes resolvable
 - STRICT 16:9 LANDSCAPE aspect ratio (1280×720 or higher 16:9). NEVER square, vertical or 4:3.
 - Must read clearly at 320×180 small preview size
-- ${isPodcast ? "NO car in the scene unless the podcast style explicitly references it — this is a PODCAST thumbnail, not a car vlog." : isTestimonial ? "NO car, NO vehicle, NO automotive setting — this is a TESTIMONIAL thumbnail. Focus is the human + the social proof (quote / stars / result number)." : (body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug).")}
+- ${isPodcast ? "NO car in the scene unless the podcast style explicitly references it — this is a PODCAST thumbnail, not a car vlog." : isTestimonial ? "NO car, NO vehicle, NO automotive setting — this is a TESTIMONIAL thumbnail. Focus is the human + the social proof (quote / stars / result number)." : body.vlogStyle === "vlog" ? "NO invented car, NO invented setting — keep the composition tied to the uploaded photo. This is a MANUAL VLOG thumbnail focused on the person + a premium YouTube look." : (body.imageBase64 ? "ABSOLUTELY no new scenery, no added Audi RS6 if not present in the photo — keep the uploaded photo's setting." : "MANDATORY HERO CAR: Audi RS6 Avant (C8) prominently in the scene with correct details (Quad-Oval-Auspuff, Single-Frame-Grill, RS-Felgen, breite Kotflügel, OLED-Heckleuchten, \"quattro\"-Schriftzug).")}
 - CONSISTENCY ACROSS BATCH: same color grade, same lighting mood, same subject identity across all variants.
 
 NEVER DO:
