@@ -224,8 +224,10 @@ export default function ThumbnailGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
+  const [genStatus, setGenStatus] = useState<{ done: number; total: number } | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const abortRef = useRef<{ aborted: boolean }>({ aborted: false });
 
   const startProgress = useCallback(() => {
     setProgress(0);
