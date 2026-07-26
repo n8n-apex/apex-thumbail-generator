@@ -224,8 +224,10 @@ export default function ThumbnailGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
+  const [genStatus, setGenStatus] = useState<{ done: number; total: number } | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const abortRef = useRef<{ aborted: boolean }>({ aborted: false });
 
   const startProgress = useCallback(() => {
     setProgress(0);
@@ -423,7 +425,13 @@ export default function ThumbnailGenerator({
   }, [testimonialSourceUrl, autoTitle]);
 
 
+  const stopGeneration = useCallback(() => {
+    abortRef.current.aborted = true;
+    toast.info("Generierung wird nach dem aktuellen Bild gestoppt…");
+  }, []);
+
   const handleGenerate = useCallback(async () => {
+    abortRef.current = { aborted: false };
     setIsGenerating(true);
     startProgress();
     try {
@@ -444,9 +452,6 @@ export default function ThumbnailGenerator({
         const forcedLayoutIds = selectedBlogRefSrcs
           .map((src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId)
           .filter((x): x is string => !!x);
-        // Load the preview JPGs of the selected layouts as per-layout style references
-        // so the model has the exact visual look to emulate (composition, colors, treatment)
-        // while restaging the uploaded subject into it.
         const layoutReferences: Record<string, string> = {};
         for (const src of selectedBlogRefSrcs) {
           const ref = APEX_BLOG_REFERENCES.find((r) => r.src === src);
@@ -457,29 +462,78 @@ export default function ThumbnailGenerator({
             // skip if a preview cannot be loaded
           }
         }
-        const { data, error } = await supabase.functions.invoke("generate-blog-thumbnails", {
-          body: {
-            blogContent: blogContent.trim().slice(0, 20000) || undefined,
-            blogUrl: blogUrl.trim() || undefined,
-            manualTitle: manualTitle ? manualTitle.slice(0, 200) : undefined,
-            autoTitle: autoTitle && !!manualTitle && !blogContent.trim() && !blogUrl.trim(),
-            count: requestedVariants,
-            imageBase64: blogImageBase64,
-            referenceStyleBase64: forcedLayoutIds.length === 0 ? (referenceStyleImage ?? undefined) : undefined,
-            forcedLayoutIds: forcedLayoutIds.length > 0 ? forcedLayoutIds : undefined,
-            layoutReferences: Object.keys(layoutReferences).length > 0 ? layoutReferences : undefined,
-            logoBase64: logoImage ?? undefined,
-          },
-        });
-        if (error) throw error;
-        if (data?.error) throw new Error(data.error);
-        const newThumbs: GeneratedThumbnail[] = (data.images as string[]).map((url, idx) => ({
-          templateId: `${data.template.id}-${Date.now()}-${idx}`,
-          imageUrl: url,
-          template: data.template,
-        }));
-        onGeneratedChange((prev) => [...newThumbs, ...prev]);
-        toast.success(`${newThumbs.length} APEX-Blog-Thumbnails generiert!`);
+
+        // Build a flat job list: one job = one edge-function call = one image.
+        // This avoids server timeouts on large batches and lets us abort between images.
+        type Job = { forcedLayoutId?: string; layoutRef?: Record<string, string> };
+        const jobs: Job[] = [];
+        if (forcedLayoutIds.length > 0) {
+          for (const id of forcedLayoutIds) {
+            const ref = layoutReferences[id] ? { [id]: layoutReferences[id] } : undefined;
+            for (let v = 0; v < requestedVariants; v++) {
+              jobs.push({ forcedLayoutId: id, layoutRef: ref });
+            }
+          }
+        } else {
+          for (let v = 0; v < requestedVariants; v++) jobs.push({});
+        }
+
+        setGenStatus({ done: 0, total: jobs.length });
+        let ok = 0;
+        let failed = 0;
+        for (let i = 0; i < jobs.length; i++) {
+          if (abortRef.current.aborted) break;
+          const job = jobs[i];
+          try {
+            const { data, error } = await supabase.functions.invoke("generate-blog-thumbnails", {
+              body: {
+                blogContent: blogContent.trim().slice(0, 20000) || undefined,
+                blogUrl: blogUrl.trim() || undefined,
+                manualTitle: manualTitle ? manualTitle.slice(0, 200) : undefined,
+                autoTitle: autoTitle && !!manualTitle && !blogContent.trim() && !blogUrl.trim(),
+                count: 1,
+                imageBase64: blogImageBase64,
+                referenceStyleBase64:
+                  forcedLayoutIds.length === 0 ? (referenceStyleImage ?? undefined) : undefined,
+                forcedLayoutIds: job.forcedLayoutId ? [job.forcedLayoutId] : undefined,
+                layoutReferences: job.layoutRef,
+                logoBase64: logoImage ?? undefined,
+              },
+            });
+            if (error) throw error;
+            if (data?.error) throw new Error(data.error);
+            const urls = (data.images as string[]) ?? [];
+            if (urls.length === 0) throw new Error("Kein Bild zurückgegeben");
+            const newThumbs: GeneratedThumbnail[] = urls.map((url, idx) => ({
+              templateId: `${data.template.id}-${Date.now()}-${i}-${idx}`,
+              imageUrl: url,
+              template: data.template,
+            }));
+            onGeneratedChange((prev) => [...newThumbs, ...prev]);
+            ok += newThumbs.length;
+          } catch (err) {
+            failed += 1;
+            console.error(`[blog-thumbs] job ${i} failed:`, err);
+            const msg = err instanceof Error ? err.message : String(err);
+            // Stop the whole batch on billing / rate-limit — do not burn more credits.
+            if (/credits?|BILLING|402/i.test(msg) || /rate.?limit|429/i.test(msg)) {
+              toast.error(msg);
+              break;
+            }
+          } finally {
+            setGenStatus({ done: i + 1, total: jobs.length });
+          }
+        }
+
+        if (abortRef.current.aborted) {
+          toast.info(`Gestoppt — ${ok} von ${jobs.length} Thumbnails fertig`);
+        } else if (failed > 0 && ok > 0) {
+          toast.warning(`${ok} Thumbnails generiert, ${failed} fehlgeschlagen`);
+        } else if (ok > 0) {
+          toast.success(`${ok} APEX-Blog-Thumbnails generiert!`);
+        } else {
+          toast.error("Keine Thumbnails generiert");
+        }
         return;
       }
 
@@ -518,6 +572,8 @@ export default function ThumbnailGenerator({
     } finally {
       stopProgress();
       setIsGenerating(false);
+      setGenStatus(null);
+      abortRef.current = { aborted: false };
     }
   }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, logoImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl, selectedBlogRefSrcs]);
 
@@ -1252,13 +1308,30 @@ export default function ThumbnailGenerator({
           </Button>
           {isGenerating && (
             <div className="space-y-1.5">
-              <Progress value={progress} className="h-2" />
+              <div className="flex items-center gap-2">
+                <Progress value={genStatus ? (genStatus.done / Math.max(1, genStatus.total)) * 100 : progress} className="h-2 flex-1" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 rounded-xl text-[11px] gap-1 border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={stopGeneration}
+                  disabled={abortRef.current.aborted}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Stopp
+                </Button>
+              </div>
               <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {elapsed}s — {progress < 40 ? "AI generiert..." : progress < 80 ? "Cinematic feinschliff..." : "Fast fertig..."}
+                  {elapsed}s — {genStatus
+                    ? `Bild ${Math.min(genStatus.done + 1, genStatus.total)} von ${genStatus.total}${abortRef.current.aborted ? " · stoppe…" : ""}`
+                    : progress < 40 ? "AI generiert..." : progress < 80 ? "Cinematic feinschliff..." : "Fast fertig..."}
                 </span>
-                <span className="tabular-nums">{progress}%</span>
+                <span className="tabular-nums">
+                  {genStatus ? `${genStatus.done}/${genStatus.total}` : `${progress}%`}
+                </span>
               </div>
             </div>
           )}
