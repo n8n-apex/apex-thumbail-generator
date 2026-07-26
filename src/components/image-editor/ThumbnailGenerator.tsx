@@ -1308,13 +1308,30 @@ export default function ThumbnailGenerator({
           </Button>
           {isGenerating && (
             <div className="space-y-1.5">
-              <Progress value={progress} className="h-2" />
+              <div className="flex items-center gap-2">
+                <Progress value={genStatus ? (genStatus.done / Math.max(1, genStatus.total)) * 100 : progress} className="h-2 flex-1" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 rounded-xl text-[11px] gap-1 border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={stopGeneration}
+                  disabled={abortRef.current.aborted}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Stopp
+                </Button>
+              </div>
               <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {elapsed}s — {progress < 40 ? "AI generiert..." : progress < 80 ? "Cinematic feinschliff..." : "Fast fertig..."}
+                  {elapsed}s — {genStatus
+                    ? `Bild ${Math.min(genStatus.done + 1, genStatus.total)} von ${genStatus.total}${abortRef.current.aborted ? " · stoppe…" : ""}`
+                    : progress < 40 ? "AI generiert..." : progress < 80 ? "Cinematic feinschliff..." : "Fast fertig..."}
                 </span>
-                <span className="tabular-nums">{progress}%</span>
+                <span className="tabular-nums">
+                  {genStatus ? `${genStatus.done}/${genStatus.total}` : `${progress}%`}
+                </span>
               </div>
             </div>
           )}
