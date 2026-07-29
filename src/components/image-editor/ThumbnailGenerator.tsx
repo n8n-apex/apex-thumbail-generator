@@ -82,8 +82,25 @@ import apexRef12 from "@/assets/apex-ref-12.jpg";
 import apexRef13 from "@/assets/apex-ref-13.jpg";
 import apexRef14 from "@/assets/apex-ref-14.jpg";
 import apexRef15 from "@/assets/apex-ref-15.jpg";
+import apexRef16 from "@/assets/apex-ref-16.jpg";
+import apexRef17 from "@/assets/apex-ref-17.jpg";
+import apexRef18 from "@/assets/apex-ref-18.jpg";
+import apexRef19 from "@/assets/apex-ref-19.jpg";
+import apexRef20 from "@/assets/apex-ref-20.jpg";
+import apexRef21 from "@/assets/apex-ref-21.jpg";
+
+// Newer, unified APEX face+icon styles — usable in Blog, VLOG and Podcast modes.
+const APEX_UNIVERSAL_STYLES: { src: string; label: string; layoutId: string }[] = [
+  { src: apexRef16, label: "Top Stack Icons", layoutId: "apex-top5-stack" },
+  { src: apexRef17, label: "Shhh Icon Row", layoutId: "apex-shhh-row" },
+  { src: apexRef18, label: "Versus Duel", layoutId: "apex-versus-duel" },
+  { src: apexRef19, label: "Single Hero Icon", layoutId: "apex-single-hero" },
+  { src: apexRef20, label: "Chin Thinking Icon", layoutId: "apex-chin-icon" },
+  { src: apexRef21, label: "Transition Wall", layoutId: "apex-transition-wall" },
+];
 
 const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
+  ...APEX_UNIVERSAL_STYLES,
   { src: apexRef15, label: "AI Assistant Glow Hands", layoutId: "ai-assistant-glow" },
   { src: apexRef14, label: "Which AI? Icons Cloud", layoutId: "welche-ki" },
   { src: apexRef12, label: "Glass Sticky Board", layoutId: "sticky-board" },
@@ -100,6 +117,8 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
   { src: apexRef8, label: "Prompt Chat UI", layoutId: "prompt-ui" },
   { src: apexRef9, label: "Code Terminal Glass", layoutId: "code-glass" },
 ];
+
+const TRANSITION_WALL_LAYOUT_ID = "apex-transition-wall";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "vlog", label: "VLOG", sub: "Foto hochladen · YouTube killer · manuell", icon: Radio },
