@@ -682,14 +682,21 @@ async function callGeminiImage(
   imageBase64?: string,
   referenceStyleBase64?: string,
   logoBase64?: string,
+  extraReferenceImages?: string[],
 ): Promise<string> {
   const contentParts: Array<Record<string, unknown>> = [];
   if (imageBase64) contentParts.push({ type: "image_url", image_url: { url: imageBase64 } });
   if (referenceStyleBase64) contentParts.push({ type: "image_url", image_url: { url: referenceStyleBase64 } });
   if (logoBase64) contentParts.push({ type: "image_url", image_url: { url: logoBase64 } });
-  const finalPrompt = logoBase64
-    ? `${prompt}\n\nBRAND LOGO INTEGRATION: The last attached image is a brand logo / tool icon. Integrate it PROMINENTLY and NATURALLY into the APEX layout — keep the logo's EXACT ORIGINAL COLORS, shape and proportions intact (never redraw, never restyle, never recolor the logo itself — if the uploaded logo is pink, keep it pink; if orange, keep it orange; if green, keep it green). Depending on the layout, place it as a floating hero icon, on a device / app tile, or as a small corner brand mark. Do NOT distort, do NOT recolor, do NOT add text to the logo. IMPORTANT: any GLOW, RIM LIGHT, HALO, AMBIENT LIGHT, REFLECTION or LIGHT SPILL around/behind/on the logo must ALWAYS be APEX BLUE / CYAN (#00BCFF) — regardless of the logo's own colors. The logo keeps its native colors, but the surrounding light is always apex blue.`
-    : prompt;
+  const extras = (extraReferenceImages ?? []).filter((s) => typeof s === "string" && s.startsWith("data:")).slice(0, 6);
+  for (const ex of extras) contentParts.push({ type: "image_url", image_url: { url: ex } });
+  const logoSuffix = logoBase64
+    ? `\n\nBRAND LOGO INTEGRATION: One of the attached images is a brand logo / tool icon. Integrate it PROMINENTLY and NATURALLY into the APEX layout — keep the logo's EXACT ORIGINAL COLORS, shape and proportions intact (never redraw, never restyle, never recolor the logo itself). Depending on the layout, place it as a floating hero icon, on a device / app tile, or as a small corner brand mark. Do NOT distort, do NOT recolor, do NOT add text to the logo. IMPORTANT: any GLOW, RIM LIGHT, HALO, AMBIENT LIGHT, REFLECTION or LIGHT SPILL around/behind/on the logo must ALWAYS be APEX BLUE / CYAN (#00BCFF) — regardless of the logo's own colors.`
+    : "";
+  const extrasSuffix = extras.length > 0
+    ? `\n\nADDITIONAL REFERENCE IMAGES (${extras.length} attached): Use these images as the CONTENT of the video/scene tiles on the transition wall behind the subject. Place one image per tile, preserving each supplied image's original composition and colors, wrapped in a rounded rectangular tile with a subtle APEX Blue #00BCFF rim glow. If fewer than 6 images are provided, repeat or rearrange them naturally to fill the wall.`
+    : "";
+  const finalPrompt = `${prompt}${logoSuffix}${extrasSuffix}`;
   contentParts.push({ type: "text", text: finalPrompt });
 
   const messages = [
@@ -699,7 +706,8 @@ async function callGeminiImage(
     },
   ];
 
-  const hasAnyImage = !!imageBase64 || !!referenceStyleBase64 || !!logoBase64;
+  const hasAnyImage = !!imageBase64 || !!referenceStyleBase64 || !!logoBase64 || extras.length > 0;
+
   const models = hasAnyImage
     ? ["google/gemini-3.1-flash-image-preview"]
     : ["google/gemini-3.1-flash-image-preview", "google/gemini-3-pro-image-preview"];
