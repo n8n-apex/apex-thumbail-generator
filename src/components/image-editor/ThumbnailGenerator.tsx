@@ -240,6 +240,7 @@ export default function ThumbnailGenerator({
   const [blogContent, setBlogContent] = useState("");
   const [blogUrl, setBlogUrl] = useState("");
   const [selectedBlogRefSrcs, setSelectedBlogRefSrcs] = useState<string[]>([]);
+  const [transitionWallImages, setTransitionWallImages] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
