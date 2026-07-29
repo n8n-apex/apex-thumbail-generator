@@ -270,7 +270,7 @@ const APEX_BLOG_LAYOUTS = [
     promptNoSubject: `LAYOUT — APEX TOP STACK ICONS (no subject):
 - Near-black #030308 background with soft APEX Blue radial glow behind a centered icon stack.
 - 5 oversized 3D liquid-glass squircle app icons in a diamond/plus stack, each showing an official AI/creative tool icon in TRUE brand colors (from BLOG CONTEXT TOOLS list). Cyan halo around every tile.
-- Bottom: MASSIVE ALL-CAPS headline, Inter Heavy, TWO-TONE — first word Ice White, remaining word(s) APEX Blue #00BCFF, tight tracking, subtle glow. Nothing else.`,
+- Bottom: MASSIVE ALL-CAPS headline in chunky bold CONDENSED sans (Anton/Impact/Bebas style), ENTIRE headline in Ice White #FCFEFF only (no two-tone, no blue text), heavy soft black drop shadow for punch. Nothing else.`,
   },
   {
     id: "apex-shhh-row",
