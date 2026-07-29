@@ -872,6 +872,7 @@ serve(async (req) => {
         headline,
         layoutId: layout.id,
         styleRef: jobStyleRef,
+        extras: layout.id === "apex-transition-wall" ? transitionImages : [],
         prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, jobHasStyleRef, blogCtx, layout.id),
       };
     });
@@ -881,10 +882,11 @@ serve(async (req) => {
     for (let i = 0; i < jobs.length; i += CONCURRENCY) {
       const chunk = jobs.slice(i, i + CONCURRENCY);
       const chunkResults = await Promise.allSettled(
-        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, j.styleRef, logoBase64)),
+        chunk.map((j) => callGeminiImage(j.prompt, LOVABLE_API_KEY, imageBase64, j.styleRef, logoBase64, j.extras)),
       );
       settled.push(...chunkResults);
     }
+
 
     for (const s of settled) {
       if (s.status === "rejected") {
