@@ -258,6 +258,93 @@ const APEX_BLOG_LAYOUTS = [
 - Subtle APEX Blue graph-paper grid (~12% opacity) across the whole background.
 - Headline stacked in 3 short lines, HUGE modern bold Ice White sans-serif (Inter Heavy), left-aligned, mixed case. The MIDDLE line is the punchy power phrase in the heaviest weight, with a thick APEX Blue glowing marker underline scribble under it. Optional faint translucent glass panel behind the stack.`,
   },
+  {
+    id: "apex-top5-stack",
+    label: "Top Stack Icons",
+    promptWithSubject: `LAYOUT — APEX TOP STACK ICONS (premium creator YouTube hero, mirrors the reference preview exactly):
+- BACKGROUND: pure near-black #030308 with a soft APEX Blue #00BCFF radial glow bleeding from behind the icon stack on the LEFT half. Empty otherwise, no grid, no patterns, no secondary text or badges.
+- LEFT HALF (icon stack, ~45% of canvas): a loose 3D stack of 4–5 oversized glossy 3D LIQUID-GLASS SQUIRCLE app icons (iOS/visionOS aesthetic — translucent tiles, slight 3D perspective, each rotated a few degrees, softly overlapping in a diamond/plus arrangement, some closer some further with mild depth-of-field). Bottom tile hovers just above a partially visible open human palm at the lower-left edge. Each tile displays a REAL OFFICIAL AI/creative tool app icon in TRUE brand colors and correct glyph (from the TOOLS list in BLOG CONTEXT; if the list is short, fall back to ChatGPT, Claude, Midjourney, Gemini, Runway, Notion). NEVER fake/garbled logos, NEVER text labels on the tiles. Every tile gets a subtle cyan #00BCFF rim/halo glow around it (regardless of the tile's own colors).
+- RIGHT HALF (subject, ~55% of canvas): the man from the uploaded photo, chest-up cinematic 85mm DSLR portrait, black shirt/blazer, calm confident SMIRK (closed mouth, subtle one-sided smile), sharp direct eye contact into camera. IDENTITY FORENSICALLY LOCKED — same skull shape, same beard density and exact beard shape, same hairline, same skin tone, same features as the uploaded photo. Do NOT idealize, slim, age, or swap identity. LIGHTING: body in natural neutral dark studio light; ONLY the face and near-shoulder catch a subtle soft APEX Blue rim from the icons' glow (max 20% intensity).
+- BOTTOM (headline, spans full width): ONE MASSIVE ALL-CAPS two-word or three-word headline in Inter Heavy / SF Pro Display Black. TWO-TONE SPLIT: the FIRST word rendered in pure Ice White #FCFEFF, the REMAINING word(s) rendered in APEX Blue #00BCFF. Tight modern tracking, subtle outer glow on both parts. NO gold, NO yellow. Baseline near the bottom edge, letters bold enough to feel iconic.
+- Absolutely nothing else in the frame. No sub-caption, no badge, no arrows, no watermark.`,
+    promptNoSubject: `LAYOUT — APEX TOP STACK ICONS (no subject):
+- Near-black #030308 background with soft APEX Blue radial glow behind a centered icon stack.
+- 5 oversized 3D liquid-glass squircle app icons in a diamond/plus stack, each showing an official AI/creative tool icon in TRUE brand colors (from BLOG CONTEXT TOOLS list). Cyan halo around every tile.
+- Bottom: MASSIVE ALL-CAPS headline, Inter Heavy, TWO-TONE — first word Ice White, remaining word(s) APEX Blue #00BCFF, tight tracking, subtle glow. Nothing else.`,
+  },
+  {
+    id: "apex-shhh-row",
+    label: "Shhh Icon Row",
+    promptWithSubject: `LAYOUT — APEX SHHH ICON ROW (mirrors the reference preview exactly):
+- BACKGROUND: pure near-black #030308 with a subtle APEX Blue #00BCFF radial glow behind the subject. Empty otherwise, no grid or patterns.
+- SUBJECT centered vertically: the man from the uploaded photo, chest-up cinematic 85mm DSLR portrait, black shirt, ONE index finger pressed vertically against pursed closed lips in a clean "shhh" secret gesture, calm intense direct gaze into camera. IDENTITY FORENSICALLY LOCKED — same skull, exact beard density and shape, hairline, features. Face catches a subtle APEX Blue rim glow only (max 15%). Body stays in natural neutral studio light.
+- HORIZONTAL ROW OF 4 ICONS at head/upper-body height: 2 on the LEFT of the head, 2 on the RIGHT of the head. Each is an oversized 3D LIQUID-GLASS SQUIRCLE app icon (visionOS liquid glass — translucent glossy tiles, slight 3D perspective), showing REAL OFFICIAL AI/creative tool icons in TRUE brand colors and correct glyph, pulled from the TOOLS list in BLOG CONTEXT (fallback: Notion, Frame.io, Descript, DaVinci Resolve). Every tile has a subtle cyan #00BCFF rim/halo glow. NEVER faked/garbled logos, NEVER text on tiles.
+- BOTTOM: ONE MASSIVE full-width ALL-CAPS two-word headline in Inter Heavy. TWO-TONE SPLIT: first word Ice White #FCFEFF, second word APEX Blue #00BCFF. Tight modern tracking, subtle outer glow. Baseline near the bottom edge.
+- Nothing else in the frame. No arrows, no captions, no badges, no watermark.`,
+    promptNoSubject: `LAYOUT — APEX SHHH ICON ROW (no subject):
+- Near-black background with subtle APEX Blue radial glow.
+- Horizontal row of 5 oversized 3D liquid-glass squircle app icons across the middle, each an official AI/creative tool icon in TRUE brand colors (from BLOG CONTEXT TOOLS). Subtle cyan halo per tile.
+- Bottom: MASSIVE ALL-CAPS two-word headline, Inter Heavy, first word Ice White, second word APEX Blue #00BCFF, subtle glow. Nothing else.`,
+  },
+  {
+    id: "apex-versus-duel",
+    label: "Versus Duel",
+    promptWithSubject: `LAYOUT — APEX VERSUS DUEL (mirrors the reference preview exactly):
+- BACKGROUND: pure near-black #030308 with a subtle APEX Blue #00BCFF radial glow behind the subject. Empty otherwise.
+- SUBJECT centered: the man from the uploaded photo, chest-up cinematic 85mm DSLR portrait, black turtleneck/shirt, SKEPTICAL EVALUATING expression — brows slightly furrowed, mouth closed, direct piercing gaze into camera, subtle micro-judgment. IDENTITY FORENSICALLY LOCKED — same skull, beard density and shape, hairline, features. Face catches subtle APEX Blue rim glow only.
+- LEFT OF THE HEAD: ONE oversized 3D LIQUID-GLASS SQUIRCLE app icon (~24% canvas height) with the OFFICIAL logo of the FIRST tool from the BLOG CONTEXT TOOLS list in TRUE brand colors and correct glyph. Subtle cyan #00BCFF halo around the tile.
+- RIGHT OF THE HEAD: ONE oversized 3D LIQUID-GLASS SQUIRCLE app icon (same size) with the OFFICIAL logo of the SECOND tool from the TOOLS list in TRUE brand colors. Same cyan halo treatment. If only one tool exists in context, use the primary tool on both sides with a subtle competitor generic icon on one side — always keep logos real.
+- BOTTOM: MASSIVE full-width ALL-CAPS headline in Inter Heavy formulated as a versus question ("BESSER ALS X?", "X ODER Y?", etc — derived from the actual headline). TWO-TONE SPLIT: setup words in Ice White #FCFEFF, the KEY subject/tool word + question mark in APEX Blue #00BCFF. Tight tracking, subtle outer glow.
+- Absolutely nothing else. No arrows, no VS glyph, no badge, no captions.`,
+    promptNoSubject: `LAYOUT — APEX VERSUS DUEL (no subject):
+- Near-black background with subtle APEX Blue radial glow.
+- Centered: TWO oversized 3D liquid-glass squircle app icons side by side (~30% canvas height), each an official tool logo from BLOG CONTEXT TOOLS in TRUE brand colors, subtle cyan halo per tile.
+- Bottom: MASSIVE ALL-CAPS versus headline (Inter Heavy), setup words Ice White, key word APEX Blue #00BCFF. Nothing else.`,
+  },
+  {
+    id: "apex-single-hero",
+    label: "Single Hero Icon",
+    promptWithSubject: `LAYOUT — APEX SINGLE HERO ICON (mirrors the reference preview exactly):
+- BACKGROUND: pure near-black #030308 with a bright APEX Blue #00BCFF radial glow bleeding from behind the icon on the LEFT half. Empty otherwise.
+- LEFT HALF (~45%): ONE oversized 3D LIQUID-GLASS SQUIRCLE app icon (~50% canvas height, dominant hero), hovering just above a partially visible open human palm at the lower-left edge. Icon MUST be the OFFICIAL logo of the SINGLE PRIMARY tool/topic from the BLOG CONTEXT TOOLS list in TRUE brand colors and correct glyph (never generic, never faked). Strong cyan #00BCFF emissive glow spilling into the scene, subtle bloom, cinematic.
+- RIGHT HALF (~55%): the man from the uploaded photo, chest-up cinematic 85mm DSLR portrait, black shirt, EXCITED-BUT-CONTROLLED expression (subtle open half-smile, slightly raised eyebrows in mild surprise, sharp direct eye contact — NOT wide-open cartoon shock). IDENTITY FORENSICALLY LOCKED to the uploaded photo — same skull, beard, hairline, features. Face catches soft APEX Blue rim glow from the icon side (max 25%). Body in neutral studio light.
+- BOTTOM (spans full width): MASSIVE ALL-CAPS two-word (or one-word + exclamation) headline in Inter Heavy. TWO-TONE SPLIT: setup word Ice White #FCFEFF, hero word APEX Blue #00BCFF with the exclamation/question mark. Tight tracking, subtle outer glow, baseline near the bottom edge.
+- Nothing else. No secondary text, no badge, no arrow, no watermark.`,
+    promptNoSubject: `LAYOUT — APEX SINGLE HERO ICON (no subject):
+- Near-black background with bright APEX Blue radial glow center.
+- ONE oversized 3D liquid-glass squircle app icon centered (~55% canvas height), the OFFICIAL logo of the primary tool from BLOG CONTEXT in TRUE brand colors. Strong cyan emissive glow.
+- Bottom: MASSIVE ALL-CAPS two-word headline, Inter Heavy, first word Ice White, hero word APEX Blue #00BCFF. Nothing else.`,
+  },
+  {
+    id: "apex-chin-icon",
+    label: "Chin Thinking Icon",
+    promptWithSubject: `LAYOUT — APEX CHIN THINKING ICON (mirrors the reference preview exactly):
+- BACKGROUND: pure near-black #030308 with a subtle APEX Blue #00BCFF radial glow behind the icon on the RIGHT. Empty otherwise.
+- LEFT HALF (~45%): the man from the uploaded photo, chest-up cinematic 85mm DSLR portrait, black turtleneck or shirt, thumb-and-index-finger resting THOUGHTFULLY against chin, SKEPTICAL EVALUATING expression — brows slightly raised or furrowed, mouth pursed and closed, sharp direct eye contact. IDENTITY FORENSICALLY LOCKED — same skull, beard, hairline, features. Face catches subtle APEX Blue rim from the icon side. Body in neutral studio light.
+- RIGHT HALF (~55%): ONE oversized 3D LIQUID-GLASS SQUIRCLE app icon (~55% canvas height, dominant), the OFFICIAL logo of the primary tool/topic from BLOG CONTEXT in TRUE brand colors and correct glyph. Slight 3D perspective, strong soft cyan #00BCFF glow spilling around it, translucent glossy tile with premium liquid-glass finish. Never faked logo, never text label on the tile.
+- BOTTOM-RIGHT: MASSIVE ALL-CAPS stacked two-line headline in Inter Heavy, right-aligned or centered under the icon, formulated as a value/worthiness question ("LOHNT SICH X?"). TWO-TONE SPLIT: setup line Ice White #FCFEFF, second line with the tool/subject + question mark in APEX Blue #00BCFF. Tight tracking, subtle glow.
+- Nothing else. No secondary text, no badge, no watermark.`,
+    promptNoSubject: `LAYOUT — APEX CHIN THINKING ICON (no subject):
+- Near-black background with subtle APEX Blue radial glow on the right.
+- ONE oversized 3D liquid-glass squircle app icon on the right (~55% canvas height), the OFFICIAL logo of the primary tool from BLOG CONTEXT in TRUE brand colors, strong cyan glow.
+- Left/bottom: MASSIVE ALL-CAPS stacked two-line headline (question), first line Ice White, second line APEX Blue #00BCFF. Nothing else.`,
+  },
+  {
+    id: "apex-transition-wall",
+    label: "Transition Wall",
+    promptWithSubject: `LAYOUT — APEX TRANSITION WALL (mirrors the reference preview exactly):
+- BACKGROUND: pure near-black #030308 with a subtle APEX Blue #00BCFF radial glow behind the subject. No grid, no patterns.
+- SUBJECT centered vertically and horizontally: the man from the uploaded photo, chest-up cinematic 85mm DSLR portrait, black shirt/blazer, calm confident direct gaze into camera with subtle micro-smile. IDENTITY FORENSICALLY LOCKED — same skull, beard density and shape, hairline, features. Face catches subtle APEX Blue rim glow only. Body in neutral studio light.
+- BEHIND HIM: a curved 3D wall of 6 floating rectangular VIDEO/SCENE thumbnail tiles arranged as a fanned semicircle (3 tiles on the LEFT curving up and away from the subject, 3 tiles on the RIGHT curving up and away), each tile slightly rotated in 3D toward the viewer as if suspended in space, with soft rounded corners, subtle APEX Blue #00BCFF rim glow, and a very faint drop shadow. The subject is placed IN FRONT of the wall, slightly overlapping the innermost tiles for depth.
+- TILE CONTENT: use the ADDITIONAL REFERENCE IMAGES supplied in this request AS THE CONTENT OF THE 6 TILES — render each supplied image inside its own tile in order (top-left first, then bottom-left, then top-right, then bottom-right, etc.), preserving each image's original composition and colors. If fewer than 6 images are supplied, repeat/rearrange them naturally to fill 6 tiles. If NO extra images are supplied, generate 6 distinct moody cinematic mini-scenes derived from the BLOG CONTEXT topics (each a different environment/subject related to the blog).
+- BOTTOM: MASSIVE full-width ALL-CAPS headline stacked over 1–2 lines in Inter Heavy. TWO-TONE SPLIT: setup word(s) Ice White #FCFEFF, key subject word APEX Blue #00BCFF. Tight tracking, subtle outer glow.
+- Absolutely nothing else. No badges, no watermarks, no arrows.`,
+    promptNoSubject: `LAYOUT — APEX TRANSITION WALL (no subject):
+- Near-black background with subtle APEX Blue radial glow.
+- CENTER: a curved 3D wall of 6 floating rectangular video/scene thumbnail tiles fanned in a semicircle, each slightly rotated in 3D toward the viewer, rounded corners, subtle cyan rim glow.
+- Tile content: use the supplied ADDITIONAL REFERENCE IMAGES verbatim (one per tile, in order); if none supplied, generate 6 cinematic mini-scenes from BLOG CONTEXT topics.
+- Bottom: MASSIVE ALL-CAPS headline (Inter Heavy), first part Ice White, key word APEX Blue #00BCFF. Nothing else.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
