@@ -279,12 +279,12 @@ const APEX_BLOG_LAYOUTS = [
 - BACKGROUND: pure near-black #030308 with a subtle APEX Blue #00BCFF radial glow behind the subject. Empty otherwise, no grid or patterns.
 - SUBJECT centered vertically: the man from the uploaded photo, chest-up cinematic 85mm DSLR portrait, black shirt, ONE index finger pressed vertically against pursed closed lips in a clean "shhh" secret gesture, calm intense direct gaze into camera. IDENTITY FORENSICALLY LOCKED — same skull, exact beard density and shape, hairline, features. Face catches a subtle APEX Blue rim glow only (max 15%). Body stays in natural neutral studio light.
 - HORIZONTAL ROW OF 4 ICONS at head/upper-body height: 2 on the LEFT of the head, 2 on the RIGHT of the head. Each is an oversized 3D LIQUID-GLASS SQUIRCLE app icon (visionOS liquid glass — translucent glossy tiles, slight 3D perspective), showing REAL OFFICIAL AI/creative tool icons in TRUE brand colors and correct glyph, pulled from the TOOLS list in BLOG CONTEXT (fallback: Notion, Frame.io, Descript, DaVinci Resolve). Every tile has a subtle cyan #00BCFF rim/halo glow. NEVER faked/garbled logos, NEVER text on tiles.
-- BOTTOM: ONE MASSIVE full-width ALL-CAPS two-word headline in Inter Heavy. TWO-TONE SPLIT: first word Ice White #FCFEFF, second word APEX Blue #00BCFF. Tight modern tracking, subtle outer glow. Baseline near the bottom edge.
+- BOTTOM: ONE MASSIVE full-width ALL-CAPS two-word headline in a chunky bold CONDENSED sans (Anton/Impact/Bebas style). Entire headline in Ice White #FCFEFF only (no two-tone, no blue text). Heavy soft black drop shadow (offset ~8px, blur ~18px, ~70% opacity). Tight tracking, baseline near the bottom edge.
 - Nothing else in the frame. No arrows, no captions, no badges, no watermark.`,
     promptNoSubject: `LAYOUT — APEX SHHH ICON ROW (no subject):
 - Near-black background with subtle APEX Blue radial glow.
 - Horizontal row of 5 oversized 3D liquid-glass squircle app icons across the middle, each an official AI/creative tool icon in TRUE brand colors (from BLOG CONTEXT TOOLS). Subtle cyan halo per tile.
-- Bottom: MASSIVE ALL-CAPS two-word headline, Inter Heavy, first word Ice White, second word APEX Blue #00BCFF, subtle glow. Nothing else.`,
+- Bottom: MASSIVE ALL-CAPS two-word headline, Inter Heavy, entire headline in Ice White #FCFEFF only (no two-tone, no blue text), chunky bold condensed sans (Anton/Impact/Bebas), with a heavy soft black drop shadow for punch. Nothing else.`,
   },
   {
     id: "apex-versus-duel",
@@ -299,7 +299,7 @@ const APEX_BLOG_LAYOUTS = [
     promptNoSubject: `LAYOUT — APEX VERSUS DUEL (no subject):
 - Near-black background with subtle APEX Blue radial glow.
 - Centered: TWO oversized 3D liquid-glass squircle app icons side by side (~30% canvas height), each an official tool logo from BLOG CONTEXT TOOLS in TRUE brand colors, subtle cyan halo per tile.
-- Bottom: MASSIVE ALL-CAPS versus headline (Inter Heavy), setup words Ice White, key word APEX Blue #00BCFF. Nothing else.`,
+- Bottom: MASSIVE ALL-CAPS versus headline (Inter Heavy), entire headline in Ice White #FCFEFF only (no two-tone, no blue text), chunky bold condensed sans (Anton/Impact/Bebas), with a heavy soft black drop shadow for punch. Nothing else.`,
   },
   {
     id: "apex-single-hero",
