@@ -702,7 +702,149 @@ export default function ThumbnailGenerator({
           </div>
         </div>
 
-        {/* Podcast sub-styles (multiselect 1-6) */}
+        {/* VLOG — APEX universal styles (multiselect, optional) */}
+        {vlogStyle === "vlog" && (
+          <div className="space-y-2 rounded-2xl border border-dashed border-primary/40 p-3 bg-primary/5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3 text-primary" />
+                APEX Vlog-Stile · Mehrfachauswahl ({selectedVlogRefSrcs.length})
+              </label>
+              {selectedVlogRefSrcs.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 rounded-lg text-[10px] px-2"
+                  onClick={() => setSelectedVlogRefSrcs([])}
+                >
+                  <X className="h-3 w-3 mr-0.5" /> Auswahl löschen
+                </Button>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {APEX_UNIVERSAL_STYLES.map((ref) => {
+                const active = selectedVlogRefSrcs.includes(ref.src);
+                return (
+                  <button
+                    key={ref.src}
+                    type="button"
+                    onClick={() => {
+                      setSelectedVlogRefSrcs((prev) =>
+                        prev.includes(ref.src) ? prev.filter((s) => s !== ref.src) : [...prev, ref.src]
+                      );
+                    }}
+                    disabled={isGenerating}
+                    className={`group relative rounded-xl overflow-hidden border-2 transition-all ${
+                      active
+                        ? "border-primary shadow-lg shadow-primary/30 ring-2 ring-primary/40"
+                        : "border-border/40 hover:border-primary/40"
+                    }`}
+                  >
+                    <div className="aspect-video bg-muted/40 overflow-hidden relative">
+                      <img
+                        src={ref.src}
+                        alt={`APEX style ${ref.label}`}
+                        loading="lazy"
+                        className={`w-full h-full object-cover transition-transform ${active ? "scale-105" : "group-hover:scale-105"}`}
+                      />
+                      <div className={`absolute inset-0 transition-colors ${active ? "bg-primary/15" : "bg-foreground/0 group-hover:bg-foreground/10"}`} />
+                      {active && (
+                        <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                          <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="absolute bottom-0 inset-x-0 px-1.5 py-0.5 bg-gradient-to-t from-background/90 to-transparent">
+                      <div className="text-[9px] font-bold text-foreground truncate">{ref.label}</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Optional: Wähle 1+ APEX-Stile für dein VLOG-Thumbnail. Face-Upload + Titel unten werden in jedes Bild integriert. Ohne Auswahl läuft der klassische VLOG-Flow.
+            </p>
+
+            {/* Transition Wall multi-upload — only when that style is selected */}
+            {selectedVlogRefSrcs.some(
+              (src) => APEX_UNIVERSAL_STYLES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
+            ) && (
+              <div className="mt-2 rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                    <LayoutGrid className="h-3 w-3" />
+                    Transition-Wall · Hintergrund-Thumbnails ({transitionWallImages.length}/6)
+                  </label>
+                  {transitionWallImages.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 rounded-lg text-[10px] px-2"
+                      onClick={() => setTransitionWallImages([])}
+                    >
+                      <X className="h-3 w-3 mr-0.5" /> Leeren
+                    </Button>
+                  )}
+                </div>
+                {transitionWallImages.length > 0 && (
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {transitionWallImages.map((img, i) => (
+                      <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-primary/40">
+                        <img src={img} alt={`Wall ${i + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setTransitionWallImages((prev) => prev.filter((_, idx) => idx !== i))
+                          }
+                          className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-background/90 flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {transitionWallImages.length < 6 && (
+                  <label className="cursor-pointer block">
+                    <div className="flex items-center gap-2 px-3 h-10 rounded-xl border border-dashed border-primary/40 text-xs text-muted-foreground hover:bg-primary/10 hover:border-primary/60 transition-colors">
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      {transitionWallImages.length === 0
+                        ? "5–6 Video/Szenen-Thumbnails hochladen (werden hinter dir platziert)"
+                        : `${6 - transitionWallImages.length} weitere hinzufügen`}
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files ?? []);
+                        if (files.length === 0) return;
+                        const available = 6 - transitionWallImages.length;
+                        const toRead = files.slice(0, available);
+                        const bases = await Promise.all(
+                          toRead.map(
+                            (f) =>
+                              new Promise<string>((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = () => resolve(reader.result as string);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(f);
+                              }),
+                          ),
+                        );
+                        setTransitionWallImages((prev) => [...prev, ...bases]);
+                        e.currentTarget.value = "";
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+
         {vlogStyle === "podcast" && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
