@@ -788,6 +788,9 @@ serve(async (req) => {
             ),
           ) as Record<string, string>
         : {};
+    const transitionImages: string[] = Array.isArray(body.transitionImages)
+      ? (body.transitionImages as unknown[]).filter((x): x is string => typeof x === "string" && x.startsWith("data:")).slice(0, 6)
+      : [];
     const hasSubject = !!imageBase64;
     const useStyleRef = !!referenceStyleBase64 && forcedLayouts.length === 0;
     const hasStyleRef = useStyleRef;
