@@ -313,7 +313,7 @@ const APEX_BLOG_LAYOUTS = [
     promptNoSubject: `LAYOUT — APEX SINGLE HERO ICON (no subject):
 - Near-black background with bright APEX Blue radial glow center.
 - ONE oversized 3D liquid-glass squircle app icon centered (~55% canvas height), the OFFICIAL logo of the primary tool from BLOG CONTEXT in TRUE brand colors. Strong cyan emissive glow.
-- Bottom: MASSIVE ALL-CAPS two-word headline, Inter Heavy, first word Ice White, hero word APEX Blue #00BCFF. Nothing else.`,
+- Bottom: MASSIVE ALL-CAPS headline in chunky bold CONDENSED sans (Anton/Impact/Bebas style), ENTIRE text in Ice White #FCFEFF only (no two-tone, no blue text), heavy soft black drop shadow for punch. Nothing else.`,
   },
   {
     id: "apex-chin-icon",
@@ -327,7 +327,7 @@ const APEX_BLOG_LAYOUTS = [
     promptNoSubject: `LAYOUT — APEX CHIN THINKING ICON (no subject):
 - Near-black background with subtle APEX Blue radial glow on the right.
 - ONE oversized 3D liquid-glass squircle app icon on the right (~55% canvas height), the OFFICIAL logo of the primary tool from BLOG CONTEXT in TRUE brand colors, strong cyan glow.
-- Left/bottom: MASSIVE ALL-CAPS stacked two-line headline (question), first line Ice White, second line APEX Blue #00BCFF. Nothing else.`,
+- Left/bottom: MASSIVE ALL-CAPS headline in chunky bold CONDENSED sans (Anton/Impact/Bebas style), ENTIRE text in Ice White #FCFEFF only (no two-tone, no blue text), heavy soft black drop shadow for punch. Nothing else.`,
   },
   {
     id: "apex-transition-wall",
@@ -343,7 +343,7 @@ const APEX_BLOG_LAYOUTS = [
 - Near-black background with subtle APEX Blue radial glow.
 - CENTER: a curved 3D wall of 6 floating rectangular video/scene thumbnail tiles fanned in a semicircle, each slightly rotated in 3D toward the viewer, rounded corners, subtle cyan rim glow.
 - Tile content: use the supplied ADDITIONAL REFERENCE IMAGES verbatim (one per tile, in order); if none supplied, generate 6 cinematic mini-scenes from BLOG CONTEXT topics.
-- Bottom: MASSIVE ALL-CAPS headline (Inter Heavy), first part Ice White, key word APEX Blue #00BCFF. Nothing else.`,
+- Bottom: MASSIVE ALL-CAPS headline in chunky bold CONDENSED sans (Anton/Impact/Bebas style), ENTIRE text in Ice White #FCFEFF only (no two-tone, no blue text), heavy soft black drop shadow for punch. Nothing else.`,
   },
 ];
 
