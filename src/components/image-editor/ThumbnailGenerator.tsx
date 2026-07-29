@@ -931,9 +931,90 @@ export default function ThumbnailGenerator({
               <p className="text-[10px] text-muted-foreground">
                 Pro ausgewähltem Stil werden <span className="text-primary font-bold">Slider-Anzahl</span> Bilder erzeugt. Gesamt = Stile × Varianten. Face-Upload unten wird in jedes Bild integriert.
               </p>
+
+              {/* Transition Wall multi-upload — only when that style is selected */}
+              {selectedBlogRefSrcs.some(
+                (src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
+              ) && (
+                <div className="mt-2 rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                      <LayoutGrid className="h-3 w-3" />
+                      Transition-Wall · Hintergrund-Thumbnails ({transitionWallImages.length}/6)
+                    </label>
+                    {transitionWallImages.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 rounded-lg text-[10px] px-2"
+                        onClick={() => setTransitionWallImages([])}
+                      >
+                        <X className="h-3 w-3 mr-0.5" /> Leeren
+                      </Button>
+                    )}
+                  </div>
+                  {transitionWallImages.length > 0 && (
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {transitionWallImages.map((img, i) => (
+                        <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-primary/40">
+                          <img src={img} alt={`Wall ${i + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setTransitionWallImages((prev) => prev.filter((_, idx) => idx !== i))
+                            }
+                            className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-background/90 flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                          >
+                            <X className="h-2.5 w-2.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {transitionWallImages.length < 6 && (
+                    <label className="cursor-pointer block">
+                      <div className="flex items-center gap-2 px-3 h-10 rounded-xl border border-dashed border-primary/40 text-xs text-muted-foreground hover:bg-primary/10 hover:border-primary/60 transition-colors">
+                        <ImageIcon className="h-3.5 w-3.5" />
+                        {transitionWallImages.length === 0
+                          ? "5–6 Video/Szenen-Thumbnails hochladen (werden hinter dir platziert)"
+                          : `${6 - transitionWallImages.length} weitere hinzufügen`}
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={async (e) => {
+                          const files = Array.from(e.target.files ?? []);
+                          if (files.length === 0) return;
+                          const available = 6 - transitionWallImages.length;
+                          const take = files.slice(0, available);
+                          const converted: string[] = [];
+                          for (const f of take) {
+                            const objectUrl = URL.createObjectURL(f);
+                            try {
+                              converted.push(await imageSourceToOptimizedBase64(objectUrl));
+                            } catch {
+                              // skip failed
+                            } finally {
+                              URL.revokeObjectURL(objectUrl);
+                            }
+                          }
+                          setTransitionWallImages((prev) => [...prev, ...converted].slice(0, 6));
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                  )}
+                  <p className="text-[10px] text-muted-foreground">
+                    Optional — ohne Upload generiert die AI 6 Szenen zum Blog-Thema. Beste Ergebnisse mit exakt <span className="text-primary font-semibold">6 Bildern</span>.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
+
 
 
 
