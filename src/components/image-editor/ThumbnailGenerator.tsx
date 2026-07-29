@@ -82,8 +82,25 @@ import apexRef12 from "@/assets/apex-ref-12.jpg";
 import apexRef13 from "@/assets/apex-ref-13.jpg";
 import apexRef14 from "@/assets/apex-ref-14.jpg";
 import apexRef15 from "@/assets/apex-ref-15.jpg";
+import apexRef16 from "@/assets/apex-ref-16.jpg";
+import apexRef17 from "@/assets/apex-ref-17.jpg";
+import apexRef18 from "@/assets/apex-ref-18.jpg";
+import apexRef19 from "@/assets/apex-ref-19.jpg";
+import apexRef20 from "@/assets/apex-ref-20.jpg";
+import apexRef21 from "@/assets/apex-ref-21.jpg";
+
+// Newer, unified APEX face+icon styles — usable in Blog, VLOG and Podcast modes.
+const APEX_UNIVERSAL_STYLES: { src: string; label: string; layoutId: string }[] = [
+  { src: apexRef16, label: "Top Stack Icons", layoutId: "apex-top5-stack" },
+  { src: apexRef17, label: "Shhh Icon Row", layoutId: "apex-shhh-row" },
+  { src: apexRef18, label: "Versus Duel", layoutId: "apex-versus-duel" },
+  { src: apexRef19, label: "Single Hero Icon", layoutId: "apex-single-hero" },
+  { src: apexRef20, label: "Chin Thinking Icon", layoutId: "apex-chin-icon" },
+  { src: apexRef21, label: "Transition Wall", layoutId: "apex-transition-wall" },
+];
 
 const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
+  ...APEX_UNIVERSAL_STYLES,
   { src: apexRef15, label: "AI Assistant Glow Hands", layoutId: "ai-assistant-glow" },
   { src: apexRef14, label: "Which AI? Icons Cloud", layoutId: "welche-ki" },
   { src: apexRef12, label: "Glass Sticky Board", layoutId: "sticky-board" },
@@ -100,6 +117,8 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
   { src: apexRef8, label: "Prompt Chat UI", layoutId: "prompt-ui" },
   { src: apexRef9, label: "Code Terminal Glass", layoutId: "code-glass" },
 ];
+
+const TRANSITION_WALL_LAYOUT_ID = "apex-transition-wall";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "vlog", label: "VLOG", sub: "Foto hochladen · YouTube killer · manuell", icon: Radio },
@@ -221,6 +240,7 @@ export default function ThumbnailGenerator({
   const [blogContent, setBlogContent] = useState("");
   const [blogUrl, setBlogUrl] = useState("");
   const [selectedBlogRefSrcs, setSelectedBlogRefSrcs] = useState<string[]>([]);
+  const [transitionWallImages, setTransitionWallImages] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -498,6 +518,10 @@ export default function ThumbnailGenerator({
                 forcedLayoutIds: job.forcedLayoutId ? [job.forcedLayoutId] : undefined,
                 layoutReferences: job.layoutRef,
                 logoBase64: logoImage ?? undefined,
+                transitionImages:
+                  job.forcedLayoutId === TRANSITION_WALL_LAYOUT_ID && transitionWallImages.length > 0
+                    ? transitionWallImages
+                    : undefined,
               },
             });
             if (error) throw error;
@@ -907,9 +931,90 @@ export default function ThumbnailGenerator({
               <p className="text-[10px] text-muted-foreground">
                 Pro ausgewähltem Stil werden <span className="text-primary font-bold">Slider-Anzahl</span> Bilder erzeugt. Gesamt = Stile × Varianten. Face-Upload unten wird in jedes Bild integriert.
               </p>
+
+              {/* Transition Wall multi-upload — only when that style is selected */}
+              {selectedBlogRefSrcs.some(
+                (src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
+              ) && (
+                <div className="mt-2 rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                      <LayoutGrid className="h-3 w-3" />
+                      Transition-Wall · Hintergrund-Thumbnails ({transitionWallImages.length}/6)
+                    </label>
+                    {transitionWallImages.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 rounded-lg text-[10px] px-2"
+                        onClick={() => setTransitionWallImages([])}
+                      >
+                        <X className="h-3 w-3 mr-0.5" /> Leeren
+                      </Button>
+                    )}
+                  </div>
+                  {transitionWallImages.length > 0 && (
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {transitionWallImages.map((img, i) => (
+                        <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-primary/40">
+                          <img src={img} alt={`Wall ${i + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setTransitionWallImages((prev) => prev.filter((_, idx) => idx !== i))
+                            }
+                            className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-background/90 flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                          >
+                            <X className="h-2.5 w-2.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {transitionWallImages.length < 6 && (
+                    <label className="cursor-pointer block">
+                      <div className="flex items-center gap-2 px-3 h-10 rounded-xl border border-dashed border-primary/40 text-xs text-muted-foreground hover:bg-primary/10 hover:border-primary/60 transition-colors">
+                        <ImageIcon className="h-3.5 w-3.5" />
+                        {transitionWallImages.length === 0
+                          ? "5–6 Video/Szenen-Thumbnails hochladen (werden hinter dir platziert)"
+                          : `${6 - transitionWallImages.length} weitere hinzufügen`}
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={async (e) => {
+                          const files = Array.from(e.target.files ?? []);
+                          if (files.length === 0) return;
+                          const available = 6 - transitionWallImages.length;
+                          const take = files.slice(0, available);
+                          const converted: string[] = [];
+                          for (const f of take) {
+                            const objectUrl = URL.createObjectURL(f);
+                            try {
+                              converted.push(await imageSourceToOptimizedBase64(objectUrl));
+                            } catch {
+                              // skip failed
+                            } finally {
+                              URL.revokeObjectURL(objectUrl);
+                            }
+                          }
+                          setTransitionWallImages((prev) => [...prev, ...converted].slice(0, 6));
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                  )}
+                  <p className="text-[10px] text-muted-foreground">
+                    Optional — ohne Upload generiert die AI 6 Szenen zum Blog-Thema. Beste Ergebnisse mit exakt <span className="text-primary font-semibold">6 Bildern</span>.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
+
 
 
 
