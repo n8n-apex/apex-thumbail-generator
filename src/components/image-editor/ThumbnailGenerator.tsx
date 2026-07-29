@@ -240,6 +240,7 @@ export default function ThumbnailGenerator({
   const [blogContent, setBlogContent] = useState("");
   const [blogUrl, setBlogUrl] = useState("");
   const [selectedBlogRefSrcs, setSelectedBlogRefSrcs] = useState<string[]>([]);
+  const [selectedVlogRefSrcs, setSelectedVlogRefSrcs] = useState<string[]>([]);
   const [transitionWallImages, setTransitionWallImages] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -458,22 +459,27 @@ export default function ThumbnailGenerator({
       const isBlog = vlogStyle === "blog";
       const isPodcast = vlogStyle === "podcast";
       const isTestimonial = vlogStyle === "testimonial";
+      const isVlogWithApexRefs = vlogStyle === "vlog" && selectedVlogRefSrcs.length > 0;
       const requestedVariants = Math.min(Math.max(variants, 1), 12);
 
 
 
 
-      if (isBlog) {
+      if (isBlog || isVlogWithApexRefs) {
         const manualTitle = (autoTitle ? titleKeywords : title).trim();
-        if (!blogContent.trim() && !blogUrl.trim() && !manualTitle) {
+        if (isBlog && !blogContent.trim() && !blogUrl.trim() && !manualTitle) {
           throw new Error("Bitte Blog-Inhalt, URL oder einen Titel angeben");
         }
+        if (isVlogWithApexRefs && !manualTitle) {
+          throw new Error("Bitte einen Titel angeben (Headline für den APEX-Stil)");
+        }
+        const activeRefSrcs = isBlog ? selectedBlogRefSrcs : selectedVlogRefSrcs;
         const blogImageBase64 = await activeImageBase64();
-        const forcedLayoutIds = selectedBlogRefSrcs
+        const forcedLayoutIds = activeRefSrcs
           .map((src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId)
           .filter((x): x is string => !!x);
         const layoutReferences: Record<string, string> = {};
-        for (const src of selectedBlogRefSrcs) {
+        for (const src of activeRefSrcs) {
           const ref = APEX_BLOG_REFERENCES.find((r) => r.src === src);
           if (!ref) continue;
           try {
@@ -599,7 +605,7 @@ export default function ThumbnailGenerator({
       setGenStatus(null);
       abortRef.current = { aborted: false };
     }
-  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, logoImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl, selectedBlogRefSrcs]);
+  }, [vlogStyle, textStyle, title, autoTitle, titleKeywords, sceneDescription, brandColor, enforceApexCI, variants, podcastStyles, testimonialLayouts, referenceStyleImage, logoImage, activeImageBase64, onGeneratedChange, startProgress, stopProgress, blogContent, blogUrl, selectedBlogRefSrcs, selectedVlogRefSrcs, transitionWallImages]);
 
   const handleDownload = useCallback((thumb: GeneratedThumbnail, targetWidth?: number, targetHeight?: number) => {
     const tw = targetWidth ?? thumb.template.width;
@@ -1329,16 +1335,19 @@ export default function ThumbnailGenerator({
             const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
             const isTestimonialBatch = vlogStyle === "testimonial" && testimonialLayouts.length > 0;
             const isBlogBatch = isBlog && selectedBlogRefSrcs.length > 0;
+            const isVlogApexBatch = vlogStyle === "vlog" && selectedVlogRefSrcs.length > 0;
             const batchCount = isPodcastBatch
               ? podcastStyles.length
               : isTestimonialBatch
                 ? testimonialLayouts.length
                 : isBlogBatch
                   ? selectedBlogRefSrcs.length
-                  : 0;
-            const batchLabel = isPodcastBatch ? "Stile" : isBlogBatch ? "Stile" : "Layouts";
-            const batchLabelSingular = isPodcastBatch ? "Stil" : isBlogBatch ? "Stil" : "Layout";
-            const isBatch = isPodcastBatch || isTestimonialBatch || isBlogBatch;
+                  : isVlogApexBatch
+                    ? selectedVlogRefSrcs.length
+                    : 0;
+            const batchLabel = isPodcastBatch ? "Stile" : (isBlogBatch || isVlogApexBatch) ? "Stile" : "Layouts";
+            const batchLabelSingular = isPodcastBatch ? "Stil" : (isBlogBatch || isVlogApexBatch) ? "Stil" : "Layout";
+            const isBatch = isPodcastBatch || isTestimonialBatch || isBlogBatch || isVlogApexBatch;
             const total = isBatch ? variants * batchCount : variants;
             const sliderMax = isBlog ? 12 : 6;
             return (
@@ -1389,14 +1398,17 @@ export default function ThumbnailGenerator({
               const isPodcastBatch = vlogStyle === "podcast" && podcastStyles.length > 0;
               const isTestimonialBatch = vlogStyle === "testimonial" && testimonialLayouts.length > 0;
               const isBlogBatch = isBlog && selectedBlogRefSrcs.length > 0;
+              const isVlogApexBatch = vlogStyle === "vlog" && selectedVlogRefSrcs.length > 0;
               const batchCount = isPodcastBatch
                 ? podcastStyles.length
                 : isTestimonialBatch
                   ? testimonialLayouts.length
                   : isBlogBatch
                     ? selectedBlogRefSrcs.length
-                    : 1;
-              const isBatch = isPodcastBatch || isTestimonialBatch || isBlogBatch;
+                    : isVlogApexBatch
+                      ? selectedVlogRefSrcs.length
+                      : 1;
+              const isBatch = isPodcastBatch || isTestimonialBatch || isBlogBatch || isVlogApexBatch;
               const count = isBatch ? variants * batchCount : variants;
               return isGenerating ? (
                 <>
