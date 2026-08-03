@@ -672,6 +672,11 @@ ${primaryTool ? `• Primary tool from blog: "${primaryTool}" — render its OFF
 ═══ HEADLINE TO RENDER (verbatim, perfect spelling) ═══
 ${renderHeadline}
 
+HEADLINE TYPESETTING LOCK (STRICT):
+• Render EXACTLY these ${renderHeadline.trim().split(/\s+/).length} word(s) — never add, remove, split, merge, abbreviate or repeat a word.
+• Letterforms must keep their NATURAL width: NEVER condense, squeeze, stretch, squash or horizontally scale the glyphs, and never tighten tracking to negative values to force a fit.
+• If the text does not fit, REDUCE THE FONT SIZE and/or break it onto the allowed number of lines — never distort the letters.
+• Keep consistent, even word spacing and a comfortable margin (min. 6% of canvas width) on both sides so the headline never looks cramped.
 CRITICAL: render the headline as plain text WITHOUT any surrounding quotation marks (no " " no “ ” no ' ' no ‘ ’). No quote glyphs anywhere on the image.
 
 OUTPUT: a single premium 16:9 minimalist APEX brand thumbnail image. Sharp, intentional, editorial. Top 1% quality.`;
