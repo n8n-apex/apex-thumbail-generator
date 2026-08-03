@@ -376,7 +376,8 @@ async function extractHooks(blogText: string, count: number, apiKey: string): Pr
   const systemPrompt = `Du bist ein Top-YouTube/Social-Thumbnail Copywriter. Aus dem folgenden Blog-Text extrahierst du genau ${count} verschiedene, scroll-stoppende Hook-Headlines (jede für ein eigenes Thumbnail).
 
 REGELN für JEDE Headline:
-- 2 bis 7 Wörter max, ideal 3–5
+- GENAU 3 Wörter pro Headline (harte Regel, niemals 2, niemals 4+) — dadurch sehen alle Thumbnails gleich gesetzt aus und nichts wirkt gestaucht
+- Jedes Wort max. 10 Zeichen (längere Wörter durch kürzere Synonyme ersetzen)
 - Sprache: gleiche Sprache wie der Blog (Deutsch bleibt Deutsch)
 - Jede Headline beleuchtet einen ANDEREN Aspekt / eine andere Quintessenz des Blogs
 - Keine Anführungszeichen, keine Emojis, keine Hashtags, kein Punkt am Ende
