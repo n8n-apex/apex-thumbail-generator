@@ -376,7 +376,8 @@ async function extractHooks(blogText: string, count: number, apiKey: string): Pr
   const systemPrompt = `Du bist ein Top-YouTube/Social-Thumbnail Copywriter. Aus dem folgenden Blog-Text extrahierst du genau ${count} verschiedene, scroll-stoppende Hook-Headlines (jede für ein eigenes Thumbnail).
 
 REGELN für JEDE Headline:
-- 2 bis 7 Wörter max, ideal 3–5
+- GENAU 3 Wörter pro Headline (harte Regel, niemals 2, niemals 4+) — dadurch sehen alle Thumbnails gleich gesetzt aus und nichts wirkt gestaucht
+- Jedes Wort max. 10 Zeichen (längere Wörter durch kürzere Synonyme ersetzen)
 - Sprache: gleiche Sprache wie der Blog (Deutsch bleibt Deutsch)
 - Jede Headline beleuchtet einen ANDEREN Aspekt / eine andere Quintessenz des Blogs
 - Keine Anführungszeichen, keine Emojis, keine Hashtags, kein Punkt am Ende
@@ -671,6 +672,11 @@ ${primaryTool ? `• Primary tool from blog: "${primaryTool}" — render its OFF
 ═══ HEADLINE TO RENDER (verbatim, perfect spelling) ═══
 ${renderHeadline}
 
+HEADLINE TYPESETTING LOCK (STRICT):
+• Render EXACTLY these ${renderHeadline.trim().split(/\s+/).length} word(s) — never add, remove, split, merge, abbreviate or repeat a word.
+• Letterforms must keep their NATURAL width: NEVER condense, squeeze, stretch, squash or horizontally scale the glyphs, and never tighten tracking to negative values to force a fit.
+• If the text does not fit, REDUCE THE FONT SIZE and/or break it onto the allowed number of lines — never distort the letters.
+• Keep consistent, even word spacing and a comfortable margin (min. 6% of canvas width) on both sides so the headline never looks cramped.
 CRITICAL: render the headline as plain text WITHOUT any surrounding quotation marks (no " " no “ ” no ' ' no ‘ ’). No quote glyphs anywhere on the image.
 
 OUTPUT: a single premium 16:9 minimalist APEX brand thumbnail image. Sharp, intentional, editorial. Top 1% quality.`;
