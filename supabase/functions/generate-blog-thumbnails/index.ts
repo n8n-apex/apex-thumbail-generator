@@ -867,6 +867,16 @@ serve(async (req) => {
       try { blogCtx = await extractBlogContext(blogContent, LOVABLE_API_KEY); } catch { blogCtx = undefined; }
     }
 
+    const VLOG_SUFFIX = `
+
+═══ VLOG MODE (YouTube vlog thumbnail — mandatory on top of the layout) ═══
+This image is a YOUTUBE VLOG thumbnail, not a blog graphic. Keep the selected layout's composition and typography exactly, but push the ENERGY and READABILITY of a top-tier YouTube vlog cover:
+• Subject: real-life vlog presence — natural, confident, slightly excited expression, direct eye contact with the camera, upper body clearly visible and LARGE in frame (face at least 30% of the canvas height).
+• Lighting: cinematic key light on the face with APEX Blue #00BCFF rim/edge light, punchy contrast, crisp specular highlights, shallow depth of field on the background.
+• Background: keep the layout's background but slightly darker and more blurred so the subject and headline pop; no clutter, no extra text.
+• Headline: fewer, bigger words — heavy bold WIDE geometric sans (Montserrat Black / Poppins ExtraBold style), pure white with a soft dark drop shadow, no outer stroke, never condensed or stretched.
+• Overall look: thumb-stopping, high-contrast, mobile-legible at 320px wide. Photographic and real — no illustration, no flat vector look, no watermark, no UI chrome, no extra captions or subtitles.`;
+
     const jobs = hooks.map((headline, i) => {
       const layout = forcedLayouts.length > 0
         ? forcedLayouts[Math.floor(i / variantsPerStyle) % forcedLayouts.length]
@@ -875,12 +885,13 @@ serve(async (req) => {
       const perLayoutRef = layoutReferences[layout.id];
       const jobStyleRef = perLayoutRef ?? (useStyleRef ? referenceStyleBase64 : undefined);
       const jobHasStyleRef = !!jobStyleRef;
+      const basePrompt = buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, jobHasStyleRef, blogCtx, layout.id);
       return {
         headline,
         layoutId: layout.id,
         styleRef: jobStyleRef,
         extras: layout.id === "apex-transition-wall" ? transitionImages : [],
-        prompt: buildBlogThumbnailPrompt(headline, layoutPrompt, hasSubject, jobHasStyleRef, blogCtx, layout.id),
+        prompt: vlogMode ? `${basePrompt}${VLOG_SUFFIX}` : basePrompt,
       };
     });
 
