@@ -427,11 +427,11 @@ const APEX_BLOG_LAYOUTS = [
     id: "reference-clone",
     label: "Referenz Klon",
     promptWithSubject: `LAYOUT — REFERENCE CLONE (1:1 RECREATION OF THE ATTACHED REFERENCE THUMBNAIL):
-- Recreate the attached REFERENCE image as faithfully as a professional retoucher would: SAME composition, SAME framing and crop, SAME camera angle, SAME background and environment, SAME lighting and color grade, SAME props/objects/tiles/icons/graphic elements in the SAME positions and sizes, SAME typography style, weight, casing, color and placement.
-- ONLY TWO THINGS CHANGE: (1) the person's FACE/IDENTITY becomes the person from the uploaded portrait photo (identity forensically locked, same pose, same expression, same head angle, same hair/beard as their real photo but styled to fit the scene), and (2) any headline text is replaced with the HEADLINE below, set in the exact same type style and position as in the reference.
+- Recreate the attached REFERENCE image as faithfully as a professional retoucher would: SAME composition, SAME framing and crop, SAME camera angle, SAME background and environment, SAME lighting direction, SAME props/objects/tiles/icons/graphic elements in the SAME positions and sizes.
+- ONLY THESE CHANGE: (1) the person's FACE/IDENTITY becomes the person from the uploaded portrait photo (identity forensically locked, same pose, same expression, same head angle), (2) the headline is set as ONE huge ALL-CAPS word/line in heavy WIDE geometric sans (Montserrat Black style), Ice White with subtle white→light-grey gradient, no outer stroke, soft drop shadow, placed BEHIND the person so head and shoulders partially occlude the letters, and (3) a premium cinematic color grade over the whole frame (rich contrast, deep detailed blacks, teal/cyan shadows, warm highlights, subtle vignette, halation, fine grain) while skin tones stay natural.
 - If the reference contains no person, keep it as is and place the uploaded person naturally where a subject would sit in that composition.
-- Do NOT "improve", restyle, re-imagine, add APEX branding, add extra glow, add badges, watermarks or extra elements. No creative reinterpretation. Photoreal, high fidelity, 16:9 1280×720, sharp and clean.`,
-    promptNoSubject: `LAYOUT — REFERENCE CLONE (no subject): recreate the attached REFERENCE image 1:1 — same composition, background, lighting, color grade, props and typography — replacing only the headline text with the HEADLINE below in the identical type style and position. No extra elements, no restyling.`,
+- Do NOT add APEX badges, watermarks or extra elements. Photoreal, high fidelity, 16:9 1280×720, sharp and clean.`,
+    promptNoSubject: `LAYOUT — REFERENCE CLONE (no subject): recreate the attached REFERENCE image — same composition, background, lighting, props — replacing the headline with the HEADLINE below set as ONE huge ALL-CAPS word in heavy wide geometric sans (Ice White, subtle gradient, soft shadow) on the background plane, and apply a premium cinematic color grade (rich contrast, teal shadows, warm highlights, vignette, fine grain). No extra elements.`,
   },
 ];
 
@@ -641,16 +641,25 @@ The FIRST attached image is the real person. The SECOND attached image is the RE
 Replace the person in the reference with the person from the FIRST image. Their identity must be photographically identical: skull shape, hairline, eye shape/spacing/color, nose, lips, chin, jawline, cheekbones, ears, skin tone and texture, moles/scars, hair cut and color, beard density and edges, eyebrows, apparent age, ethnicity, gender, body type, glasses/jewelry. NEVER beautify, slim, smooth or swap identity. A wrong face = failed output.
 Keep the REFERENCE's pose, expression, head angle, gaze, clothing and body position — only the identity changes.
 ` : ""}═══ CLONE RULES (strict) ═══
-• Reproduce the reference 1:1: composition, framing, crop, camera angle, lens look, background, environment, props, objects, icons, logos, graphic shapes, cards/tiles, arrows, color grade, lighting direction, shadows, grain.
-• Typography: same font style, weight, casing, color, size relation, placement and effects (shadow/outline/highlight block) as in the reference.
-• Change ONLY: ${hasSubject ? "the person's identity (see above) and " : ""}the headline text → use the HEADLINE below.
-• DO NOT restyle, "improve", modernize or re-imagine anything. DO NOT add branding, watermarks, badges, extra glow, extra text or extra elements. DO NOT remove elements from the reference.
+• Reproduce the reference 1:1: composition, framing, crop, camera angle, lens look, background, environment, props, objects, icons, logos, graphic shapes, cards/tiles, arrows, lighting direction, shadows, grain.
+• Change ONLY: ${hasSubject ? "the person's identity (see above), " : ""}the headline typography treatment (see below) and the cinematic color grade (see below).
+• DO NOT add branding, watermarks, badges, extra text or extra elements. DO NOT remove elements from the reference.
 • Perfect spelling. No quotation marks around the headline. No gibberish letters.
 
-═══ HEADLINE TO RENDER (verbatim, in the reference's own type style and position) ═══
+═══ BIG WORD BEHIND THE SUBJECT (mandatory) ═══
+• Set the HEADLINE as ONE huge word/line filling most of the frame width, positioned BEHIND the person: the type sits on/near the background plane and the person's head, shoulders and body OVERLAP and partially occlude the letters (classic YouTube depth layering).
+• Font: heavy bold WIDE geometric sans-serif (Montserrat Black / Poppins ExtraBold style), ALL CAPS, tight tracking, NO condensed/stretched letters — if it doesn't fit, reduce the size, never squeeze.
+• Color: Ice White with a very subtle white→light-grey vertical gradient, no outer stroke, soft dark drop shadow for separation from the background.
+• Keep the word crisp and fully legible where it isn't covered by the person. Never cover the face.
+
+═══ CINEMATIC COLOR GRADE (mandatory) ═══
+• Apply a premium film-style grade over the whole frame: rich contrast, deep but detailed blacks, slightly lifted filmic shadows, teal/APEX-cyan in the shadows and warm skin-preserving highlights, subtle vignette, gentle halation on bright edges, fine film grain.
+• Skin tones stay natural and true to the person — grade the scene, not the identity. No color casts on the face, no oversaturation, no HDR clipping.
+
+═══ HEADLINE TO RENDER (verbatim) ═══
 ${headline}
 
-OUTPUT: a single photoreal 16:9 image that looks like the same thumbnail, just with this person and this headline. Top 1% quality, sharp, no artifacts.`;
+OUTPUT: a single photoreal, color-graded 16:9 thumbnail that clones the reference composition, with this person in front of this huge background word. Top 1% quality, sharp, no artifacts.`;
   }
 
   const isHeroWord = layoutId === "hero-word";
