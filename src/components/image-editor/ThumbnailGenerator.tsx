@@ -524,6 +524,7 @@ export default function ThumbnailGenerator({
                 forcedLayoutIds: job.forcedLayoutId ? [job.forcedLayoutId] : undefined,
                 layoutReferences: job.layoutRef,
                 logoBase64: logoImage ?? undefined,
+                vlogMode: isVlogWithApexRefs || undefined,
                 transitionImages:
                   job.forcedLayoutId === TRANSITION_WALL_LAYOUT_ID && transitionWallImages.length > 0
                     ? transitionWallImages
