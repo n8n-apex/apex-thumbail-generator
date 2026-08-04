@@ -496,8 +496,13 @@ export default function ThumbnailGenerator({
         if (isVlogWithApexRefs && !manualTitle) {
           throw new Error("Bitte einen Titel angeben (Headline für den APEX-Stil)");
         }
-        if (isClone && !referenceStyleImage) {
-          throw new Error("Bitte eine eigene Referenz hochladen (Bild oder YouTube-Link)");
+        if (isClone) {
+          if (!referenceStyleImage) {
+            throw new Error("Bitte eine eigene Referenz hochladen (Bild oder YouTube-Link)");
+          }
+          if (!manualTitle) {
+            throw new Error("Bitte einen Titel angeben — er ersetzt den Text in der Referenz");
+          }
         }
         const activeRefSrcs = isClone ? [] : isBlog ? selectedBlogRefSrcs : selectedVlogRefSrcs;
         const blogImageBase64 = await activeImageBase64();
