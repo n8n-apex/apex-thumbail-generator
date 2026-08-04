@@ -138,6 +138,8 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
   { src: apexRef9, label: "Code Terminal Glass", layoutId: "code-glass" },
 ];
 
+const ALL_STYLE_REFERENCES = [...APEX_BLOG_REFERENCES, ...APEX_VLOG_STYLES];
+
 const TRANSITION_WALL_LAYOUT_ID = "apex-transition-wall";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
@@ -496,11 +498,11 @@ export default function ThumbnailGenerator({
         const activeRefSrcs = isBlog ? selectedBlogRefSrcs : selectedVlogRefSrcs;
         const blogImageBase64 = await activeImageBase64();
         const forcedLayoutIds = activeRefSrcs
-          .map((src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId)
+          .map((src) => ALL_STYLE_REFERENCES.find((r) => r.src === src)?.layoutId)
           .filter((x): x is string => !!x);
         const layoutReferences: Record<string, string> = {};
         for (const src of activeRefSrcs) {
-          const ref = APEX_BLOG_REFERENCES.find((r) => r.src === src);
+          const ref = ALL_STYLE_REFERENCES.find((r) => r.src === src);
           if (!ref) continue;
           try {
             layoutReferences[ref.layoutId] = await imageSourceToOptimizedBase64(src);
@@ -743,7 +745,7 @@ export default function ThumbnailGenerator({
               )}
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {APEX_BLOG_REFERENCES.map((ref) => {
+              {APEX_VLOG_STYLES.map((ref) => {
                 const active = selectedVlogRefSrcs.includes(ref.src);
                 return (
                   <button
@@ -783,12 +785,12 @@ export default function ThumbnailGenerator({
               })}
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Optional: Wähle 1+ APEX-Stile (neue + alte) für dein VLOG-Thumbnail. Face-Upload + Titel unten werden in jedes Bild integriert — Ausgabe im echten YouTube-VLOG-Look. Ohne Auswahl läuft der klassische VLOG-Flow.
+              Wähle 1+ echte VLOG-Stile (keine Tools/Icons). Dein Foto ersetzt die Person, dein Titel wird zur Headline — Ausgabe 1:1 im gewählten Stil. Ohne Auswahl läuft der klassische VLOG-Flow.
             </p>
 
             {/* Transition Wall multi-upload — only when that style is selected */}
             {selectedVlogRefSrcs.some(
-              (src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
+              (src) => APEX_VLOG_STYLES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
             ) && (
               <div className="mt-2 rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-3 space-y-2">
                 <div className="flex items-center justify-between">
