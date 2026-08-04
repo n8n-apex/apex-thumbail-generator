@@ -422,6 +422,17 @@ const APEX_BLOG_LAYOUTS = [
 - NO app icons, NO tool logos, NO glass tiles, NO badges, NO watermark.`,
     promptNoSubject: `LAYOUT — VLOG LOW-ANGLE SKY (no subject): extreme low-angle fisheye shot of a dramatic blue sky with sun flare, two short lowercase words centered up top in bold rounded sans — first bright yellow, second white, ending with a period. Nothing else.`,
   },
+  // ─── REFERENCE CLONE — replicate the user's own uploaded reference 1:1, only face + headline swapped ───
+  {
+    id: "reference-clone",
+    label: "Referenz Klon",
+    promptWithSubject: `LAYOUT — REFERENCE CLONE (1:1 RECREATION OF THE ATTACHED REFERENCE THUMBNAIL):
+- Recreate the attached REFERENCE image as faithfully as a professional retoucher would: SAME composition, SAME framing and crop, SAME camera angle, SAME background and environment, SAME lighting and color grade, SAME props/objects/tiles/icons/graphic elements in the SAME positions and sizes, SAME typography style, weight, casing, color and placement.
+- ONLY TWO THINGS CHANGE: (1) the person's FACE/IDENTITY becomes the person from the uploaded portrait photo (identity forensically locked, same pose, same expression, same head angle, same hair/beard as their real photo but styled to fit the scene), and (2) any headline text is replaced with the HEADLINE below, set in the exact same type style and position as in the reference.
+- If the reference contains no person, keep it as is and place the uploaded person naturally where a subject would sit in that composition.
+- Do NOT "improve", restyle, re-imagine, add APEX branding, add extra glow, add badges, watermarks or extra elements. No creative reinterpretation. Photoreal, high fidelity, 16:9 1280×720, sharp and clean.`,
+    promptNoSubject: `LAYOUT — REFERENCE CLONE (no subject): recreate the attached REFERENCE image 1:1 — same composition, background, lighting, color grade, props and typography — replacing only the headline text with the HEADLINE below in the identical type style and position. No extra elements, no restyling.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
