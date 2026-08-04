@@ -142,6 +142,7 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
 const ALL_STYLE_REFERENCES = [...APEX_BLOG_REFERENCES, ...APEX_VLOG_STYLES];
 
 const TRANSITION_WALL_LAYOUT_ID = "apex-transition-wall";
+const CLONE_LAYOUT_ID = "reference-clone";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "vlog", label: "VLOG", sub: "Foto hochladen · YouTube killer · manuell", icon: Radio },
