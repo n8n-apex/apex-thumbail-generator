@@ -651,7 +651,14 @@ NEVER beautify, slim, idealize, smooth skin, change ethnicity, change age, chang
     : "";
 
 
-  const styleRef = hasStyleRef
+  const styleRef = hasStyleRef && layoutId === "reference-clone"
+    ? `═══ REFERENCE CLONE MODE — COPY THE REFERENCE, INCLUDING ITS CONTENT ═══
+A SECOND image is attached AFTER the subject photo: the user's OWN reference thumbnail. Reproduce it as exactly as possible — composition, crop, camera angle, background, environment, props, icons, logos, graphic shapes, tiles, arrows, color grade, lighting, typography style/weight/color/placement. This is a RECREATION, not an inspiration.
+Only these change: the FACE/IDENTITY becomes the person from the FIRST image (identity locked), and the headline text becomes the HEADLINE below, typeset in the reference's exact type style and position. Keep the reference person's pose, expression, head angle, clothing and body position.
+Do NOT add APEX branding, extra glow, badges, watermarks, extra text or extra elements. Do NOT restyle or "improve" anything. Ignore any generic APEX brand color rules where they conflict with the reference — the reference's own palette wins.
+═══════════════════════════════════════════════
+`
+    : hasStyleRef
     ? `═══ STYLE REFERENCE — HIGHEST VISUAL PRIORITY, MATCH THE LOOK, ADAPT THE CONTENT ═══
 A SECOND image is attached AFTER the subject photo. It is the OFFICIAL APEX preview of THIS exact layout. Treat it as the visual ground truth FOR STYLE ONLY — match it 1:1 on:
 • Composition, subject placement, framing, crop, camera angle
