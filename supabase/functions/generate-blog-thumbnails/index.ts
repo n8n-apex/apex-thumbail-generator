@@ -641,16 +641,25 @@ The FIRST attached image is the real person. The SECOND attached image is the RE
 Replace the person in the reference with the person from the FIRST image. Their identity must be photographically identical: skull shape, hairline, eye shape/spacing/color, nose, lips, chin, jawline, cheekbones, ears, skin tone and texture, moles/scars, hair cut and color, beard density and edges, eyebrows, apparent age, ethnicity, gender, body type, glasses/jewelry. NEVER beautify, slim, smooth or swap identity. A wrong face = failed output.
 Keep the REFERENCE's pose, expression, head angle, gaze, clothing and body position — only the identity changes.
 ` : ""}═══ CLONE RULES (strict) ═══
-• Reproduce the reference 1:1: composition, framing, crop, camera angle, lens look, background, environment, props, objects, icons, logos, graphic shapes, cards/tiles, arrows, color grade, lighting direction, shadows, grain.
-• Typography: same font style, weight, casing, color, size relation, placement and effects (shadow/outline/highlight block) as in the reference.
-• Change ONLY: ${hasSubject ? "the person's identity (see above) and " : ""}the headline text → use the HEADLINE below.
-• DO NOT restyle, "improve", modernize or re-imagine anything. DO NOT add branding, watermarks, badges, extra glow, extra text or extra elements. DO NOT remove elements from the reference.
+• Reproduce the reference 1:1: composition, framing, crop, camera angle, lens look, background, environment, props, objects, icons, logos, graphic shapes, cards/tiles, arrows, lighting direction, shadows, grain.
+• Change ONLY: ${hasSubject ? "the person's identity (see above), " : ""}the headline typography treatment (see below) and the cinematic color grade (see below).
+• DO NOT add branding, watermarks, badges, extra text or extra elements. DO NOT remove elements from the reference.
 • Perfect spelling. No quotation marks around the headline. No gibberish letters.
 
-═══ HEADLINE TO RENDER (verbatim, in the reference's own type style and position) ═══
+═══ BIG WORD BEHIND THE SUBJECT (mandatory) ═══
+• Set the HEADLINE as ONE huge word/line filling most of the frame width, positioned BEHIND the person: the type sits on/near the background plane and the person's head, shoulders and body OVERLAP and partially occlude the letters (classic YouTube depth layering).
+• Font: heavy bold WIDE geometric sans-serif (Montserrat Black / Poppins ExtraBold style), ALL CAPS, tight tracking, NO condensed/stretched letters — if it doesn't fit, reduce the size, never squeeze.
+• Color: Ice White with a very subtle white→light-grey vertical gradient, no outer stroke, soft dark drop shadow for separation from the background.
+• Keep the word crisp and fully legible where it isn't covered by the person. Never cover the face.
+
+═══ CINEMATIC COLOR GRADE (mandatory) ═══
+• Apply a premium film-style grade over the whole frame: rich contrast, deep but detailed blacks, slightly lifted filmic shadows, teal/APEX-cyan in the shadows and warm skin-preserving highlights, subtle vignette, gentle halation on bright edges, fine film grain.
+• Skin tones stay natural and true to the person — grade the scene, not the identity. No color casts on the face, no oversaturation, no HDR clipping.
+
+═══ HEADLINE TO RENDER (verbatim) ═══
 ${headline}
 
-OUTPUT: a single photoreal 16:9 image that looks like the same thumbnail, just with this person and this headline. Top 1% quality, sharp, no artifacts.`;
+OUTPUT: a single photoreal, color-graded 16:9 thumbnail that clones the reference composition, with this person in front of this huge background word. Top 1% quality, sharp, no artifacts.`;
   }
 
   const isHeroWord = layoutId === "hero-word";
