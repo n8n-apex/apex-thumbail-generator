@@ -88,6 +88,26 @@ import apexRef18 from "@/assets/apex-ref-18.jpg";
 import apexRef19 from "@/assets/apex-ref-19.jpg";
 import apexRef20 from "@/assets/apex-ref-20.jpg";
 import apexRef21 from "@/assets/apex-ref-21.jpg";
+import apexVlog1 from "@/assets/apex-vlog-1.jpg";
+import apexVlog2 from "@/assets/apex-vlog-2.jpg";
+import apexVlog3 from "@/assets/apex-vlog-3.jpg";
+import apexVlog4 from "@/assets/apex-vlog-4.jpg";
+import apexVlog5 from "@/assets/apex-vlog-5.jpg";
+import apexVlog6 from "@/assets/apex-vlog-6.jpg";
+import apexVlog7 from "@/assets/apex-vlog-7.jpg";
+import apexVlog8 from "@/assets/apex-vlog-8.jpg";
+
+// Pure VLOG styles — real-life YouTube vlog covers, no tools/icons.
+const APEX_VLOG_STYLES: { src: string; label: string; layoutId: string }[] = [
+  { src: apexVlog1, label: "Big Top Headline", layoutId: "vlog-top-headline" },
+  { src: apexVlog2, label: "Social Post Card", layoutId: "vlog-social-card" },
+  { src: apexVlog3, label: "Reaction Close-Up", layoutId: "vlog-reaction-card" },
+  { src: apexVlog4, label: "Text Behind Subject", layoutId: "vlog-text-behind" },
+  { src: apexVlog5, label: "Selfie Text + Arrow", layoutId: "vlog-side-arrow" },
+  { src: apexVlog6, label: "Number Listicle", layoutId: "vlog-number-overlap" },
+  { src: apexVlog7, label: "Pointing Dual Cards", layoutId: "vlog-dual-cards" },
+  { src: apexVlog8, label: "Low-Angle Sky", layoutId: "vlog-lowangle-sky" },
+];
 
 // Newer, unified APEX face+icon styles — usable in Blog, VLOG and Podcast modes.
 const APEX_UNIVERSAL_STYLES: { src: string; label: string; layoutId: string }[] = [
