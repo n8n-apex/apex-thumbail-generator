@@ -88,6 +88,26 @@ import apexRef18 from "@/assets/apex-ref-18.jpg";
 import apexRef19 from "@/assets/apex-ref-19.jpg";
 import apexRef20 from "@/assets/apex-ref-20.jpg";
 import apexRef21 from "@/assets/apex-ref-21.jpg";
+import apexVlog1 from "@/assets/apex-vlog-1.jpg";
+import apexVlog2 from "@/assets/apex-vlog-2.jpg";
+import apexVlog3 from "@/assets/apex-vlog-3.jpg";
+import apexVlog4 from "@/assets/apex-vlog-4.jpg";
+import apexVlog5 from "@/assets/apex-vlog-5.jpg";
+import apexVlog6 from "@/assets/apex-vlog-6.jpg";
+import apexVlog7 from "@/assets/apex-vlog-7.jpg";
+import apexVlog8 from "@/assets/apex-vlog-8.jpg";
+
+// Pure VLOG styles — real-life YouTube vlog covers, no tools/icons.
+const APEX_VLOG_STYLES: { src: string; label: string; layoutId: string }[] = [
+  { src: apexVlog1, label: "Big Top Headline", layoutId: "vlog-top-headline" },
+  { src: apexVlog2, label: "Social Post Card", layoutId: "vlog-social-card" },
+  { src: apexVlog3, label: "Reaction Close-Up", layoutId: "vlog-reaction-card" },
+  { src: apexVlog4, label: "Text Behind Subject", layoutId: "vlog-text-behind" },
+  { src: apexVlog5, label: "Selfie Text + Arrow", layoutId: "vlog-side-arrow" },
+  { src: apexVlog6, label: "Number Listicle", layoutId: "vlog-number-overlap" },
+  { src: apexVlog7, label: "Pointing Dual Cards", layoutId: "vlog-dual-cards" },
+  { src: apexVlog8, label: "Low-Angle Sky", layoutId: "vlog-lowangle-sky" },
+];
 
 // Newer, unified APEX face+icon styles — usable in Blog, VLOG and Podcast modes.
 const APEX_UNIVERSAL_STYLES: { src: string; label: string; layoutId: string }[] = [
@@ -117,6 +137,8 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
   { src: apexRef8, label: "Prompt Chat UI", layoutId: "prompt-ui" },
   { src: apexRef9, label: "Code Terminal Glass", layoutId: "code-glass" },
 ];
+
+const ALL_STYLE_REFERENCES = [...APEX_BLOG_REFERENCES, ...APEX_VLOG_STYLES];
 
 const TRANSITION_WALL_LAYOUT_ID = "apex-transition-wall";
 
@@ -476,11 +498,11 @@ export default function ThumbnailGenerator({
         const activeRefSrcs = isBlog ? selectedBlogRefSrcs : selectedVlogRefSrcs;
         const blogImageBase64 = await activeImageBase64();
         const forcedLayoutIds = activeRefSrcs
-          .map((src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId)
+          .map((src) => ALL_STYLE_REFERENCES.find((r) => r.src === src)?.layoutId)
           .filter((x): x is string => !!x);
         const layoutReferences: Record<string, string> = {};
         for (const src of activeRefSrcs) {
-          const ref = APEX_BLOG_REFERENCES.find((r) => r.src === src);
+          const ref = ALL_STYLE_REFERENCES.find((r) => r.src === src);
           if (!ref) continue;
           try {
             layoutReferences[ref.layoutId] = await imageSourceToOptimizedBase64(src);
@@ -723,7 +745,7 @@ export default function ThumbnailGenerator({
               )}
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {APEX_BLOG_REFERENCES.map((ref) => {
+              {APEX_VLOG_STYLES.map((ref) => {
                 const active = selectedVlogRefSrcs.includes(ref.src);
                 return (
                   <button
@@ -763,12 +785,12 @@ export default function ThumbnailGenerator({
               })}
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Optional: Wähle 1+ APEX-Stile (neue + alte) für dein VLOG-Thumbnail. Face-Upload + Titel unten werden in jedes Bild integriert — Ausgabe im echten YouTube-VLOG-Look. Ohne Auswahl läuft der klassische VLOG-Flow.
+              Wähle 1+ echte VLOG-Stile (keine Tools/Icons). Dein Foto ersetzt die Person, dein Titel wird zur Headline — Ausgabe 1:1 im gewählten Stil. Ohne Auswahl läuft der klassische VLOG-Flow.
             </p>
 
             {/* Transition Wall multi-upload — only when that style is selected */}
             {selectedVlogRefSrcs.some(
-              (src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
+              (src) => APEX_VLOG_STYLES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
             ) && (
               <div className="mt-2 rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-3 space-y-2">
                 <div className="flex items-center justify-between">

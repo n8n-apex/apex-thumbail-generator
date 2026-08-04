@@ -345,6 +345,83 @@ const APEX_BLOG_LAYOUTS = [
 - Tile content: use the supplied ADDITIONAL REFERENCE IMAGES verbatim (one per tile, in order); if none supplied, generate 6 cinematic mini-scenes from BLOG CONTEXT topics.
 - Bottom: MASSIVE ALL-CAPS headline in a heavy bold WIDE geometric sans-serif (Montserrat Black / Poppins ExtraBold / Inter Black style — NOT condensed, NOT Anton/Impact/Bebas), ENTIRE text in a subtle vertical white-to-light-grey gradient fill (#FFFFFF top to #C9CFD4 bottom), no outer stroke or outline, no two-tone, no blue text, a soft black drop shadow for depth and no outer stroke. Nothing else.`,
   },
+  // ─── PURE VLOG LAYOUTS (real-life YouTube vlog covers — NO app icons, NO tool logos, NO 3D glass tiles) ───
+  {
+    id: "vlog-top-headline",
+    label: "Big Top Headline",
+    promptWithSubject: `LAYOUT — VLOG BIG TOP HEADLINE (real-life YouTube vlog cover, mirrors the reference preview exactly):
+- FULL-FRAME PHOTOGRAPH: the person from the uploaded photo in a REAL everyday work environment (warehouse aisle, office, studio, city street — pick what fits the headline), candid documentary moment, looking down at something in their hands or mid-action, natural cinematic lighting, shallow depth of field, 35mm look. NOT a studio portrait, NOT a black background.
+- IDENTITY FORENSICALLY LOCKED to the uploaded photo: same skull shape, hairline, beard density and shape, skin tone, features. Do not idealize or swap identity. A subtle APEX Blue #00BCFF rim light on the face/shoulder only (max 20%) — the rest stays natural.
+- TOP OF FRAME: ONE MASSIVE all-caps headline spanning nearly the full width in a heavy bold WIDE geometric sans (Montserrat Black / Poppins ExtraBold), PURE WHITE, partly passing BEHIND the person's head/cap for depth. Soft black drop shadow, NO outline, NO gradient tricks, NO colored text.
+- LOWER-LEFT: a short handwritten-style white script sub-line (2–4 words, derived from the title) plus ONE thin hand-drawn white curved arrow pointing toward the person.
+- ABSOLUTELY NO app icons, NO tool logos, NO glass tiles, NO badges, NO watermark.`,
+    promptNoSubject: `LAYOUT — VLOG BIG TOP HEADLINE (no subject): real-life cinematic environment photo (warehouse/office/street), massive all-caps pure white headline across the top in Montserrat Black with soft drop shadow, small handwritten white script sub-line and one hand-drawn arrow lower-left. No icons, no logos.`,
+  },
+  {
+    id: "vlog-social-card",
+    label: "Social Post Card",
+    promptWithSubject: `LAYOUT — VLOG SOCIAL POST CARD (mirrors the reference preview exactly):
+- LEFT ~45%: the person from the uploaded photo sitting at a wooden table in a bright, real modern room (kitchen/living room, softly blurred), hands folded, calm confident direct eye contact into the camera, natural daylight plus a subtle APEX Blue #00BCFF rim on the face only. IDENTITY FORENSICALLY LOCKED to the uploaded photo.
+- RIGHT ~55%: ONE large floating WHITE rounded social-post card with a soft realistic drop shadow, containing: a small round avatar (crop of the person), their bold dark name text with a blue verified checkmark, then the HEADLINE set over exactly TWO lines in heavy black all-caps sans — the SECOND line sits on a bright YELLOW marker highlight block. Under it a row of small grey like / repost / comment icons.
+- Text must be crisp, correctly spelled, never squeezed — reduce font size instead of condensing letters.
+- NO app icons, NO tool logos, NO 3D glass tiles, NO extra text, NO watermark.`,
+    promptNoSubject: `LAYOUT — VLOG SOCIAL POST CARD (no subject): bright real interior background, one large floating white rounded social-post card with avatar, verified name, two-line black all-caps headline with the second line on a yellow highlight block, small grey action icons. No tool logos.`,
+  },
+  {
+    id: "vlog-reaction-card",
+    label: "Reaction Close-Up Card",
+    promptWithSubject: `LAYOUT — VLOG REACTION CLOSE-UP CARD (mirrors the reference preview exactly):
+- LEFT ~45%: EXTREME CLOSE-UP of the person from the uploaded photo — face fills the left side, one hand touching just under the eye or cheek, doubtful / skeptical / unimpressed micro-expression, sharp direct eye contact. Real indoor room softly blurred behind. Subtle APEX Blue #00BCFF rim on the face only. IDENTITY FORENSICALLY LOCKED to the uploaded photo (skull, beard shape and density, hairline, skin).
+- RIGHT ~55%: ONE large floating WHITE rounded social-post card with soft shadow: small round avatar, bold name plus blue verified badge, then the HEADLINE as TWO stacked lines of HUGE black all-caps heavy sans, the lower line sitting on a bright YELLOW marker block. Row of small grey action icons at the bottom.
+- NO app icons, NO tool logos, NO glass tiles, NO watermark, no other text.`,
+    promptNoSubject: `LAYOUT — VLOG REACTION CLOSE-UP CARD (no subject): blurred real interior, one big white rounded social card with avatar, verified name, two huge black all-caps headline lines, lower line on a yellow marker block, grey action icons. No tool logos.`,
+  },
+  {
+    id: "vlog-text-behind",
+    label: "Text Behind Subject",
+    promptWithSubject: `LAYOUT — VLOG TEXT BEHIND SUBJECT (mirrors the reference preview exactly):
+- FULL-FRAME cinematic photograph: the person from the uploaded photo in a quiet, emotional real-life moment — sitting on a bright window sill or in a doorway, backlit by strong daylight, contemplative posture (looking down / away), moody dark foreground, teal-cyan shadow grade with a subtle APEX Blue #00BCFF accent. IDENTITY FORENSICALLY LOCKED to the uploaded photo.
+- BEHIND THE PERSON: ONE gigantic all-caps 2–3 word headline in heavy bold WIDE geometric sans (Montserrat Black), PURE WHITE, spanning the full frame width, rendered BEHIND the body so the silhouette overlaps and partially hides the letters. Letters glow softly against the bright light. NO outline, NO gradient two-tone, no colored text.
+- NOTHING else: no icons, no tool logos, no sub-caption, no badges, no watermark.`,
+    promptNoSubject: `LAYOUT — VLOG TEXT BEHIND SUBJECT (no subject): backlit bright window interior, one gigantic all-caps pure white headline in Montserrat Black spanning the frame, softly glowing, moody teal-cyan shadows. Nothing else.`,
+  },
+  {
+    id: "vlog-side-arrow",
+    label: "Selfie Text + Arrow",
+    promptWithSubject: `LAYOUT — VLOG SELFIE TEXT + ARROW (mirrors the reference preview exactly):
+- LEFT ~60%: the person from the uploaded photo filming themselves HANDHELD SELFIE-STYLE in a real cozy room (map or shelf on the wall, warm lamp), casual shirt, mid-sentence expression — slightly surprised, eyebrows up, direct eye contact into the lens, natural vlog camera look with a subtle APEX Blue #00BCFF rim on the face. IDENTITY FORENSICALLY LOCKED to the uploaded photo.
+- RIGHT ~40%: the headline over TWO lines in a huge heavy ROUNDED bold sans — first line PURE WHITE, second line BRIGHT YELLOW. Soft black drop shadow, no outline. Below it ONE thin hand-drawn white curved arrow pointing down-left toward the person.
+- NO app icons, NO tool logos, NO glass tiles, NO badges, NO watermark.`,
+    promptNoSubject: `LAYOUT — VLOG SELFIE TEXT + ARROW (no subject): cozy real room, two-line headline right side — first line white, second line bright yellow, rounded heavy sans, plus one hand-drawn white curved arrow. Nothing else.`,
+  },
+  {
+    id: "vlog-number-overlap",
+    label: "Number Listicle",
+    promptWithSubject: `LAYOUT — VLOG NUMBER LISTICLE (mirrors the reference preview exactly):
+- FULL-FRAME real-life photo: the person from the uploaded photo leaning over a desk in a bright real living room / home office, holding a coffee mug, books, notebook and laptop around them, direct eye contact, warm natural light plus a subtle APEX Blue #00BCFF rim on the face. IDENTITY FORENSICALLY LOCKED to the uploaded photo.
+- TEXT (upper third): a GIGANTIC pure WHITE numeral on the far left (the number from the title, e.g. 5), a small WHITE all-caps supporting word next to it, and ONE huge BRIGHT YELLOW all-caps keyword spanning the rest of the width, its letters passing BEHIND the person's head for depth. Heavy bold WIDE geometric sans (Montserrat Black), soft black drop shadows, NO outline.
+- NO app icons, NO tool logos, NO glass tiles, NO watermark.`,
+    promptNoSubject: `LAYOUT — VLOG NUMBER LISTICLE (no subject): bright real desk scene, gigantic white numeral left, small white word, one huge bright yellow all-caps keyword across the frame in Montserrat Black with soft shadows. Nothing else.`,
+  },
+  {
+    id: "vlog-dual-cards",
+    label: "Pointing Dual Cards",
+    promptWithSubject: `LAYOUT — VLOG POINTING DUAL CARDS (mirrors the reference preview exactly):
+- CENTER: the person from the uploaded photo sitting at a wooden desk behind an open silver laptop in a bright minimal real room, BOTH index fingers pointing up — one to the left, one to the right — neutral curious expression, direct eye contact, subtle APEX Blue #00BCFF rim on the face. IDENTITY FORENSICALLY LOCKED to the uploaded photo.
+- ABOVE THE LEFT HAND: a white rounded glassy card with soft shadow showing a small avatar, a bold dark name with blue verified badge and a blue metric line (subscribers / followers / revenue — derived from the title).
+- ABOVE THE RIGHT HAND: a second white rounded card with a small grey all-caps label and a partially blurred/pixelated green growth chart.
+- Cards are clean UI panels only — NO app icons, NO tool logos, NO 3D glass squircles, NO headline text across the frame, NO watermark.`,
+    promptNoSubject: `LAYOUT — VLOG POINTING DUAL CARDS (no subject): bright minimal room with a laptop on a wooden desk, two floating white rounded UI cards — left with avatar, verified name and a blue metric, right with a grey label and a blurred green growth chart. No tool logos.`,
+  },
+  {
+    id: "vlog-lowangle-sky",
+    label: "Low-Angle Sky",
+    promptWithSubject: `LAYOUT — VLOG LOW-ANGLE SKY (mirrors the reference preview exactly):
+- FULL-FRAME extreme LOW-ANGLE wide action-cam shot looking UP at the person from the uploaded photo, black oversized tee and cap (sunglasses optional), smiling confidently, backlit by a bright sun flare against a dramatic blue sky with clouds, slight fisheye distortion, cinematic contrast, subtle cyan #00BCFF tint in the shadows. IDENTITY FORENSICALLY LOCKED to the uploaded photo.
+- TEXT (upper area, centered): the headline as TWO short lowercase words in a bold ROUNDED sans — first word BRIGHT YELLOW, second word PURE WHITE, ending with a period. Soft drop shadow, no outline.
+- NO app icons, NO tool logos, NO glass tiles, NO badges, NO watermark.`,
+    promptNoSubject: `LAYOUT — VLOG LOW-ANGLE SKY (no subject): extreme low-angle fisheye shot of a dramatic blue sky with sun flare, two short lowercase words centered up top in bold rounded sans — first bright yellow, second white, ending with a period. Nothing else.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
