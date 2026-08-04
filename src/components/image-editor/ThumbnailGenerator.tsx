@@ -33,6 +33,7 @@ import {
   Boxes,
   Radio,
   Check,
+  Copy,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -44,7 +45,7 @@ import { Progress } from "@/components/ui/progress";
 import { ImageFile } from "@/types/image-editor";
 import { ThumbnailProject } from "@/types/thumbnail-editor";
 
-type VlogStyle = "vlog" | "lifestyle" | "podcast" | "testimonial" | "blog";
+type VlogStyle = "vlog" | "lifestyle" | "podcast" | "testimonial" | "blog" | "clone";
 type TextStyle = "serif" | "modern" | "none";
 type PodcastStyle =
   | "clean-cutout"
@@ -141,6 +142,7 @@ const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] =
 const ALL_STYLE_REFERENCES = [...APEX_BLOG_REFERENCES, ...APEX_VLOG_STYLES];
 
 const TRANSITION_WALL_LAYOUT_ID = "apex-transition-wall";
+const CLONE_LAYOUT_ID = "reference-clone";
 
 const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Coffee }[] = [
   { id: "vlog", label: "VLOG", sub: "Foto hochladen · YouTube killer · manuell", icon: Radio },
@@ -148,6 +150,7 @@ const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Co
   { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "testimonial", label: "Testimonial", sub: "Social proof · stars · quote", icon: Quote },
   { id: "blog", label: "Blog → Thumbnails", sub: "Auto · APEX minimal · X visuals", icon: BookOpen },
+  { id: "clone", label: "Referenz Klon", sub: "Referenz 1:1 · dein Gesicht · dein Titel", icon: Copy },
 ];
 
 const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid; preview: string }[] = [
@@ -481,13 +484,11 @@ export default function ThumbnailGenerator({
       const isBlog = vlogStyle === "blog";
       const isPodcast = vlogStyle === "podcast";
       const isTestimonial = vlogStyle === "testimonial";
+      const isClone = vlogStyle === "clone";
       const isVlogWithApexRefs = vlogStyle === "vlog" && selectedVlogRefSrcs.length > 0;
       const requestedVariants = Math.min(Math.max(variants, 1), 12);
 
-
-
-
-      if (isBlog || isVlogWithApexRefs) {
+      if (isBlog || isVlogWithApexRefs || isClone) {
         const manualTitle = (autoTitle ? titleKeywords : title).trim();
         if (isBlog && !blogContent.trim() && !blogUrl.trim() && !manualTitle) {
           throw new Error("Bitte Blog-Inhalt, URL oder einen Titel angeben");
@@ -495,12 +496,25 @@ export default function ThumbnailGenerator({
         if (isVlogWithApexRefs && !manualTitle) {
           throw new Error("Bitte einen Titel angeben (Headline für den APEX-Stil)");
         }
-        const activeRefSrcs = isBlog ? selectedBlogRefSrcs : selectedVlogRefSrcs;
+        if (isClone) {
+          if (!referenceStyleImage) {
+            throw new Error("Bitte eine eigene Referenz hochladen (Bild oder YouTube-Link)");
+          }
+          if (!manualTitle) {
+            throw new Error("Bitte einen Titel angeben — er ersetzt den Text in der Referenz");
+          }
+        }
+        const activeRefSrcs = isClone ? [] : isBlog ? selectedBlogRefSrcs : selectedVlogRefSrcs;
         const blogImageBase64 = await activeImageBase64();
-        const forcedLayoutIds = activeRefSrcs
-          .map((src) => ALL_STYLE_REFERENCES.find((r) => r.src === src)?.layoutId)
-          .filter((x): x is string => !!x);
+        const forcedLayoutIds = isClone
+          ? [CLONE_LAYOUT_ID]
+          : activeRefSrcs
+              .map((src) => ALL_STYLE_REFERENCES.find((r) => r.src === src)?.layoutId)
+              .filter((x): x is string => !!x);
         const layoutReferences: Record<string, string> = {};
+        if (isClone && referenceStyleImage) {
+          layoutReferences[CLONE_LAYOUT_ID] = referenceStyleImage;
+        }
         for (const src of activeRefSrcs) {
           const ref = ALL_STYLE_REFERENCES.find((r) => r.src === src);
           if (!ref) continue;
@@ -1186,8 +1200,20 @@ export default function ThumbnailGenerator({
           </div>
         )}
 
-
-
+        {vlogStyle === "clone" && (
+          <div className="space-y-1.5 rounded-2xl border border-primary/40 p-3 bg-primary/5">
+            <div className="flex items-center gap-2">
+              <Copy className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Referenz Klon</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              Die Referenz wird 1:1 nachgebaut — Komposition, Hintergrund, Grafiken, Typo, Farb-Grade bleiben identisch.
+              Ausgetauscht werden nur <span className="text-foreground font-semibold">dein Gesicht</span> (Foto unten) und
+              der <span className="text-foreground font-semibold">Titel</span>. Beides ist Pflicht:
+              Referenz unten hochladen (Bild oder YouTube-Link) + Titel eingeben.
+            </p>
+          </div>
+        )}
 
 
 

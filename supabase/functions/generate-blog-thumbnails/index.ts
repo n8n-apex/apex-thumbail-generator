@@ -422,6 +422,17 @@ const APEX_BLOG_LAYOUTS = [
 - NO app icons, NO tool logos, NO glass tiles, NO badges, NO watermark.`,
     promptNoSubject: `LAYOUT — VLOG LOW-ANGLE SKY (no subject): extreme low-angle fisheye shot of a dramatic blue sky with sun flare, two short lowercase words centered up top in bold rounded sans — first bright yellow, second white, ending with a period. Nothing else.`,
   },
+  // ─── REFERENCE CLONE — replicate the user's own uploaded reference 1:1, only face + headline swapped ───
+  {
+    id: "reference-clone",
+    label: "Referenz Klon",
+    promptWithSubject: `LAYOUT — REFERENCE CLONE (1:1 RECREATION OF THE ATTACHED REFERENCE THUMBNAIL):
+- Recreate the attached REFERENCE image as faithfully as a professional retoucher would: SAME composition, SAME framing and crop, SAME camera angle, SAME background and environment, SAME lighting and color grade, SAME props/objects/tiles/icons/graphic elements in the SAME positions and sizes, SAME typography style, weight, casing, color and placement.
+- ONLY TWO THINGS CHANGE: (1) the person's FACE/IDENTITY becomes the person from the uploaded portrait photo (identity forensically locked, same pose, same expression, same head angle, same hair/beard as their real photo but styled to fit the scene), and (2) any headline text is replaced with the HEADLINE below, set in the exact same type style and position as in the reference.
+- If the reference contains no person, keep it as is and place the uploaded person naturally where a subject would sit in that composition.
+- Do NOT "improve", restyle, re-imagine, add APEX branding, add extra glow, add badges, watermarks or extra elements. No creative reinterpretation. Photoreal, high fidelity, 16:9 1280×720, sharp and clean.`,
+    promptNoSubject: `LAYOUT — REFERENCE CLONE (no subject): recreate the attached REFERENCE image 1:1 — same composition, background, lighting, color grade, props and typography — replacing only the headline text with the HEADLINE below in the identical type style and position. No extra elements, no restyling.`,
+  },
 ];
 
 async function fetchBlogContent(url: string): Promise<string> {
@@ -621,6 +632,27 @@ function buildBlogThumbnailPrompt(
   ctx?: BlogContext,
   layoutId?: string,
 ): string {
+  // ─── REFERENCE CLONE: fully self-contained prompt, no APEX brand lock (the reference's own look wins) ───
+  if (layoutId === "reference-clone") {
+    return `You are a world-class retoucher. RECREATE the attached REFERENCE thumbnail as a new photoreal 16:9 image (1280×720).
+
+${hasSubject ? `═══ FACE / IDENTITY LOCK (highest priority) ═══
+The FIRST attached image is the real person. The SECOND attached image is the REFERENCE thumbnail to recreate.
+Replace the person in the reference with the person from the FIRST image. Their identity must be photographically identical: skull shape, hairline, eye shape/spacing/color, nose, lips, chin, jawline, cheekbones, ears, skin tone and texture, moles/scars, hair cut and color, beard density and edges, eyebrows, apparent age, ethnicity, gender, body type, glasses/jewelry. NEVER beautify, slim, smooth or swap identity. A wrong face = failed output.
+Keep the REFERENCE's pose, expression, head angle, gaze, clothing and body position — only the identity changes.
+` : ""}═══ CLONE RULES (strict) ═══
+• Reproduce the reference 1:1: composition, framing, crop, camera angle, lens look, background, environment, props, objects, icons, logos, graphic shapes, cards/tiles, arrows, color grade, lighting direction, shadows, grain.
+• Typography: same font style, weight, casing, color, size relation, placement and effects (shadow/outline/highlight block) as in the reference.
+• Change ONLY: ${hasSubject ? "the person's identity (see above) and " : ""}the headline text → use the HEADLINE below.
+• DO NOT restyle, "improve", modernize or re-imagine anything. DO NOT add branding, watermarks, badges, extra glow, extra text or extra elements. DO NOT remove elements from the reference.
+• Perfect spelling. No quotation marks around the headline. No gibberish letters.
+
+═══ HEADLINE TO RENDER (verbatim, in the reference's own type style and position) ═══
+${headline}
+
+OUTPUT: a single photoreal 16:9 image that looks like the same thumbnail, just with this person and this headline. Top 1% quality, sharp, no artifacts.`;
+  }
+
   const isHeroWord = layoutId === "hero-word";
   const renderHeadline = isHeroWord ? extractHeroWord(headline) : headline;
   const faceLock = hasSubject
@@ -640,7 +672,14 @@ NEVER beautify, slim, idealize, smooth skin, change ethnicity, change age, chang
     : "";
 
 
-  const styleRef = hasStyleRef
+  const styleRef = hasStyleRef && layoutId === "reference-clone"
+    ? `═══ REFERENCE CLONE MODE — COPY THE REFERENCE, INCLUDING ITS CONTENT ═══
+A SECOND image is attached AFTER the subject photo: the user's OWN reference thumbnail. Reproduce it as exactly as possible — composition, crop, camera angle, background, environment, props, icons, logos, graphic shapes, tiles, arrows, color grade, lighting, typography style/weight/color/placement. This is a RECREATION, not an inspiration.
+Only these change: the FACE/IDENTITY becomes the person from the FIRST image (identity locked), and the headline text becomes the HEADLINE below, typeset in the reference's exact type style and position. Keep the reference person's pose, expression, head angle, clothing and body position.
+Do NOT add APEX branding, extra glow, badges, watermarks, extra text or extra elements. Do NOT restyle or "improve" anything. Ignore any generic APEX brand color rules where they conflict with the reference — the reference's own palette wins.
+═══════════════════════════════════════════════
+`
+    : hasStyleRef
     ? `═══ STYLE REFERENCE — HIGHEST VISUAL PRIORITY, MATCH THE LOOK, ADAPT THE CONTENT ═══
 A SECOND image is attached AFTER the subject photo. It is the OFFICIAL APEX preview of THIS exact layout. Treat it as the visual ground truth FOR STYLE ONLY — match it 1:1 on:
 • Composition, subject placement, framing, crop, camera angle
