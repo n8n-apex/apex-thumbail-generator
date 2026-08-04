@@ -483,13 +483,11 @@ export default function ThumbnailGenerator({
       const isBlog = vlogStyle === "blog";
       const isPodcast = vlogStyle === "podcast";
       const isTestimonial = vlogStyle === "testimonial";
+      const isClone = vlogStyle === "clone";
       const isVlogWithApexRefs = vlogStyle === "vlog" && selectedVlogRefSrcs.length > 0;
       const requestedVariants = Math.min(Math.max(variants, 1), 12);
 
-
-
-
-      if (isBlog || isVlogWithApexRefs) {
+      if (isBlog || isVlogWithApexRefs || isClone) {
         const manualTitle = (autoTitle ? titleKeywords : title).trim();
         if (isBlog && !blogContent.trim() && !blogUrl.trim() && !manualTitle) {
           throw new Error("Bitte Blog-Inhalt, URL oder einen Titel angeben");
@@ -497,12 +495,20 @@ export default function ThumbnailGenerator({
         if (isVlogWithApexRefs && !manualTitle) {
           throw new Error("Bitte einen Titel angeben (Headline für den APEX-Stil)");
         }
-        const activeRefSrcs = isBlog ? selectedBlogRefSrcs : selectedVlogRefSrcs;
+        if (isClone && !referenceStyleImage) {
+          throw new Error("Bitte eine eigene Referenz hochladen (Bild oder YouTube-Link)");
+        }
+        const activeRefSrcs = isClone ? [] : isBlog ? selectedBlogRefSrcs : selectedVlogRefSrcs;
         const blogImageBase64 = await activeImageBase64();
-        const forcedLayoutIds = activeRefSrcs
-          .map((src) => ALL_STYLE_REFERENCES.find((r) => r.src === src)?.layoutId)
-          .filter((x): x is string => !!x);
+        const forcedLayoutIds = isClone
+          ? [CLONE_LAYOUT_ID]
+          : activeRefSrcs
+              .map((src) => ALL_STYLE_REFERENCES.find((r) => r.src === src)?.layoutId)
+              .filter((x): x is string => !!x);
         const layoutReferences: Record<string, string> = {};
+        if (isClone && referenceStyleImage) {
+          layoutReferences[CLONE_LAYOUT_ID] = referenceStyleImage;
+        }
         for (const src of activeRefSrcs) {
           const ref = ALL_STYLE_REFERENCES.find((r) => r.src === src);
           if (!ref) continue;
