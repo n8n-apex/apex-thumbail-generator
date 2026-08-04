@@ -150,7 +150,7 @@ const VLOG_OPTIONS: { id: VlogStyle; label: string; sub: string; icon: typeof Co
   { id: "podcast", label: "Podcast", sub: "Interview · premium · brand", icon: Mic },
   { id: "testimonial", label: "Testimonial", sub: "Social proof · stars · quote", icon: Quote },
   { id: "blog", label: "Blog → Thumbnails", sub: "Auto · APEX minimal · X visuals", icon: BookOpen },
-  { id: "clone", label: "Referenz Klon", sub: "Referenz 1:1 · dein Gesicht · dein Titel", icon: Copy },
+  
 ];
 
 const PODCAST_OPTIONS: { id: PodcastStyle; label: string; sub: string; icon: typeof LayoutGrid; preview: string }[] = [
