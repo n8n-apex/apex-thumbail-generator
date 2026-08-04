@@ -762,12 +762,12 @@ export default function ThumbnailGenerator({
               })}
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Optional: Wähle 1+ APEX-Stile für dein VLOG-Thumbnail. Face-Upload + Titel unten werden in jedes Bild integriert. Ohne Auswahl läuft der klassische VLOG-Flow.
+              Optional: Wähle 1+ APEX-Stile (neue + alte) für dein VLOG-Thumbnail. Face-Upload + Titel unten werden in jedes Bild integriert — Ausgabe im echten YouTube-VLOG-Look. Ohne Auswahl läuft der klassische VLOG-Flow.
             </p>
 
             {/* Transition Wall multi-upload — only when that style is selected */}
             {selectedVlogRefSrcs.some(
-              (src) => APEX_UNIVERSAL_STYLES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
+              (src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
             ) && (
               <div className="mt-2 rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-3 space-y-2">
                 <div className="flex items-center justify-between">
