@@ -1200,8 +1200,20 @@ export default function ThumbnailGenerator({
           </div>
         )}
 
-
-
+        {vlogStyle === "clone" && (
+          <div className="space-y-1.5 rounded-2xl border border-primary/40 p-3 bg-primary/5">
+            <div className="flex items-center gap-2">
+              <Copy className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-primary">Referenz Klon</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              Die Referenz wird 1:1 nachgebaut — Komposition, Hintergrund, Grafiken, Typo, Farb-Grade bleiben identisch.
+              Ausgetauscht werden nur <span className="text-foreground font-semibold">dein Gesicht</span> (Foto unten) und
+              der <span className="text-foreground font-semibold">Titel</span>. Beides ist Pflicht:
+              Referenz unten hochladen (Bild oder YouTube-Link) + Titel eingeben.
+            </p>
+          </div>
+        )}
 
 
 
