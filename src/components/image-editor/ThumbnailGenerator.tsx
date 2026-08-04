@@ -722,7 +722,7 @@ export default function ThumbnailGenerator({
               )}
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {APEX_UNIVERSAL_STYLES.map((ref) => {
+              {APEX_BLOG_REFERENCES.map((ref) => {
                 const active = selectedVlogRefSrcs.includes(ref.src);
                 return (
                   <button
