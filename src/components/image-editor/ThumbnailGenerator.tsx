@@ -524,6 +524,7 @@ export default function ThumbnailGenerator({
                 forcedLayoutIds: job.forcedLayoutId ? [job.forcedLayoutId] : undefined,
                 layoutReferences: job.layoutRef,
                 logoBase64: logoImage ?? undefined,
+                vlogMode: isVlogWithApexRefs || undefined,
                 transitionImages:
                   job.forcedLayoutId === TRANSITION_WALL_LAYOUT_ID && transitionWallImages.length > 0
                     ? transitionWallImages
@@ -722,7 +723,7 @@ export default function ThumbnailGenerator({
               )}
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {APEX_UNIVERSAL_STYLES.map((ref) => {
+              {APEX_BLOG_REFERENCES.map((ref) => {
                 const active = selectedVlogRefSrcs.includes(ref.src);
                 return (
                   <button
@@ -762,12 +763,12 @@ export default function ThumbnailGenerator({
               })}
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Optional: Wähle 1+ APEX-Stile für dein VLOG-Thumbnail. Face-Upload + Titel unten werden in jedes Bild integriert. Ohne Auswahl läuft der klassische VLOG-Flow.
+              Optional: Wähle 1+ APEX-Stile (neue + alte) für dein VLOG-Thumbnail. Face-Upload + Titel unten werden in jedes Bild integriert — Ausgabe im echten YouTube-VLOG-Look. Ohne Auswahl läuft der klassische VLOG-Flow.
             </p>
 
             {/* Transition Wall multi-upload — only when that style is selected */}
             {selectedVlogRefSrcs.some(
-              (src) => APEX_UNIVERSAL_STYLES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
+              (src) => APEX_BLOG_REFERENCES.find((r) => r.src === src)?.layoutId === TRANSITION_WALL_LAYOUT_ID,
             ) && (
               <div className="mt-2 rounded-2xl border border-dashed border-primary/50 bg-primary/5 p-3 space-y-2">
                 <div className="flex items-center justify-between">
