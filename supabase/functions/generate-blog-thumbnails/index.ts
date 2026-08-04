@@ -797,6 +797,7 @@ serve(async (req) => {
     const transitionImages: string[] = Array.isArray(body.transitionImages)
       ? (body.transitionImages as unknown[]).filter((x): x is string => typeof x === "string" && x.startsWith("data:")).slice(0, 6)
       : [];
+    const vlogMode: boolean = !!body.vlogMode;
     const hasSubject = !!imageBase64;
     const useStyleRef = !!referenceStyleBase64 && forcedLayouts.length === 0;
     const hasStyleRef = useStyleRef;
