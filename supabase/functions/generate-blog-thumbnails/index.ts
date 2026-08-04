@@ -427,11 +427,11 @@ const APEX_BLOG_LAYOUTS = [
     id: "reference-clone",
     label: "Referenz Klon",
     promptWithSubject: `LAYOUT — REFERENCE CLONE (1:1 RECREATION OF THE ATTACHED REFERENCE THUMBNAIL):
-- Recreate the attached REFERENCE image as faithfully as a professional retoucher would: SAME composition, SAME framing and crop, SAME camera angle, SAME background and environment, SAME lighting and color grade, SAME props/objects/tiles/icons/graphic elements in the SAME positions and sizes, SAME typography style, weight, casing, color and placement.
-- ONLY TWO THINGS CHANGE: (1) the person's FACE/IDENTITY becomes the person from the uploaded portrait photo (identity forensically locked, same pose, same expression, same head angle, same hair/beard as their real photo but styled to fit the scene), and (2) any headline text is replaced with the HEADLINE below, set in the exact same type style and position as in the reference.
+- Recreate the attached REFERENCE image as faithfully as a professional retoucher would: SAME composition, SAME framing and crop, SAME camera angle, SAME background and environment, SAME lighting direction, SAME props/objects/tiles/icons/graphic elements in the SAME positions and sizes.
+- ONLY THESE CHANGE: (1) the person's FACE/IDENTITY becomes the person from the uploaded portrait photo (identity forensically locked, same pose, same expression, same head angle), (2) the headline is set as ONE huge ALL-CAPS word/line in heavy WIDE geometric sans (Montserrat Black style), Ice White with subtle white→light-grey gradient, no outer stroke, soft drop shadow, placed BEHIND the person so head and shoulders partially occlude the letters, and (3) a premium cinematic color grade over the whole frame (rich contrast, deep detailed blacks, teal/cyan shadows, warm highlights, subtle vignette, halation, fine grain) while skin tones stay natural.
 - If the reference contains no person, keep it as is and place the uploaded person naturally where a subject would sit in that composition.
-- Do NOT "improve", restyle, re-imagine, add APEX branding, add extra glow, add badges, watermarks or extra elements. No creative reinterpretation. Photoreal, high fidelity, 16:9 1280×720, sharp and clean.`,
-    promptNoSubject: `LAYOUT — REFERENCE CLONE (no subject): recreate the attached REFERENCE image 1:1 — same composition, background, lighting, color grade, props and typography — replacing only the headline text with the HEADLINE below in the identical type style and position. No extra elements, no restyling.`,
+- Do NOT add APEX badges, watermarks or extra elements. Photoreal, high fidelity, 16:9 1280×720, sharp and clean.`,
+    promptNoSubject: `LAYOUT — REFERENCE CLONE (no subject): recreate the attached REFERENCE image — same composition, background, lighting, props — replacing the headline with the HEADLINE below set as ONE huge ALL-CAPS word in heavy wide geometric sans (Ice White, subtle gradient, soft shadow) on the background plane, and apply a premium cinematic color grade (rich contrast, teal shadows, warm highlights, vignette, fine grain). No extra elements.`,
   },
 ];
 
