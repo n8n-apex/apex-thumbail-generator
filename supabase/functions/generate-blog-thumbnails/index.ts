@@ -13,6 +13,22 @@ const HEIGHT = 720;
 // (real person from uploaded photo) when one is provided, otherwise pure brand visual.
 const APEX_BLOG_LAYOUTS = [
   {
+    id: "apex-icon-stage",
+    label: "APEX Icon Stage",
+    promptWithSubject: `LAYOUT — APEX ICON STAGE (modern AI-native editorial thumbnail):
+- BACKGROUND: deep near-black #03080B with a restrained APEX Blue #00BCFF light bloom behind the visual cluster, fine cinematic grain, no border and no decorative frame.
+- SUBJECT: preserve the uploaded person and their identity exactly. Place them on the RIGHT 38–42% as a clean waist-up portrait with their original clothing, pose and held objects intact. Natural skin, sharp eyes, subtle cyan edge light only. Do not reshape, beautify or restyle the person.
+- VISUAL CLUSTER: upper LEFT/CENTER contains exactly THREE premium 3D liquid-glass icons derived from the BLOG CONTEXT: one large dominant icon for the core topic, plus two smaller supporting icons for the most important tools, workflow steps or outcomes. Use recognizable official tool marks only when those tools are actually named in the blog; otherwise use clean semantic white glyphs. Translucent dark glass, realistic refraction, glossy beveled edges and restrained cyan edge light. No icon labels, no invented brands, no extra tiles.
+- HEADLINE: lower LEFT, one huge modern geometric sans-serif headline (Söhne / SF Pro Display / Neue Haas Grotesk), heavy but naturally proportioned, solid Ice White #FCFEFF, max 2 lines. No outline, no cyan border, no gradient, no glow, no condensed or stretched letters. Keep it fully inside the canvas.
+- SPACING: person, headline and icons each own a separate clear zone with at least 35px visual breathing room. Nothing overlaps the face, body, phone, headline or another icon. The composition feels bold but uncluttered.
+- Read order: large topic icon → headline → person. No other text, logo, badge, underline, arrow, UI panel or watermark.`,
+    promptNoSubject: `LAYOUT — APEX ICON STAGE (modern AI-native editorial thumbnail, no person):
+- Deep near-black #03080B background with one restrained APEX Blue #00BCFF light bloom, fine cinematic grain, no border or frame.
+- Upper half: exactly THREE premium 3D liquid-glass icons derived from the BLOG CONTEXT: one oversized dominant topic icon and two smaller supporting icons for named tools, workflow steps or outcomes. Official tool marks only when actually named; otherwise semantic white glyphs. Dark translucent glass, realistic refraction, glossy beveled edges, subtle cyan edge light. No labels or extra tiles.
+- Lower half: one huge modern geometric sans-serif headline (Söhne / SF Pro Display / Neue Haas Grotesk), solid Ice White #FCFEFF, max 2 lines. No outline, cyan border, gradient, glow, condensed or stretched letters.
+- Keep icons and headline in separate clear zones with generous negative space and no overlaps. Nothing else: no extra text, logo, badge, underline, arrow, UI or watermark.`,
+  },
+  {
     id: "welche-ki",
     label: "Which AI? Icons Cloud",
     promptWithSubject: `LAYOUT — WHICH AI? FLOATING APP-ICONS CLOUD (cinematic dark YouTube hero, mirrors the provided reference image):
