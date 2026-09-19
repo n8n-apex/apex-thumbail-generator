@@ -97,6 +97,7 @@ import apexVlog5 from "@/assets/apex-vlog-5.jpg";
 import apexVlog6 from "@/assets/apex-vlog-6.jpg";
 import apexVlog7 from "@/assets/apex-vlog-7.jpg";
 import apexVlog8 from "@/assets/apex-vlog-8.jpg";
+import apexIconStageReference from "@/assets/apex-icon-stage-reference.png.asset.json";
 
 // Pure VLOG styles — real-life YouTube vlog covers, no tools/icons.
 const APEX_VLOG_STYLES: { src: string; label: string; layoutId: string }[] = [
@@ -121,6 +122,7 @@ const APEX_UNIVERSAL_STYLES: { src: string; label: string; layoutId: string }[] 
 ];
 
 const APEX_BLOG_REFERENCES: { src: string; label: string; layoutId: string }[] = [
+  { src: apexIconStageReference.url, label: "APEX Icon Stage", layoutId: "apex-icon-stage" },
   ...APEX_UNIVERSAL_STYLES,
   { src: apexRef15, label: "AI Assistant Glow Hands", layoutId: "ai-assistant-glow" },
   { src: apexRef14, label: "Which AI? Icons Cloud", layoutId: "welche-ki" },
